@@ -1,0 +1,15 @@
+{
+  "short_name": "Peax",
+  "name": "Interactive concept learning and visual exploration of epigenomic patterns.",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "./index.html",
+  "display": "standalone",
+  "theme_color": "#0f5d92",
+  "background_color": "#ffffff"
+}

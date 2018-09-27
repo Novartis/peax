@@ -1,0 +1,92 @@
+@import '../styles/colors';
+@import '../styles/transitions';
+
+.button-check {
+  height: 1.5em;
+  margin: 0;
+  padding: 0 0.5em;
+  border-radius: 0.25rem;
+  background: $gray-lightest-rgba;
+  transition: color $normal-transition $easing,
+              border-color $normal-transition $easing,
+              box-shadow $normal-transition $easing,
+              background $normal-transition $easing;
+  white-space: nowrap;
+  user-select: none;
+
+  &:hover {
+    cursor: pointer;
+    color: $black;
+    background: $gray-lighter-rgba;
+  }
+
+  &:focus,
+  &:focus-within {
+    outline: none;
+    box-shadow: inset 0 0 0 0 $blue-highlight,
+                0 0 0 2px $blue-highlight;
+  }
+
+  &.is-disabled {
+    color: $gray-medium;
+    box-shadow: inset 0 0 0 1px $gray-lightest-rgba;
+    background: transparent;
+    pointer-events: none;
+
+    .checkbox input:after {
+      box-shadow: inset 0 0 0 1px $gray-light;
+    }
+  }
+
+  .checkbox {
+    position: relative;
+    width: 1em;
+    height: 1em;
+    margin: 0 0.25rem 0 -0.25rem;
+
+    input {
+      appearance: none;
+
+      &:after {
+        content: '';
+        display: block;
+        width: 1em;
+        height: 1em;
+        border-radius: 0.25rem;
+        background: transparent;
+        box-shadow: inset 0 0 0 1px $gray-medium;
+        transition: box-shadow $normal-transition $easing,
+                    background $normal-transition $easing;
+      }
+
+      &:checked:after {
+        background: $blue;
+        box-shadow: inset 0 0 0 1px $blue;
+      }
+
+      &:focus {
+        outline: none;
+      }
+    }
+
+    .icon {
+      position: absolute;
+      top: 0.2em;
+      left: 0.2em;
+      width: 0.6em;
+      height: 0.6em;
+      opacity: 0;
+      color: $white;
+      transition: opacity $normal-transition $easing;
+    }
+  }
+
+  &.is-checked {
+    color: $blue-dark;
+    font-weight: bold;
+
+    .checkbox .icon {
+      opacity: 1;
+    }
+  }
+}

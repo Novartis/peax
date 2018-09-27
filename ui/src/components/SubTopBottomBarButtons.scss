@@ -1,0 +1,15 @@
+@import '../styles/colors';
+
+.sub-top-bottom-bar-buttons {
+  li {
+    margin: 0 0.125rem;
+  }
+
+  &:first-child li:first-child {
+    margin-left: 0;
+  }
+
+  &:last-child li:last-child {
+    margin-right: 0;
+  }
+}

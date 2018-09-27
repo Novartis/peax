@@ -1,0 +1,57 @@
+@import '../styles/colors';
+@import '../styles/transitions';
+
+.error-bar {
+  z-index: 1;
+  margin-top: 3rem;
+  padding: 0.25rem 0;
+  color: $red-dark;
+  background: $red-light;
+  transition: padding $fast-transition $easing;
+
+  .error-bar-content.no-wrap {
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+  }
+
+  .error-bar-msg {
+    display: inline-block;
+    margin: 0;
+    max-height: 2em;
+    overflow: auto;
+  }
+
+  .icon {
+    min-width: 1em;
+    margin-right: 0.5em;
+  }
+
+  .error-bar-close {
+    transition: margin $fast-transition $easing;
+
+    .button-icon {
+      color: transparentize($red-dark, 0.6);
+      border-color: transparentize($red-dark, 0.8);
+      background: $red-light;
+
+      .icon {
+        width: 0.75rem;
+        height: 0.75rem;
+      }
+
+      &:focus,
+      &:hover {
+        color: $white;
+        background: $red-dark;
+      }
+
+      &:focus {
+        outline: none;
+      }
+
+      &:active {
+        background: $black;
+      }
+    }
+  }
+}

@@ -1,0 +1,48 @@
+@import '../styles/colors';
+@import '../styles/transitions';
+
+.sub-top-bar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 2rem;
+  padding: 0 0.5rem;
+  overflow: hidden;
+  background: $gray-lightest;
+
+  .tool-tip-wrapper {
+    .tool-tip.tool-tip-align-left {
+      margin-left: -0.75rem;
+
+      .arrow {
+        left: 0.75rem;
+      }
+    }
+
+    .tool-tip.tool-tip-align-right {
+      margin-left: 0.75rem;
+
+      .arrow {
+        right: 0.5rem;
+      }
+    }
+  }
+
+  .separator {
+    display: block;
+    width: 2px;
+    height: 1rem;
+    margin: 0 0.25rem;
+    border-radius: 0.25rem;
+    background: $gray-lighter;
+  }
+}
+
+.content.has-right-bar > .sub-top-bar {
+  padding-right: 1.5rem;
+}
+
+.sub-top-bar-content-wrap {
+  height: 100%;
+}

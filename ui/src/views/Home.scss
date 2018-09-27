@@ -1,0 +1,58 @@
+@import '../styles/colors';
+@import '../styles/columns';
+@import '../styles/ratio';
+
+.home {
+  .home-info-actions {
+    > * {
+      margin: 0.125rem 0;
+      min-height: 1.75rem;
+      font-size: 0.9em;
+
+      &:first-child {
+        margin-top: 0;
+        margin-bottom: 0.25rem;
+      }
+
+      &:last-child {
+        margin-top: 0.25rem;
+        margin-bottom: 0;
+      }
+    }
+
+    .drop-area:after {
+      top: 0.125rem;
+      right: 0.125rem;
+      bottom: 0.125rem;
+      left: 0.125rem;
+      border-width: 1px;
+      border-color: $blue-dark;
+    }
+  }
+
+  h3 {
+    margin-top: 1.5rem;
+    font-size: 1.25rem;
+  }
+
+  .example-1,
+  .example-2,
+  .example-3,
+  .example-4 {
+    position: relative;
+    border-radius: 0.25rem;
+    border: 1px solid $gray-lightest;
+  }
+
+  .example-1 {
+    @include ratio(0.75);
+  }
+
+  .example-2 {
+    @include ratio(0.55);
+  }
+
+  [class^='reference-'] {
+    margin-right: 0.25rem;
+  }
+}

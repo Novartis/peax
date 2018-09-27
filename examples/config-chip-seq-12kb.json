@@ -1,0 +1,26 @@
+{
+  "aes": [{
+    "encoder": "examples/encode-gm12878-chip-seq-h3k27ac-pval-2011-encoder-12kb.h5",
+    "decoder": "examples/encode-gm12878-chip-seq-h3k27ac-pval-2011-decoder-12kb.h5",
+    "content_type": "chip-seq-h3k27ac-pval",
+    "window_size": 12000,
+    "resolution": 100,
+    "channels": 1,
+    "input_dim": 3,
+    "latent_dim": 12
+  }],
+  "datasets": [{
+    "filepath": "examples/data/ENCFF258KTL.bigWig",
+    "content_type": "chip-seq-h3k27ac-pval",
+    "uuid": "encode-gm12878-2011-chip-seq-h3k27ac-pval",
+    "name": "Encode GM12878 (2011) ChIP-Seq H3K27ac p-val"
+  }],
+  "config": {
+    "chroms": [
+      "chr21"
+    ],
+    "step_freq": 2,
+    "min_classifications": 20
+  },
+  "db_path": "examples/search-chip-seq-12kb.db"
+}

@@ -1,0 +1,24 @@
+@import '../styles/colors';
+@import '../styles/transitions';
+
+.tab-entry {
+  &:first-child .tab-entry-header {
+    margin-top: 0;
+  }
+}
+
+.tab-entry-header {
+  margin: 0.25rem -0.25rem 0;
+  padding: 0.25rem;
+  text-transform: uppercase;
+  border-bottom: 1px solid $gray-lighter;
+  background: $gray-lighter;
+  cursor: default;
+  user-select: none;
+
+  .icon {
+    width: 0.9em;
+    height: 0.9em;
+    margin-right: 0.25rem;
+  }
+}

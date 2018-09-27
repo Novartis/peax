@@ -1,0 +1,40 @@
+@import '../styles/colors';
+@import '../styles/transitions';
+
+.side-bar {
+  margin: 0 0 0 2rem;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  border: 1px solid $gray-lightest;
+  border-radius: 0.25rem;
+  background: $white;
+  transition: margin $slow-transition $ease-in-out-quadric;
+
+  p {
+    margin: 1.5rem 0 0.25rem;
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  strong,
+  strong * {
+    font-weight: 700;
+  }
+
+  ul {
+    margin: 0.25rem 0 0 1.25rem;
+    padding: 0;
+  }
+
+  li {
+    margin: 0;
+    padding: 0;
+    list-style-type: disc;
+  }
+}

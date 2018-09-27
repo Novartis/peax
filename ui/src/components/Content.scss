@@ -1,0 +1,36 @@
+@import '../styles/transitions';
+
+.content {
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+  transition: margin-left $fast-transition $easing,
+              margin-right $fast-transition $easing;
+
+  &.has-sub-top-bar {
+    padding-top: 2rem;
+  }
+
+  &.is-full-screen {
+    overflow: hidden;
+  }
+
+  &.no-bottom-margin {
+    margin-bottom: 0;
+  }
+}
+
+.info-bar + .sub-top-bar + .content {
+  margin-top: 1rem;
+}
+
+.content-wrapper-bottom-bar .content {
+  margin-bottom: 1.5rem;
+}
+
+.content-wrapper-has-error .content {
+  margin-top: 0;
+}
+
+.content-wrapper-has-error .right-bar {
+  top: 5rem;
+}

@@ -1,0 +1,6 @@
+@mixin rotate($degree, $speed, $easing) {
+  animation: spin $speed $easing 1;
+  transform-origin: 50% 50%;
+
+  @keyframes spin { 100% { transform: rotate($degree); } }
+}

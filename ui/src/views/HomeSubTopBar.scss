@@ -1,0 +1,16 @@
+@import '../styles/colors';
+
+.home-sub-top-bar {
+  position: relative;
+  margin-top: 1px;
+
+  .primary {
+    color: $black;
+    background: lighten($pink, 40);
+
+    &:hover {
+      color: $white;
+      background: $pink;
+    }
+  }
+}

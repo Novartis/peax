@@ -1,0 +1,21 @@
+@import '../styles/colors';
+
+.icon-gallery {}
+
+.icon-gallery-tile {
+  width: 20%;
+  padding: 0.5rem;
+
+  .icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .icon-logo-two-tone {
+    color: $primary;
+  }
+}
+
+.icon-gallery-icon-id {
+  font-size: 0.85rem;
+}

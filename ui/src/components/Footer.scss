@@ -1,0 +1,64 @@
+@import '../styles/colors';
+@import '../styles/transitions';
+@import '../styles/underline';
+
+.footer {
+  padding: 0.66rem 0;
+  color: $gray-dark;
+  border-top: 2px solid $gray-lightest;
+
+  a {
+    @include underline($black, 1px, 1px);
+    box-shadow: none;
+
+    &:hover,
+    &:active,
+    &:focus {
+      color: $black;
+      box-shadow: none;
+    }
+
+    &.is-active {
+      color: $primary;
+    }
+  }
+
+  a.is-active {
+    font-weight: bold;
+    box-shadow: inset 0 -2px 0 0 $primary;
+  }
+
+  .icon {
+    height: 2em;
+    margin: 0 0.2em;
+  }
+
+  .icon-logo-hms,
+  .icon-logo-seas {
+    width: 2em;
+  }
+
+  .icon-logo-hms {
+    margin-left: 0;
+  }
+
+  .icon-logo-novartis {
+    width: 2rem;
+    padding: 0.1em;
+  }
+
+  nav {
+    li {
+      a {
+        margin: 0 0.25rem;
+        padding: 0.125rem;
+      }
+    }
+  }
+
+  .copyright {
+    margin: 0.2rem 0 0 0;
+    font-size: 0.8em;
+    color: transparentize($gray-dark, 0.5);
+  }
+}

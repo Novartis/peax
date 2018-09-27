@@ -1,0 +1,87 @@
+@import '../styles/colors';
+@import '../styles/transitions';
+
+.range-selection-viewer {}
+
+.range-selection-viewer-center,
+.range-selection-viewer-x,
+.range-selection-viewer-y {
+  padding: 0.5rem 0.25rem;
+  transition: box-shadow $fast-transition $easing,
+              color $fast-transition $easing;
+
+  &:hover .axis {
+    color: $primary;
+  }
+
+  .axis:after {
+    content: ':';
+    margin-right: 0.25rem
+  }
+
+  .icon {
+    width: 0.9em;
+    height: 0.9em;
+    margin-right: 0.25rem;
+  }
+}
+
+.range-selection-viewer-x {
+  padding-bottom: 0.25rem;
+  box-shadow: inset 0 -1px 0 0 $gray-light;
+
+  &:hover {
+    box-shadow: inset 0 -2px 0 0 $primary;
+  }
+
+  &.range-selection-viewer-x-only {
+    padding-bottom: 0;
+    box-shadow: none;
+
+    &:hover {
+      box-shadow: none;
+    }
+  }
+
+  .icon {
+    margin-top: 0.25rem;
+  }
+}
+
+.range-selection-viewer-y {
+  border-right: 1px dashed $gray-light;
+  border-bottom: 1px dashed $gray-light;
+  box-shadow: inset 1px 0 0 0 $gray-light;
+
+  &:hover {
+    box-shadow: inset 2px 0 0 0 $primary;
+
+    .axis {
+      color: $primary;
+    }
+  }
+
+  &.range-selection-viewer-y-only {
+    border-right: 0;
+    border-bottom: 0;
+    box-shadow: none;
+
+    &:hover {
+      box-shadow: none;
+
+      .axis {
+        color: inherit;
+      }
+    }
+  }
+}
+
+.range-selection-separator {
+  margin: 0 0.5rem;
+}
+
+
+.range-selection-headline {
+  margin: 0;
+  font-size: 1rem;
+}

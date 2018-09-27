@@ -1,0 +1,14 @@
+@import '../styles/transitions';
+
+.tab-content {
+  z-index: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity $normal-transition $easing;
+
+  &.is-open {
+    z-index: 1;
+    opacity: 1;
+    visibility: visible;
+  }
+}

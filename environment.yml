@@ -1,0 +1,29 @@
+name: px
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+
+dependencies:
+- python=3.6
+- nodejs
+- cython
+- cytoolz
+- jupyterlab
+- scikit-learn
+- umap-learn
+- keras
+- seaborn
+- flask
+- flask-cors
+- ipython
+- pywget
+- bokeh
+- pydot
+- pip
+- pip:
+  - pysam==0.13
+  - hgtiles
+  - cooler
+  - negspy
+  - -e git+https://github.com/nvictus/pybbi.git@v0.1.1#egg=pybbi

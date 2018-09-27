@@ -1,0 +1,374 @@
+@import '../styles/colors';
+@import '../styles/transitions';
+@import '../styles/underline';
+
+.top-bar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  width: 100%;
+  height: 3rem;
+  font-size: 1.25rem;  // 20 / 16
+  z-index: 2;
+  background: transparentize($white, 0.1);
+  box-shadow: 0 2px 0 0 transparentize($black, 0.95);
+  line-height: 3rem;
+
+  // Avoid odd 1px move when a NavLink is active and one hovers over another link
+  transform: translateZ(0);
+
+  .top-bar-wrapper {
+    transition: margin $normal-transition $easing;
+  }
+
+  nav li a:hover,
+  nav li a:focus {
+    color: $black;
+  }
+
+  .branding:active,
+  nav li a:active {
+    color: $primary;
+    background: transparentize($primary, 0.8);
+    box-shadow: 0 2px 0 0 $primary;
+
+    &::after {
+      opacity: 0 !important;
+    }
+  }
+
+  .branding:focus,
+  nav li a:focus {
+    color: $black;
+    background: transparentize($black, 0.9);
+    box-shadow: 0 2px 0 0 $black;
+    border-radius: 0;
+
+    &::after {
+      opacity: 0 !important;
+    }
+
+    &.is-active {
+      background: transparentize($primary, 0.8);
+    }
+  }
+
+  .branding {
+    position: relative;
+    font-weight: bold;
+    color: $black;
+    box-shadow: none;
+    font-size: 1.375rem;  // 22 / 16
+
+    &.is-active {
+      box-shadow: 0 2px 0 0 $primary;
+    }
+
+    &:hover,
+    &:active,
+    &:focus,
+    &.is-active {
+      .higlass::after {
+        opacity: 1;
+        transform: scale(1, 1);
+      }
+
+      .higlass-hi {
+        color: $primary;
+      }
+
+      svg {
+        color: $primary;
+
+        .lense {
+          transform: translate(-25px);
+        }
+      }
+    }
+
+    .higlass {
+      position: relative;
+      @include underline($black, -2px, 2px);
+      transition: color $fast-transition $easing;
+    }
+
+    .icon {
+      width: 2rem;
+      height: 2rem;
+      margin-right: 0.25em;
+
+      svg {
+        transition: color $slow-transition $easing;
+
+        .lense {
+          transition: transform $slow-transition $easing;
+          transform-origin: 50% 50%;
+        }
+      }
+    }
+  }
+
+  .btn {
+    margin: 0.75rem 0.5rem;
+    padding: 0;
+    height: 1.5rem;
+    color: $gray-darker;
+    font-size: 0.8rem;
+    line-height: 1.5rem;
+    border: 0;
+    border-radius: 0.25rem;
+    box-shadow: 0 0 0 1px $gray-lighter;
+    background: none;
+    transition: all $fast-transition $easing;
+
+    &:hover,
+    &:focus {
+      color: $white;
+      background: $black;
+      box-shadow: 0 0 0 1px $black;
+    }
+
+    &.is-active,
+    &:active {
+      color: $white;
+      background: $primary;
+      box-shadow: 0 0 0 1px $primary;
+    }
+
+    &.icon-only {
+      width: 1.5rem;
+      padding: 0.25rem;
+    }
+
+    .icon {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+
+  nav li {
+    line-height: inherit;
+
+    &.separated-left::before {
+      content: '';
+      width: 2px;
+    }
+
+    &.separated-left::before {
+      margin: 0.25rem 0.25rem;
+      background: $gray-lightest;
+    }
+
+    > a,
+    > button,
+    button.is-primary-nav {
+      margin: 0 0.125rem;
+      padding: 0 0.125rem;
+      font-size: 0.85em;
+
+      @include underline($black, -2px, 2px);
+
+      &.is-active {
+        font-weight: bold;
+
+        &::before {
+          display: none;
+        }
+      }
+    }
+
+    > a {
+      position: relative;
+      display: block;
+      box-shadow: none;
+
+      &.icon-only {
+        &::after {
+          display: none;
+        }
+
+        &.flex-c {
+          display: flex;
+        }
+      }
+
+      &.is-active {
+        color: $primary;
+        box-shadow: 0 2px 0 0 $primary;
+      }
+    }
+
+    > button,
+    button.is-primary-nav {
+      height: 3rem;
+      border: 0;
+      border-radius: 0;
+
+      &:hover {
+        color: $black;
+      }
+
+      &:focus {
+        outline: none;
+      }
+
+      &:last-child {
+        margin-right: 0;
+      }
+
+      &.is-active {
+        color: $black;
+        box-shadow: 0 2px 0 0 $black;
+        background: $gray-lightest-rgba;
+      }
+    }
+
+    .icon {
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  .hamburger-wrapper {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0 1rem;
+
+    .hamburger {
+      span,
+      span::before,
+      span::after {
+        background: $gray-dark;
+      }
+
+      &.hamburger-to-x.is-active span {
+        background: none;
+
+        &::before,
+        &::after {
+          animation-delay: $normal-transition;
+          animation-duration: $normal-transition;
+          animation-fill-mode: forwards;
+          animation-name: fade-bg;
+          animation-timing-function: $easing;
+        }
+      }
+    }
+
+    .hamburger-bg {
+      background: $primary;
+    }
+
+    .hamburger.is-active + .hamburger-bg {
+      animation-delay: $normal-transition;
+      animation-duration: $normal-transition;
+      animation-fill-mode: forwards;
+      animation-name: fade-in;
+      animation-timing-function: $easing;
+    }
+  }
+
+  /*
+   * -----------------------------------------------------------------------------
+   * Animations
+   * -----------------------------------------------------------------------------
+   */
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-bg {
+    from {
+      background: $primary;
+    }
+    to {
+      background: $white;
+    }
+  }
+
+  /*
+   * -----------------------------------------------------------------------------
+   * Media Queries
+   * -----------------------------------------------------------------------------
+   */
+
+  /* 400px */
+  @media screen and (max-width: 30em) {
+    .branding-launch {
+      position: relative;
+      z-index: 1;
+    }
+
+    nav {
+      display: block;
+      position: absolute;
+      top: 3rem;
+      right: 0;
+      left: 0;
+
+      .hamburger-wrapper {
+        top: -3rem;
+      }
+
+      ul {
+        height: 0;
+        opacity: 0;
+        background: rgba(234, 234, 234, 0.9);
+        transform: scale(1, 0);
+        transition: opacity $fast-transition $easing,
+                    transform $fast-transition $easing;
+        transform-origin: top center;
+
+        &.flex-c {
+          display: block;
+        }
+      }
+
+      li {
+        text-align: center;
+
+        a {
+          height: 2em;
+          margin: 0 1rem;
+          font-size: 1em;
+          line-height: 2em;
+
+          &.icon-only {
+            width: 100%;
+
+            &::after {
+              display: block;
+            }
+          }
+        }
+
+        &.separated-left::before {
+          display: none;
+        }
+      }
+    }
+
+    nav.is-shown {
+      ul {
+        height: auto;
+        opacity: 1;
+        transform: scale(1, 1);
+      }
+    }
+  }
+
+  /* 480px */
+  @media screen and (min-width: 30em) {
+    .hamburger {
+      display: none;
+    }
+  }
+}

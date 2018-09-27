@@ -1,0 +1,107 @@
+@import '../styles/colors';
+@import '../styles/transitions';
+
+.info-bar {
+  z-index: 1;
+  margin-top: 3rem;
+  padding: 1.5rem 0;
+  color: $blue-dark;
+  background: $blue-light;
+  transition: padding $fast-transition $easing;
+
+  &.info-bar-is-close {
+    padding-top: 0;
+    padding-bottom: 0;
+    // background: none;
+
+    .info-bar-content {
+      height: 0;
+    }
+
+    .info-bar-close {
+      margin: 2px 0 -0.75rem 0;
+
+      .button-icon {
+        height: 0.75em;
+        color: transparentize($blue-dark, 0.6);
+        border-radius: 0 0 0.25rem 0.25rem;
+        border-top-color: #D2E0EA;
+        background: #D2E0EA;
+
+        &:focus,
+        &:hover {
+          color: $white;
+          background: primary;
+        }
+
+        .icon {
+          width: 1em;
+          height: 0.5em;
+        }
+      }
+    }
+  }
+
+  p {
+    margin: 0;
+  }
+
+  .button-like-file-select,
+  .button-like-link,
+  .drop-area {
+    background-color: transparentize($blue-dark, 0.8);
+  }
+
+  .button-like-file-select:hover,
+  .button-like-link:hover {
+    background-image: linear-gradient(180deg, transparent, transparentize($primary, 0.9));
+  }
+
+  .info-bar-content {
+    overflow: hidden;
+    transition: height $fast-transition $easing;
+  }
+
+  .info-bar-close {
+    margin: 0.75rem 0 -2.25rem 0;
+    transition: margin $fast-transition $easing;
+
+    .button-icon {
+      color: transparentize($blue-dark, 0.6);
+      border-color: $white;
+      background: $blue-light;
+
+      .icon {
+        width: 0.75rem;
+        height: 0.75rem;
+      }
+
+      &:focus,
+      &:hover {
+        color: $white;
+        background: $primary;
+      }
+
+      &:focus {
+        outline: none;
+      }
+
+      &:active {
+        background: $black;
+      }
+    }
+  }
+}
+
+.error-bar + .info-bar {
+  margin-top: 0;
+  box-shadow: inset 0 1px 0 0 $gray-lightest-rgba;
+
+  &.info-bar-is-close {
+    box-shadow: none;
+
+    .button-icon {
+      border-top-color: $gray-lightest-rgba;
+    }
+  }
+}

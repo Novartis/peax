@@ -1,0 +1,626 @@
+// Helper classes
+@import 'styles/flexbox';
+@import 'styles/margin-padding';
+
+// Variables
+@import 'styles/colors';
+@import 'styles/ratio';
+@import 'styles/transitions';
+
+
+/*
+ * -----------------------------------------------------------------------------
+ * Global styles
+ * -----------------------------------------------------------------------------
+ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  font-family: 'Overpass', sans-serif;
+  font-size: 16px;
+  line-height: 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: $white;
+  color: $gray-dark;
+}
+
+h1, h2, h3 {
+  color: $gray-darker;
+  margin: 3rem 0 0.5rem 0;
+}
+
+h1, h2, h3, h4, h5, h6, p, li {
+  line-height: 1.5;
+  transition: font-size $normal-transition $easing;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h1 + h2 {
+  color: transparentize($black, 0.2);
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+  line-height: 1.2;
+}
+
+h3 {
+  font-size: 1.5rem;
+
+  &.smaller {
+    margin-top: 1.5rem;
+    font-size: 1.25em;
+  }
+}
+
+h4 {
+  margin: 1.5rem 0 0.5rem 0;
+  font-size: 1.5rem;
+}
+
+h5 {
+  font-size: 1.25rem;
+  display: inline;
+}
+
+p {
+  margin: 0.5rem 0;
+  padding: 0;
+}
+
+.smaller {
+  font-size: 0.85em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
+  transition: all $fast-transition $easing;
+}
+
+a:hover {
+  color: $primary;
+  box-shadow: inset 0 -1px 0 0 $primary;
+  text-decoration: none;
+}
+
+a:focus {
+  color: $primary;
+  background: transparentize($primary, 0.9);
+  box-shadow: inset 0 0 0 1px transparentize($primary, 0.95);
+  outline: none;
+  border-radius: 0.125rem;
+  text-decoration: none;
+}
+
+abbr,
+abbr[title] {
+  border-bottom: 0;
+  text-decoration: none !important;
+}
+
+input {
+  font-size: inherit;
+}
+
+button:active {
+  outline: none;
+}
+
+::-webkit-selection {
+  color: $white;
+  background: $primary;
+}
+
+::-moz-selection {
+  color: $white;
+  background: $primary;
+}
+
+::selection {
+  color: $white;
+  background: $primary;
+}
+
+article, aside, details, figcaption, figure,
+footer, header, main, menu, nav, section, summary {
+  /* Add correct display for IE 9- and some newer browsers */
+  display: block;
+}
+
+main,
+figure {
+  margin: 0;
+}
+
+/*
+ * -----------------------------------------------------------------------------
+ * General styles, i.e. classes
+ * -----------------------------------------------------------------------------
+ */
+
+body.mobile video.bg-video {
+  display: none;
+}
+
+.date.smaller,
+ul.smaller {
+  font-size: 0.85em;
+}
+
+h1.highlight,
+h2.highlight,
+h3.highlight,
+h4.highlight {
+  color: $primary;
+}
+
+.centered {
+  text-align: center;
+}
+
+svg.centered {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.wrap,
+.wrap-basic {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.wrap.smaller {
+  padding: 0 3rem;
+}
+
+.border-bottom {
+  position: relative;
+
+  &::after {
+    position: absolute;
+    content: '';
+    bottom: 0;
+    width: 100%;
+    height: 1px;
+    background: transparentize($black, 0.95)
+  }
+}
+
+.anchored {
+  position: relative;
+
+  .anchor-wrapper {
+    position: relative;
+  }
+
+  .hidden-anchor {
+    position: absolute;
+    display: block;
+    top: 0;
+    left: -2rem;
+    bottom: 0;
+    width: 2.5rem;
+    padding: 0 1.5rem 0 0.25rem;
+    opacity: 0.33;
+    transform: scale(0);
+    transition: color $fast-transition $easing,
+                opacity $fast-transition $easing,
+                transform $fast-transition $easing;
+    border-bottom: 0;
+    box-shadow: none !important;
+    cursor: pointer;
+
+    .icon {
+      width: 1.25rem;
+      height: 100%;
+    }
+
+    &:active,
+    &:focus {
+      background: none;
+    }
+  }
+
+  &:hover .hidden-anchor,
+  &:target .hidden-anchor {
+    transform: scale(1);
+  }
+
+  .hidden-anchor:hover,
+  &:target .hidden-anchor {
+    opacity: 1;
+  }
+
+  &.iconized:target {
+    height: 6.25rem;
+    margin-top: -1rem;
+    padding-top: 4rem;
+  }
+
+  &:target {
+    color: $black;
+
+    &.underlined .anchor-wrapper::after {
+      content: '';
+      position: absolute;
+      display: block;
+      top: 0;
+      left: -1rem;
+      bottom: 0;
+      right: 0;
+      background: transparentize($primary, 0.9);
+      border-radius: 0.25rem;
+    }
+
+    .hidden-anchor {
+      top: 4rem;
+      width: 1.5rem;
+      color: $white;
+      background: $primary;
+      border-radius: 0.25rem;
+    }
+  }
+}
+
+.button-like:hover,
+.button-like:active {
+  cursor: pointer;
+}
+
+.teaser {
+  &:first-child {
+    top: -3rem;
+    margin-bottom: -4rem;
+  }
+
+  &.fade-out::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5) 0%,rgba(255, 255, 255, 0.25) 100%);
+  }
+
+  figure {
+    width: 100%;
+    height: 12.5rem;
+    margin: 0;
+    padding: 0;
+    background-size: cover;
+  }
+}
+
+.is-uppercased {
+  text-transform: uppercase;
+}
+
+.is-centered {
+  text-align: center;
+}
+
+.no-list-style {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.two-column-list > li {
+  width: 50%;
+
+  &:nth-child(odd) {
+    padding: 0.25rem 1rem 0.25rem 0;
+  }
+
+  &:nth-child(even) {
+    padding: 0.25rem 0 0.25rem 1rem;
+  }
+}
+
+.three-column-list > li {
+  width: 33.33%;
+  padding: 1rem;
+}
+
+.three-column-list > li.two-columns {
+  width: 66.66%;
+}
+
+ul.medium-spacing > li,
+ol.medium-spacing > li {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+}
+
+ul.large-spacing > li,
+ol.large-spacing > li {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+ul.medium-spacing > li,
+ul.large-spacing > li,
+ol.medium-spacing > li,
+ol.large-spacing > li {
+  &:first-child {
+    margin-top: 0;
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.underlined {
+  position: relative;
+
+  &:after {
+    position: absolute;
+    display: none;
+    content: '';
+    bottom: -1px;
+    left: -1rem;
+    right: -1rem;
+    height: 100%;
+    background: $gray-lighter;
+    transition: left $fast-transition $easing;
+  }
+}
+
+h1.underlined:hover,
+h2.underlined:hover,
+h3.underlined:hover,
+h4.underlined:hover,
+h5.underlined:hover {
+  &:after {
+    left: -2rem;
+  }
+}
+
+h3.iconized,
+h4.iconized,
+h5.iconized {
+  position: relative;
+  display: block;
+
+  > * {
+    display: block;
+    float: left
+  }
+
+  > .icon {
+    height: 100%;
+    width: 1em;
+    margin-right: 0.25em;
+
+    &.icon-small {
+      width: 0.75em;
+    }
+  }
+}
+
+h3.iconized {
+  height: 2.25rem;
+}
+
+h4.iconized {
+  height: 1.5rem;
+}
+
+h5.iconized {
+  height: 1.25rem;
+}
+
+
+ol.iconized,
+ul.iconized {
+  position: relative;
+  overflow: auto;
+
+  li {
+    position: relative;
+    overflow: auto;
+
+    > * {
+      display: block;
+      float: left
+    }
+
+    > *:last-child {
+      margin-right: 0.5em;
+    }
+
+    .icon {
+      height: 1.5em;
+      width: 1em;
+      margin-right: 0.25em;
+    }
+  }
+}
+
+.icon-inline {
+  display: inline;
+  width: 0.8em;
+  height: 0.8em;
+  line-height: 1.5em;
+  vertical-align: center;
+}
+
+.inline-list li {
+  display: inline;
+}
+
+.date {
+  display: block;
+  color: $gray-medium;
+}
+
+.oh {
+  overflow: hidden;
+}
+
+.two-authors li:first-child:after {
+  content: ' and ';
+}
+
+.video {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+
+  iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.reference .secondary-information {
+  font-size: 0.85em;
+}
+
+.full-w,
+.full-wh {
+  width: 100%;
+}
+
+.full-h,
+.full-wh {
+  height: 100%;
+}
+
+.full-dim {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.full-mdim {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  min-height: 100vh;
+}
+
+.full-dim-cont {
+  width: 100%;
+  height: 100vh;
+  margin-top: -3rem;
+  padding-top: 3rem;
+}
+
+.full-dim-win {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+}
+
+.rel {
+  position: relative;
+}
+
+a .icon {
+  cursor: pointer;
+}
+
+ul.badges li,
+ol.badges li {
+  color: $gray-medium;
+  border: 1px solid $gray-lightest;
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.25rem;
+}
+
+
+/*
+ * -----------------------------------------------------------------------------
+ * Media Queries
+ * -----------------------------------------------------------------------------
+ */
+
+/* 400px */
+@media screen and (min-width: 25em) {
+
+}
+
+/* 568px (Pure.css Grid: SM) */
+@media screen and (min-width: 35.5em) {
+
+}
+
+/* 640px */
+@media screen and (min-width: 40em) {
+  .wrap {
+    margin-left: 8.3334%;  /* 1/12 */
+    margin-right: 8.3334%;
+  }
+
+  .video {
+    width: 90%;
+  }
+}
+
+/* 960px */
+@media screen and (min-width: 60em) {
+  body {
+    // font-size: 20px;
+  }
+
+  .wrap {
+    margin-left: 11.1112%;  /* 1/9 */
+    margin-right: 11.1112%;
+  }
+
+  .video {
+    width: 80%;
+  }
+}
+
+/* 1280px */
+@media screen and (min-width: 80em) {
+  body {
+    // font-size: 22px;
+  }
+
+  .wrap {
+    margin-left: 16.66667%;  /* 1/6 */
+    margin-right: 16.66667%;
+  }
+
+  .video {
+    width: 70%;
+  }
+}
+
+/* 1600px */
+@media screen and (min-width: 100em) {
+  body {
+    // font-size: 24px;
+  }
+
+  .wrap {
+    margin-left: 20%;  /* 1/5 */
+    margin-right: 20%;
+  }
+}

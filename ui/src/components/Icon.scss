@@ -1,0 +1,21 @@
+@import '../styles/transitions';
+
+.icon {
+  position: relative;
+  width: 1em;
+  height: 1em;
+
+  &.is-mirror-h svg {
+    transform: scale(1, -1);
+  }
+
+  &.is-mirror-v svg {
+    transform: scale(-1, 1);
+  }
+
+  svg {
+    width: 100%;
+    height: 100%;
+    transition: transform $fast-transition $easing;
+  }
+}

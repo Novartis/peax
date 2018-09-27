@@ -1,0 +1,117 @@
+@import '../styles/colors';
+@import '../styles/transitions';
+
+.tool-tip-wrapper {
+  .tool-tip-anchor {
+    position: relative;
+    top: 0;
+    left: 50%;
+  }
+
+  .tool-tip {
+    position: fixed;
+    display: none;
+    z-index: 10;
+    padding: 0 0.25rem;
+    color: $white;
+    font-size: 0.85rem;
+    line-height: 1.25rem;
+    white-space: nowrap;
+    border-radius: 0.25rem;
+    background: $black;
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0);
+
+    &.is-shown {
+      display: block;
+      animation-duration: $fast-transition;
+      animation-fill-mode: forwards;
+      animation-name: fade-in-top;
+      animation-timing-function: $easing;
+    }
+
+    &.tool-tip-align-left {
+      transform: translate(0, 0) scale(0);
+      transform-origin: top left;
+
+      &.is-shown {
+        animation-name: fade-in-top-left;
+      }
+
+      .arrow {
+        left: 0.5rem;
+      }
+    }
+
+    &.tool-tip-align-right {
+      transform: translate(-100%, 0) scale(0);
+      transform-origin: top right;
+
+      &.is-shown {
+        animation-name: fade-in-top-right;
+      }
+
+      .arrow {
+        left: auto;
+        right: 0.5rem;
+      }
+    }
+
+    .arrow {
+      position: absolute;
+      bottom: -0.25rem;
+      left: 50%;
+      margin-left: -0.25rem;
+    }
+
+    .short-cut {
+      margin: 0.175rem 0 0.175rem 0.33rem;
+      padding: 0 0.125rem;
+      color: $gray-lighter;
+      font-size: 0.7rem;
+      font-weight: bold;
+      line-height: 0.9rem;
+      border-radius: 0.125rem;
+      background: $gray-dark;
+    }
+  }
+
+  @keyframes fade-in-top {
+    from {
+      visibility: hidden;
+      opacity: 0;
+      transform: translate(-50%, 0) scale(0);
+    }
+    to {
+      visibility: visible;
+      opacity: 1;
+      transform: translate(-50%, -1.5rem) scale(1);
+    }
+  }
+
+  @keyframes fade-in-top-right {
+    from {
+      visibility: hidden;
+      opacity: 0;
+      transform: translate(-100%, 0) scale(0);
+    }
+    to {
+      visibility: visible;
+      opacity: 1;
+      transform: translate(-100%, -1.5rem) scale(1);
+    }
+  }
+
+  @keyframes fade-in-top-left {
+    from {
+      visibility: hidden;
+      opacity: 0;
+      transform: translate(0, 0) scale(0);
+    }
+    to {
+      visibility: visible;
+      opacity: 1;
+      transform: translate(0, -1.5rem) scale(1);
+    }
+  }
+}

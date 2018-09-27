@@ -1,0 +1,219 @@
+import PropTypes from 'prop-types';
+import React from 'react';
+
+// Components
+import Button from '../components/Button';
+import ButtonRadio from '../components/ButtonRadio';
+import HiglassResultList from '../components/HiglassResultList';
+import SubTopBar from '../components/SubTopBar';
+import SubTopBottomBarButtons from '../components/SubTopBottomBarButtons';
+import ToolTip from '../components/ToolTip';
+
+// Actions
+import { setSearchTab } from '../actions';
+
+// Configs
+import {
+  BUTTON_RADIO_FILTER_CLASSIFICATION_OPTIONS,
+  BUTTON_RADIO_SORT_ORDER_OPTIONS,
+  TAB_SEEDS
+} from '../configs/search';
+
+// Utils
+import { Logger, numToCassif } from '../utils';
+
+const logger = Logger('SearchClassifications');  // eslint-disable-line
+
+const isEmpty = (
+  <span>
+    {'Nothing classified! '}
+    <Button onClick={() => setSearchTab(TAB_SEEDS)}>
+      Get started
+    </Button>
+  </span>
+);
+
+const isTraining = onTrainingCheck => (
+  <span>
+    {'The classifier is training hard! '}
+    <Button onClick={onTrainingCheck}>Check Status</Button>
+  </span>
+);
+
+class SearchClassifications extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.getResultsWrapperBound = this.getResultsWrapper.bind(this);
+    this.onFilterByClfBnd = this.onFilterByClf.bind(this);
+    this.onSortOrderBnd = this.onSortOrder.bind(this);
+
+    this.state = {
+      filterByClf: null,
+      sortOrder: 'desc',
+    };
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.page !== prevProps.page) this.resultsWrapper.scrollTop = 0;
+  }
+
+  getResultsWrapper(ref) {
+    this.resultsWrapper = ref;
+  }
+
+  async onFilterByClf(clf) {
+    this.setState({ filterByClf: clf });
+    this.props.onPage(0);
+  }
+
+  async onSortOrder(order) {
+    this.setState({ sortOrder: order });
+    this.props.onPage(0);
+  }
+
+  render() {
+    const sortOrder = this.state.sortOrder === 'desc' ? -1 : 1;
+
+    const results = this.props.results
+      .filter(win => (
+        !this.state.filterByClf
+        || numToCassif(win.classification) === this.state.filterByClf
+      ))
+      .sort((a, b) => {
+        const aUpdated = Date.parse(a.updated);
+        const bUpdated = Date.parse(b.updated);
+
+        if (aUpdated < bUpdated) return -1 * sortOrder;
+        if (aUpdated > bUpdated) return 1 * sortOrder;
+        return 0;
+      })
+      .map(win => ({
+        classification: numToCassif(win.classification),
+        classificationChangeHandler: this.props.classificationChangeHandler,
+        dataTracks: this.props.dataTracks,
+        normalizeBy: this.props.normalizeBy,
+        onEnter: this.props.onResultEnter,
+        onLeave: this.props.onResultLeave,
+        onNormalize: this.props.onNormalize,
+        searchId: this.props.searchInfo.id,
+        viewHeight: this.props.searchInfo.viewHeight,
+        windowId: win.windowId,
+        windows: this.props.windows,
+      }));
+
+    return (
+      <div className="full-dim search-tab-wrapper">
+        <SubTopBar>
+          <SubTopBottomBarButtons className='flex-c flex-a-c no-list-style'>
+            <li>
+              Classified {this.props.results.length} regions.
+            </li>
+          </SubTopBottomBarButtons>
+          <SubTopBottomBarButtons
+            className='flex-c flex-a-c flex-jc-e no-list-style'
+          >
+            <li>
+              <ToolTip
+                align='center'
+                delayIn={2000}
+                delayOut={500}
+                title={
+                  <span className='flex-c'>
+                    <span>Sort by date</span>
+                  </span>
+                }
+              >
+                <ButtonRadio
+                  label='Sort'
+                  name='search-filter-by-classification'
+                  onClick={this.onSortOrderBnd}
+                  options={BUTTON_RADIO_SORT_ORDER_OPTIONS}
+                  selection={this.state.sortOrder}
+                />
+              </ToolTip>
+            </li>
+            <li>
+              <ToolTip
+                align='center'
+                delayIn={2000}
+                delayOut={500}
+                title={
+                  <span className='flex-c'>
+                    <span>Filter by label (excl.)</span>
+                  </span>
+                }
+              >
+                <ButtonRadio
+                  label='Filter'
+                  name='search-filter-by-classification'
+                  isDeselectable={true}
+                  onClick={this.onFilterByClfBnd}
+                  options={BUTTON_RADIO_FILTER_CLASSIFICATION_OPTIONS}
+                  selection={this.state.filterByClf}
+                />
+              </ToolTip>
+            </li>
+            <li className="separator"></li>
+            <li>
+              <Button
+                isDisabled={this.props.isTraining === true}
+                onClick={this.props.onTrainingStart}
+              >
+                Train Classifier
+              </Button>
+            </li>
+          </SubTopBottomBarButtons>
+        </SubTopBar>
+        <div
+          ref={this.getResultsWrapperBound}
+          className="search-tab-content"
+        >
+          <HiglassResultList
+            isError={this.props.isError}
+            isLoading={this.props.isLoading}
+            isTraining={this.props.isTraining === true}
+            isTrainingNodes={isTraining(this.props.onTrainingCheck)}
+            isEmptyNodes={isEmpty}
+            itemsPerPage={this.props.itemsPerPage}
+            list={results}
+            page={this.props.page}
+            pageTotal={Math.ceil(results.length / this.props.itemsPerPage)}
+            onPage={this.props.onPage}
+          />
+        </div>
+      </div>
+    );
+  }
+}
+
+SearchClassifications.defaultProps = {
+  isLoading: true,
+  isError: false,
+  results: [],
+  windows: {},
+};
+
+SearchClassifications.propTypes = {
+  classificationChangeHandler: PropTypes.func.isRequired,
+  dataTracks: PropTypes.array,
+  info: PropTypes.object.isRequired,
+  isError: PropTypes.bool,
+  isLoading: PropTypes.bool,
+  isTraining: PropTypes.bool,
+  itemsPerPage: PropTypes.number,
+  normalizeBy: PropTypes.object,
+  onNormalize: PropTypes.func.isRequired,
+  onPage: PropTypes.func.isRequired,
+  onResultEnter: PropTypes.func.isRequired,
+  onResultLeave: PropTypes.func.isRequired,
+  onTrainingCheck: PropTypes.func.isRequired,
+  onTrainingStart: PropTypes.func.isRequired,
+  page: PropTypes.number,
+  pageTotal: PropTypes.number,
+  results: PropTypes.array,
+  searchInfo: PropTypes.object.isRequired,
+  windows: PropTypes.object,
+};
+
+export default SearchClassifications;

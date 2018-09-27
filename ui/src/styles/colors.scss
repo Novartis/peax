@@ -1,0 +1,47 @@
+$white: #fff;
+$black: #000;
+
+$gray-darkest-extreme: #1a1a1a;
+$gray-darkest: #222;
+$gray-darker: #444;
+$gray-dark: #666;
+$gray-medium: #999;
+$gray-light: #bbb;
+$gray-lighter: #ddd;
+$gray-lightest: #eee;
+
+$gray-darkest-extreme-rgba: transparentize(#000, 0.1);
+$gray-darkest-rgba: transparentize(#000, 0.13);
+$gray-darker-rgba: transparentize(#000, 0.27);
+$gray-dark-rgba: transparentize(#000, 0.4);
+$gray-medium-rgba: transparentize(#000, 0.6);
+$gray-light-rgba: transparentize(#000, 0.73);
+$gray-lighter-rgba: transparentize(#000, 0.87);
+$gray-lightest-rgba: transparentize(#000, 0.93);
+
+$gray-transparent: rgba(0, 0, 0, 0);
+
+$blue: #0F5D92;
+$blue-darker: adjust-color($blue, $saturation: -66%, $lightness: -15%);
+$blue-dark: adjust-color($blue, $saturation: -25%, $lightness: -10%);
+$blue-light: adjust-color($blue, $saturation: -20%, $lightness: 60%);
+$blue-highlight: adjust-color($blue, $saturation: 100%, $lightness: 25%);
+$pink: #cc168c;
+$pink-dark: adjust-color($pink, $saturation: -25%, $lightness: -10%);
+$pink-light: adjust-color($pink, $saturation: -20%, $lightness: 45%);
+$red-dark: #a1112d;
+$red-light: #ffccd6;
+$yellow-dark: #805d0e;
+$yellow-light: #f2e7ce;
+
+$primary: $blue;
+
+$error-bg: $red-light;
+$error-text: $red-dark;
+$warning-bg: $yellow-light;
+$warning-text: $yellow-dark;
+
+$text: $gray-dark;
+$text-em: $gray-darkest;
+
+$crimson: #a51c30;

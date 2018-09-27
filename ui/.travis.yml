@@ -1,0 +1,30 @@
+language: node_js
+
+node_js:
+  - "8"
+
+branches:
+  only:
+  - master
+  - develop
+  - "/^v.*$/"
+
+# Use sed to replace the SSH URL with the public URL, then initialize submodules
+before_install:
+  - git submodule update --init --recursive --remote
+  - gem install sass
+
+before_script:
+  - npm install
+
+before_deploy:
+  - travis_wait npm run build-travis
+
+deploy:
+  - provider: releases
+    api_key:
+      secure: "vOqRJIRWTdZHAcO9B/8tBJOBgtFQimWrziDxvQPCepEVT6QADzk5hhbBlILtniYHD2IbgfsC40QLGKIFj5yQeIQm8LzbWTAEt/h2nn8NNEoaV5k2MICXafHwr8bZtG3Vublh+zaYFlNy1ZJNFr0nDFCdTdlFL2U7BkDSlKQlbrk/kOyWtRXufUzdCo/fOzZmLQReJpYNLdyRuEDkf/ClkADfsgvrp68RFRZ6QR5KnXj8Nf2lVfwGqhsTL6GFCItQVFPPhwTAHXiX7/xB/kbLyvpgqIGGeQV5Pm/AYepJEDsARChgaRzipQinHl90YBzrtq1LjlDEcT0bSHjLxc0rF2mPMNHXQpj9aq0IKfz/H1jB+7SO+NokjWjpi1Mk2O2IlEN0Ic185GEbIRi4FBpZUXU+41RtRX1t/HY2j/RmugLxmUO/UB3tX74dVtBfdpNkdZlef3TDrBeVHTOE8esG4OxhnRRTG6Eqkxps6jF4Najo9JVJBmNYQ4/+xK1zplzplZnyxn42wWAtTLTZv7x4kiEPlQb0UtL7CtnvpkPol36bK7Q957YV0lgo6ad1gEIcL8aj/Yf8DreWjApkEbnadV5a6+pv/FP6XaBl7FWUSMLlBcSbF+/7MXzT5sQznOPXQO5RPatjJBEmS3I2P6LUbV0QjoJLoBo2p6skRSR2mRs="
+    file: "build.zip"
+    skip_cleanup: true
+    on:
+      tags: true

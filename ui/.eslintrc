@@ -1,0 +1,89 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "airbnb/base",
+    "plugin:react/recommended"
+  ],
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 6
+  },
+  "plugins": [
+    "react"
+  ],
+  "globals": {
+    "expect": false,
+    "HGAC_SERVER": false,
+    "HGAC_SERVER_PORT": false,
+    "it": false,
+    "VERSION_PEAX": false,
+    "VERSION_HIGLASS": false
+  },
+  "rules": {
+    "class-methods-use-this": [
+      "off",
+      {
+        "exceptMethods": [
+          "componentWillMount",
+          "componentDidMount",
+          "componentWillUnmount",
+          "componentDidUnmount",
+          "componentWillUpdate",
+          "componentDidUpdate",
+          "componentShouldUpdate",
+          "render"
+        ]
+      }
+    ],
+    "comma-dangle": [
+      "error",
+      {
+        "arrays": "always-multiline",
+        "objects": "always-multiline",
+        "imports": "ignore",
+        "exports": "ignore",
+        "functions": "never"
+      }
+    ],
+    "consistent-return": 0,
+    "import/prefer-default-export": "warn",
+    "max-len": [
+      "error",
+      {
+        "code": 100,
+        "ignoreComments": true,
+        "ignoreTrailingComments": true,
+        "ignoreUrls": true,
+        "ignoreStrings": true,
+        "ignoreTemplateLiterals": true
+      }
+    ],
+    "no-console": "warn",
+    "no-continue": "off",
+    "no-mixed-operators": ["error", {"allowSamePrecedence": true}],
+    "no-multi-spaces": [
+      "error",
+      {
+        "ignoreEOLComments": true
+      }
+    ],
+    "no-param-reassign": ["error", { "props": false }],
+    "no-plusplus": [
+      "error",
+      {
+        "allowForLoopAfterthoughts": true
+      }
+    ],
+    "no-underscore-dangle": 0,
+    "operator-linebreak": 0,
+    "prefer-destructuring": 0,
+    "react/no-deprecated": 0
+  }
+}

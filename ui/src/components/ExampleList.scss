@@ -1,0 +1,94 @@
+@import '../styles/colors';
+@import '../styles/ratio';
+
+.example-list {
+  &> li {
+    position: relative;
+    width: 50%;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+
+    &.two-columns {
+      width: 100%;
+    }
+  }
+
+  .example-figure {
+    @include ratio(1);
+
+    border: 1px solid $gray-lightest;
+    border-radius: 0.25rem;
+    background-color: $white;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: contain;
+  }
+
+  .two-columns .example-figure {
+    @include ratio(0.5);
+
+    &::before {
+      margin-bottom: -1rem;
+    }
+  }
+
+  .one-line {
+    &.location::before {
+      content: 'Location';
+      font-size: 0.8em;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    input {
+      display: block;
+      width: 100%;
+      border: 1px solid $gray-lighter;
+      border-radius: 0.25rem;
+      background: $gray-lightest;
+    }
+  }
+}
+
+
+/*
+ * -----------------------------------------------------------------------------
+ * Media Queries
+ * -----------------------------------------------------------------------------
+ */
+
+
+/* 960px */
+@media screen and (min-width: 60em) {
+  .example-list > li {
+    width: 33.33%;
+    margin-bottom: 1rem;
+    padding: 1rem;
+
+    &.two-columns {
+      width: 66.66%;
+    }
+  }
+}
+
+/* 1600px */
+@media screen and (min-width: 100em) {
+  .example-list > li {
+    width: 25%;
+
+    &.two-columns {
+      width: 50%;
+    }
+  }
+}
+
+/* 1920px */
+@media screen and (min-width: 120em) {
+  .example-list > li {
+    width: 20%;
+
+    &.two-columns {
+      width: 40%;
+    }
+  }
+}

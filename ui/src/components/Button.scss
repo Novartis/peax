@@ -1,0 +1,61 @@
+@import '../styles/colors';
+@import '../styles/transitions';
+
+.button {
+  padding: 0.125em 0.33em;
+  border: 0;
+  border-radius: 0.25rem;
+  background: $gray-lightest-rgba;
+  transition: color $normal-transition $easing,
+              box-shadow $normal-transition $easing,
+              background $normal-transition $easing;
+  user-select: none;
+
+  &:hover {
+    color: $black;
+    background: $gray-lighter-rgba;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: inset 0 0 0 0 $blue-highlight,
+                0 0 0 2px $blue-highlight;
+  }
+
+  &.is-disabled {
+    color: $gray-medium;
+    box-shadow: inset 0 0 0 1px $gray-lightest-rgba;
+    background: transparent;
+    pointer-events: none;
+  }
+
+  &.has-spinner {
+    position: relative;
+
+    &.is-disabled {
+      background: $white;
+    }
+
+    .text {
+      transition: opacity $normal-transition $easing;
+    }
+
+    &.is-spinning .text {
+      opacity: 0;
+    }
+  }
+
+  .spinner {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 0.25rem;
+    background: transparent;
+
+    .one, .two {
+      fill: $white;
+    }
+  }
+}

@@ -1,0 +1,23 @@
+// Styles of the HiGlass viewer. This file will be ignored
+// in the production build such that the styles can be loaded via unpkg.com
+@import '../../node_modules/higlass/build/hglib.css';
+
+.higlass-launcher {
+  position: relative;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+}
+
+.higlass-launcher-full {
+  position: absolute;
+}
+
+.higlass-launcher.higlass-launcher-padded {
+  top: 0.25rem;
+  right: 0.25rem;
+  bottom: 0.25rem;
+  left: 0.25rem;
+}

@@ -1,0 +1,84 @@
+@import '../styles/colors';
+@import '../styles/transitions';
+
+.button-radio {
+  height: 1.5em;
+  margin: 0;
+  border-radius: 0.25rem;
+  background: $gray-lightest-rgba;
+
+  label {
+    padding: 0 0.125rem 0 0.25rem;
+    font-size: 0.8em;
+    text-transform: uppercase;
+
+    &:after {
+      content: ':';
+    }
+  }
+
+  &.is-selected label {
+    color: $blue-dark;
+    font-weight: bold;
+  }
+
+  .button-icon {
+    width: 1.5em;
+    height: 1.5em;
+    margin: 0;
+    padding: 0 0.5em;
+    border: 1px solid $gray-transparent;
+    border-radius: 0;
+    background: transparent;
+    white-space: nowrap;
+
+    &:hover {
+      color: $black;
+      background: $gray-lightest-rgba;
+    }
+
+    &.button-icon-only {
+      padding: 0;
+
+      .icon {
+        width: 0.8em;
+        height: 0.8em;
+        margin-right: 0;
+      }
+    }
+
+    &.is-disabled {
+      opacity: 0.5;
+      border-color: $gray-lighter-rgba;
+      background: transparent;
+      cursor: not-allowed;
+
+      &:hover {
+        border-color: $gray-lighter-rgba;
+      }
+    }
+
+    &.is-active {
+      color: $white;
+      background: $primary;
+    }
+
+    .icon {
+      width: 1em;
+      height: 1em;
+      margin-right: 0.25em;
+    }
+  }
+
+  &.full-w .button-icon {
+    width: 100%;
+  }
+
+  .button-radio-wrapper:first-child .button-icon {
+    border-radius: 0.25rem 0 0 0.25rem;
+  }
+
+  .button-radio-wrapper:last-child .button-icon {
+    border-radius: 0 0.25rem 0.25rem 0;
+  }
+}

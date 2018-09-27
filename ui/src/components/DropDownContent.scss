@@ -1,0 +1,17 @@
+@import '../styles/transitions';
+
+.drop-down-content {
+  position: absolute;
+  display: none;
+  opacity: 0;
+  transition: opacity $fast-transition $easing;
+}
+
+.drop-down-is-open > .drop-down-content {
+  display: block;
+  opacity: 1;
+}
+
+.drop-down-align-right > .drop-down-content {
+  right: 0;
+}

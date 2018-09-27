@@ -1,0 +1,26 @@
+{
+  "aes": [{
+    "encoder": "examples/encode-gm12878-dnase-seq-2011-encoder-2_4kb.h5",
+    "decoder": "examples/encode-gm12878-dnase-seq-2011-decoder-2_4kb.h5",
+    "content_type": "dnase-seq-fc",
+    "window_size": 2400,
+    "resolution": 100,
+    "channels": 1,
+    "input_dim": 3,
+    "latent_dim": 6
+  }],
+  "datasets": [{
+    "filepath": "examples/data/ENCFF158GBQ.bigWig",
+    "content_type": "dnase-seq-fc",
+    "uuid": "encode-gm12878-2011-dnase-seq-fc",
+    "name": "Encode GM12878 (2011) DNase-Seq fc"
+  }],
+  "config": {
+    "chroms": [
+      "chr21"
+    ],
+    "step_freq": 2,
+    "min_classifications": 20
+  },
+  "db_path": "examples/search-dnase-seq-2_4kb.db"
+}

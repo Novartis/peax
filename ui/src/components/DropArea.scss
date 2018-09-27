@@ -1,0 +1,17 @@
+@import '../styles/colors';
+
+.drop-area {
+  padding: 0 0.5rem;
+  border-radius: 0.25rem;
+
+  &:after {
+    position: absolute;
+    content: '';
+    top: 0.225rem;
+    right: 0.225rem;
+    bottom: 0.225rem;
+    left: 0.225rem;
+    border: 2px dashed $blue-light;
+    border-radius: 0.25rem;
+  }
+}

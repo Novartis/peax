@@ -1,0 +1,181 @@
+@import '../styles/colors';
+@import '../styles/transitions';
+
+.higlass-result {
+  overflow: hidden;
+
+  .higlass-viewer {
+    width: 100%;
+    border-radius: 0.25rem;
+  }
+
+  .button-radio {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 3rem;
+    height: auto;
+    background: $gray-lightest;
+    border-radius: 0 0.25rem 0.25rem 0;
+
+    .button-radio-wrapper {
+      padding: 0.25rem;
+    }
+
+    .button-icon {
+      width: 100%;
+      height: 100%;
+    }
+
+    .button-icon,
+    .button-radio-wrapper:first-child .button-icon,
+    .button-radio-wrapper:last-child .button-icon {
+      border-radius: 0.25rem;
+    }
+
+    .button-icon.positive.is-active {
+      background: $primary;
+    }
+
+    .button-icon.neutral {
+      color: $gray-light;
+
+      &:hover {
+        color: $gray-medium;
+      }
+    }
+
+    .button-icon.neutral.is-active {
+      color: $gray-medium;
+      background: $gray-lighter;
+    }
+
+    .button-icon.negative.is-active {
+      background: $pink-dark;
+    }
+  }
+
+  .higlass-class-probability {
+    position: absolute;
+    top: 0;
+    right: 3rem;
+    bottom: 0;
+    width: 0.25rem;
+
+    .higlass-class-probability-bar {
+      position: absolute;
+      right: 0;
+      left: 0;
+      height: 2px;
+      background: $gray-light;
+    }
+
+    .higlass-class-probability-label {
+      position: absolute;
+      height: 1px;
+      opacity: 0;
+      transition: opacity $fast-transition $easing;
+      pointer-events: none;
+    }
+
+    .higlass-class-probability-label-arrow {
+      position: absolute;
+      top: -0.25rem;
+      right: 0.05rem;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-color: transparent;
+      border-left-color: blue;
+      border-width: 0.25rem 0 0.25rem 0.3rem;
+      pointer-events: none;
+    }
+
+    .higlass-class-probability-label-prob {
+      position: absolute;
+      top: -0.5rem;
+      right: 0.35rem;
+      height: 1rem;
+      padding: 0 0.125rem;
+      font-size: 0.7rem;
+      font-weight: bold;
+      line-height: 1rem;
+      border-radius: 0.25rem;
+      color: $black;
+      background: $gray-light;
+      pointer-events: none;
+    }
+  }
+
+  .higlass-class-probability-wrapper:hover .higlass-class-probability-label {
+    opacity: 1;
+  }
+
+  .higlass-result-side-panel {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 10rem;
+    border-radius: 0.25rem 0 0 0.25rem;
+    transform: translate(-10rem, 0);
+    transition: transform $fast-transition $easing;
+
+    &.higlass-result-show-info {
+      transform: translate(0, 0);
+      outline: none;
+    }
+
+    .button-icon {
+      position: absolute;
+      z-index: 1;
+      right: -1.5rem;
+      width: 1.5rem;
+      height: 1.5rem;
+      border: 0;
+      border-radius: 0 0 0.25rem 0;
+      background: $gray-lightest;
+    }
+
+    .higlass-result-info-panel-toggler {
+      top: 0;
+      border-radius: 0;
+    }
+
+    &.higlass-result-show-info .higlass-result-info-panel-toggler,
+    .higlass-result-normalizer.is-active {
+      color: $white;
+      background: $blue;
+    }
+
+    .higlass-result-normalizer {
+      top: 0;
+    }
+
+    &.higlass-result-has-info .higlass-result-normalizer {
+      top: 1.5rem;
+    }
+
+    .higlass-result-info-panel-content {
+      padding: 0.25rem;
+      font-size: 0.8em;
+      background: $gray-lightest;
+
+      li {
+        padding-left: 0.25rem;
+        border-left: 2px solid $gray-light;
+      }
+
+      .label {
+        font-size: 0.8em;
+        text-transform: uppercase;
+
+        &:after {
+          content: ':';
+        }
+      }
+    }
+  }
+}
