@@ -14,7 +14,7 @@
 ## Installation
 
 ```
-git clone https://bitbucket.org/novartisnibr/sda-peax/ peax && cd peax
+git clone https://github.com/Novartis/peax peax && cd peax
 make install
 ```
 
