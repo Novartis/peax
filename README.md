@@ -53,7 +53,7 @@ to get you started as quickly as possible.
 The convenience scripts will download test ENCODE tracks and use the matching
 configuration to start the server.
 
-_Note: if you need to run Peax a hostname or port different than `localhost:5000` you need to [manually start Peax](#start-peax) using the respective configs which you can find in the [Makefile](Makefile)._
+_Note: if you need to run Peax on a hostname or port other than `localhost:5000` you need to [manually start Peax](#start-peax) using the respective configs which you can find in the [Makefile](Makefile)._
 
 ### Slow start
 
