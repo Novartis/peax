@@ -1,0 +1,8 @@
+__pycache__
+data
+/config*.json
+*.db
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+*-checkpoint.ipynb
