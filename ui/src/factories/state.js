@@ -1,5 +1,4 @@
 import createHistory from 'history/createBrowserHistory';
-import localforage from 'localforage';
 import { routerMiddleware } from 'react-router-redux';
 import { applyMiddleware, compose, createStore } from 'redux';
 import { enableBatching } from 'redux-batched-actions';
@@ -22,18 +21,11 @@ import {
   setSearchRightBarWidth,
 } from '../actions';
 
-// Utils
-import MultiStorage from '../utils/multi-storage';
-
 const prefix = 'HiGlassApp.';
 
-const prepareStore = MultiStorage([
-  asyncSessionStorage,
-  localforage,
-], prefix);
-
 const config = {
-  debounce: 25,
+  storage: asyncSessionStorage,
+  debounce: 1000,
   keyPrefix: prefix,
 };
 
@@ -55,6 +47,7 @@ if (process.env.NODE_ENV === 'development') {
   middleware.push(applyMiddleware(freeze));
   middleware.push(applyMiddleware(logger));
 }
+
 
 const configureStore = (initialState) => {
   const store = createStore(
@@ -78,17 +71,13 @@ const configureStore = (initialState) => {
     });
   }
 
-  return prepareStore.then((storage) => {
-    config.storage = storage;
-
-    return new Promise((resolve, reject) => {
-      persistStore(store, config, (error) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(store);
-        }
-      });
+  return new Promise((resolve, reject) => {
+    persistStore(store, config, (error) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(store);
+      }
     });
   });
 };
