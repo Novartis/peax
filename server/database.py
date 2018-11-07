@@ -71,7 +71,6 @@ def objectify_projector(projector):
 
 
 class DB:
-
     def __init__(self, db_path=DB_PATH, clear=False):
         self.db_path = db_path
         self.create_tables(clear=clear)
@@ -219,7 +218,7 @@ class DB:
             # We need the curser as the connection doesn't feature `lastrowid`
             c = conn.cursor()
 
-            str_config = json.dumps(config, sort_keys=True)
+            str_config = json.dumps(config.export(), sort_keys=True)
             c.execute(
                 "INSERT INTO search (target_from, target_to, config) "
                 "VALUES (?, ?, ?)",
@@ -228,9 +227,7 @@ class DB:
             id = c.lastrowid
             conn.commit()
 
-            return c.execute(
-                "SELECT * FROM search WHERE id = ?", (id,)
-            ).fetchone()
+            return c.execute("SELECT * FROM search WHERE id = ?", (id,)).fetchone()
 
     def get_search(self, id=None):
         results = []
@@ -403,9 +400,7 @@ class DB:
                 (search_id,),
             ).fetchone()[0]
 
-            classifier_id = (
-                classifier_id + 1 if classifier_id is not None else 0
-            )
+            classifier_id = classifier_id + 1 if classifier_id is not None else 0
 
             conn.execute(
                 """
