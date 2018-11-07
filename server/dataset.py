@@ -29,7 +29,7 @@ class Dataset:
         clear_cache: bool = False,
     ):
         self.filepath = filepath
-        self.filetype = filepath
+        self.filetype = filetype
         self.content_type = content_type
         self.id = id
         self.name = name
