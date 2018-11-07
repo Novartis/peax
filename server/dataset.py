@@ -25,6 +25,8 @@ class Dataset:
         id: str,
         name: str,
         filetype: str = None,
+        fill: str = None,
+        height: int = None,
         chromsizes=None,
         clear_cache: bool = False,
     ):
@@ -35,8 +37,10 @@ class Dataset:
         self.name = name
         self.num_bins = -1
         self.num_windows = -1
-        self.clear_cache = clear_cache
+        self.fill = fill
+        self.height = height
         self.chromsizes = chromsizes
+        self.clear_cache = clear_cache
 
         if not self.chromsizes:
             self.chromsizes = bigwig.get_chromsizes(self.filepath)
