@@ -16,7 +16,17 @@ from contextlib import contextmanager
 from scipy.ndimage.interpolation import zoom
 from scipy.spatial.distance import cdist
 from scipy.stats import norm
+from sklearn.preprocessing import MinMaxScaler
 from typing import Callable
+
+
+def normalize(data, percentile=99.9):
+    cutoff = np.percentile(data, (0, percentile))
+    data_norm = np.copy(data)
+    data_norm[np.where(data_norm < cutoff[0])] = cutoff[0]
+    data_norm[np.where(data_norm > cutoff[1])] = cutoff[1]
+
+    return MinMaxScaler().fit_transform(data_norm)
 
 
 def get_search_target_classif(db, search_id, window_size, abs_offset):
@@ -129,9 +139,7 @@ def merge_interleaved(v, step_freq, aggregator=np.nanmean):
     blowup[:] = np.nan
 
     for i in np.arange(step_freq):
-        blowup[:, i][i : min(i + v_len, out_len)] = v[
-            : min(v_len, out_len - i)
-        ]
+        blowup[:, i][i : min(i + v_len, out_len)] = v[: min(v_len, out_len - i)]
 
     return aggregator(blowup, axis=1)
 
@@ -155,9 +163,7 @@ def get_norm_sym_norm_kernel(size):
     return kn
 
 
-def merge_interleaved_mat(
-    m: np.ndarray, step_freq: int, kernel: np.ndarray = None
-):
+def merge_interleaved_mat(m: np.ndarray, step_freq: int, kernel: np.ndarray = None):
     if kernel is None:
         # Take the mean of the interleave vectors by default
         kernel = np.ones(m.shape[1])
@@ -304,6 +310,4 @@ def catch(*exceptions, **kwargs):
 def get_c(target_c: list, bg_c: list, opacity: float):
     target = np.array(target_c) / 255
     bg = np.array(bg_c) / 255
-    return (
-        (target * (1 / opacity) - bg * ((1 - opacity) / opacity)) * 255
-    ).astype(int)
+    return ((target * (1 / opacity) - bg * ((1 - opacity) / opacity)) * 255).astype(int)
