@@ -40,3 +40,6 @@ class Encoders:
         if dtype in self.encoders_by_type:
             return self.encoders_by_type[dtype]
         raise KeyError("No encoder of type '{}' found".format(dtype))
+
+    def export(self):
+        return [encoder.export() for encoder in self.encoders]

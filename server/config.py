@@ -117,3 +117,13 @@ class Config:
             return
 
         raise InvalidConfig("Unknown settings: {}".format(key))
+
+    def export(self):
+        return {
+            "encoders": self.encoders.export(),
+            "datasets": self.datasets.export(),
+            "chroms": self.chroms,
+            "step_freq": self.step_freq,
+            "min_classifications": self.min_classifications,
+            "db_path": self.db_path,
+        }

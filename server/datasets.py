@@ -42,8 +42,8 @@ class Datasets:
         except KeyError:
             self.datasets_by_type[dataset.content_type] = [dataset]
 
-    def definitions(self, use_uuid: bool = False):
-        return [dataset.definition(use_uuid) for dataset in self.datasets]
+    def export(self, use_uuid: bool = False):
+        return [dataset.export(use_uuid) for dataset in self.datasets]
 
     def get(self, dataset_id: str):
         if dataset_id in self.datasets:

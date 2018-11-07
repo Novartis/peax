@@ -38,6 +38,18 @@ class Encoder:
     def encode(self, data: np.ndarray) -> np.ndarray:
         return self.en.predict(data)
 
+    def export(self):
+        return {
+            "encoder": self.en_path,
+            "decoder": self.de_path,
+            "content_type": self.content_type,
+            "window_size": self.window_size,
+            "resolution": self.resolution,
+            "channels": self.channels,
+            "input_dim": self.input_dim,
+            "latent_dim": self.latent_dim,
+        }
+
 
 class Autoencoder(Encoder):
     def __init__(
@@ -68,3 +80,8 @@ class Autoencoder(Encoder):
 
     def decode(self, data: np.ndarray) -> np.ndarray:
         return self.de.predict(data)
+
+    def export(self):
+        export = super(Autoencoder, self).export()
+        export["decoder"] = self.de_path
+        return export

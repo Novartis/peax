@@ -45,7 +45,7 @@ class Dataset:
         if not self.chromsizes:
             self.chromsizes = bigwig.get_chromsizes(self.filepath)
 
-    def definition(self, use_uuid: bool = False):
+    def export(self, use_uuid: bool = False):
         # Only due to some weirdness in HiGlass
         idKey = "uuid" if use_uuid else "id"
         return {
