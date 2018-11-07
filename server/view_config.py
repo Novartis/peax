@@ -25,8 +25,8 @@ def pad_target(pos_from, pos_to, amount=0.1):
 
 
 def build(
-    dataset_defs: dict,
-    config: dict,
+    datasets,
+    config,
     search_info: dict = None,
     domain: list = None,
     has_predictions: bool = False,
@@ -80,75 +80,56 @@ def build(
         probs_heatmap["uid"] = uid
 
         combined_track_config["height"] = probs_heatmap.get("height")
-        combined_track_config["contents"].extend(
-            [anno_track_config, probs_heatmap]
-        )
+        combined_track_config["contents"].extend([anno_track_config, probs_heatmap])
 
         view_config["views"][0]["tracks"]["top"].append(combined_track_config)
 
-    N = len(dataset_defs)
-
-    for i, dataset_def in enumerate(dataset_defs):
-        filetype = dataset_def.get("filetype")
-        filepath = dataset_def.get("filepath")
-
+    for i, dataset in enumerate(datasets):
         # Determine x-domain limits
         if not determine_x_domain:
-            chromsizes = bigwig.get_chromsizes(filepath)
+            chromsizes = bigwig.get_chromsizes(dataset.filepath)
             chromcumsizes = np.cumsum(chromsizes)
             min_x = np.inf
             max_x = 0
-            for chrom in config["chroms"]:
+            for chrom in config.chroms:
                 csz = chromsizes[chrom]
                 ccsz = chromcumsizes[chrom]
                 min_x = min(min_x, ccsz - csz)
                 max_x = max(max_x, ccsz)
 
-            view_config["views"][0]["initialXDomain"] = [
-                int(min_x),
-                int(max_x),
-            ]
+            view_config["views"][0]["initialXDomain"] = [int(min_x), int(max_x)]
 
             determine_x_domain = True
 
-        uuid = dataset_def.get("uuid")
-        fill = dataset_def.get("fill")
-        height = dataset_def.get("height")
-        name = dataset_def.get("name")
-
-        if bigwig.is_bigwig(filepath, filetype):
+        if bigwig.is_bigwig(dataset.filepath, dataset.filetype):
             combined_track_config = copy.deepcopy(defaults.COMBINED_TRACK)
-            combined_track_config["uid"] = uuid + "-combined"
+            combined_track_config["uid"] = dataset.id + "-combined"
 
             anno_track_config = copy.deepcopy(defaults.ANNOTATION_TRACK)
-            anno_track_config["uid"] = uuid + "-annotation"
+            anno_track_config["uid"] = dataset.id + "-annotation"
 
             if region is not None:
                 anno_track_config["options"]["regions"].append(region)
 
             if has_encodings:
-                encodings_track_config = copy.deepcopy(
-                    defaults.ENCODINGS_TRACK
-                )
+                encodings_track_config = copy.deepcopy(defaults.ENCODINGS_TRACK)
                 uid = "ae"
                 encodings_track_config["tilesetUid"] = uid
                 encodings_track_config["uid"] = uid
-                combined_track_config["contents"].append(
-                    encodings_track_config
-                )
+                combined_track_config["contents"].append(encodings_track_config)
 
             bw_track_config = copy.deepcopy(defaults.BIGWIG_TRACK)
-            bw_track_config["tilesetUid"] = uuid
-            bw_track_config["uid"] = uuid
+            bw_track_config["tilesetUid"] = dataset.id
+            bw_track_config["uid"] = dataset.id
 
-            if height:
-                bw_track_config["height"] = height
+            if dataset.height:
+                bw_track_config["height"] = dataset.height
 
-            if fill:
-                bw_track_config["options"]["fillColor"] = fill
+            if dataset.fill:
+                bw_track_config["options"]["fillColor"] = dataset.fill
 
-            if name:
-                bw_track_config["options"]["name"] = name
+            if dataset.name:
+                bw_track_config["options"]["name"] = dataset.name
 
             if hide_label:
                 bw_track_config["options"]["labelPosition"] = "hidden"
@@ -161,13 +142,11 @@ def build(
                 [anno_track_config, bw_track_config]
             )
 
-            if i == N - 1:
+            if i == datasets.size() - 1:
                 # Add the chrom labels to the last track
                 combined_track_config["contents"].append(defaults.CHROM_TRACK)
 
-            view_config["views"][0]["tracks"]["top"].append(
-                combined_track_config
-            )
+            view_config["views"][0]["tracks"]["top"].append(combined_track_config)
 
             if viewport is not None:
                 view_config["views"][0]["initialXDomain"] = viewport
@@ -175,8 +154,8 @@ def build(
     return view_config
 
 
-def height(dataset_defs, config, has_predictions: bool = False):
-    view_config = build(dataset_defs, config)
+def height(datasets, config, has_predictions: bool = False):
+    view_config = build(datasets, config)
     total_height = 0
 
     for track in view_config["views"][0]["tracks"]["top"]:
