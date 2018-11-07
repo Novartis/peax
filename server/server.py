@@ -873,7 +873,7 @@ def create(
                 "count": datasets.size(),
                 "next": None,
                 "previous": None,
-                "results": datasets.definitions(),
+                "results": datasets.definitions(use_uuid=True),
             }
         )
 
@@ -897,7 +897,9 @@ def create(
 
         autoencodings = [{"uuid": "ae", "filetype": "__autoencodings__"}]
 
-        dataset_search_defs = datasets.definitions() + searches + autoencodings
+        dataset_search_defs = (
+            datasets.definitions(use_uuid=True) + searches + autoencodings
+        )
 
         info = {}
         for uuid in uuids:
@@ -971,7 +973,9 @@ def create(
 
         autoencodings = [{"uuid": "ae", "filetype": "__autoencodings__"}]
 
-        dataset_search_defs = datasets.definitions() + searches + autoencodings
+        dataset_search_defs = (
+            datasets.definitions(use_uuid=True) + searches + autoencodings
+        )
 
         tiles = []
         for uuid, tids in uuids_to_tids.items():
