@@ -132,31 +132,31 @@ class Help extends React.Component {
               <li>
                 <strong>Genome viewer: </strong>
                 <a
-                  href='https://github.com/hms-dbmi/higlass'
+                  href='https://github.com/higlass/higlass'
                   target='_blank'
                   rel='noopener noreferrer'
                 >
-                  github.com/hms-dbmi/higlass
+                  github.com/higlass/higlass
                 </a>
               </li>
               <li>
                 <strong>UI architecture: </strong>
                 <a
-                  href='https://github.com/hms-dbmi/higlass-app'
+                  href='https://github.com/higlass/higlass-app'
                   target='_blank'
                   rel='noopener noreferrer'
                 >
-                  github.com/hms-dbmi/higlass-app
+                  github.com/higlass/higlass-app
                 </a>
               </li>
               <li>
                 <strong>Server: </strong>
                 <a
-                  href='https://github.com/pkerpedjiev/hgflask'
+                  href='https://github.com/higlass/hgflask'
                   target='_blank'
                   rel='noopener noreferrer'
                 >
-                  github.com/pkerpedjiev/hgflask
+                  github.com/higlass/hgflask
                 </a>
               </li>
             </ul>
