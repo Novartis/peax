@@ -13,7 +13,11 @@ limitations under the License.
 
 import base64
 import numpy as np
+from typing import Callable, List
+
 from server import bigwig, utils
+
+Vector = List[float]
 
 TILE_SIZE = 1024
 
@@ -26,7 +30,7 @@ TILESET_INFO = {
 
 
 def get_values(
-    v: np.ndarray,
+    v: Vector,
     v_res: int,
     v_len_abs: int,
     v_offset_abs: int,
@@ -36,9 +40,9 @@ def get_values(
     bins: int,
     res: int,
     missing: float = np.nan,
-    aggregator=np.mean,
-    scaleup_aggregator=np.mean,
-):
+    aggregator: Callable = np.mean,
+    scaleup_aggregator: Callable = np.mean,
+) -> Vector:
     abs_start = offset + start
     abs_end = offset + end
 
