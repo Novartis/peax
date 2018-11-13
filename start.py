@@ -28,18 +28,6 @@ class MyParser(argparse.ArgumentParser):
 
 
 parser = MyParser(description="Peak Explorer CLI")
-parser.add_argument("-e", "--encoder", help="path to saved encoder")
-parser.add_argument("-d", "--dataset", help="path to saved dataset (bigwig)")
-parser.add_argument("-w", "--windowsize", help="path to saved dataset (bigwig)")
-parser.add_argument("-r", "--resolution", help="number of bp per bin")
-parser.add_argument(
-    "-s",
-    "--stepsize",
-    help="relative to window, e.g., `2` => `windowsize / 2 = stepsize in bp`",
-)
-parser.add_argument(
-    "-c", "--chroms", help="comma-separated list of chromosomes to search over"
-)
 parser.add_argument("--config", help="use config file instead of args")
 parser.add_argument("--clear", action="store_true", help="clears the db on startup")
 parser.add_argument("--debug", action="store_true", help="debug flag")
@@ -51,8 +39,15 @@ args = parser.parse_args()
 
 config_path = args.config if args.config else "config.json"
 
-with open(config_path, "r") as f:
-    config_file = json.load(f)
+try:
+    with open(config_path, "r") as f:
+        config_file = json.load(f)
+except FileNotFoundError:
+    print(
+        "You need to provide either provide a config file via `--config` or "
+        "have it as `config.json` in the root directory of Peax"
+    )
+    raise
 
 # Create a config object
 config = Config(config_file)
