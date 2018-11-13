@@ -237,25 +237,20 @@ def create(
         remove_windows = None
 
         pos = 0
-        for i, dataset_id in enumerate(datasets):
-            # Skip composed datasets, which start with `__`
-            if dataset_id[:2] == "__":
-                continue
-
-            dataset = datasets[dataset_id]
+        for dataset in datasets:
             encoder = encoders.get(dataset.content_type)
-            step_size = encoders.window_size / config["step_freq"]
+            step_size = encoders.window_size / config.step_freq
 
             window_from_idx = int(target_locus_rel[0] // step_size)
             window_from_start = int(window_from_idx * step_size)
-            window_to_idx = window_from_idx + config["step_freq"]
+            window_to_idx = window_from_idx + config.step_freq
             bins = int(encoders.window_size // encoder.resolution)
             offset = int(
                 np.round((target_locus_rel[0] - window_from_start) / encoder.resolution)
             )
 
             target[pos : pos + encoder.latent_dim] = encoder.encode(
-                bigwig.get(dataset["filepath"], *target_locus_chrom[0], bins).reshape(
+                bigwig.get(dataset.filepath, *target_locus_chrom[0], bins).reshape(
                     (1, bins, 1)
                 )
             )
@@ -266,7 +261,7 @@ def create(
                     target_locus_rel[0] - window_from_start
                 ) / encoders.window_size
                 max_offset = 0.66  # For which we remove the window
-                k = np.ceil(config["step_freq"] * (offset - max_offset))
+                k = np.ceil(config.step_freq * (offset - max_offset))
                 remove_windows = np.arange(window_from_idx + k, window_to_idx + k)
 
             pos += encoder.latent_dim
@@ -769,7 +764,7 @@ def create(
         ):
             info = db.get_search(search_id)
             if info is not None:
-                step_size = encoders.window_size // config["step_freq"]
+                step_size = encoders.window_size // config.step_freq
                 target_from_rel = step_size * int(window_id)
                 target_to_rel = target_from_rel + step_size
                 target_abs = list(
@@ -777,7 +772,7 @@ def create(
                         int,
                         bigwig.chr2abs(
                             datasets.chromsizes,
-                            config["chroms"][0],  # First chrom defines the offset
+                            config.chroms[0],  # First chrom defines the offset
                             target_from_rel,
                             target_to_rel,
                         ),
@@ -930,8 +925,7 @@ def create(
                     info[uuid] = {**vector.TILESET_INFO, **info[uuid]}
                     info[uuid].update(
                         vector.tileset_info(
-                            datasets.chromsizes,
-                            encoders.window_size / config["step_freq"],
+                            datasets.chromsizes, encoders.window_size / config.step_freq
                         )
                     )
                 else:
@@ -1010,10 +1004,10 @@ def create(
                     _, p_y = classifier.predict(datasets.concat_encoding)
 
                     p_y_merged = utils.merge_interleaved(
-                        p_y[:, 1], config["step_freq"], aggregator=np.nanmax
+                        p_y[:, 1], config.step_freq, aggregator=np.nanmax
                     )
 
-                    res_merged = int(encoders.window_size / config["step_freq"])
+                    res_merged = int(encoders.window_size / config.step_freq)
 
                     tiles.extend(
                         vector.tiles(
