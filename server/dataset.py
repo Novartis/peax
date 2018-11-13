@@ -42,17 +42,25 @@ class Dataset:
         self.chromsizes = chromsizes
         self.clear_cache = clear_cache
 
+        self.chunks = None
+        self.encoding = None
+        self.autoencoding = None
+
         if not self.chromsizes:
             self.chromsizes = bigwig.get_chromsizes(self.filepath)
 
-    def export(self, use_uuid: bool = False):
+    @property
+    def is_autoencoded(self):
+        return self.autoencoding is not None
+
+    def export(self, use_uuid: bool = False, autoencodings: bool = False):
         # Only due to some weirdness in HiGlass
         idKey = "uuid" if use_uuid else "id"
         return {
-            "filepath": self.filepath,
-            "filetype": self.filetype,
+            "filepath": None if autoencodings else self.filepath,
+            "filetype": "__autoencoding__" if autoencodings else self.filetype,
             "content_type": self.content_type,
-            idKey: self.id,
+            idKey: "{}|ae".format(self.id) if autoencodings else self.id,
             "name": self.name,
         }
 

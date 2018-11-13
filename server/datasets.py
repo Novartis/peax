@@ -45,13 +45,18 @@ class Datasets:
         except KeyError:
             self.datasets_by_type[dataset.content_type] = [dataset]
 
-    def export(self, use_uuid: bool = False):
-        return [dataset.export(use_uuid) for dataset in self.datasets]
+    def export(self, use_uuid: bool = False, autoencodings: bool = False):
+        return [
+            dataset.export(use_uuid=use_uuid, autoencodings=autoencodings)
+            for dataset in self.datasets
+            if not autoencodings or dataset.is_autoencoded
+        ]
 
     def get(self, dataset_id: str):
-        if dataset_id in self.datasets:
-            return self.datasets[dataset_id]
-        raise KeyError("No dataset with ID '{}' found".format(dataset_id))
+        try:
+            return self.datasets_by_id[dataset_id]
+        except KeyError:
+            raise KeyError("No dataset with ID '{}' found".format(dataset_id))
 
     def size(self):
         return len(self.datasets)
