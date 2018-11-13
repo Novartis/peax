@@ -50,17 +50,27 @@ def build(
 
     # Setup defaut tracks
     for track in defaults.TOP_TRACKS:
+        real_track = copy.deepcopy(track)
+
         combined_track_config = copy.deepcopy(defaults.COMBINED_TRACK)
-        combined_track_config["uid"] = track["uid"] + "-combined"
+        combined_track_config["uid"] = real_track["uid"] + "-combined"
 
         anno_track_config = copy.deepcopy(defaults.ANNOTATION_TRACK)
-        anno_track_config["uid"] = track["uid"] + "-annotation"
+        anno_track_config["uid"] = real_track["uid"] + "-annotation"
 
         if region is not None:
             anno_track_config["options"]["regions"].append(region)
 
-        combined_track_config["height"] = track.get("height")
-        combined_track_config["contents"].extend([anno_track_config, track])
+        if default and real_track.get("type") == "horizontal-gene-annotations":
+            real_track["height"] *= 2
+            real_track["options"]["fontSize"] = 10
+            real_track["options"]["geneAnnoHeight"] = 10
+            real_track["options"]["geneLabelPosition"] = "outside"
+            real_track["options"]["geneStrandSpacing"] = 3
+
+        combined_track_config["height"] = real_track.get("height")
+
+        combined_track_config["contents"].extend([anno_track_config, real_track])
 
         view_config["views"][0]["tracks"]["top"].append(combined_track_config)
 
