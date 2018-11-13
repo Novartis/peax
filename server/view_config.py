@@ -29,8 +29,8 @@ def build(
     config,
     search_info: dict = None,
     domain: list = None,
-    has_predictions: bool = False,
-    has_encodings: bool = False,
+    incl_predictions: bool = False,
+    incl_autoencodings: bool = False,
     default: bool = False,
     hide_label: bool = False,
 ) -> dict:
@@ -74,7 +74,7 @@ def build(
 
         view_config["views"][0]["tracks"]["top"].append(combined_track_config)
 
-    if has_predictions:
+    if incl_predictions:
         combined_track_config = copy.deepcopy(defaults.COMBINED_TRACK)
         combined_track_config["uid"] = "class-probs-combined"
 
@@ -121,16 +121,16 @@ def build(
             if region is not None:
                 anno_track_config["options"]["regions"].append(region)
 
-            if has_encodings:
-                encodings_track_config = copy.deepcopy(defaults.ENCODINGS_TRACK)
-                uid = "ae"
-                encodings_track_config["tilesetUid"] = uid
-                encodings_track_config["uid"] = uid
-                combined_track_config["contents"].append(encodings_track_config)
-
             bw_track_config = copy.deepcopy(defaults.BIGWIG_TRACK)
             bw_track_config["tilesetUid"] = dataset.id
             bw_track_config["uid"] = dataset.id
+
+            if incl_autoencodings:
+                encodings_track_config = copy.deepcopy(defaults.ENCODINGS_TRACK)
+                uid = "{}|ae".format(bw_track_config["uid"])
+                encodings_track_config["tilesetUid"] = uid
+                encodings_track_config["uid"] = uid
+                combined_track_config["contents"].append(encodings_track_config)
 
             if dataset.height:
                 bw_track_config["height"] = dataset.height
@@ -164,7 +164,7 @@ def build(
     return view_config
 
 
-def height(datasets, config, has_predictions: bool = False):
+def height(datasets, config, incl_predictions: bool = False):
     view_config = build(datasets, config)
     total_height = 0
 
