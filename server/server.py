@@ -987,7 +987,7 @@ def create(
                 elif filetype == "__autoencodings__":
                     tiles.extend(
                         vector.tiles(
-                            datasets["__concat_autoencoded__"],
+                            datasets.concat_encoding,
                             encoders.resolution,
                             abs_len,
                             abs_offset,
