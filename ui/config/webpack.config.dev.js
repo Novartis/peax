@@ -438,8 +438,8 @@ module.exports = {
     }),
     // Expose version numbers.
     new webpack.DefinePlugin({
-      VERSION_HIGLASS_APP: JSON.stringify(packageJson.version),
-      VERSION_HIGLASS_VIEWER: JSON.stringify(packageJsonHg.version),
+      VERSION_HIGLASS: JSON.stringify(packageJsonHg.version),
+      VERSION_PEAX: JSON.stringify(packageJson.version),
     }),
     new webpack.DefinePlugin(configConst),
   ],
