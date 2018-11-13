@@ -65,7 +65,7 @@ class Dataset:
         self.chromsizes = bigwig.get_chromsizes(self.filepath)
 
         # Extract the windows
-        self.chunked_data = bigwig.chunk(
+        self.chunks = bigwig.chunk(
             self.filepath,
             encoder.window_size,
             encoder.resolution,
@@ -74,18 +74,16 @@ class Dataset:
             verbose=verbose,
         )
 
-        self.num_windows, self.num_bins = self.chunked_data.shape
+        self.num_windows, self.num_bins = self.chunks.shape
 
-        if encoder.input_dim == 3 and self.chunked_data.ndim == 2:
-            self.chunked_data = self.chunked_data.reshape(
-                *self.chunked_data.shape, encoder.channels
-            )
-        self.encoded_data = encoder.encode(self.chunked_data)
-        self.autoencoded_data = encoder.autoencode(self.chunked_data)
+        if encoder.input_dim == 3 and self.chunks.ndim == 2:
+            self.chunks = self.chunks.reshape(*self.chunks.shape, encoder.channels)
+        self.encoding = encoder.encode(self.chunks)
+        self.autoencoding = encoder.autoencode(self.chunks)
 
         # Merge interleaved autoencoded windows to one continuous track
-        self.autoencoded_data = utils.merge_interleaved_mat(
-            self.autoencoded_data,
+        self.autoencoding = utils.merge_interleaved_mat(
+            self.autoencoding,
             config.step_freq,
             utils.get_norm_sym_norm_kernel(encoder.window_size // encoder.resolution),
         )

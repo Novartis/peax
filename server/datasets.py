@@ -22,6 +22,7 @@ class Datasets:
         self.chromsizes = None
         self.concat_data = None
         self.concat_encoding = None
+        self.concat_autoencoding = None
 
     def __iter__(self):
         return iter(self.datasets)
@@ -96,13 +97,13 @@ class Datasets:
 
             self.concat_data[
                 :, current_pos : current_pos + dataset.num_bins
-            ] = np.squeeze(dataset.chunked_data)
+            ] = np.squeeze(dataset.chunks)
 
             self.concat_encoding[
                 :, current_pos_encoded : current_pos_encoded + encoder.latent_dim
-            ] = np.squeeze(dataset.encoded_data)
+            ] = np.squeeze(dataset.encoding)
 
         # Remove individual data of dataset
         for dataset in self.datasets:
-            dataset.chunked_data = None
-            dataset.encoded_data = None
+            dataset.chunks = None
+            dataset.encoding = None
