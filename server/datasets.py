@@ -20,6 +20,8 @@ class Datasets:
         self.datasets_by_id = {}
         self.datasets_by_type = {}
         self.chromsizes = None
+        self.concat_data = None
+        self.concat_encoding = None
 
     def __iter__(self):
         return iter(self.datasets)
