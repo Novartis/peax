@@ -64,6 +64,9 @@ class SearchResults extends React.Component {
       filterByClf: ['positive', 'negative'],
       sortOrder: 'desc',
     };
+
+    // Bound methods
+    this.goToSeedsBound = this.goToSeeds.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -219,7 +222,7 @@ class SearchResults extends React.Component {
             isError={this.props.isError}
             isLoading={this.props.isLoading}
             isNotReady={this.props.isReady === false}
-            isNotReadyNodes={isNotReady(this.goToSeeds)}
+            isNotReadyNodes={isNotReady(this.goToSeedsBound)}
             isNotTrained={this.props.isTrained === false}
             isNotTrainedNodes={isNotTrained(this.props.onTrainingStart)}
             isTraining={this.props.isTraining === true}
