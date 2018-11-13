@@ -1,3 +1,5 @@
+from typing import Dict, List, TypeVar
+
 from server.dataset import Dataset
 from server.datasets import Datasets
 from server.defaults import CHROMS, DB_PATH, STEP_FREQ, MIN_CLASSIFICATIONS
@@ -5,19 +7,25 @@ from server.encoder import Autoencoder, Encoder
 from server.encoders import Encoders
 from server.exceptions import InvalidConfig
 
+# Any list-like object needs to have the *same* variable type. I.e., `List[Num]` does
+# not allow [1, "chr1"]. It must either contain ints only or str only.
+IntOrStr = TypeVar('Num', int, str)
+
 
 class Config:
-    def __init__(self, config_file):
+    def __init__(self, config_file: Dict):
+        # Init
         self.encoders = Encoders()
         self.datasets = Datasets()
+
+        # Set defaults
         self.chroms = CHROMS
         self.step_freq = STEP_FREQ
         self.min_classifications = MIN_CLASSIFICATIONS
         self.db_path = DB_PATH
-        self.file = config_file
 
-        if self.file:
-            self.config(self.file)
+        # Set file
+        self.file = config_file
 
     def config(self, config_file):
         keys = set(config_file.keys())
@@ -82,41 +90,83 @@ class Config:
     def addDataset(self, ds):
         self.datasets.add(ds)
 
+    @property
+    def file(self):
+        return self._file
+
+    @file.setter
+    def file(self, value: Dict):
+        if value.get("encoders") and value.get("datasets"):
+            self._file = value
+            if self.file:
+                self.config(self.file)
+        else:
+            raise InvalidConfig("Config file needs to include `encoders` and `datasets`")
+
+    @property
+    def chroms(self):
+        return self._chroms
+
+    @chroms.setter
+    def chroms(self, value: List[IntOrStr]):
+        # fmt: off
+        if (
+            all(isinstance(v, str) for v in value) or
+            all(isinstance(v, int) for v in value)
+        ):
+        # fmt: on
+            self._chroms = value
+        else:
+            raise InvalidConfig("Chromosomes must be a list of strings or ints")
+
+    @property
+    def step_freq(self):
+        return self._step_freq
+
+    @step_freq.setter
+    def step_freq(self, value: int):
+        if value > 0:
+            self._step_freq = value
+        else:
+            raise InvalidConfig("Step frequency must be larger than zero")
+
+    @property
+    def min_classifications(self):
+        return self._min_classifications
+
+    @min_classifications.setter
+    def min_classifications(self, value: int):
+        if value > 0:
+            self._min_classifications = value
+        else:
+            raise InvalidConfig("Minimum classifications must be larger than zero")
+
+    @property
+    def db_path(self):
+        return self._db_path
+
+    @db_path.setter
+    def db_path(self, value: str):
+        if isinstance(value, str):
+            self._db_path = value
+        else:
+            raise InvalidConfig("Path to the database needs to be a string")
+
     def set(self, key, value):
         if key == "chroms":
-            # fmt: off
-            if (
-                all(isinstance(v, str) for v in value) or
-                all(isinstance(v, int) for v in value)
-            ):
-            # fmt: on
-                self.chroms = value
-            else:
-                raise InvalidConfig("Chromosomes must be a list of strings or ints")
-            return
+            self.chroms = value
 
-        if key == "step_freq":
-            if value > 0:
-                self.step_freq = value
-            else:
-                raise InvalidConfig("Step frequency must be larger than zero")
-            return
+        elif key == "step_freq":
+            self.step_freq = value
 
-        if key == "min_classifications":
-            if value > 0:
-                self.min_classifications = value
-            else:
-                raise InvalidConfig("Minimum classifications must be larger than zero")
-            return
+        elif key == "min_classifications":
+            self.min_classifications = value
 
-        if key == "db_path":
-            if isinstance(value, str):
-                self.db_path = value
-            else:
-                raise InvalidConfig("Path to the database needs to be a string")
-            return
+        elif key == "db_path":
+            self.db_path = value
 
-        raise InvalidConfig("Unknown settings: {}".format(key))
+        else:
+            raise InvalidConfig("Unknown settings: {}".format(key))
 
     def export(self):
         return {
