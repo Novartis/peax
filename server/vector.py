@@ -74,7 +74,7 @@ def get_values(
             # output resolution is greater than the data resolution, hence,
             # we need to aggregate the data
             data = utils.zoom_array(
-                v[start_res:end_res], (bins,), aggregate_fn=aggregator
+                v[start_res:end_res], (bins,), aggregator=aggregator
             )
 
         elif res_ratio > 1:
@@ -232,16 +232,12 @@ def tiles(
             and min_dense < max_f16
         ):
             tile_value = {
-                "dense": base64.b64encode(dense.astype("float16")).decode(
-                    "utf-8"
-                ),
+                "dense": base64.b64encode(dense.astype("float16")).decode("utf-8"),
                 "dtype": "float16",
             }
         else:
             tile_value = {
-                "dense": base64.b64encode(dense.astype("float32")).decode(
-                    "utf-8"
-                ),
+                "dense": base64.b64encode(dense.astype("float32")).decode("utf-8"),
                 "dtype": "float32",
             }
 

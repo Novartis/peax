@@ -61,9 +61,9 @@ def zoom_array(
     in_array,
     final_shape,
     same_sum=False,
-    aggregate_fn=np.mean,
-    zoom_fn=zoom,
-    **zoom_fn_kwargs
+    aggregator=np.mean,
+    zoomor=zoom,
+    **zoomor_kwargs
 ):
     """Rescale vectors savely.
 
@@ -89,8 +89,9 @@ def zoom_array(
     final_shape: resulting shape of an array
     same_sum: bool, preserve a sum of the array, rather than values.
              by default, values are preserved
-    zoom_fn: by default, scipy.ndimage.zoom. You can plug your own.
-    zoom_fn_kwargs:  a dict of options to pass to zoom_fn.
+    aggregator: by default, np.mean. You can plug your own.
+    zoomor: by default, scipy.ndimage.zoom. You can plug your own.
+    zoomor_kwargs:  a dict of options to pass to zoomor.
     """
     in_array = np.asarray(in_array, dtype=np.double)
     in_shape = in_array.shape
@@ -112,7 +113,7 @@ def zoom_array(
     assert zoom_multipliers.min() >= 1
 
     # applying zoom
-    rescaled = zoom_fn(in_array, zoom_multipliers, **zoom_fn_kwargs)
+    rescaled = zoomor(in_array, zoom_multipliers, **zoom_fn_kwargs)
 
     for ind, mult in enumerate(mults):
         if mult != 1:
@@ -120,7 +121,7 @@ def zoom_array(
             assert sh[ind] % mult == 0
             newshape = sh[:ind] + [sh[ind] // mult, mult] + sh[ind + 1 :]
             rescaled.shape = newshape
-            rescaled = aggregate_fn(rescaled, axis=ind + 1)
+            rescaled = aggregator(rescaled, axis=ind + 1)
 
     assert rescaled.shape == final_shape
 
