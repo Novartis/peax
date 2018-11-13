@@ -96,7 +96,7 @@ def zoom_array(
     in_array = np.asarray(in_array, dtype=np.double)
     in_shape = in_array.shape
 
-    assert len(in_shape) == len(final_shape)
+    assert len(in_shape) == len(final_shape), "Number of dimensions need to equal"
 
     mults = []  # multipliers for the final coarsegraining
     for i in range(len(in_shape)):
@@ -113,7 +113,7 @@ def zoom_array(
     assert zoom_multipliers.min() >= 1
 
     # applying zoom
-    rescaled = zoomor(in_array, zoom_multipliers, **zoom_fn_kwargs)
+    rescaled = zoomor(in_array, zoom_multipliers, **zoomor_kwargs)
 
     for ind, mult in enumerate(mults):
         if mult != 1:
