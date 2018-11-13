@@ -728,9 +728,11 @@ def create(
         if view_id == "default":
             return jsonify(view_config.build(datasets, config, default=True))
 
-        if view_id == "default.e":
+        if view_id == "default|ae":
             return jsonify(
-                view_config.build(datasets, config, default=True, has_encodings=True)
+                view_config.build(
+                    datasets, config, default=True, incl_autoencodings=True
+                )
             )
 
         if view_id is None:
@@ -740,7 +742,7 @@ def create(
                 view_configs[info["id"]] = view_config.build(datasets, config, info)
             return jsonify(view_configs)
 
-        parts = view_id.split(".")
+        parts = view_id.split("|")
 
         with utils.catch(IndexError, default=None) as search_id:
             search_id = parts[0]
@@ -753,8 +755,8 @@ def create(
 
         search_info = db.get_search(search_id)
 
-        show_probs = search_info["classifiers"] > 0 and options.find("p") >= 0
-        show_encs = options.find("e") >= 0
+        incl_predictions = search_info["classifiers"] > 0 and options.find("p") >= 0
+        incl_autoencodings = options.find("ae") >= 0
 
         if (
             search_id is not None
@@ -784,8 +786,8 @@ def create(
                         config,
                         search_info=search_info,
                         domain=target_abs,
-                        has_predictions=show_probs,
-                        has_encodings=show_encs,
+                        incl_predictions=incl_predictions,
+                        incl_autoencodings=incl_autoencodings,
                         hide_label=True,
                     )
                 )
@@ -798,8 +800,8 @@ def create(
                         datasets,
                         config,
                         search_info=info,
-                        has_predictions=show_probs,
-                        has_encodings=show_encs,
+                        incl_predictions=incl_predictions,
+                        incl_autoencodings=incl_autoencodings,
                     )
                 )
 
@@ -884,13 +886,13 @@ def create(
                 lambda x: {
                     "uuid": "s{}p".format(x["id"]),
                     "search_id": x["id"],
-                    "filetype": "__predictions__",
+                    "filetype": "__prediction__",
                 },
                 search_res,
             )
         )
 
-        autoencodings = [{"uuid": "ae", "filetype": "__autoencodings__"}]
+        autoencodings = datasets.export(use_uuid=True, autoencodings=True)
 
         dataset_search_defs = datasets.export(use_uuid=True) + searches + autoencodings
 
@@ -916,12 +918,12 @@ def create(
                     info[uuid].update(bigwig.tileset_info(ts["filepath"]))
                 elif filetype == "cooler":
                     info[uuid].update(cooler.tileset_info(ts["filepath"]))
-                elif filetype == "__autoencodings__":
+                elif filetype == "__autoencoding__":
                     info[uuid] = {**vector.TILESET_INFO, **info[uuid]}
                     info[uuid].update(
                         vector.tileset_info(datasets.chromsizes, encoders.resolution)
                     )
-                elif filetype == "__predictions__":
+                elif filetype == "__prediction__":
                     info[uuid] = {**vector.TILESET_INFO, **info[uuid]}
                     info[uuid].update(
                         vector.tileset_info(
@@ -957,13 +959,13 @@ def create(
                 lambda x: {
                     "uuid": "s{}p".format(x["id"]),
                     "search_id": x["id"],
-                    "filetype": "__predictions__",
+                    "filetype": "__prediction__",
                 },
                 search_res,
             )
         )
 
-        autoencodings = [{"uuid": "ae", "filetype": "__autoencodings__"}]
+        autoencodings = datasets.export(use_uuid=True, autoencodings=True)
 
         dataset_search_defs = datasets.export(use_uuid=True) + searches + autoencodings
 
@@ -984,10 +986,10 @@ def create(
                     tiles.extend(bigwig.tiles(filepath, tids))
                 elif filetype == "cooler":
                     tiles.extend(cooler.tiles(filepath, tids))
-                elif filetype == "__autoencodings__":
+                elif filetype == "__autoencoding__":
                     tiles.extend(
                         vector.tiles(
-                            datasets.concat_encoding,
+                            datasets.get(uuid.split("|")[0]).autoencoding,
                             encoders.resolution,
                             abs_len,
                             abs_offset,
@@ -995,7 +997,7 @@ def create(
                             datasets.chromsizes,
                         )
                     )
-                elif filetype == "__predictions__":
+                elif filetype == "__prediction__":
                     classifier = classifiers.get(ts["search_id"])
 
                     if classifier is None:
