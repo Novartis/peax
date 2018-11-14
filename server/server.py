@@ -39,7 +39,8 @@ from server.projectors import Projectors
 def create(
     config,
     ext_filetype_handlers: list = None,
-    clear: bool = False,
+    clear_cache: bool = False,
+    clear_db: bool = False,
     verbose: bool = False,
 ):
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "0" if verbose else "3"
@@ -47,15 +48,14 @@ def create(
     STARTED = int(time.time())
 
     # Init db
-    db = DB(db_path=config.db_path, clear=clear)
+    db = DB(db_path=config.db_path, clear=clear_db)
 
     # Load autoencoders
     encoders = config.encoders
     datasets = config.datasets
 
     # Prepare data: load and encode windows
-    datasets.prepare(encoders, config, verbose)
-    datasets.size()
+    datasets.prepare(encoders, config, clear=clear_cache, verbose=verbose)
 
     # Determine the absolute offset for windows
     abs_offset = np.inf

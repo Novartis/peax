@@ -29,7 +29,15 @@ class MyParser(argparse.ArgumentParser):
 
 parser = MyParser(description="Peak Explorer CLI")
 parser.add_argument("--config", help="use config file instead of args")
-parser.add_argument("--clear", action="store_true", help="clears the db on startup")
+parser.add_argument(
+    "--clear", action="store_true", help="clears the cache and database on startup"
+)
+parser.add_argument(
+    "--clear-cache", action="store_true", help="clears the cache on startup"
+)
+parser.add_argument(
+    "--clear-db", action="store_true", help="clears the database on startup"
+)
 parser.add_argument("--debug", action="store_true", help="debug flag")
 parser.add_argument("--host", help="Customize the hostname", default="localhost")
 parser.add_argument("--port", help="Customize the port", default=5000)
@@ -53,7 +61,12 @@ except FileNotFoundError:
 config = Config(config_file)
 
 # Create app instance
-app = server.create(config, clear=args.clear, verbose=args.verbose)
+app = server.create(
+    config,
+    clear_cache=args.clear or args.clear_cache,
+    clear_db=args.clear or args.clear_db,
+    verbose=args.verbose,
+)
 
 # Run the instance
 app.run(debug=args.debug, host=args.host, port=args.port)
