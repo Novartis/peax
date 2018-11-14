@@ -12,6 +12,8 @@ limitations under the License.
 """
 
 import os
+import h5py
+import re
 
 from server import bigwig
 from server import utils
@@ -53,6 +55,14 @@ class Dataset:
     def is_autoencoded(self):
         return self.autoencoding is not None
 
+    @property
+    def filename(self):
+        return os.path.basename(self.filepath)
+
+    @property
+    def cache_filename(self):
+        return "cache/{}.hdf5".format(self.filename)
+
     def export(self, use_uuid: bool = False, autoencodings: bool = False):
         # Only due to some weirdness in HiGlass
         idKey = "uuid" if use_uuid else "id"
@@ -64,34 +74,99 @@ class Dataset:
             "name": self.name,
         }
 
-    def prepare(self, config, encoder, verbose: bool = False) -> list:
+    def prepare(self, config, encoder, clear: bool = False, verbose: bool = False):
         assert self.content_type == encoder.content_type
-
-        # Check if file is cached
-        self.cache_filename = "{}.arrow".format(os.path.basename(self.filepath))
 
         self.chromsizes = bigwig.get_chromsizes(self.filepath)
 
-        # Extract the windows
-        self.chunks = bigwig.chunk(
-            self.filepath,
-            encoder.window_size,
-            encoder.resolution,
-            encoder.window_size // config.step_freq,
-            config.chroms,
-            verbose=verbose,
-        )
+        mode = "w" if clear else "w-"
+        step_size = encoder.window_size // config.step_freq
+        num_total_windows = 0
+        global_num_bins = None
 
-        self.num_windows, self.num_bins = self.chunks.shape
+        try:
+            with h5py.File(self.cache_filename, mode) as f:
+                w = f.create_group("windows")
+                e = f.create_group("encodings")
+                a = f.create_group("autoencodings")
+                for chromosome in config.chroms:
+                    chr_str = str(chromosome)
 
-        if encoder.input_dim == 3 and self.chunks.ndim == 2:
-            self.chunks = self.chunks.reshape(*self.chunks.shape, encoder.channels)
-        self.encoding = encoder.encode(self.chunks)
-        self.autoencoding = encoder.autoencode(self.chunks)
+                    # Extract the windows
+                    windows = bigwig.chunk(
+                        self.filepath,
+                        encoder.window_size,
+                        encoder.resolution,
+                        step_size,
+                        [chromosome],
+                        verbose=verbose,
+                    )
 
-        # Merge interleaved autoencoded windows to one continuous track
-        self.autoencoding = utils.merge_interleaved_mat(
-            self.autoencoding,
-            config.step_freq,
-            utils.get_norm_sym_norm_kernel(encoder.window_size // encoder.resolution),
-        )
+                    num_windows, num_bins = windows.shape
+
+                    num_total_windows += num_windows
+
+                    if global_num_bins is None:
+                        global_num_bins = num_bins
+
+                    assert (
+                        global_num_bins == num_bins
+                    ), "Changing number of bins between chromosomes is not allowed"
+
+                    assert (
+                        encoder.window_num_bins == global_num_bins
+                    ), "Encoder should have the same number of bins as the final data"
+
+                    if encoder.input_dim == 3 and windows.ndim == 2:
+                        windows = windows.reshape(*windows.shape, encoder.channels)
+
+                    encoding = encoder.encode(windows)
+
+                    # Data is organized by chromosomes. Currently interchromosomal
+                    # patterns are not allowed
+                    w[chr_str] = windows
+                    w[chr_str].attrs["window_size"] = encoder.window_size
+                    w[chr_str].attrs["resolution"] = encoder.resolution
+                    w[chr_str].attrs["step_size"] = step_size
+                    w[chr_str].attrs["step_freq"] = config.step_freq
+
+                    e[chr_str] = encoding
+                    e[chr_str].attrs["file_name"] = encoder.encoder_filename
+
+                    if getattr(encoder, "autoencode"):
+                        autoencoding = encoder.autoencode(windows)
+
+                        # Merge interleaved autoencoded windows to one continuous track
+                        autoencoding = utils.merge_interleaved_mat(
+                            autoencoding,
+                            config.step_freq,
+                            utils.get_norm_sym_norm_kernel(
+                                encoder.window_size // encoder.resolution
+                            ),
+                        )
+
+                        a[chr_str] = autoencoding
+                        a[chr_str].attrs["file_name"] = encoder.encoder_filename
+
+                    # Lets write to disk
+                    f.flush()
+
+                w.attrs["num_total_windows"] = num_total_windows
+                print("global_num_bins2", global_num_bins)
+                w.attrs["num_bins"] = encoder.window_num_bins
+        except OSError as error:
+            # When `clear` is `False` and the data is already prepared then we expect to
+            # see error number 17 as we opened the file in `w-` mode.
+            if not clear:
+                # Stupid h5py doesn't populate `error.errno` so we have to parse it out
+                # manually
+                matches = re.search(r"errno = (\d+)", str(error))
+                if matches and int(matches.group(1)) == 17:
+                    pass
+                else:
+                    raise
+            else:
+                raise
+
+        # Return for convenience
+        return num_total_windows
