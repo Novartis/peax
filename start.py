@@ -28,12 +28,12 @@ class MyParser(argparse.ArgumentParser):
 
 
 parser = MyParser(description="Peak Explorer CLI")
-parser.add_argument("--config", help="use config file instead of args")
-parser.add_argument("--clear", action="store_true", help="clears the db on startup")
-parser.add_argument("--debug", action="store_true", help="debug flag")
+parser.add_argument("--config", help="path to your JSON config file")
+parser.add_argument("--clear", action="store_true", help="clear the db on startup")
+parser.add_argument("--debug", action="store_true", help="turn on debug mode")
 parser.add_argument("--host", help="Customize the hostname", default="localhost")
 parser.add_argument("--port", help="Customize the port", default=5000)
-parser.add_argument("--verbose", action="store_true", help="verbose flag")
+parser.add_argument("--verbose", action="store_true", help="turn verbose logging on")
 
 args = parser.parse_args()
 
