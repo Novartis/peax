@@ -13,7 +13,7 @@
 
 ## Installation
 
-```
+```bash
 git clone https://github.com/Novartis/peax peax && cd peax
 make install
 ```
@@ -26,7 +26,7 @@ _Do not fear, `make install` is just a convenience function for setting up conda
 
 Peax consists of four main parts:
 
-1. A python module for creating a autoencoder. [[/ae](ae)]
+1. A python module for creating an autoencoder. [[/ae](ae)]
 2. A set of example notebooks exemplifying the creating of autoencoders. [[/notebooks](notebooks)]
 3. A Flask-based server application for serving genomic and autoencoded data on the web. [[/server](server)].
 4. A React-based user interface for exploring, visualizing, and interactively labeling genomic regions. [[/ui](ui)].
@@ -40,13 +40,13 @@ to get you started as quickly as possible.
 
 1. ChIP-seq encoder for 12Kb genomic windows at 100bp binning.
 
-   ```
+   ```bash
    make example-12kb
    ```
 
 2. DNase-seq encoder for 2.4Kb genomic windows at 100bp binning
 
-   ```
+   ```bash
    make example-2_4kb
    ```
 
@@ -69,7 +69,7 @@ After creating your autoencoder save its model as an HDF5 file.
 
 #### Configure Peax with your data
 
-Next you need to configure Peax with your data. The main reason for doing is to tell Peax, which tracks you want to visualize in HiGlass and which of those tracks are encodable using an autoencoder.
+Next, you need to configure Peax with your data to tell it which tracks you want to visualize in HiGlass and which of those tracks are encodable using an (auto)encoder.
 
 The fastest way to get started is to copy the example config:
 
@@ -77,9 +77,8 @@ The fastest way to get started is to copy the example config:
 cp config.json.sample config.json
 ```
 
-The main part to adjust is `aes` and `datasets`. AE stands for autoencoder and
-is a list of autoencoder definitions, e.g., you could have multiple encoder for
-different datatypes. The required format for autoencoders is as follows:
+The main parts to adjust are `encoders` and `datasets`. `encoders` is a list of
+(auto)encoder definitions for different datatypes. The required format for `encoders` is as follows:
 
 | Field        | Description                                                                                                                                   | Defaults | Dtype |
 |--------------|-----------------------------------------------------------------------------------------------------------------------------------------------|----------|-------|
@@ -94,7 +93,7 @@ different datatypes. The required format for autoencoders is as follows:
 
 **Example:**
 
-```javascript
+```json
 {
   "encoder": "path/to/my-12kb-chip-seq-encoder.h5",
   "decoder": "path/to/my-12kb-chip-seq-decoder.h5",
@@ -111,14 +110,14 @@ Datasets require the following format:
 
 | Field        | Description                                                                                                                                                       | Dtype |
 |--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------|
-| filepath     | Relative path to your track data file (bigwig or bigbed).                                                                                                         | str   |
+| filepath     | Relative path to your track data file (bigWig or bigBed).                                                                                                         | str   |
 | content_type | Unique string describing the content this dataset. If you want to search for patterns in this track you need to have an autoencoder with a matching content type. | str   |
-| uuid         | A unique string identifying your track. (Optional)                                                                                                                | str   |
-| name         | A human readable name to be shown in HiGlass.(Optional)                                                                                                           | str   |
+| id           | A unique string identifying your track. (Optional)                                                                                                                | str   |
+| name         | A human readable name to be shown in HiGlass. (Optional)                                                                                                          | str   |
 
 **Example:**
 
-```javascript
+```json
 {
   "filepath": "data/chip-seq/my-fancy-gm12878-chip-seq-h3k27c-track.bigWig",
   "content_type": "chip-seq-pval",
@@ -131,40 +130,26 @@ Datasets require the following format:
 
 Finally, start the Peax server to run the application:
 
-```
-./start.py --config=your-config.json
+```bash
+./start.py
 ```
 
 Start supports the following options:
 
-```
-usage: start.py [-h] [-e ENCODER] [-d DATASET] [-w WINDOWSIZE] [-r RESOLUTION]
-                [-s STEPSIZE] [-c CHROMS] [--config CONFIG] [--clear]
-                [--debug] [--host HOST] [--port PORT] [--verbose]
+```bash
+usage: start.py [-h] [--config CONFIG] [--clear] [--debug] [--host HOST]
+                [--port PORT] [--verbose]
 
 Peak Explorer CLI
 
 optional arguments:
-  -h, --help            show this help message and exit
-  -e ENCODER, --encoder ENCODER
-                        path to saved encoder
-  -d DATASET, --dataset DATASET
-                        path to saved dataset (bigwig)
-  -w WINDOWSIZE, --windowsize WINDOWSIZE
-                        path to saved dataset (bigwig)
-  -r RESOLUTION, --resolution RESOLUTION
-                        number of bp per bin
-  -s STEPSIZE, --stepsize STEPSIZE
-                        relative to window, e.g., `2` => `windowsize / 2 =
-                        stepsize in bp`
-  -c CHROMS, --chroms CHROMS
-                        comma-separated list of chromosomes to search over
-  --config CONFIG       use config file instead of args
-  --clear               clears the db on startup
-  --debug               debug flag
-  --host HOST           Customize the hostname
-  --port PORT           Customize the port
-  --verbose             verbose flag
+  -h, --help       show this help message and exit
+  --config CONFIG  path to your JSON config file
+  --clear          clear the db on startup
+  --debug          turn on debug mode
+  --host HOST      Customize the hostname
+  --port PORT      Customize the port
+  --verbose        turn verbose logging on
 ```
 
 The `hostname` defaults to `localhost` and the `port` of the backend server defaults to `5000`.
@@ -174,9 +159,9 @@ The `hostname` defaults to `localhost` and the `port` of the backend server defa
 
 Handy commands to keep in mind:
 
-- `make install` installs the conda environment and npm packages and builds HiGlass
-- `make update` updates the conda environment and npm packages and rebuilds HiGlass
-- `make build` rebuild the peax ui
+- `make install` installs the conda environment and npm packages and builds the UI
+- `make update` updates the conda environment and npm packages and rebuilds the UI
+- `make build` rebuild the UI
 - `./start.py` starts the Flask server application for serving data
 - [/ui]: `npm install` installs and updates all the needed packages for the frontend
 - [/ui]: `npm build` creates the production built of the frontend
@@ -186,11 +171,11 @@ To start developing on the server and the ui in parallel, first start the backen
 
 ### Configuration
 
-There are 2 types of configuration files. The [backend server configuration](#configure-peax-with-your-data) defines which datasets to explore and is described in detail [above](#configure-peax-with-your-data).
+There are 2 types of configuration files. The [backend server configuration](#configure-peax-with-your-data) defines the datasets to explore and is described in detail [above](#configure-peax-with-your-data).
 
 Additionally, the frontend application can be configured to talk to a different backend server and port if needed. Get started by copying the example configuration:
 
-```
+```bash
 cd ui && cp config.json.sample config.json
 ```
 
@@ -201,9 +186,9 @@ By default the `server` is dynamically set to the hostname of the server running
 For development the backend and frontend applications run as seperate server
 applications.
 
-```
+```bash
 # Backend server
-./start.py --config=config.json --debug
+./start.py --debug
 
 # Frontend server
 cd ui && npm start
