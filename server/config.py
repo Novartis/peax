@@ -1,8 +1,9 @@
+import pathlib
 from typing import Dict, List, TypeVar
 
 from server.dataset import Dataset
 from server.datasets import Datasets
-from server.defaults import CHROMS, DB_PATH, STEP_FREQ, MIN_CLASSIFICATIONS
+from server.defaults import CACHE_DIR, CACHING, CHROMS, DB_PATH, STEP_FREQ, MIN_CLASSIFICATIONS
 from server.encoder import Autoencoder, Encoder
 from server.encoders import Encoders
 from server.exceptions import InvalidConfig
@@ -23,6 +24,8 @@ class Config:
         self.step_freq = STEP_FREQ
         self.min_classifications = MIN_CLASSIFICATIONS
         self.db_path = DB_PATH
+        self.cache_dir = CACHE_DIR
+        self.caching = CACHING
 
         # Set file
         self.file = config_file
@@ -33,8 +36,8 @@ class Config:
             try:
                 self.add(
                     Autoencoder(
-                        encoder=encoder["encoder"],
-                        decoder=encoder["decoder"],
+                        encoder_filepath=encoder["encoder"],
+                        decoder_filepath=encoder["decoder"],
                         content_type=encoder["content_type"],
                         window_size=encoder["window_size"],
                         resolution=encoder["resolution"],
@@ -46,7 +49,7 @@ class Config:
             except KeyError:
                 self.add(
                     Encoder(
-                        encoder=encoder["encoder"],
+                        encoder_filepath=encoder["encoder"],
                         content_type=encoder["content_type"],
                         window_size=encoder["window_size"],
                         resolution=encoder["resolution"],
@@ -152,6 +155,23 @@ class Config:
         else:
             raise InvalidConfig("Path to the database needs to be a string")
 
+    @property
+    def cache_dir(self):
+        return self._cache_dir
+
+    @cache_dir.setter
+    def cache_dir(self, value: str):
+        pathlib.Path(value).mkdir(parents=True, exist_ok=True)
+        self._cache_dir = value
+
+    @property
+    def caching(self):
+        return self._db_path
+
+    @caching.setter
+    def caching(self, value: bool):
+        self._db_path = bool(value)
+
     def set(self, key, value):
         if key == "chroms":
             self.chroms = value
@@ -164,6 +184,9 @@ class Config:
 
         elif key == "db_path":
             self.db_path = value
+
+        elif key == "caching":
+            self.caching = value
 
         else:
             raise InvalidConfig("Unknown settings: {}".format(key))
