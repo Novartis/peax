@@ -110,7 +110,7 @@ SearchSeeds.propTypes = {
   classificationChangeHandler: PropTypes.func.isRequired,
   dataTracks: PropTypes.array,
   info: PropTypes.object.isRequired,
-  isError: PropTypes.bool,
+  isError: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
   isLoading: PropTypes.bool,
   isReady: PropTypes.bool,
   isTraining: PropTypes.bool,

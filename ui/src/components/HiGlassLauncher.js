@@ -16,10 +16,8 @@ import { SELECT } from '../configs/mouse-tools';
 
 // Styles
 import './HiGlassLauncher.scss';
-import '../styles/bootstrap.less';
 
-const logger = Logger('HiGlassLauncher');  // eslint-disable-line
-
+const logger = Logger("HiGlassLauncher"); // eslint-disable-line
 
 class HiGlassLauncher extends React.Component {
   constructor(props) {
@@ -126,7 +124,9 @@ class HiGlassLauncher extends React.Component {
       <div className={className}>
         <div className={classNameHgLauncher}>
           <HiGlassComponent
-            ref={(c) => { this.hgc = c; }}
+            ref={(c) => {
+              this.hgc = c;
+            }}
             options={options || {}}
             viewConfig={deepClone(this.props.viewConfig)}
             zoomFixed={this.props.isZoomFixed}

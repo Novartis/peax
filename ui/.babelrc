@@ -1,11 +1,6 @@
 {
   "presets": [
-    "env",
-
-    // Stage 2: Draft
-    // https://tc39.github.io/process-document/
-    "stage-2",
-
+    "@babel/preset-env",
     "react-app"
   ]
 }

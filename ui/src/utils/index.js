@@ -15,7 +15,6 @@ export { default as loadViewConfig } from './load-view-config';
 export { default as Logger } from './logger';
 export { default as mergeError } from './merge-error';
 export { default as mergeJsonResponse } from './merge-json-response';
-export { default as multiStorage } from './multi-storage';
 export { default as numToCassif } from './num-to-classif';
 export { default as range } from './range';
 export { default as readableDate } from './readable-date';

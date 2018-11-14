@@ -1,4 +1,4 @@
-import canvasCamera2d from 'canvas-camera-2d';
+import canvasCamera2d from 'canvas-camera-2d';  // eslint-disable-line import/no-unresolved
 import { vec3 } from 'gl-matrix';
 import createMousePos from 'mouse-position';
 import createMousePrs from 'mouse-pressed';
@@ -61,8 +61,8 @@ const Scatterplot = ({
     mousePosition.flush();
     let { 0: x, 1: y } = mousePosition;
     // Get relative webgl coordinates
-    x = -1 + (x / _width * 2);
-    y = 1 + (y / _height * -2);
+    x = -1 + ((x / _width) * 2);
+    y = 1 + ((y / _height) * -2);
     // Normalize by the camera
     const v = [x, y, 1];
     vec3.transformMat3(v, v, camera.transformation);
@@ -77,7 +77,7 @@ const Scatterplot = ({
         clostestPoint = i;
       }
     });
-    if (minDist < _pointSize / _width * 2) return clostestPoint;
+    if (minDist < (_pointSize / _width) * 2) return clostestPoint;
   };
 
   const mouseDownHandler = () => {
@@ -89,17 +89,16 @@ const Scatterplot = ({
 
     // Get relative webgl coordinates
     const { 0: x, 1: y } = mousePosition;
-    mouseDownX = -1 + (x / _width * 2);
-    mouseDownY = 1 + (y / _height * -2);
+    mouseDownX = -1 + ((x / _width) * 2);
+    mouseDownY = 1 + ((y / _height) * -2);
   };
 
   const mouseUpHandler = () => {
     mouseDown = false;
     if (performance.now() - mouseDownTime <= CLICK_DELAY) {
-      pubSub.publish(
-        'click',
-        { selectedPoint: raycast(mouseDownX, mouseDownY) }
-      );
+      pubSub.publish('click', {
+        selectedPoint: raycast(mouseDownX, mouseDownY),
+      });
     }
   };
 
@@ -113,8 +112,12 @@ const Scatterplot = ({
     mousePosition = createMousePos(c);
     mousePressed = createMousePrs(c);
 
-    scroll.on('scroll', () => { drawRaf(); });  // eslint-disable-line
-    mousePosition.on('move', () => { if (mouseDown) drawRaf(); }); // eslint-disable-line
+    scroll.on('scroll', () => {
+      drawRaf(); // eslint-disable-line
+    });
+    mousePosition.on('move', () => {
+      if (mouseDown) drawRaf(); // eslint-disable-line
+    });
     mousePressed.on('down', mouseDownHandler);
     mousePressed.on('up', mouseUpHandler);
   };
@@ -153,7 +156,8 @@ const Scatterplot = ({
   };
   const pointSizeHighlightGetter = () => _pointSizeHighlight;
   const pointSizeHighlightSetter = (newPointSizeHighlight) => {
-    _pointSizeHighlight = +newPointSizeHighlight || DEFAULT_POINT_SIZE_HIGHLIGHT;
+    _pointSizeHighlight =
+      +newPointSizeHighlight || DEFAULT_POINT_SIZE_HIGHLIGHT;
   };
   const widthGetter = () => _width;
   const widthSetter = (newWidth) => {
@@ -185,7 +189,7 @@ const Scatterplot = ({
       // a given point.
       position: points.map(d => d.slice(0, 2)),
       color: points.map(d => d[2]),
-      extraPointSize: points.map(d => d[3] | 0),  // eslint-disable-line no-bitwise
+      extraPointSize: points.map(d => d[3] | 0), // eslint-disable-line no-bitwise
     },
 
     uniforms: {
@@ -212,13 +216,9 @@ const Scatterplot = ({
       pt[2] = [0, 0, 0, 0.33];
       pt[3] = ptSize + 6;
       // Add second white outline
-      highlightedPoints.push([
-        pt[0], pt[1], [1, 1, 1, 1], ptSize + 2,
-      ]);
+      highlightedPoints.push([pt[0], pt[1], [1, 1, 1, 1], ptSize + 2]);
       // Finally add the point itself again to be on top
-      highlightedPoints.push([
-        pt[0], pt[1], [...ptColor, 1], ptSize,
-      ]);
+      highlightedPoints.push([pt[0], pt[1], [...ptColor, 1], ptSize]);
     }
 
     return highlightedPoints;
@@ -253,7 +253,9 @@ const Scatterplot = ({
 
   const drawRaf = withRaf(draw);
 
-  const refresh = () => { regl.poll(); };
+  const refresh = () => {
+    regl.poll();
+  };
 
   const reset = () => {
     camera.lookAt([...DEFAULT_DISTANCE], DEFAULT_DISTANCE);
@@ -262,20 +264,48 @@ const Scatterplot = ({
   };
 
   return {
-    get canvas() { return canvasGetter(); },
-    set canvas(arg) { return canvasSetter(arg); },
-    get colorMap() { return colorMapGetter(); },
-    set colorMap(arg) { return colorMapSetter(arg); },
-    get height() { return heightGetter(); },
-    set height(arg) { return heightSetter(arg); },
-    get padding() { return paddingGetter(); },
-    set padding(arg) { return paddingSetter(arg); },
-    get pointSize() { return pointSizeGetter(); },
-    set pointSize(arg) { return pointSizeSetter(arg); },
-    get pointSizeHighlight() { return pointSizeHighlightGetter(); },
-    set pointSizeHighlight(arg) { return pointSizeHighlightSetter(arg); },
-    get width() { return widthGetter(); },
-    set width(arg) { return widthSetter(arg); },
+    get canvas() {
+      return canvasGetter();
+    },
+    set canvas(arg) {
+      return canvasSetter(arg);
+    },
+    get colorMap() {
+      return colorMapGetter();
+    },
+    set colorMap(arg) {
+      return colorMapSetter(arg);
+    },
+    get height() {
+      return heightGetter();
+    },
+    set height(arg) {
+      return heightSetter(arg);
+    },
+    get padding() {
+      return paddingGetter();
+    },
+    set padding(arg) {
+      return paddingSetter(arg);
+    },
+    get pointSize() {
+      return pointSizeGetter();
+    },
+    set pointSize(arg) {
+      return pointSizeSetter(arg);
+    },
+    get pointSizeHighlight() {
+      return pointSizeHighlightGetter();
+    },
+    set pointSizeHighlight(arg) {
+      return pointSizeHighlightSetter(arg);
+    },
+    get width() {
+      return widthGetter();
+    },
+    set width(arg) {
+      return widthSetter(arg);
+    },
     draw: drawRaf,
     refresh,
     destroy,
