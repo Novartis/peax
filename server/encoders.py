@@ -19,13 +19,21 @@ class Encoders:
         self.window_size = None
         self.resolution = None
 
+        self._total_len_windows = 0
+        self._total_len_encoded = 0
+
     def __iter__(self):
         return iter(self.encoders)
 
-    def add(self, encoder):
-        self.encoders.append(encoder)
-        self.encoders_by_type[encoder.content_type] = encoder
+    @property
+    def total_len_windows(self):
+        return self._total_len_windows
 
+    @property
+    def total_len_encoded(self):
+        return self._total_len_encoded
+
+    def add(self, encoder):
         if self.window_size is None:
             self.window_size = encoder.window_size
         elif self.window_size != encoder.window_size:
@@ -35,6 +43,12 @@ class Encoders:
             self.resolution = encoder.resolution
         elif self.resolution != encoder.resolution:
             raise ValueError("Window sizes need to be the same")
+
+        self.encoders.append(encoder)
+        self.encoders_by_type[encoder.content_type] = encoder
+
+        self._total_len_windows += int(self.window_size // encoder.resolution)
+        self._total_len_encoded += encoder.latent_dim
 
     def get(self, dtype: str):
         if dtype in self.encoders_by_type:
