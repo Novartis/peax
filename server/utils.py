@@ -20,7 +20,7 @@ from sklearn.preprocessing import MinMaxScaler
 from typing import Callable
 
 
-def normalize(data, percentile=99.9):
+def normalize(data, percentile: float = 99.9):
     cutoff = np.percentile(data, (0, percentile))
     data_norm = np.copy(data)
     data_norm[np.where(data_norm < cutoff[0])] = cutoff[0]
@@ -50,7 +50,7 @@ def get_search_target_classif(db, search_id, window_size, abs_offset):
     ).astype(int)
 
 
-def scaleup_vector(v, out_len, aggregator=np.mean):
+def scaleup_vector(v, out_len, aggregator: Callable = np.mean):
     in_len = v.shape[0]
     lcm = np.lcm(in_len, out_len)
     blowup = np.repeat(v, lcm / in_len)
