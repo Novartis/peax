@@ -289,7 +289,7 @@ def knn_density(
     # Compute the pairwise distance
     try:
         pw_dist = cdist(data, data, dist_metric)
-    except ValueError as e:
+    except ValueError:
         pw_dist = cdist(data, data)
 
     # Get the selection for the k nearest neighbors
@@ -303,7 +303,7 @@ def knn_density(
     # Compute the summary density of the knn
     try:
         return summary(pw_k_dist, axis=0)
-    except Exception as e:
+    except Exception:
         out = np.zeros(pw_k_dist.shape[0])
         out[:] = np.nan
         return out
