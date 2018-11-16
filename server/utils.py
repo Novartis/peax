@@ -12,12 +12,21 @@ limitations under the License.
 """
 
 import numpy as np
+import itertools
+import operator
+
 from contextlib import contextmanager
 from scipy.ndimage.interpolation import zoom
 from scipy.spatial.distance import cdist
 from scipy.stats import norm
 from sklearn.preprocessing import MinMaxScaler
-from typing import Callable
+from typing import Callable, List
+
+
+def compare_lists(
+    a: List, b: List, conditionator: Callable = all, comparator: Callable = operator.eq
+):
+    return conditionator(map(comparator, a, itertools.islice(a, 1, None)))
 
 
 def normalize(data, percentile: float = 99.9):
