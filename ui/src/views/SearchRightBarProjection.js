@@ -343,7 +343,8 @@ class SearchRightBarProjection extends React.Component {
     const respProbs = await search.getProbabilities(this.props.searchInfo.id);
     const respProj = await search.getProjection(this.props.searchInfo.id);
 
-    // This is broken right now and needs to be fixed.
+    // Compare the number of windows for which we got classifications, projections, and
+    // projections. Those should be the same otherwise the data seems to be corrupted
     const numDiffLenghts = new Set([
       respClasses.body.results.length,
       respProbs.body.results.length,
@@ -354,7 +355,7 @@ class SearchRightBarProjection extends React.Component {
       ? 'Projection not computed.'
       : false;
 
-    let isError = numDiffLenghts > 1
+    let isError = !isNotFound && numDiffLenghts > 1
       ? 'Data is correpted! RUN!1!'
       : false;
 
