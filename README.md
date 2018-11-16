@@ -138,18 +138,23 @@ Start supports the following options:
 
 ```bash
 usage: start.py [-h] [--config CONFIG] [--clear] [--debug] [--host HOST]
+usage: start.py [-h] [--config CONFIG] [--clear] [--clear-cache]
+                [--clear-cache-after] [--clear-db] [--debug] [--host HOST]
                 [--port PORT] [--verbose]
 
 Peak Explorer CLI
 
 optional arguments:
-  -h, --help       show this help message and exit
-  --config CONFIG  path to your JSON config file
-  --clear          clear the db on startup
-  --debug          turn on debug mode
-  --host HOST      Customize the hostname
-  --port PORT      Customize the port
-  --verbose        turn verbose logging on
+  -h, --help           show this help message and exit
+  --config CONFIG      path to your JSON config file
+  --clear              clears the cache and database on startup
+  --clear-cache        clears the cache on startup
+  --clear-cache-after  clears the cache on shutdown
+  --clear-db           clears the database on startup
+  --debug              turn on debug mode
+  --host HOST          customize the hostname
+  --port PORT          customize the port
+  --verbose            turn verbose logging on
 ```
 
 The `hostname` defaults to `localhost` and the `port` of the backend server defaults to `5000`.
@@ -193,4 +198,3 @@ applications.
 # Frontend server
 cd ui && npm start
 ```
-

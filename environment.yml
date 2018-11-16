@@ -20,6 +20,7 @@ dependencies:
 - pywget
 - bokeh
 - pydot
+- h5py
 # We need the next line only because of a weird bug. This can probably be
 # removed in the future: https://stackoverflow.com/a/52598942/981933
 - testpath>=0.4.2

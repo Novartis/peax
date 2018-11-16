@@ -189,7 +189,7 @@ class Home extends React.Component {
   }
 
   getHgViewId(showAes = this.props.showAutoencodings) {
-    return `default${showAes ? '|ae' : ''}`;
+    return `default${showAes ? '.e' : ''}`;
   }
 
   /* -------------------------------- Render -------------------------------- */

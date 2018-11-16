@@ -12,6 +12,12 @@ limitations under the License.
 """
 
 import os
+import h5py
+import numpy as np
+import pandas as pd
+import re
+
+from contextlib import contextmanager, suppress
 
 from server import bigwig
 from server import utils
@@ -42,16 +48,34 @@ class Dataset:
         self.chromsizes = chromsizes
         self.clear_cache = clear_cache
 
-        self.chunks = None
-        self.encoding = None
-        self.autoencoding = None
+        self._cache = None
 
         if not self.chromsizes:
             self.chromsizes = bigwig.get_chromsizes(self.filepath)
 
     @property
     def is_autoencoded(self):
-        return self.autoencoding is not None
+        return self._is_autoencoded
+
+    @property
+    def filename(self):
+        return os.path.basename(self.filepath)
+
+    @property
+    def cache_filename(self):
+        return "{}.hdf5".format(os.path.splitext(self.filename)[0])
+
+    @property
+    def cache_filepath(self):
+        return self._cache_filepath
+
+    @contextmanager
+    def cache(self):
+        cache = h5py.File(self.cache_filepath, "r")
+        try:
+            yield DatasetCache(cache)
+        finally:
+            cache.close()
 
     def export(self, use_uuid: bool = False, autoencodings: bool = False):
         # Only due to some weirdness in HiGlass
@@ -64,34 +88,187 @@ class Dataset:
             "name": self.name,
         }
 
-    def prepare(self, config, encoder, verbose: bool = False) -> list:
-        assert self.content_type == encoder.content_type
+    def remove_cache(self):
+        with suppress(FileNotFoundError):
+            os.remove(self.cache_filepath)
 
-        # Check if file is cached
-        self.cache_filename = "{}.arrow".format(os.path.basename(self.filepath))
+    def prepare(
+        self, config, encoder, clear: bool = False, verbose: bool = False
+    ) -> int:
+        assert (
+            self.content_type == encoder.content_type
+        ), "Content type of the encoder must match the dataset's content type"
 
         self.chromsizes = bigwig.get_chromsizes(self.filepath)
 
-        # Extract the windows
-        self.chunks = bigwig.chunk(
-            self.filepath,
-            encoder.window_size,
-            encoder.resolution,
-            encoder.window_size // config.step_freq,
-            config.chroms,
-            verbose=verbose,
+        mode = "w" if clear else "w-"
+        step_size = encoder.window_size // config.step_freq
+        global_num_bins = None
+
+        # Determine number of windows per chromsome
+        num_windows_per_chrom = []
+        total_num_windows = 0
+        res_size_per_chrom = []
+        total_res_sizes = 0
+
+        for chromosome in config.chroms:
+            num_windows = int(self.chromsizes[chromosome] // step_size)
+            num_windows_per_chrom.append(num_windows)
+            total_num_windows += num_windows
+            res_size = int(self.chromsizes[chromosome] // encoder.resolution)
+            res_size_per_chrom.append(res_size)
+            total_res_sizes += res_size
+
+        chrom_num_windows = pd.Series(
+            num_windows_per_chrom, index=config.chroms, dtype=int
         )
 
-        self.num_windows, self.num_bins = self.chunks.shape
+        chrom_res_sizes = pd.Series(res_size_per_chrom, index=config.chroms, dtype=int)
 
-        if encoder.input_dim == 3 and self.chunks.ndim == 2:
-            self.chunks = self.chunks.reshape(*self.chunks.shape, encoder.channels)
-        self.encoding = encoder.encode(self.chunks)
-        self.autoencoding = encoder.autoencode(self.chunks)
+        self._cache_filepath = os.path.join(config.cache_dir, self.cache_filename)
 
-        # Merge interleaved autoencoded windows to one continuous track
-        self.autoencoding = utils.merge_interleaved_mat(
-            self.autoencoding,
-            config.step_freq,
-            utils.get_norm_sym_norm_kernel(encoder.window_size // encoder.resolution),
-        )
+        ascii_chroms = [n.encode("ascii", "ignore") for n in config.chroms]
+
+        try:
+            with h5py.File(self.cache_filepath, mode) as f:
+                w = f.create_dataset(
+                    "windows",
+                    (total_num_windows, encoder.window_num_bins),
+                    dtype=np.float32,
+                )
+                e = f.create_dataset(
+                    "encodings",
+                    (total_num_windows, encoder.latent_dim),
+                    dtype=np.float32,
+                )
+
+                # Metadata
+                w.attrs["window_size"] = encoder.window_size
+                w.attrs["resolution"] = encoder.resolution
+                w.attrs["step_size"] = step_size
+                w.attrs["step_freq"] = config.step_freq
+                w.attrs["chrom_order"] = ascii_chroms
+                w.attrs["chrom_num_windows"] = chrom_num_windows
+                e.attrs["file_name"] = encoder.encoder_filename
+                e.attrs["chrom_num_windows"] = chrom_num_windows
+                e.attrs["chrom_order"] = ascii_chroms
+
+                if hasattr(encoder, "autoencode"):
+                    a = f.create_dataset(
+                        "autoencodings", (total_res_sizes,), dtype=np.float32
+                    )
+                    a.attrs["chrom_num_windows"] = chrom_num_windows
+                    a.attrs["chrom_res_sizes"] = chrom_res_sizes
+                    a.attrs["chrom_order"] = ascii_chroms
+                    a.attrs["file_name"] = encoder.encoder_filename
+
+                pos = 0
+                pos_ae = 0
+                for chromosome in config.chroms:
+                    chr_str = str(chromosome)
+
+                    # Extract the windows
+                    windows = bigwig.chunk(
+                        self.filepath,
+                        encoder.window_size,
+                        encoder.resolution,
+                        step_size,
+                        [chromosome],
+                        verbose=verbose,
+                    )
+                    num_windows, num_bins = windows.shape
+
+                    if global_num_bins is None:
+                        global_num_bins = num_bins
+
+                    assert (
+                        global_num_bins == num_bins
+                    ), "Changing number of bins between chromosomes is not allowed"
+
+                    assert (
+                        encoder.window_num_bins == global_num_bins
+                    ), "Encoder should have the same number of bins as the final data"
+
+                    if encoder.input_dim == 3 and windows.ndim == 2:
+                        # Keras expects 3 input dimensions:
+                        # 1. number of samples (== number of windows)
+                        # 2. sample size (== number of bins per window)
+                        # 3. sample dim  (== 1 because each window just has 1 dim)
+                        windows = windows.reshape(*windows.shape, encoder.channels)
+
+                    encoding = encoder.encode(windows)
+
+                    # Data is organized by chromosomes. Currently interchromosomal
+                    # patterns are not allowed
+                    w[pos : pos + num_windows] = np.squeeze(windows)
+                    e[pos : pos + num_windows] = encoding
+
+                    pos += num_windows
+
+                    if hasattr(encoder, "autoencode"):
+                        autoencoding = encoder.autoencode(windows)
+
+                        # Merge interleaved autoencoded windows to one continuous track
+                        autoencoding = utils.merge_interleaved_mat(
+                            autoencoding,
+                            config.step_freq,
+                            utils.get_norm_sym_norm_kernel(
+                                encoder.window_size // encoder.resolution
+                            ),
+                        )
+
+                        a[pos_ae : pos_ae + autoencoding.shape[0]] = autoencoding
+
+                        pos_ae += chrom_res_sizes[chr_str]
+
+                    # Lets write to disk
+                    f.flush()
+                f.flush()
+        except OSError as error:
+            # When `clear` is `False` and the data is already prepared then we expect to
+            # see error number 17 as we opened the file in `w-` mode.
+            if not clear:
+                # Stupid h5py doesn't populate `error.errno` so we have to parse it out
+                # manually
+                matches = re.search(r"errno = (\d+)", str(error))
+                if matches and int(matches.group(1)) == 17:
+                    pass
+                else:
+                    raise
+            else:
+                raise
+
+        # If we got until here and the encoder is an autoencoder the track was
+        # autoencoded.
+        self._is_autoencoded = hasattr(encoder, "autoencode")
+
+        # For convenience
+        return total_num_windows, chrom_num_windows
+
+
+class DatasetCache:
+    def __init__(self, cache):
+        self.cache = cache
+
+    @property
+    def windows(self):
+        return self.cache["windows"]
+
+    @property
+    def chrom_num_windows(self):
+        return self.cache["windows"].attrs["chrom_num_windows"]
+
+    @property
+    def encodings(self):
+        return self.cache["encodings"]
+
+    @property
+    def autoencodings(self):
+        return self.cache["autoencodings"]
+
+    def num_windows_by_chrom(self, chromosome, config):
+        chr_str = str(chromosome).encode("ascii", "ignore")
+        for index, chrom in enumerate(self.cache["windows"].attrs["chrom_order"]):
+            if chrom == chr_str:
+                return self.cache["windows"].attrs["chrom_num_windows"][index]
+        return None

@@ -13,34 +13,47 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import argparse
+import atexit
 import json
 import sys
+
+
+parser = argparse.ArgumentParser(description="Peak Explorer CLI")
+parser.add_argument(
+    "--config", help="path to your JSON config file", default="config.json"
+)
+parser.add_argument(
+    "--clear", action="store_true", help="clears the cache and database on startup"
+)
+parser.add_argument(
+    "--clear-cache", action="store_true", help="clears the cache on startup"
+)
+parser.add_argument(
+    "--clear-cache-after", action="store_true", help="clears the cache on shutdown"
+)
+parser.add_argument(
+    "--clear-db", action="store_true", help="clears the database on startup"
+)
+parser.add_argument("--debug", action="store_true", help="turn on debug mode")
+parser.add_argument("--host", help="customize the hostname", default="localhost")
+parser.add_argument("--port", help="customize the port", default=5000)
+parser.add_argument("--verbose", action="store_true", help="turn verbose logging on")
+
+try:
+    args = parser.parse_args()
+except SystemExit as err:
+    if err.code == 0:
+        sys.exit(0)
+    if err.code == 2:
+        parser.print_help()
+        sys.exit(0)
+    raise
 
 from server import server
 from server.config import Config
 
-
-class MyParser(argparse.ArgumentParser):
-    def error(self, message):
-        sys.stderr.write("error: %s\n" % message)
-        self.print_help()
-        sys.exit(2)
-
-
-parser = MyParser(description="Peak Explorer CLI")
-parser.add_argument("--config", help="path to your JSON config file")
-parser.add_argument("--clear", action="store_true", help="clear the db on startup")
-parser.add_argument("--debug", action="store_true", help="turn on debug mode")
-parser.add_argument("--host", help="Customize the hostname", default="localhost")
-parser.add_argument("--port", help="Customize the port", default=5000)
-parser.add_argument("--verbose", action="store_true", help="turn verbose logging on")
-
-args = parser.parse_args()
-
-config_path = args.config if args.config else "config.json"
-
 try:
-    with open(config_path, "r") as f:
+    with open(args.config, "r") as f:
         config_file = json.load(f)
 except FileNotFoundError:
     print(
@@ -53,7 +66,19 @@ except FileNotFoundError:
 config = Config(config_file)
 
 # Create app instance
-app = server.create(config, clear=args.clear, verbose=args.verbose)
+app = server.create(
+    config,
+    clear_cache=args.clear or args.clear_cache,
+    clear_db=args.clear or args.clear_db,
+    verbose=args.verbose,
+)
+
+
+def remove_cache(config):
+    config.datasets.remove_cache()
+
+
+atexit.register(remove_cache, config)
 
 # Run the instance
 app.run(debug=args.debug, host=args.host, port=args.port)

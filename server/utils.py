@@ -12,15 +12,24 @@ limitations under the License.
 """
 
 import numpy as np
+import itertools
+import operator
+
 from contextlib import contextmanager
 from scipy.ndimage.interpolation import zoom
 from scipy.spatial.distance import cdist
 from scipy.stats import norm
 from sklearn.preprocessing import MinMaxScaler
-from typing import Callable
+from typing import Callable, List
 
 
-def normalize(data, percentile=99.9):
+def compare_lists(
+    a: List, b: List, conditionator: Callable = all, comparator: Callable = operator.eq
+):
+    return conditionator(map(comparator, a, itertools.islice(a, 1, None)))
+
+
+def normalize(data, percentile: float = 99.9):
     cutoff = np.percentile(data, (0, percentile))
     data_norm = np.copy(data)
     data_norm[np.where(data_norm < cutoff[0])] = cutoff[0]
@@ -50,7 +59,7 @@ def get_search_target_classif(db, search_id, window_size, abs_offset):
     ).astype(int)
 
 
-def scaleup_vector(v, out_len, aggregator=np.mean):
+def scaleup_vector(v, out_len, aggregator: Callable = np.mean):
     in_len = v.shape[0]
     lcm = np.lcm(in_len, out_len)
     blowup = np.repeat(v, lcm / in_len)
@@ -280,7 +289,7 @@ def knn_density(
     # Compute the pairwise distance
     try:
         pw_dist = cdist(data, data, dist_metric)
-    except ValueError as e:
+    except ValueError:
         pw_dist = cdist(data, data)
 
     # Get the selection for the k nearest neighbors
@@ -294,14 +303,26 @@ def knn_density(
     # Compute the summary density of the knn
     try:
         return summary(pw_k_dist, axis=0)
-    except Exception as e:
+    except Exception:
         out = np.zeros(pw_k_dist.shape[0])
         out[:] = np.nan
         return out
 
 
 @contextmanager
-def catch(*exceptions, **kwargs):
+def suppress_with_default(*exceptions, **kwargs):
+    """Like contextlib.suppress but with a default value on exception
+
+    Decorators:
+        contextmanager
+
+    Arguments:
+        *exceptions {list} -- List of exceptions to suppress. By default all exceptions are suppressed.
+        **kwargs {dict} -- Dictionary of key word arguments
+
+    Yields:
+        any -- Default value from ``kwargs``
+    """
     try:
         yield kwargs.get("default", None)
     except exceptions or Exception:
