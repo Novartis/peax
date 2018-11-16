@@ -310,7 +310,7 @@ def knn_density(
 
 
 @contextmanager
-def catch(*exceptions, **kwargs):
+def suppress_with_default(*exceptions, **kwargs):
     try:
         yield kwargs.get("default", None)
     except exceptions or Exception:

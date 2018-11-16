@@ -660,7 +660,7 @@ def create(
                     404,
                 )
 
-            with utils.catch(AttributeError) as projection:
+            with utils.suppress_with_default(AttributeError) as projection:
                 with datasets.cache() as dsc:
                     projection = base64.b64encode(
                         projector.project(dsc.encodings[:]).tobytes()
@@ -683,14 +683,14 @@ def create(
             )
 
         elif request.method == "PUT":
-            with utils.catch(
+            with utils.suppress_with_default(
                 ValueError,
                 TypeError,
                 default=projClazz.DEFAULT_PROJECTOR_SETTINGS["n_neighbors"],
             ) as n_neighbors:
                 n_neighbors = int(request.args.get("nn"))
 
-            with utils.catch(
+            with utils.suppress_with_default(
                 ValueError,
                 TypeError,
                 default=projClazz.DEFAULT_PROJECTOR_SETTINGS["min_dist"],
@@ -739,13 +739,13 @@ def create(
 
         parts = view_id.split(".")
 
-        with utils.catch(IndexError, default=None) as search_id:
+        with utils.suppress_with_default(IndexError, default=None) as search_id:
             search_id = parts[0]
 
-        with utils.catch(IndexError, default=None) as window_id:
+        with utils.suppress_with_default(IndexError, default=None) as window_id:
             window_id = parts[1]
 
-        with utils.catch(IndexError, default="") as options:
+        with utils.suppress_with_default(IndexError, default="") as options:
             options = parts[2]
 
         search_info = db.get_search(search_id)
