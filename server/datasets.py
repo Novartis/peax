@@ -17,6 +17,10 @@ import numpy as np
 import os
 import re
 
+from contextlib import contextmanager
+
+from server import utils
+
 
 class Datasets:
     def __init__(self):
@@ -24,9 +28,6 @@ class Datasets:
         self.datasets_by_id = {}
         self.datasets_by_type = {}
         self.chromsizes = None
-        self.concat_data = None
-        self.concat_encoding = None
-        self.concat_autoencoding = None
         self._cache_filename = None
 
     def __iter__(self):
@@ -35,6 +36,22 @@ class Datasets:
     @property
     def cache_filename(self):
         return self._cache_filename
+
+    @property
+    def cache_filepath(self):
+        return self._cache_filepath
+
+    @property
+    def length(self):
+        return len(self.datasets)
+
+    @contextmanager
+    def cache(self):
+        cache = h5py.File(self.cache_filepath, "r")
+        try:
+            yield DatasetsCache(cache)
+        finally:
+            cache.close()
 
     def add(self, dataset):
         if not self.chromsizes:
@@ -75,76 +92,141 @@ class Datasets:
             return self.datasets_by_type[dtype]
         raise KeyError("No datasets of type '{}' found".format(dtype))
 
+    def createCacheHash(self, encoders, config):
+        # Generate filename from the set of datasets and encoders
+        encoder_filenames = [encoder.encoder_filename for encoder in encoders]
+        dataset_filenames = [dataset.filename for dataset in self.datasets]
+        all_filenames = ":".join(encoder_filenames + dataset_filenames + config.chroms)
+
+        md5 = hashlib.md5()
+        md5.update(all_filenames.encode())
+        return md5.hexdigest()
+
     def prepare(self, encoders, config, clear: bool = False, verbose: bool = False):
         # Used for assertion checking
-        set_num_windows = set()
+        total_num_windows = None
+        chrom_num_windows = None
 
         for encoder in encoders:
             try:
                 for dataset in self.get_by_type(encoder.content_type):
-                    num_windows = dataset.prepare(
+                    ds_total_num_windows, ds_chrom_num_windows = dataset.prepare(
                         config, encoder, clear=clear, verbose=verbose
                     )
-                    set_num_windows.add(num_windows)
+
+                    if total_num_windows is None:
+                        total_num_windows = ds_total_num_windows
+
+                    if chrom_num_windows is None:
+                        chrom_num_windows = ds_chrom_num_windows
+
+                    # Check that all datasets have the same number of windows
+                    assert (
+                        total_num_windows == ds_total_num_windows
+                    ), "The total number of windows should be the same for all datasets"
+
+                    # Check that all datasets have the same number of windows
+                    assert utils.compare_lists(
+                        chrom_num_windows, ds_chrom_num_windows
+                    ), "The number of windows per chromosome should be the same for all datasets"
+
             except KeyError:
                 # If there's no data for the encoder we simply continue with our lives
-                pass
+                # pass
+                raise
 
-        # Check that all datasets have the same number of windows
-        assert len(set_num_windows) == 1
-
-        num_windows = set_num_windows.pop()
-
-        encoder_filenames = [encoder.encoder_filename for encoder in encoders]
-        dataset_filenames = [dataset.filename for dataset in self.datasets]
-        all_filenames = ":".join(encoder_filenames + dataset_filenames)
-
-        # Generate filename from the set of datasets and encoders
-        md5 = hashlib.md5()
-        md5.update(all_filenames.encode())
-        self._cache_filename = "{}.hdf5".format(md5.hexdigest())
-
-        cache_filepath = os.path.join(config.cache_dir, self.cache_filename)
+        self._cache_filename = "{}.hdf5".format(self.createCacheHash(encoders, config))
+        self._cache_filepath = os.path.join(config.cache_dir, self.cache_filename)
 
         # Concatenate data
         mode = "w" if clear else "w-"
 
         try:
-            with h5py.File(cache_filepath, mode) as f:
-                w = f.create_group("windows")
-                e = f.create_group("encodings")
-                for chromosome in config.chroms:
-                    chr_str = str(chromosome)
+            with h5py.File(self.cache_filepath, mode) as f:
+                w = f.create_dataset(
+                    "windows",
+                    (total_num_windows, encoders.total_len_windows),
+                    dtype=np.float32,
+                )
+                w_max = f.create_dataset(
+                    "windows_max", (total_num_windows,), dtype=np.float32
+                )
+                w_sum = f.create_dataset(
+                    "windows_sum", (total_num_windows,), dtype=np.float32
+                )
+                w_mean = f.create_dataset(
+                    "windows_mean", (total_num_windows,), dtype=np.float32
+                )
+                e = f.create_dataset(
+                    "encodings",
+                    (total_num_windows, encoders.total_len_encoded),
+                    dtype=np.float32,
+                )
 
-                    pos = 0
-                    pos_encoded = 0
+                # Metadata
+                w.attrs["total_len_windows"] = encoders.total_len_windows
+                e.attrs["total_len_encoded"] = encoders.total_len_encoded
 
-                    concat_data = np.zeros((num_windows, encoders.total_len_windows))
-                    concat_encoding = np.zeros(
-                        (num_windows, encoders.total_len_encoded)
+                pos_window_from = 0
+                pos_window_to = 0
+                pos_encoded_from = 0
+                pos_encoded_to = 0
+
+                for dataset in self.datasets:
+                    encoder = encoders.get(dataset.content_type)
+
+                    pos_window_to = pos_window_from + encoder.window_num_bins
+                    pos_encoded_to = pos_encoded_from + encoder.latent_dim
+
+                    with dataset.cache() as dataset_cache:
+
+                        pos_chrom_from = 0
+                        pos_chrom_to = 0
+
+                        for chromosome in config.chroms:
+                            pos_chrom_to = (
+                                pos_chrom_from
+                                + dataset_cache.num_windows_by_chrom(chromosome, config)
+                            )
+
+                            w[
+                                pos_chrom_from:pos_chrom_to,
+                                pos_window_from:pos_window_to,
+                            ] = np.squeeze(dataset_cache.windows)
+
+                            e[
+                                pos_chrom_from:pos_chrom_to,
+                                pos_encoded_from:pos_encoded_to,
+                            ] = np.squeeze(dataset_cache.encodings)
+
+                            pos_chrom_from = pos_chrom_to
+
+                            # Write to disk
+                            f.flush()
+
+                    pos_window_from = pos_window_to
+                    pos_encoded_from = pos_encoded_to
+
+                # Compute simple stats to speed up online calculation down the road
+                pos_chrom_from = 0
+                pos_chrom_to = 0
+
+                for i, chromosome in enumerate(config.chroms):
+                    pos_chrom_to = pos_chrom_from + chrom_num_windows[i]
+
+                    w_max[pos_chrom_from:pos_chrom_to] = np.nanmax(
+                        w[pos_chrom_from:pos_chrom_to, :], axis=1
+                    )
+                    w_sum[pos_chrom_from:pos_chrom_to] = np.nansum(
+                        w[pos_chrom_from:pos_chrom_to, :], axis=1
+                    )
+                    w_mean[pos_chrom_from:pos_chrom_to] = np.nanmean(
+                        w[pos_chrom_from:pos_chrom_to, :], axis=1
                     )
 
-                    for dataset in self.datasets:
-                        with h5py.File(dataset.cache_filename, "r") as ds:
-                            encoder = encoders.get(dataset.content_type)
-                            windows = ds["windows/{}".format(chr_str)]
-                            encodings = ds["encodings/{}".format(chr_str)]
+                    pos_chrom_from = pos_chrom_to
 
-                            concat_data[
-                                :, pos : pos + encoder.window_num_bins
-                            ] = np.squeeze(windows)
-
-                            concat_encoding[
-                                :, pos_encoded : pos_encoded + encoder.latent_dim
-                            ] = np.squeeze(encodings)
-
-                    w[chr_str] = concat_data
-                    w[chr_str].attrs["total_len_windows"] = encoders.total_len_windows
-
-                    e[chr_str] = concat_encoding
-                    e[chr_str].attrs["total_len_encoded"] = encoders.total_len_encoded
-
-                    # Lets write to disk
+                    # Write to disk
                     f.flush()
         except OSError as error:
             # When `clear` is `False` and the data is already prepared then we expect to
@@ -159,3 +241,38 @@ class Datasets:
                     raise
             else:
                 raise
+
+    @contextmanager
+    def prepared_data(self):
+        if not self.cache_filepath:
+            raise ValueError("Data not prepared")
+        f = h5py.File(self.cache_filepath, "r")
+        try:
+            yield f
+        finally:
+            f.close()
+
+
+class DatasetsCache:
+    def __init__(self, cache):
+        self.cache = cache
+
+    @property
+    def windows(self):
+        return self.cache["windows"]
+
+    @property
+    def windows_max(self):
+        return self.cache["windows_max"]
+
+    @property
+    def windows_sum(self):
+        return self.cache["windows_sum"]
+
+    @property
+    def windows_mean(self):
+        return self.cache["windows_mean"]
+
+    @property
+    def encodings(self):
+        return self.cache["encodings"]

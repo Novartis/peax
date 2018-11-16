@@ -68,18 +68,17 @@ def create(
             abs_ends, datasets.chromsizes_cum[chrom] + datasets.chromsizes[chrom]
         )
 
-    # Set up classifiers
-    classifiers = Classifiers(
-        db,
-        datasets.concat_encoding,
-        window_size=encoders.window_size,
-        abs_offset=abs_offset,
-    )
+    with datasets.cache() as dsc:
+        # Load all the encodings into memory
+        encodings = dsc.encodings[:]
 
-    # Set up projectors
-    projectors = Projectors(
-        db, datasets.concat_encoding, encoders.window_size, abs_offset
-    )
+        # Set up classifiers
+        classifiers = Classifiers(
+            db, encodings, window_size=encoders.window_size, abs_offset=abs_offset
+        )
+
+        # Set up projectors
+        projectors = Projectors(db, encodings, encoders.window_size, abs_offset)
 
     app = Flask(__name__, static_url_path="", static_folder="../ui/build")
     CORS(app)
@@ -230,8 +229,6 @@ def create(
         for encoder in encoders:
             total_len += encoder.latent_dim
 
-        N = datasets.concat_encoding.shape[0]
-
         target = np.zeros(total_len)
 
         remove_windows = None
@@ -266,60 +263,58 @@ def create(
 
             pos += encoder.latent_dim
 
-        # Array determining which data points should be used
-        data_idx = np.ones(N).astype(bool)
+        with datasets.cache() as dsc:
+            num_windows = dsc.encodings.shape[0]
 
-        # Remove the windows overlapping the target window (nt = no target)
-        if np.max(remove_windows) >= 0 and np.min(remove_windows) < N:
-            data_idx[remove_windows.astype(int)] = False
+            # Array determining which data points should be used
+            data_idx = np.ones(num_windows).astype(bool)
 
-        # Get classifications as already classified windows should be ignored
-        classifications = np.array(
-            list(
-                map(
-                    lambda classif: int(classif["windowId"]),
-                    db.get_classifications(search_id),
+            # Remove the windows overlapping the target window (nt = no target)
+            if np.max(remove_windows) >= 0 and np.min(remove_windows) < num_windows:
+                data_idx[remove_windows.astype(int)] = False
+
+            # Get classifications as already classified windows should be ignored
+            classifications = np.array(
+                list(
+                    map(
+                        lambda classif: int(classif["windowId"]),
+                        db.get_classifications(search_id),
+                    )
                 )
-            )
-        ).astype(int)
+            ).astype(int)
 
-        # Remove already classified windows
-        data_idx[classifications] = False
+            # Remove already classified windows
+            data_idx[classifications] = False
 
-        # Remove empty windows (ne = no empty)
-        # if allow_empty is None:
-        #     data_idx[np.where((np.max(datasets.concat_data, axis=1) < 0.1))] = False
+            classifier = classifiers.get(search_id)
+            encodings = dsc.encodings[:]
+            if classifier:
+                _, p_y = classifier.predict(encodings)
 
-        classifier = classifiers.get(search_id)
-        if classifier:
-            _, p_y = classifier.predict(datasets.concat_encoding)
+            if classifications.size > 0 and classifier is not None:
+                seeds = sampling.sample_by_uncertainty_density(
+                    encodings, data_idx, target, p_y[:, 0]
+                )
 
-        if classifications.size > 0 and classifier is not None:
-            seeds = sampling.sample_by_uncertainty_density(
-                datasets.concat_encoding, data_idx, target, p_y[:, 0]
-            )
+            elif classifications.size > 0 and classifier is None:
+                # We need to train the classifier first
+                classifier = classifiers.new(search_id)
+                return jsonify(
+                    {
+                        "classifierId": classifier.classifier_id,
+                        "isTrained": classifier.is_trained,
+                        "isTraining": classifier.is_training,
+                    }
+                )
 
-        elif classifications.size > 0 and classifier is None:
-            # We need to train the classifier first
-            classifier = classifiers.new(search_id)
-            return jsonify(
-                {
-                    "classifierId": classifier.classifier_id,
-                    "isTrained": classifier.is_trained,
-                    "isTraining": classifier.is_training,
-                }
-            )
+            else:
+                # Remove empty windows (ne = no empty)
+                data_idx[np.where((datasets.windows_max[:] < 0.1))] = False
+                seeds = sampling.sample_by_dist_density(encodings, data_idx, target)
 
-        else:
-            # Remove empty windows (ne = no empty)
-            data_idx[np.where((np.max(datasets.concat_data, axis=1) < 0.1))] = False
-            seeds = sampling.sample_by_dist_density(
-                datasets.concat_encoding, data_idx, target
-            )
+            assert np.unique(seeds).size == seeds.size, "Do not return duplicated seeds"
 
-        assert np.unique(seeds).size == seeds.size
-
-        return jsonify({"results": seeds.tolist()})
+            return jsonify({"results": seeds.tolist()})
 
     @app.route("/api/v1/predictions/", methods=["GET"])
     def predictions():
@@ -341,16 +336,16 @@ def create(
             abs_offset,
         )
 
-        N = datasets.concat_encoding.shape[0]
+        with datasets.cache() as dsc:
+            num_window = dsc.encodings.shape[0]
+            fit_y, p_y = classifier.predict(dsc.encodings)
 
-        fit_y, p_y = classifier.predict(datasets.concat_encoding)
-
-        window_ids = np.arange(N)
+        window_ids = np.arange(num_window)
 
         # Exclude search target windows by setting their prediction to `0`
         if (
             np.min(search_target_windows[1]) >= 0
-            and np.max(search_target_windows[1]) < N
+            and np.max(search_target_windows[1]) < num_window
         ):
             fit_y[np.arange(*search_target_windows[1]).astype(int)] = 0
 
@@ -412,14 +407,15 @@ def create(
         search_target_windows = utils.get_target_window_idx(
             search["target_from"],
             search["target_to"],
-            aes.window_size,
+            encoders.window_size,
             search["config"]["step_freq"],
             abs_offset,
         )
 
-        N = datasets.concat_encoding.shape[0]
+        with datasets.cache() as dsc:
+            num_windows = dsc.windows.shape[0]
 
-        classes = np.zeros(N)
+        classes = np.zeros(num_windows)
 
         # Manually classified regions
         for classification in classifications:
@@ -454,26 +450,24 @@ def create(
 
         classifier = classifiers.get(search_id, classifier_id)
 
-        if classifier is None:
-            out = np.zeros(datasets.concat_encoding.shape[0])
-            out[:] = 0.5
-            return jsonify(
-                {
-                    "results": base64.b64encode(
-                        out.astype(np.float32).tobytes()
-                    ).decode("ascii"),
-                    "encoding": "base64",
-                    "dtype": "float32",
-                }
-            )
+        with datasets.cache() as dsc:
+            num_windows = dsc.windows.shape[0]
+            out = np.zeros(num_windows)
 
-        fit_y, p_y = classifier.predict(datasets.concat_encoding)
+            if classifier is None:
+                out[:] = 0.5
+            else:
+                # Load all encodings into memory. If this gets too slow or infeasible to
+                # to compute we need to start using `warm_start`. See the following:
+                # https://stackoverflow.com/a/30758348/981933
+                fit_y, p_y = classifier.predict(datasets.encodings[:])
+                out[:] = p_y[:, 1]
 
         return jsonify(
             {
-                "results": base64.b64encode(
-                    p_y[:, 1].astype(np.float32).tobytes()
-                ).decode("ascii"),
+                "results": base64.b64encode(out.astype(np.float32).tobytes()).decode(
+                    "ascii"
+                ),
                 "encoding": "base64",
                 "dtype": "float32",
             }
@@ -667,11 +661,12 @@ def create(
                 )
 
             with utils.catch(AttributeError) as projection:
-                projection = base64.b64encode(
-                    projector.project(datasets.concat_encoding).tobytes()
-                ).decode("ascii")
+                with datasets.cache() as dsc:
+                    projection = base64.b64encode(
+                        projector.project(dsc.encodings[:]).tobytes()
+                    ).decode("ascii")
 
-            # For the data (doesn't do anything if the data is already fitted)
+            # If the projector is already fitted the following call will do nothing
             projectors.fit(search_id, projector.projector_id)
 
             return jsonify(
@@ -728,7 +723,7 @@ def create(
         if view_id == "default":
             return jsonify(view_config.build(datasets, config, default=True))
 
-        if view_id == "default|ae":
+        if view_id == "default.e":
             return jsonify(
                 view_config.build(
                     datasets, config, default=True, incl_autoencodings=True
@@ -742,7 +737,7 @@ def create(
                 view_configs[info["id"]] = view_config.build(datasets, config, info)
             return jsonify(view_configs)
 
-        parts = view_id.split("|")
+        parts = view_id.split(".")
 
         with utils.catch(IndexError, default=None) as search_id:
             search_id = parts[0]
@@ -755,55 +750,51 @@ def create(
 
         search_info = db.get_search(search_id)
 
-        incl_predictions = search_info["classifiers"] > 0 and options.find("p") >= 0
-        incl_autoencodings = options.find("ae") >= 0
-
-        if (
-            search_id is not None
-            and utils.is_int(search_id, True)
-            and window_id is not None
-            and utils.is_int(window_id, True)
-        ):
-            info = db.get_search(search_id)
-            if info is not None:
-                step_size = encoders.window_size // config.step_freq
-                target_from_rel = step_size * int(window_id)
-                target_to_rel = target_from_rel + step_size
-                target_abs = list(
-                    map(
-                        int,
-                        bigwig.chr2abs(
-                            datasets.chromsizes,
-                            config.chroms[0],  # First chrom defines the offset
-                            target_from_rel,
-                            target_to_rel,
-                        ),
-                    )
-                )
-                return jsonify(
-                    view_config.build(
-                        datasets,
-                        config,
-                        search_info=search_info,
-                        domain=target_abs,
-                        incl_predictions=incl_predictions,
-                        incl_autoencodings=incl_autoencodings,
-                        hide_label=True,
-                    )
-                )
-
         if utils.is_int(search_id, True):
-            info = db.get_search(search_id)
-            if info is not None:
-                return jsonify(
-                    view_config.build(
-                        datasets,
-                        config,
-                        search_info=info,
-                        incl_predictions=incl_predictions,
-                        incl_autoencodings=incl_autoencodings,
+            incl_predictions = search_info["classifiers"] > 0 and options.find("p") >= 0
+            incl_autoencodings = options.find("e") >= 0
+
+            if window_id is not None and utils.is_int(window_id, True):
+                info = db.get_search(search_id)
+                if info is not None:
+                    step_size = encoders.window_size // config.step_freq
+                    target_from_rel = step_size * int(window_id)
+                    target_to_rel = target_from_rel + step_size
+                    target_abs = list(
+                        map(
+                            int,
+                            bigwig.chr2abs(
+                                datasets.chromsizes,
+                                config.chroms[0],  # First chrom defines the offset
+                                target_from_rel,
+                                target_to_rel,
+                            ),
+                        )
                     )
-                )
+                    return jsonify(
+                        view_config.build(
+                            datasets,
+                            config,
+                            search_info=search_info,
+                            domain=target_abs,
+                            incl_predictions=incl_predictions,
+                            incl_autoencodings=incl_autoencodings,
+                            hide_label=True,
+                        )
+                    )
+
+            else:
+                info = db.get_search(search_id)
+                if info is not None:
+                    return jsonify(
+                        view_config.build(
+                            datasets,
+                            config,
+                            search_info=info,
+                            incl_predictions=incl_predictions,
+                            incl_autoencodings=incl_autoencodings,
+                        )
+                    )
 
         return (jsonify({"error": "Unknown view config with id: {}".format(id)}), 404)
 
@@ -854,12 +845,12 @@ def create(
             return jsonify({"error": "Unknown response type"}), 500
 
     # NEW!
-    @app.route("/api/v1/uids_by_filename/", methods=["GET"])
+    @app.route("/api/v1/uids-by-filename/", methods=["GET"])
     def uids_by_filename():
         return jsonify(
             {
-                "count": datasets.size(),
-                "results": {dataset.id: dataset for dataset in datasets},
+                "count": datasets.length,
+                "results": {dataset.id: dataset.filename for dataset in datasets},
             }
         )
 
@@ -867,7 +858,7 @@ def create(
     def tilesets():
         return jsonify(
             {
-                "count": datasets.size(),
+                "count": datasets.length,
                 "next": None,
                 "previous": None,
                 "results": datasets.export(use_uuid=True),
@@ -987,23 +978,26 @@ def create(
                 elif filetype == "cooler":
                     tiles.extend(cooler.tiles(filepath, tids))
                 elif filetype == "__autoencoding__":
-                    tiles.extend(
-                        vector.tiles(
-                            datasets.get(uuid.split("|")[0]).autoencoding,
-                            encoders.resolution,
-                            abs_len,
-                            abs_offset,
-                            tids,
-                            datasets.chromsizes,
+                    dataset = datasets.get(uuid.split("|")[0])
+                    with dataset.cache() as dsc:
+                        tiles.extend(
+                            vector.tiles(
+                                dsc.autoencodings,
+                                encoders.resolution,
+                                abs_len,
+                                abs_offset,
+                                tids,
+                                datasets.chromsizes,
+                            )
                         )
-                    )
                 elif filetype == "__prediction__":
                     classifier = classifiers.get(ts["search_id"])
 
                     if classifier is None:
                         return jsonify({})
 
-                    _, p_y = classifier.predict(datasets.concat_encoding)
+                    with datasets.cache() as dsc:
+                        _, p_y = classifier.predict(dsc.encodings[:])
 
                     p_y_merged = utils.merge_interleaved(
                         p_y[:, 1], config.step_freq, aggregator=np.nanmax

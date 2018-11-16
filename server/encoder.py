@@ -34,14 +34,20 @@ class Encoder:
         self.channels = channels
         self.input_dim = input_dim
         self.latent_dim = latent_dim
-
         self.window_num_bins = int(self.window_size // self.resolution)
 
-        self.encoder = keras.models.load_model(self.encoder_filepath)
+        self._encoder = None
 
     @property
     def encoder_filename(self):
         return os.path.basename(self.encoder_filepath)
+
+    @property
+    def encoder(self):
+        # Lazy load model
+        if not self._encoder:
+            self._encoder = keras.models.load_model(self.encoder_filepath)
+        return self._encoder
 
     def encode(self, data: np.ndarray) -> np.ndarray:
         return self.encoder.predict(data)
@@ -80,11 +86,19 @@ class Autoencoder(Encoder):
             latent_dim,
         )
         self.decoder_filepath = decoder_filepath
-        self.decoder = keras.models.load_model(self.decoder_filepath)
+
+        self._decoder = None
 
     @property
     def decoder_filename(self):
         return os.path.basename(self.decoder_filepath)
+
+    @property
+    def decoder(self):
+        # Lazy load model
+        if not self._decoder:
+            self._decoder = keras.models.load_model(self.decoder_filepath)
+        return self._decoder
 
     def autoencode(self, data: np.ndarray) -> np.ndarray:
         return self.decode(self.encode(data))
