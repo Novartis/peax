@@ -26,7 +26,6 @@ import SearchSubTopBarTabs from './SearchSubTopBarTabs';
 
 // Services
 import pubSub from '../services/pub-sub';
-import search from '../services/search';
 
 // Actions
 import {
@@ -38,6 +37,7 @@ import {
 
 // Utils
 import {
+  api,
   withArray,
   Deferred,
   // inputToNum,
@@ -220,25 +220,25 @@ class Search extends React.Component {
 
     this.setState({ isLoading: true, isError: false });
 
-    const info = await search.getInfo();
+    const info = await api.getInfo();
 
     let searchInfo;
     let searchInfosAll;
 
-    let dataTracks = await search.getDataTracks();
+    let dataTracks = await api.getDataTracks();
     let isError = dataTracks.status !== 200
       ? 'Couldn\'t load data tracks'
       : false;
     dataTracks = isError ? null : dataTracks.body.results;
 
     if (typeof this.id !== 'undefined') {
-      searchInfo = await search.getSearchInfo(this.id);
+      searchInfo = await api.getSearchInfo(this.id);
       isError = searchInfo.status !== 200
         ? 'Couldn\'t load search info.'
         : false;
       searchInfo = isError ? null : searchInfo.body;
     } else {
-      searchInfosAll = await search.getAllSearchInfos();
+      searchInfosAll = await api.getAllSearchInfos();
       isError = searchInfosAll.status !== 200
         ? 'Couldn\'t load search infos.'
         : false;
@@ -263,7 +263,7 @@ class Search extends React.Component {
 
     this.setState({ isLoadingSeeds: true, isErrorSeeds: false });
 
-    const seedsInfo = await search.getSeeds(this.id);
+    const seedsInfo = await api.getSeeds(this.id);
     const isErrorSeeds = seedsInfo.status !== 200
       ? 'Couldn\'t load seeds.'
       : false;
@@ -310,7 +310,7 @@ class Search extends React.Component {
       isErrorClassifications: false,
     });
 
-    let classifications = await search.getClassifications(this.id);
+    let classifications = await api.getClassifications(this.id);
     const isErrorClassifications = classifications.status !== 200
       ? 'Could\'t load classifications.'
       : false;
@@ -343,7 +343,7 @@ class Search extends React.Component {
       this.state.searchInfo.classifiers > 0
       && this.state.isTraining === null
     ) {
-      let trainingInfo = await search.getClassifier(this.id);
+      let trainingInfo = await api.getClassifier(this.id);
       const isErrorResults = trainingInfo.status !== 200
         ? 'Could\'t load classifier info.'
         : false;
@@ -356,7 +356,7 @@ class Search extends React.Component {
     }
 
     if (this.isSeeded && this.isTrained) {
-      let predictions = await search.getPredictions(this.id);
+      let predictions = await api.getPredictions(this.id);
       const isErrorResults = predictions.status !== 200
         ? 'Could\'t load results.'
         : false;
@@ -542,8 +542,8 @@ class Search extends React.Component {
 
       // Send the new classification back to the server
       const response = setNewClassif
-        ? await search.setClassification(this.id, windowId, classif)
-        : await search.deleteClassification(this.id, windowId, classif);
+        ? await api.setClassification(this.id, windowId, classif)
+        : await api.deleteClassification(this.id, windowId, classif);
 
       // Set confirmed classification
       this.setState({
@@ -674,7 +674,7 @@ class Search extends React.Component {
   }
 
   async onTrainingStart(checker = this.onTrainingCheckBnd) {
-    const trainingInfo = await search.newClassifier(this.id);
+    const trainingInfo = await api.newClassifier(this.id);
 
     if (trainingInfo.status === 409) {
       showInfo(trainingInfo.body.error);
@@ -688,7 +688,7 @@ class Search extends React.Component {
   }
 
   async onTrainingCheck() {
-    let classifierInfo = await search.getClassifier(this.state.searchInfo.id);
+    let classifierInfo = await api.getClassifier(this.state.searchInfo.id);
 
     const isErrorResults = classifierInfo.status !== 200
       ? 'Could\'t get information on the training.'
@@ -725,7 +725,7 @@ class Search extends React.Component {
   }
 
   async onTrainingCheckSeeds() {
-    let classifierInfo = await search.getClassifier(this.state.searchInfo.id);
+    let classifierInfo = await api.getClassifier(this.state.searchInfo.id);
 
     const isErrorSeeds = classifierInfo.status !== 200
       ? 'Could\'t get information on the training.'

@@ -1,3 +1,4 @@
+export { default as api } from './api';
 export { default as withArray } from './with-array';
 export { default as camelToConst } from './camel-to-const';
 export { default as cookie } from './cookie';

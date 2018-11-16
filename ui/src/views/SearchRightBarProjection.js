@@ -10,9 +10,6 @@ import ButtonRadio from '../components/ButtonRadio';
 import ElementWrapperAdvanced from '../components/ElementWrapperAdvanced';
 import TabEntry from '../components/TabEntry';
 
-// Services
-import search from '../services/search';
-
 // Factories
 import Scatterplot from '../factories/Scatterplot';
 
@@ -25,6 +22,7 @@ import {
 
 // Utils
 import {
+  api,
   debounce,
   inputToNum,
 } from '../utils';
@@ -305,7 +303,7 @@ class SearchRightBarProjection extends React.Component {
 
     this.setState({ isLoading: true, isError: false, isNotFound: false });
 
-    const resp = await search.newProjection(this.props.searchInfo.id);
+    const resp = await api.newProjection(this.props.searchInfo.id);
     const isError = resp.status !== 200 ? 'Couldn\'t project data.' : false;
 
     const checkProjectionTimer = isError
@@ -319,7 +317,7 @@ class SearchRightBarProjection extends React.Component {
   }
 
   async checkProjection() {
-    const resp = await search.newProjection(this.props.searchInfo.id);
+    const resp = await api.newProjection(this.props.searchInfo.id);
     const isError = resp.status !== 200 ? 'Couldn\'t project data.' : false;
     const projection = isError ? {} : resp.body;
 
@@ -339,9 +337,9 @@ class SearchRightBarProjection extends React.Component {
 
     this.setState({ isLoading: true, isError: false });
 
-    const respClasses = await search.getClasses(this.props.searchInfo.id);
-    const respProbs = await search.getProbabilities(this.props.searchInfo.id);
-    const respProj = await search.getProjection(this.props.searchInfo.id);
+    const respClasses = await api.getClasses(this.props.searchInfo.id);
+    const respProbs = await api.getProbabilities(this.props.searchInfo.id);
+    const respProj = await api.getProjection(this.props.searchInfo.id);
 
     // Compare the number of windows for which we got classifications, projections, and
     // projections. Those should be the same otherwise the data seems to be corrupted

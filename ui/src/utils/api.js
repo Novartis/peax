@@ -2,7 +2,9 @@ import update from 'immutability-helper';
 import { decode } from 'tab64';
 
 // Utils
-import { getServer, mergeError, mergeJsonResponse } from '../utils';
+import getServer from './get-server';
+import mergeError from './merge-error';
+import mergeJsonResponse from './merge-json-response';
 
 const server = `${getServer()}/api/v1`;
 
@@ -105,7 +107,7 @@ const getClasses = async searchId => fetch(`${server}/classes/?s=${searchId}`)
   ))
   .catch(mergeError);
 
-const search = {
+export default {
   deleteClassification,
   getAllSearchInfos,
   getClasses,
@@ -123,5 +125,3 @@ const search = {
   newSearch,
   setClassification,
 };
-
-export default search;

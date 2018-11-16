@@ -23,10 +23,10 @@ import {
 
 // Services
 import pubSub from '../services/pub-sub';
-import search from '../services/search';
 
 // Utils
 import {
+  api,
   debounce,
   Logger,
   readableDate,
@@ -86,7 +86,7 @@ class Home extends React.Component {
   async getSearches() {
     this.setState({ isLoadingSearches: true, isErrorSearches: false });
 
-    const searches = await search.getAllSearchInfos(3);
+    const searches = await api.getAllSearchInfos(3);
     const isErrorSearches = searches.status !== 200;
 
     this.setState({
@@ -125,7 +125,7 @@ class Home extends React.Component {
   async checkHgSetup() {
     if (!this.hgApi) return;
 
-    this.searchInfo = await search.getInfo();
+    this.searchInfo = await api.getInfo();
     this.hgApi.setRangeSelection1dSize(
       this.searchInfo.windowSizeMin,
       this.searchInfo.windowSizeMax
@@ -180,7 +180,7 @@ class Home extends React.Component {
   }
 
   async search(rangeSelection) {
-    const response = await search.newSearch(rangeSelection);
+    const response = await api.newSearch(rangeSelection);
     logger.info(response);
     if (response.status === 200) {
       await this.props.setSearchToSeeds();
@@ -215,7 +215,7 @@ class Home extends React.Component {
                 {this.state.searches.map(s => (
                   <li key={s.id} className='flex-c flex-jc-sb'>
                     <Link to={`/search/${s.id}`}>
-                      {search.name || `Search #${s.id}`}
+                      {api.name || `Search #${s.id}`}
                     </Link>
                     <time dateTime={s.updated}>
                       {readableDate(s.updated)}
