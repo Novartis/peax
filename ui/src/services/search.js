@@ -6,14 +6,12 @@ import { getServer, mergeError, mergeJsonResponse } from '../utils';
 
 const server = `${getServer()}/api/v1`;
 
-const info = fetch(`${server}/info/`)
+const getInfo = async () => fetch(`${server}/info/`)
   .then(mergeJsonResponse)
   .then((response) => {
     if (response.status !== 200) return false;
     return response.body;
   });
-
-const getInfo = async () => info;
 
 const newSearch = async rangeSelection => fetch(
   `${server}/search/`, {
