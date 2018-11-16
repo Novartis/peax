@@ -460,7 +460,7 @@ def create(
                 # Load all encodings into memory. If this gets too slow or infeasible to
                 # to compute we need to start using `warm_start`. See the following:
                 # https://stackoverflow.com/a/30758348/981933
-                fit_y, p_y = classifier.predict(datasets.encodings[:])
+                fit_y, p_y = classifier.predict(dsc.encodings[:])
                 out[:] = p_y[:, 1]
 
         return jsonify(
