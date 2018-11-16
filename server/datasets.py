@@ -17,7 +17,7 @@ import numpy as np
 import os
 import re
 
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 
 from server import utils
 
@@ -101,6 +101,13 @@ class Datasets:
         md5 = hashlib.md5()
         md5.update(all_filenames.encode())
         return md5.hexdigest()
+
+    def remove_cache(self):
+        for dataset in self.datasets:
+            dataset.remove_cache()
+
+        with suppress(FileNotFoundError):
+            os.remove(self.cache_filepath)
 
     def prepare(self, encoders, config, clear: bool = False, verbose: bool = False):
         # Used for assertion checking

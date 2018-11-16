@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import argparse
+import atexit
 import json
 import sys
 
@@ -26,6 +27,9 @@ parser.add_argument(
 )
 parser.add_argument(
     "--clear-cache", action="store_true", help="clears the cache on startup"
+)
+parser.add_argument(
+    "--clear-cache-after", action="store_true", help="clears the cache on shutdown"
 )
 parser.add_argument(
     "--clear-db", action="store_true", help="clears the database on startup"
@@ -68,6 +72,13 @@ app = server.create(
     clear_db=args.clear or args.clear_db,
     verbose=args.verbose,
 )
+
+
+def remove_cache(config):
+    config.datasets.remove_cache()
+
+
+atexit.register(remove_cache, config)
 
 # Run the instance
 app.run(debug=args.debug, host=args.host, port=args.port)

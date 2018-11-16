@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 import re
 
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 
 from server import bigwig
 from server import utils
@@ -87,6 +87,10 @@ class Dataset:
             idKey: "{}|ae".format(self.id) if autoencodings else self.id,
             "name": self.name,
         }
+
+    def remove_cache(self):
+        with suppress(FileNotFoundError):
+            os.remove(self.cache_filepath)
 
     def prepare(
         self, config, encoder, clear: bool = False, verbose: bool = False
