@@ -311,6 +311,18 @@ def knn_density(
 
 @contextmanager
 def suppress_with_default(*exceptions, **kwargs):
+    """Like contextlib.suppress but with a default value on exception
+
+    Decorators:
+        contextmanager
+
+    Arguments:
+        *exceptions {list} -- List of exceptions to suppress. By default all exceptions are suppressed.
+        **kwargs {dict} -- Dictionary of key word arguments
+
+    Yields:
+        any -- Default value from ``kwargs``
+    """
     try:
         yield kwargs.get("default", None)
     except exceptions or Exception:
