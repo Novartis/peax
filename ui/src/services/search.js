@@ -4,14 +4,6 @@ import { decode } from 'tab64';
 // Utils
 import { getServer, mergeError, mergeJsonResponse } from '../utils';
 
-// Non-persistent state
-const state = {
-  windowSizeMin: 0,
-  windowSizeMax: Infinity,
-  target: null,
-  classification: [],
-};
-
 const server = `${getServer()}/api/v1`;
 
 const info = fetch(`${server}/info/`)
@@ -132,7 +124,6 @@ const search = {
   newProjection,
   newSearch,
   setClassification,
-  state,
 };
 
 export default search;
