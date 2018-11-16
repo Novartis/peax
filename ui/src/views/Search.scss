@@ -206,9 +206,14 @@
   border-radius: 0.25rem;
   box-shadow: 0 0 0 1px $gray-lighter;
 
-  .message-error .icon {
+  .message .icon {
     width: 2rem;
     height: 2rem;
+  }
+
+  .message-default {
+    padding: 0;
+    background: none;
   }
 }
 
