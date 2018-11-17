@@ -20,8 +20,8 @@ class Main extends React.Component {
     return (
       <Switch>
         <Route exact path="/about" component={About} />
-        <Route exact path="/search" render={Search} />
-        <Route exact path="/search/:id" render={Search} />
+        <Route exact path="/search" component={Search} />
+        <Route exact path="/search/:id" component={Search} />
         <Route exact path="/help" component={Help} />
         <Route exact path="/" component={Home} />
         <Route component={NotFound} />
