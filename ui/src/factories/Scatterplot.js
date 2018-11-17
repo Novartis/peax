@@ -259,7 +259,7 @@ const Scatterplot = ({
   };
 
   const reset = () => {
-    camera.lookAt([...DEFAULT_DISTANCE], DEFAULT_DISTANCE);
+    camera.lookAt([...DEFAULT_TARGET], DEFAULT_DISTANCE);
     drawRaf();
     pubSub.publish("camera", camera.position);
   };
