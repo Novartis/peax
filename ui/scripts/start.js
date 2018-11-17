@@ -13,6 +13,8 @@ process.on("unhandledRejection", err => {
 require("../config/env");
 // @remove-on-eject-begin
 // Do the preflight check (only happens before eject).
+const verifyPackageTree = require("./utils/verifyPackageTree");
+
 if (process.env.SKIP_PREFLIGHT_CHECK !== "true") {
   verifyPackageTree();
 }
@@ -67,7 +69,6 @@ if (process.env.HOST) {
 // We require that you explictly set browsers and do not fall back to
 // browserslist defaults.
 const { checkBrowsers } = require("react-dev-utils/browsersHelper");
-const verifyPackageTree = require("./utils/verifyPackageTree");
 
 checkBrowsers(paths.appPath, isInteractive)
   .then(() =>
