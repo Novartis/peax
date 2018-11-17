@@ -1,20 +1,20 @@
-import PropTypes from 'prop-types';
-import React from 'react';
+import PropTypes from "prop-types";
+import React from "react";
 
 // Components
-import Button from '../components/Button';
-import HiglassResultList from '../components/HiglassResultList';
-import SubTopBar from '../components/SubTopBar';
-import SubTopBottomBarButtons from '../components/SubTopBottomBarButtons';
+import Button from "../components/Button";
+import HiglassResultList from "../components/HiglassResultList";
+import SubTopBar from "../components/SubTopBar";
+import SubTopBottomBarButtons from "../components/SubTopBottomBarButtons";
 
 // Utils
-import { Logger } from '../utils';
+import { Logger } from "../utils";
 
-const logger = Logger('SearchSeeds');  // eslint-disable-line
+const logger = Logger("SearchSeeds"); // eslint-disable-line
 
 const isTraining = onTrainingCheck => (
   <span>
-    {'The classifier is training hard! '}
+    {"The classifier is training hard! "}
     <Button onClick={onTrainingCheck}>Check Status</Button>
   </span>
 );
@@ -30,8 +30,10 @@ class SearchSeeds extends React.Component {
   }
 
   get isFulfilled() {
-    return (this.props.searchInfo.classifications || 0)
-      > this.props.info.minClassifications;
+    return (
+      (this.props.searchInfo.classifications || 0) >
+      this.props.info.minClassifications
+    );
   }
 
   getResultsWrapper(ref) {
@@ -42,21 +44,21 @@ class SearchSeeds extends React.Component {
     return (
       <div className="full-dim search-tab-wrapper">
         <SubTopBar>
-          <SubTopBottomBarButtons className='flex-c flex-a-c no-list-style'>
+          <SubTopBottomBarButtons className="flex-c flex-a-c no-list-style">
             {this.props.searchInfo.classifications ? (
               <li>
                 Classified {this.props.searchInfo.classifications} regions.
               </li>
             ) : (
-              <li>
-                Start classifying regions!
-              </li>
+              <li>Start classifying regions!</li>
             )}
           </SubTopBottomBarButtons>
-          <SubTopBottomBarButtons className='flex-c flex-a-c flex-jc-e no-list-style'>
+          <SubTopBottomBarButtons className="flex-c flex-a-c flex-jc-e no-list-style">
             <li>
               <Button
-                isDisabled={!this.props.isReady || this.props.isTraining === true}
+                isDisabled={
+                  !this.props.isReady || this.props.isTraining === true
+                }
                 onClick={this.props.onTrainingStart}
               >
                 Train Classifier
@@ -71,13 +73,14 @@ class SearchSeeds extends React.Component {
           <HiglassResultList
             isError={this.props.isError}
             isLoading={this.props.isLoading}
-            isEmpty={'No seeds found!'}
+            isEmpty={"No seeds found!"}
             isTraining={this.props.isTraining === true}
             isTrainingNodes={isTraining(this.props.onTrainingCheck)}
             itemsPerPage={this.props.itemsPerPage}
             list={Object.keys(this.props.results).map(windowId => ({
               classification: undefined,
-              classificationChangeHandler: this.props.classificationChangeHandler,
+              classificationChangeHandler: this.props
+                .classificationChangeHandler,
               dataTracks: this.props.dataTracks,
               normalizeBy: this.props.normalizeBy,
               onEnter: this.props.onResultEnter,
@@ -86,7 +89,7 @@ class SearchSeeds extends React.Component {
               searchId: this.props.searchInfo.id,
               viewHeight: this.props.searchInfo.viewHeight,
               windowId: parseInt(windowId, 10),
-              windows: this.props.windows,
+              windows: this.props.windows
             }))}
             page={this.props.page}
             pageTotal={this.props.pageTotal}
@@ -103,7 +106,7 @@ SearchSeeds.defaultProps = {
   isReady: null,
   isError: false,
   results: {},
-  windows: {},
+  windows: {}
 };
 
 SearchSeeds.propTypes = {
@@ -126,7 +129,7 @@ SearchSeeds.propTypes = {
   pageTotal: PropTypes.number,
   results: PropTypes.object,
   searchInfo: PropTypes.object.isRequired,
-  windows: PropTypes.object,
+  windows: PropTypes.object
 };
 
 export default SearchSeeds;

@@ -1,23 +1,25 @@
-import PropTypes from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
+import PropTypes from "prop-types";
+import React from "react";
+import { connect } from "react-redux";
 
 // Components
-import ButtonIcon from './ButtonIcon';
-import HiGlassViewer from './HiGlassViewer';
-import ButtonRadio from './ButtonRadio';
+import ButtonIcon from "./ButtonIcon";
+import HiGlassViewer from "./HiGlassViewer";
+import ButtonRadio from "./ButtonRadio";
 
 // Configs
 import {
   BUTTON_RADIO_CLASSIFICATION_OPTIONS,
   BLUE_PINK_CMAP,
-  BLUE_PINK_TEXT_CMAP,
-} from '../configs/search';
+  BLUE_PINK_TEXT_CMAP
+} from "../configs/search";
 
-import './HiglassResult.scss';
+import "./HiglassResult.scss";
 
-const getColor = prob => BLUE_PINK_CMAP[Math.round(prob * BLUE_PINK_CMAP.length)];
-const getFontColor = prob => BLUE_PINK_TEXT_CMAP[Math.round(prob * BLUE_PINK_CMAP.length)];
+const getColor = prob =>
+  BLUE_PINK_CMAP[Math.round(prob * BLUE_PINK_CMAP.length)];
+const getFontColor = prob =>
+  BLUE_PINK_TEXT_CMAP[Math.round(prob * BLUE_PINK_CMAP.length)];
 
 class HiglassResult extends React.Component {
   constructor(props) {
@@ -25,7 +27,7 @@ class HiglassResult extends React.Component {
 
     this.state = {
       isInfoSideBarShown: false,
-      isMinMaxValsByTarget: false,
+      isMinMaxValsByTarget: false
     };
 
     this.minMaxVals = {};
@@ -53,7 +55,9 @@ class HiglassResult extends React.Component {
   /* ---------------------------- Getter & Setter --------------------------- */
 
   get viewId() {
-    return `${this.props.searchId}.${this.props.windowId}.${this.props.showAutoencodings ? 'e' : ''}`;
+    return `${this.props.searchId}.${this.props.windowId}.${
+      this.props.showAutoencodings ? "e" : ""
+    }`;
   }
 
   /* ---------------------------- Custom Methods ---------------------------- */
@@ -66,7 +70,7 @@ class HiglassResult extends React.Component {
 
   isToBeNormalized() {
     return Object.keys(this.props.normalizeBy)
-      .filter(key => key !== '__source__')
+      .filter(key => key !== "__source__")
       .map(key => this.props.normalizeBy[key])
       .reduce((a, b) => [...a, ...b], [])
       .some(x => x);
@@ -80,10 +84,12 @@ class HiglassResult extends React.Component {
     }
 
     Object.keys(this.props.normalizeBy)
-      .filter(track => track !== '__source__')
-      .forEach((track) => {
+      .filter(track => track !== "__source__")
+      .forEach(track => {
         this.api.setTrackValueScaleLimits(
-          undefined, track, ...this.props.normalizeBy[track]
+          undefined,
+          track,
+          ...this.props.normalizeBy[track]
         );
       });
   }
@@ -98,19 +104,19 @@ class HiglassResult extends React.Component {
     if (!this.api) return;
 
     this.minMaxVals = { __source__: this.props.windowId };
-    this.props.dataTracks
-      .forEach((track) => {
-        if (this.state.isMinMaxValsByTarget) {
-          this.minMaxVals[track] = [undefined, undefined];
-        } else {
-          this.minMaxVals[track] = [
-            0, this.api.getMinMaxValue(undefined, track, true)[1],
-          ];
-        }
-      });
+    this.props.dataTracks.forEach(track => {
+      if (this.state.isMinMaxValsByTarget) {
+        this.minMaxVals[track] = [undefined, undefined];
+      } else {
+        this.minMaxVals[track] = [
+          0,
+          this.api.getMinMaxValue(undefined, track, true)[1]
+        ];
+      }
+    });
 
     await this.setState({
-      isMinMaxValsByTarget: !this.state.isMinMaxValsByTarget,
+      isMinMaxValsByTarget: !this.state.isMinMaxValsByTarget
     });
 
     this.props.onNormalize(this.minMaxVals);
@@ -131,44 +137,44 @@ class HiglassResult extends React.Component {
   /* -------------------------------- Render -------------------------------- */
 
   render() {
-    let classNameInfoSideBar = 'higlass-result-side-panel';
+    let classNameInfoSideBar = "higlass-result-side-panel";
 
     if (this.props.isInfoSideBar) {
-      classNameInfoSideBar += ' higlass-result-has-info';
+      classNameInfoSideBar += " higlass-result-has-info";
     }
     if (this.state.isInfoSideBarShown) {
-      classNameInfoSideBar += ' higlass-result-show-info';
+      classNameInfoSideBar += " higlass-result-show-info";
     }
 
     return (
       <div
-        className='rel flex-c higlass-result'
+        className="rel flex-c higlass-result"
         onMouseEnter={this.onEnterBnd}
         onMouseLeave={this.onLeaveBnd}
       >
         <aside className={classNameInfoSideBar}>
           {this.props.isInfoSideBar && (
             <ButtonIcon
-              className='higlass-result-info-panel-toggler'
-              icon='info'
+              className="higlass-result-info-panel-toggler"
+              icon="info"
               iconOnly={true}
               onClick={this.onToggleInfoSideBarBnd}
             />
           )}
           <ButtonIcon
-            className='higlass-result-normalizer'
-            icon='ratio'
+            className="higlass-result-normalizer"
+            icon="ratio"
             iconOnly={true}
             isActive={this.state.isMinMaxValsByTarget}
             isIconMirrorOnFocus={true}
             onClick={this.onNormalizeBnd}
           />
           {this.props.isInfoSideBar && (
-            <div className='full-dim higlass-result-info-panel-content'>
-              <ul className='no-list-style'>
+            <div className="full-dim higlass-result-info-panel-content">
+              <ul className="no-list-style">
                 {this.props.classificationProb && (
                   <li>
-                    <label className='label'>
+                    <label className="label">
                       Classification <abbr title="Probability">prob</abbr>
                     </label>
                     <div className="value">{this.props.classificationProb}</div>
@@ -187,25 +193,25 @@ class HiglassResult extends React.Component {
         />
         <div className="higlass-class-probability-wrapper">
           {!!this.props.classificationProb && (
-            <div className='higlass-class-probability'>
+            <div className="higlass-class-probability">
               <div
-                className='higlass-class-probability-bar'
+                className="higlass-class-probability-bar"
                 style={{
                   bottom: `${this.props.classificationProb * 100}%`,
-                  backgroundColor: getColor(this.props.classificationProb),
+                  backgroundColor: getColor(this.props.classificationProb)
                 }}
               />
               <div
-                className='flex-c higlass-class-probability-label'
+                className="flex-c higlass-class-probability-label"
                 style={{
-                  bottom: `${this.props.classificationProb * 100}%`,
+                  bottom: `${this.props.classificationProb * 100}%`
                 }}
               >
                 <div
                   className="higlass-class-probability-label-prob"
                   style={{
                     color: getFontColor(this.props.classificationProb),
-                    backgroundColor: getColor(this.props.classificationProb),
+                    backgroundColor: getColor(this.props.classificationProb)
                   }}
                 >
                   {this.props.classificationProb}
@@ -213,7 +219,7 @@ class HiglassResult extends React.Component {
                 <div
                   className="higlass-class-probability-label-arrow"
                   style={{
-                    borderLeftColor: getColor(this.props.classificationProb),
+                    borderLeftColor: getColor(this.props.classificationProb)
                   }}
                 />
               </div>
@@ -222,15 +228,16 @@ class HiglassResult extends React.Component {
           <ButtonRadio
             isVertical={true}
             name={`search-${this.props.windowId}-classify`}
-            onClick={this.props.classificationChangeHandler(this.props.windowId)}
+            onClick={this.props.classificationChangeHandler(
+              this.props.windowId
+            )}
             options={BUTTON_RADIO_CLASSIFICATION_OPTIONS}
             selection={
-              (
-                this.props.windows[this.props.windowId]
-                && this.props.windows[this.props.windowId].classification
-              ) || this.props.classification
+              (this.props.windows[this.props.windowId] &&
+                this.props.windows[this.props.windowId].classification) ||
+              this.props.classification
             }
-            defaultSelection='neutral'
+            defaultSelection="neutral"
           />
         </div>
       </div>
@@ -239,12 +246,12 @@ class HiglassResult extends React.Component {
 }
 
 HiglassResult.defaultProps = {
-  classification: 'neutral',
+  classification: "neutral",
   classificationProb: null,
   dataTracks: [],
   isInfoSideBar: false,
   normalizeBy: {},
-  windows: {},
+  windows: {}
 };
 
 HiglassResult.propTypes = {
@@ -261,11 +268,11 @@ HiglassResult.propTypes = {
   showAutoencodings: PropTypes.bool.isRequired,
   viewHeight: PropTypes.number.isRequired,
   windowId: PropTypes.number.isRequired,
-  windows: PropTypes.object,
+  windows: PropTypes.object
 };
 
 const mapStateToProps = state => ({
-  showAutoencodings: state.present.showAutoencodings,
+  showAutoencodings: state.present.showAutoencodings
 });
 const mapDispatchToProps = (/* dispatch */) => ({});
 

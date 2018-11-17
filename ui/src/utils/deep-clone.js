@@ -7,7 +7,7 @@
  * @return {object} Cloned `source` object
  */
 const extend = (target, source) => {
-  if (source === null || typeof source !== 'object') {
+  if (source === null || typeof source !== "object") {
     return source;
   }
 
@@ -28,9 +28,11 @@ const extend = (target, source) => {
 
   const out = target || new source.constructor();
 
-  Object.keys(source).forEach((attr) => {
-    out[attr] = typeof out[attr] === 'undefined' ?
-      extend(undefined, source[attr]) : out[attr];
+  Object.keys(source).forEach(attr => {
+    out[attr] =
+      typeof out[attr] === "undefined"
+        ? extend(undefined, source[attr])
+        : out[attr];
   });
 
   return out;
@@ -42,7 +44,7 @@ const extend = (target, source) => {
  * @param {object} source - Object to be cloned.
  * @return {object} Cloned `source` object.
  */
-const deepClone = (source) => {
+const deepClone = source => {
   let target;
   return extend(target, source);
 };

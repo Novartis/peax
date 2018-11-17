@@ -65,7 +65,7 @@ class Home extends React.Component {
 
   /* ----------------------- React Life Cycle Methods ----------------------- */
 
-  componentWillMount() {
+  componentDidMount() {
     this.pubSubs.push(
       this.props.pubSub.subscribe("keydown", this.keyDownHandlerBound)
     );

@@ -77,6 +77,7 @@ const Scatterplot = ({
       }
     });
     if (minDist < (_pointSize / _width) * 2) return clostestPoint;
+    return -1;
   };
 
   const mouseDownHandler = () => {
