@@ -22,7 +22,7 @@ class Main extends React.Component {
         <Route exact path="/about" component={About} />
         <Route exact path="/search" component={Search} />
         <Route exact path="/search/:id" component={Search} />
-        <Route exact path="/help" component={Help} />
+        <Route exact path="/help" render={Help.render} />
         <Route exact path="/" component={Home} />
         <Route component={NotFound} />
       </Switch>
