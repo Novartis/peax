@@ -21,9 +21,6 @@ class TopBar extends React.Component {
       menuIsShown: false
     };
 
-    this.loginPasswordHandler = this.loginPasswordHandler.bind(this);
-    this.loginUserIdHandler = this.loginUserIdHandler.bind(this);
-    this.login = this.login.bind(this);
     this.toggleMenu = this.toggleMenu.bind(this);
 
     this.unlisten = this.props.history.listen(() =>

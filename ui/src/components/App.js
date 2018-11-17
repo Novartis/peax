@@ -55,14 +55,6 @@ class App extends React.Component {
     this.pubSubs.push(
       this.props.pubSub.subscribe("keydown", this.keyDownHandler.bind(this))
     );
-
-    this.pubSubs.push(
-      this.props.pubSub.subscribe("login", this.loginHandler.bind(this))
-    );
-
-    this.pubSubs.push(
-      this.props.pubSub.subscribe("logout", this.logoutHandler.bind(this))
-    );
   }
 
   componentWillUnmount() {
@@ -81,16 +73,6 @@ class App extends React.Component {
     this.pubSubs = [];
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (
-      this.state.isAuthenticated &&
-      !prevState.isAuthenticated &&
-      this.props.location.pathname.substr(0, 4) !== "/app"
-    ) {
-      this.props.history.push("/app");
-    }
-  }
-
   render() {
     return (
       <div className="app full-mdim">
@@ -107,8 +89,8 @@ class App extends React.Component {
             resolveText={this.state.dialog.resolveText}
           />
         )}
-        <TopBar isAuthenticated={this.state.isAuthenticated} />
-        <Main isAuthenticated={this.state.isAuthenticated} />
+        <TopBar />
+        <Main />
       </div>
     );
   }
@@ -163,14 +145,6 @@ class App extends React.Component {
       event.preventDefault();
       this.props.undo();
     }
-  }
-
-  loginHandler() {
-    this.setState({ isAuthenticated: true });
-  }
-
-  logoutHandler() {
-    this.setState({ isAuthenticated: false });
   }
 }
 
