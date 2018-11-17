@@ -9,8 +9,7 @@
     "url": "https://github.com/flekschas/peax.git"
   },
   "dependencies": {
-    "camera-2d": "flekschas/camera-2d",
-    "canvas-camera-2d": "flekschas/canvas-camera-2d",
+    "canvas-camera-2d": "0.1.0",
     "deep-equal": "1.0.1",
     "gl-matrix": "^2.7.1",
     "higlass": "1.2.8",
