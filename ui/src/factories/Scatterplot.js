@@ -1,16 +1,15 @@
-import canvasCamera2d from 'canvas-camera-2d';  // eslint-disable-line import/no-unresolved
-import { vec3 } from 'gl-matrix';
-import createMousePos from 'mouse-position';
-import createMousePrs from 'mouse-pressed';
-import createRegl from 'regl';
-import createScroll from 'scroll-speed';
+import canvasCamera2d from "canvas-camera-2d"; // eslint-disable-line import/no-unresolved
+import { vec3 } from "gl-matrix";
+import createMousePos from "mouse-position";
+import createMousePrs from "mouse-pressed";
+import createPubSub from "pub-sub-es";
+import createRegl from "regl";
+import createScroll from "scroll-speed";
 
-import FRAG_SHADER from './Scatterplot.fshader';
-import VERT_SHADER from './Scatterplot.vshader';
+import FRAG_SHADER from "./Scatterplot.fshader";
+import VERT_SHADER from "./Scatterplot.vshader";
 
-import { PubSub } from '../services/pub-sub';
-
-import { withRaf } from '../utils';
+import { withRaf } from "../utils";
 
 const DEFAULT_POINT_SIZE = 3;
 const DEFAULT_POINT_SIZE_HIGHLIGHT = 3;
@@ -22,18 +21,18 @@ const DEFAULT_TARGET = [0, 0];
 const DEFAULT_DISTANCE = 1;
 const CLICK_DELAY = 250;
 
-const dist = (x1, x2, y1, y2) => Math.sqrt(((x1 - x2) ** 2) + ((y1 - y2) ** 2));
+const dist = (x1, x2, y1, y2) => Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
 
 const Scatterplot = ({
-  canvas = document.createElement('canvas'),
+  canvas = document.createElement("canvas"),
   colorMap = DEFAULT_COLORMAP,
   pointSize = DEFAULT_POINT_SIZE,
   pointSizeHighlight = DEFAULT_POINT_SIZE_HIGHLIGHT,
   width = DEFAULT_WIDTH,
   height = DEFAULT_HEIGHT,
-  padding = DEFAULT_PADDING,
+  padding = DEFAULT_PADDING
 } = {}) => {
-  const pubSub = PubSub();
+  const pubSub = createPubSub();
   let _canvas = canvas;
   let _width = width;
   let _height = height;
@@ -61,8 +60,8 @@ const Scatterplot = ({
     mousePosition.flush();
     let { 0: x, 1: y } = mousePosition;
     // Get relative webgl coordinates
-    x = -1 + ((x / _width) * 2);
-    y = 1 + ((y / _height) * -2);
+    x = -1 + (x / _width) * 2;
+    y = 1 + (y / _height) * -2;
     // Normalize by the camera
     const v = [x, y, 1];
     vec3.transformMat3(v, v, camera.transformation);
@@ -89,37 +88,37 @@ const Scatterplot = ({
 
     // Get relative webgl coordinates
     const { 0: x, 1: y } = mousePosition;
-    mouseDownX = -1 + ((x / _width) * 2);
-    mouseDownY = 1 + ((y / _height) * -2);
+    mouseDownX = -1 + (x / _width) * 2;
+    mouseDownY = 1 + (y / _height) * -2;
   };
 
   const mouseUpHandler = () => {
     mouseDown = false;
     if (performance.now() - mouseDownTime <= CLICK_DELAY) {
-      pubSub.publish('click', {
-        selectedPoint: raycast(mouseDownX, mouseDownY),
+      pubSub.publish("click", {
+        selectedPoint: raycast(mouseDownX, mouseDownY)
       });
     }
   };
 
   const initRegl = (c = _canvas) => {
-    regl = createRegl({ canvas: c, extensions: ['OES_standard_derivatives'] });
+    regl = createRegl({ canvas: c, extensions: ["OES_standard_derivatives"] });
     camera = canvasCamera2d(c, {
       target: DEFAULT_TARGET,
-      distance: DEFAULT_DISTANCE,
+      distance: DEFAULT_DISTANCE
     });
     scroll = createScroll(c);
     mousePosition = createMousePos(c);
     mousePressed = createMousePrs(c);
 
-    scroll.on('scroll', () => {
+    scroll.on("scroll", () => {
       drawRaf(); // eslint-disable-line
     });
-    mousePosition.on('move', () => {
+    mousePosition.on("move", () => {
       if (mouseDown) drawRaf(); // eslint-disable-line
     });
-    mousePressed.on('down', mouseDownHandler);
-    mousePressed.on('up', mouseUpHandler);
+    mousePressed.on("down", mouseDownHandler);
+    mousePressed.on("up", mouseUpHandler);
   };
 
   const destroy = () => {
@@ -132,77 +131,78 @@ const Scatterplot = ({
   };
 
   const canvasGetter = () => _canvas;
-  const canvasSetter = (newCanvas) => {
+  const canvasSetter = newCanvas => {
     _canvas = newCanvas;
     initRegl(_canvas);
   };
   const colorMapGetter = () => _colorMap;
-  const colorMapSetter = (newColorMap) => {
+  const colorMapSetter = newColorMap => {
     _colorMap = newColorMap || DEFAULT_COLORMAP;
   };
   const heightGetter = () => _height;
-  const heightSetter = (newHeight) => {
+  const heightSetter = newHeight => {
     _height = +newHeight || DEFAULT_HEIGHT;
     _canvas.height = _height * window.devicePixelRatio;
   };
   const paddingGetter = () => _padding;
-  const paddingSetter = (newPadding) => {
+  const paddingSetter = newPadding => {
     _padding = +newPadding || DEFAULT_PADDING;
     _padding = Math.max(0, Math.min(0.5, _padding));
   };
   const pointSizeGetter = () => _pointSize;
-  const pointSizeSetter = (newPointSize) => {
+  const pointSizeSetter = newPointSize => {
     _pointSize = +newPointSize || DEFAULT_POINT_SIZE;
   };
   const pointSizeHighlightGetter = () => _pointSizeHighlight;
-  const pointSizeHighlightSetter = (newPointSizeHighlight) => {
+  const pointSizeHighlightSetter = newPointSizeHighlight => {
     _pointSizeHighlight =
       +newPointSizeHighlight || DEFAULT_POINT_SIZE_HIGHLIGHT;
   };
   const widthGetter = () => _width;
-  const widthSetter = (newWidth) => {
+  const widthSetter = newWidth => {
     _width = +newWidth || DEFAULT_WIDTH;
     _canvas.width = _width * window.devicePixelRatio;
   };
 
   initRegl(_canvas);
 
-  const drawPoints = points => regl({
-    frag: FRAG_SHADER,
-    vert: VERT_SHADER,
+  const drawPoints = points =>
+    regl({
+      frag: FRAG_SHADER,
+      vert: VERT_SHADER,
 
-    blend: {
-      enable: true,
-      func: {
-        srcRGB: 'src alpha',
-        srcAlpha: 'one',
-        dstRGB: 'one minus src alpha',
-        dstAlpha: 'one minus src alpha',
+      blend: {
+        enable: true,
+        func: {
+          srcRGB: "src alpha",
+          srcAlpha: "one",
+          dstRGB: "one minus src alpha",
+          dstAlpha: "one minus src alpha"
+        }
       },
-    },
 
-    depth: { enable: false },
+      depth: { enable: false },
 
-    attributes: {
-      // each of these gets mapped to a single entry for each of the points.
-      // this means the vertex shader will receive just the relevant value for
-      // a given point.
-      position: points.map(d => d.slice(0, 2)),
-      color: points.map(d => d[2]),
-      extraPointSize: points.map(d => d[3] | 0), // eslint-disable-line no-bitwise
-    },
+      attributes: {
+        // each of these gets mapped to a single entry for each of the points.
+        // this means the vertex shader will receive just the relevant value for
+        // a given point.
+        position: points.map(d => d.slice(0, 2)),
+        color: points.map(d => d[2]),
+        extraPointSize: points.map(d => d[3] | 0) // eslint-disable-line no-bitwise
+      },
 
-    uniforms: {
-      // Total area that is being used. Value must be in [0, 1]
-      span: regl.prop('span'),
-      basePointSize: regl.prop('basePointSize'),
-      camera: regl.prop('camera'),
-    },
+      uniforms: {
+        // Total area that is being used. Value must be in [0, 1]
+        span: regl.prop("span"),
+        basePointSize: regl.prop("basePointSize"),
+        camera: regl.prop("camera")
+      },
 
-    count: points.length,
+      count: points.length,
 
-    primitive: 'points',
-  });
+      primitive: "points"
+    });
 
   const highlightPoints = (points, numHighlights) => {
     const N = points.length;
@@ -234,7 +234,7 @@ const Scatterplot = ({
     regl.clear({
       // background color (transparent)
       color: [0, 0, 0, 0],
-      depth: 1,
+      depth: 1
     });
 
     // Update camera
@@ -244,11 +244,11 @@ const Scatterplot = ({
     drawPoints(highlightPoints(points, numHighlight))({
       span: 1 - _padding,
       basePointSize: _pointSize,
-      camera: camera.view(),
+      camera: camera.view()
     });
 
     // Publish camera change
-    if (isCameraChanged) pubSub.publish('camera', camera.position);
+    if (isCameraChanged) pubSub.publish("camera", camera.position);
   };
 
   const drawRaf = withRaf(draw);
@@ -260,7 +260,7 @@ const Scatterplot = ({
   const reset = () => {
     camera.lookAt([...DEFAULT_DISTANCE], DEFAULT_DISTANCE);
     drawRaf();
-    pubSub.publish('camera', camera.position);
+    pubSub.publish("camera", camera.position);
   };
 
   return {
@@ -311,7 +311,7 @@ const Scatterplot = ({
     destroy,
     reset,
     subscribe: pubSub.subscribe,
-    unsubscribe: pubSub.unsubscribe,
+    unsubscribe: pubSub.unsubscribe
   };
 };
 

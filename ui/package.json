@@ -21,6 +21,7 @@
     "mouse-pressed": "1.0.0",
     "pixi.js": "4.8.2",
     "prop-types": "15.6.2",
+    "pub-sub-es": "1.1.0",
     "react": "16.6.1",
     "react-bootstrap": "0.32.1",
     "react-dom": "16.6.1",
