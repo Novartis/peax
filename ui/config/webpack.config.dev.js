@@ -184,7 +184,9 @@ module.exports = {
       ".web.jsx",
       ".jsx",
       ".fshader",
-      ".vshader"
+      ".fs",
+      ".vshader",
+      ".vs"
     ],
     alias: {
       // Support React Native Web
@@ -219,7 +221,7 @@ module.exports = {
       // First, run the linter.
       // It's important to do this before Babel processes the JS.
       {
-        test: /\.(js|jsx|(f|v)shader)$/,
+        test: /\.(js|jsx|(f|v)s(hader)?)$/,
         enforce: "pre",
         use: [
           {
@@ -261,7 +263,7 @@ module.exports = {
           // Process application JS with Babel.
           // The preset includes JSX, Flow, and some ESnext features.
           {
-            test: /\.(js|jsx|(f|v)shader)$/,
+            test: /\.(js|jsx|(f|v)s(hader)?)$/,
             include: paths.appSrc,
             loader: require.resolve("babel-loader"),
             options: {
@@ -392,7 +394,7 @@ module.exports = {
             // its runtime that would otherwise be processed through "file" loader.
             // Also exclude `html` and `json` extensions so they get processed
             // by webpacks internal loaders.
-            exclude: [/\.(js|jsx|(f|v)shader)$/, /\.html$/, /\.json$/],
+            exclude: [/\.(js|jsx|(f|v)s(hader)?)$/, /\.html$/, /\.json$/],
             loader: require.resolve("file-loader"),
             options: {
               name: "static/media/[name].[hash:8].[ext]"
