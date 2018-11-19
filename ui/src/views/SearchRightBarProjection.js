@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import { connect } from "react-redux";
 import { compose } from "recompose";
+import createScatterplot from "regl-scatterplot";
 
 // Components
 import Button from "../components/Button";
@@ -10,20 +11,26 @@ import ButtonRadio from "../components/ButtonRadio";
 import ElementWrapperAdvanced from "../components/ElementWrapperAdvanced";
 import TabEntry from "../components/TabEntry";
 
-// Factories
-import Scatterplot from "../factories/Scatterplot";
-
 // Actions
 import {
-  setSearchRightBarProjectionCamera,
   setSearchRightBarProjectionSettings,
   setSearchSelection
 } from "../actions";
 
 // Utils
-import { api, debounce, inputToNum } from "../utils";
+import { api, debounce, inputToNum, zip } from "../utils";
 
 // Configs
+import {
+  // BASE_COLOR,
+  // HIGHLIGHT_COLOR,
+  COLORMAP_CAT,
+  COLORMAP_PRB,
+  REDRAW_DELAY,
+  PROJECTION_CHECK_INTERVAL,
+  PROJECTION_VIEW,
+  PROJECTION_VIEW_INTERVAL
+} from "../configs/projection";
 import {
   BUTTON_RADIO_PROJECTION_COLOR_ENCODING_OPTIONS,
   TAB_RIGHT_BAR_PROJECTION
@@ -32,58 +39,20 @@ import {
 // Styles
 import "./Search.scss";
 
-const BASE_COLOR = [0.3, 0.3, 0.3, 0.075];
-// const HIGHLIGHT_COLOR = [1, 0.749019608, 0, 1];
-const COLORMAP_CAT = [
-  BASE_COLOR, // Base color
-  [0.752941176, 0.141176471, 0.541176471, 0.75], // Negative
-  [0.058823529, 0.364705882, 0.57254902, 0.75], // Positive
-  [0, 0, 0, 1] // Target
-];
-const COLORMAP_PRB = [
-  // from negative
-  [0.85, 0.85, 0.85, 0.05],
-  [0.85, 0.85, 0.85, 0.1],
-  [0.85, 0.85, 0.85, 0.15],
-  [0.8, 0.8, 0.8, 0.2],
-  [0.75, 0.75, 0.75, 0.25],
-  [0.7, 0.7, 0.7, 0.3],
-  [0.65, 0.65, 0.65, 0.35],
-  [0.6, 0.6, 0.6, 0.4],
-  // neutral
-  [0.5, 0.5, 0.5, 0.5],
-  [0.47058823529411764, 0.48627450980392156, 0.5215686274509804, 0.6],
-  [0.43529411764705883, 0.4745098039215686, 0.5411764705882353, 0.7],
-  [0.4, 0.4588235294117647, 0.5607843137254902, 0.75],
-  [0.3568627450980392, 0.44313725490196076, 0.5803921568627451, 0.75],
-  [0.30980392156862746, 0.43137254901960786, 0.6, 0.75],
-  [0.25098039215686274, 0.4196078431372549, 0.6196078431372549, 0.8],
-  [0.17254901960784313, 0.403921568627451, 0.6392156862745098, 0.85],
-  [0, 0.39215686274509803, 0.6588235294117647, 1]
-  // to positive
-];
-const REDRAW_DELAY = 750;
-const PROJECTION_CHECK_INTERVAL = 2000;
-const PROJECTION_CAMERA_POSITION = [0, 0, 1];
-const PROJECTION_CAMERA_INTERVAL = 500;
-
 class SearchRightBarProjection extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
       canvas: null,
-      classes: [],
       colorEncoding: "categorical",
       isColorByProb: false,
+      isDefaultView: true,
       isError: false,
       isInit: false,
       isLoading: false,
       pointSize: 3,
-      probabilities: [],
-      projection: [],
-      projectionPrepared: [],
-      projectionPrepToOrig: [],
+      points: [],
       scatterplot: null,
       selected: [],
       settingsUmapMinDist: 0.1,
@@ -95,17 +64,7 @@ class SearchRightBarProjection extends React.Component {
       this.onChangeState("pointSize"),
       pointSize => {
         if (this.scatterplot) {
-          // Progresively increase the step size
-          const n = Math.floor((pointSize - 1) / 3);
-          const prevExtraSteps = ((n * (n - 1)) / 2) * 3;
-          const stepSize = Math.ceil(pointSize / 3);
-          const extraStep = stepSize - 1;
-          const finalPtSize =
-            pointSize +
-            prevExtraSteps +
-            extraStep * (pointSize - extraStep * 3);
-          this.scatterplot.pointSize = finalPtSize;
-          this.drawScatterplot();
+          this.scatterplot.style({ pointSize });
         }
         return pointSize;
       },
@@ -122,11 +81,12 @@ class SearchRightBarProjection extends React.Component {
     this.onRefBnd = this.onRef.bind(this);
     this.newProjectionBnd = this.newProjection.bind(this);
     this.onResetLocationBnd = this.onResetLocation.bind(this);
-    this.onClickBnd = this.onClick.bind(this);
+    this.onSelectBnd = this.onSelect.bind(this);
+    this.onDeselectBnd = this.onDeselect.bind(this);
 
-    this.onCameraChangeDb = debounce(
-      this.onCameraChange.bind(this),
-      PROJECTION_CAMERA_INTERVAL
+    this.checkViewDb = debounce(
+      this.checkView.bind(this),
+      PROJECTION_VIEW_INTERVAL
     );
     this.drawScatterplotDb = debounce(
       this.drawScatterplot.bind(this),
@@ -136,7 +96,6 @@ class SearchRightBarProjection extends React.Component {
 
   componentDidMount() {
     if (this.props.searchInfo.id) this.loadProjection();
-    this.checkCameraPos();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -144,32 +103,16 @@ class SearchRightBarProjection extends React.Component {
       this.loadProjection();
     if (this.isOpen && this.props.tab !== prevProps.tab)
       this.drawScatterplotDb(true);
-    if (
-      this.isOpen &&
-      this.state.projectionPrepared !== prevState.projectionPrepared
-    )
+    if (this.isOpen && this.state.points !== prevState.points)
       this.drawScatterplot(true);
-    if (
-      this.state.colorEncoding !== prevState.colorEncoding ||
-      this.props.selection !== prevProps.selection
-    ) {
-      const {
-        projectionPrepared,
-        projectionPrepToOrig
-      } = this.prepareProjection();
-      this.setState({ projectionPrepared, projectionPrepToOrig });
-    }
+    if (this.state.colorEncoding !== prevState.colorEncoding)
+      this.setColorEncoding();
     if (this.props.barWidth && this.props.barWidth !== prevProps.barWidth)
       this.drawScatterplotDb(true);
-    if (this.props.projectionCamera !== prevProps.projectionCamera)
-      this.checkCameraPos();
   }
 
   componentWillUnmount() {
-    if (this.scatterplot) {
-      this.scatterplot.unsubscribe("camera", this.onResetLocationDb);
-      this.scatterplot.unsubscribe("click", this.onClickBnd);
-    }
+    if (this.scatterplot) this.scatterplot.destroy();
   }
 
   /* ---------------------------- Custom Methods ---------------------------- */
@@ -178,112 +121,58 @@ class SearchRightBarProjection extends React.Component {
     return this.props.barShow && this.props.tab === TAB_RIGHT_BAR_PROJECTION;
   }
 
-  drawScatterplot(updateSize = false) {
-    if (!this.scatterplot) this.initScatterplot();
-    else this.updateScatterplot(this.state.projectionPrepared, updateSize);
+  setColorEncoding() {
+    if (!this.scatterplot) return;
+    if (this.state.colorEncoding === "probability") {
+      this.scatterplot.style({ colorBy: "value", colors: COLORMAP_PRB });
+    } else {
+      this.scatterplot.style({ colorBy: "category", colors: COLORMAP_CAT });
+    }
   }
 
-  initScatterplot(projection = this.state.projectionPrepared) {
-    if (!projection.length || !this.canvasWrapper) return;
+  drawScatterplot(updateSize = false) {
+    if (!this.scatterplot) this.initScatterplot();
+    else this.updateScatterplot(this.state.points, updateSize);
+  }
+
+  initScatterplot(points = this.state.points) {
+    if (!points.length || !this.canvasWrapper) return;
 
     const bBox = this.canvasWrapper.getBoundingClientRect();
 
-    const scatterplot = Scatterplot({
+    const scatterplot = createScatterplot({
       width: bBox.width,
       height: bBox.height,
-      padding: 0,
-      pointWidth: this.state.pointSize
+      pointSize: this.state.pointSize
     });
 
-    scatterplot.subscribe("camera", this.onCameraChangeDb);
-    scatterplot.subscribe("click", this.onClickBnd);
+    scatterplot.subscribe("view", this.checkViewDb);
+    scatterplot.subscribe("select", this.onSelectBnd);
+    scatterplot.subscribe("deselect", this.onDeselectBnd);
 
-    scatterplot.draw(projection, this.props.selection.length);
+    scatterplot.draw(points);
 
     this.scatterplot = scatterplot;
+    this.setColorEncoding();
 
     this.setState({ canvas: scatterplot.canvas });
   }
 
-  updateScatterplot(
-    projection = this.state.projectionPrepared,
-    updateSize = false
-  ) {
-    if (!projection.length || !this.canvasWrapper) return;
+  updateScatterplot(points = this.state.points, updateSize = false) {
+    if (!points.length || !this.canvasWrapper) return;
     if (updateSize) {
       const bBox = this.canvasWrapper.getBoundingClientRect();
-      this.scatterplot.width = bBox.width;
-      this.scatterplot.height = bBox.height;
+      this.scatterplot.attr({
+        width: bBox.width,
+        height: bBox.height
+      });
       this.scatterplot.refresh();
     }
-    this.scatterplot.draw(projection, this.props.selection.length);
+    this.scatterplot.draw(points);
   }
 
-  prepareProjection(
-    projection = this.state.projection,
-    classes = this.state.classes,
-    probabilities = this.state.probabilities
-  ) {
-    const numProbColors = COLORMAP_PRB.length;
-    // Lists for the points
-    const projectionPrepared = [];
-    const neg = [];
-    const pos = [];
-    const tar = [];
-    const sel = [];
-    // Lists for the index mapping
-    const projectionPrepToOrig = [];
-    const negIdx = [];
-    const posIdx = [];
-    const tarIdx = [];
-    const selIdx = [];
-
-    for (let i = 0; i < projection.length; i += 2) {
-      const j = i / 2;
-      const color =
-        this.state.colorEncoding === "probability"
-          ? COLORMAP_PRB[Math.round(probabilities[j] * numProbColors)].slice()
-          : COLORMAP_CAT[classes[j]].slice();
-
-      let list = projectionPrepared;
-      let listIdx = projectionPrepToOrig;
-      let pointSize = 0;
-      switch (classes[j]) {
-        case 1:
-          list = neg;
-          listIdx = negIdx;
-          pointSize = 1;
-          break;
-
-        case 2:
-          list = pos;
-          listIdx = posIdx;
-          pointSize = 2;
-          break;
-
-        case 3:
-          list = tar;
-          listIdx = tarIdx;
-          pointSize = 4;
-          break;
-
-        default:
-        // Nothing
-      }
-
-      if (this.props.selection.indexOf(j) >= 0) {
-        list = sel;
-        listIdx = selIdx;
-      }
-
-      list.push([projection[i], projection[i + 1], [...color], pointSize]);
-      listIdx.push(j);
-    }
-
-    projectionPrepared.push(...neg, ...pos, ...tar, ...sel);
-    projectionPrepToOrig.push(...negIdx, ...posIdx, ...tarIdx, ...selIdx);
-
-    return { projectionPrepared, projectionPrepToOrig };
+  prepareProjection(projection, classes, probabilities) {
+    return zip([projection, classes, probabilities], [2, 1, 1]);
   }
 
   async newProjection() {
@@ -353,22 +242,14 @@ class SearchRightBarProjection extends React.Component {
     const classes = isNotFound || isError ? [] : respClasses.body.results;
     const probabilities = isNotFound || isError ? [] : respProbs.body.results;
     const projection = isNotFound || isError ? [] : respProj.body.projection;
-    const { projectionPrepared, projectionPrepToOrig } = this.prepareProjection(
-      projection,
-      classes,
-      probabilities
-    );
+    const points = this.prepareProjection(projection, classes, probabilities);
 
     this.setState({
       isNotFound,
       isError,
       isInit: true,
       isLoading: false,
-      classes,
-      probabilities,
-      projection,
-      projectionPrepared,
-      projectionPrepToOrig
+      points
     });
   }
 
@@ -386,24 +267,19 @@ class SearchRightBarProjection extends React.Component {
     this.canvasWrapper = canvasWrapper;
   }
 
-  onCameraChange(camera) {
-    this.props.setProjectionCamera(camera);
+  onSelect({ points: selectedPoints = [] } = {}) {
+    this.props.setSelection(selectedPoints);
   }
 
-  onClick({ selectedPoint }) {
-    this.props.setSelection(
-      +selectedPoint >= 0
-        ? [this.state.projectionPrepToOrig[selectedPoint]]
-        : []
-    );
+  onDeselect() {
+    this.props.setSelection([]);
   }
 
-  checkCameraPos() {
-    const isCameraDefaultPos = this.props.projectionCamera.every(
-      (x, i) =>
-        Math.round(x * 1000000) === PROJECTION_CAMERA_POSITION[i] * 1000000
+  checkView(view) {
+    const isDefaultView = view.every(
+      (x, i) => Math.round(x * 1000000) === PROJECTION_VIEW[i] * 1000000
     );
-    this.setState({ isCameraDefaultPos });
+    this.setState({ isDefaultView });
   }
 
   onResetLocation() {
@@ -426,13 +302,13 @@ class SearchRightBarProjection extends React.Component {
                 isNotFound={this.state.isNotFound}
               />
             )}
-            {!this.state.isCameraDefaultPos && (
+            {!this.state.isDefaultView && (
               <ButtonIcon
                 className="search-projection-reset"
                 icon="reset"
                 iconOnly={true}
                 isIconRotationOnFocus={true}
-                isDisabled={this.state.isCameraDefaultPos}
+                isDisabled={this.state.isDefaultView}
                 onClick={this.onResetLocationBnd}
               />
             )}
@@ -446,7 +322,7 @@ class SearchRightBarProjection extends React.Component {
               </li>
             </ul>
           )}
-          {!!this.state.projection.length && (
+          {!!this.state.points.length && (
             <ul className="no-list-style compact-list right-bar-v-padding">
               <li className="flex-c flex-jc-sb">
                 <ButtonRadio
@@ -555,10 +431,8 @@ SearchRightBarProjection.propTypes = {
   barShow: PropTypes.bool,
   barWidth: PropTypes.number,
   hoveringWindowId: PropTypes.number,
-  projectionCamera: PropTypes.array,
   searchInfo: PropTypes.object,
   selection: PropTypes.arrayOf(PropTypes.number),
-  setProjectionCamera: PropTypes.func,
   setSelection: PropTypes.func,
   settingsIsOpen: PropTypes.bool,
   tab: PropTypes.oneOfType([PropTypes.string, PropTypes.symbol]),
@@ -568,15 +442,12 @@ SearchRightBarProjection.propTypes = {
 const mapStateToProps = state => ({
   barShow: state.present.searchRightBarShow,
   barWidth: state.present.searchRightBarWidth,
-  projectionCamera: state.present.searchRightBarProjectionCamera,
   selection: state.present.searchSelection,
   settingsIsOpen: state.present.searchRightBarProjectionSettings,
   tab: state.present.searchRightBarTab
 });
 
 const mapDispatchToProps = dispatch => ({
-  setProjectionCamera: camera =>
-    dispatch(setSearchRightBarProjectionCamera(camera)),
   setSelection: windowId => dispatch(setSearchSelection(windowId)),
   toggleSettings: isOpen =>
     dispatch(setSearchRightBarProjectionSettings(!isOpen))

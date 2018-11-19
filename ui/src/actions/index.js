@@ -57,11 +57,6 @@ export const setSearchRightBarWidth = searchRightBarWidth => ({
   payload: { searchRightBarWidth }
 });
 
-export const setSearchRightBarProjectionCamera = searchRightBarProjectionCamera => ({
-  type: "SET_SEARCH_RIGHT_BAR_PROJECTION_CAMERA",
-  payload: { searchRightBarProjectionCamera }
-});
-
 export const setSearchSelection = searchSelection => ({
   type: "SET_SEARCH_SELECTION",
   payload: { searchSelection }

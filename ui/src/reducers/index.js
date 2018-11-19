@@ -33,11 +33,6 @@ const searchRightBarTab = defaultSetReducer(
 
 const searchRightBarWidth = defaultSetReducer("searchRightBarWidth", 200);
 
-const searchRightBarProjectionCamera = defaultSetReducer(
-  "searchRightBarProjectionCamera",
-  [0, 0, 1]
-);
-
 const searchSelection = defaultSetReducer("searchSelection", []);
 
 const searchTab = defaultSetReducer("searchTab", TAB_RESULTS);
@@ -56,7 +51,6 @@ const appReducer = combineReducers({
   searchRightBarShow,
   searchRightBarTab,
   searchRightBarWidth,
-  searchRightBarProjectionCamera,
   searchSelection,
   searchTab,
   showAutoencodings
