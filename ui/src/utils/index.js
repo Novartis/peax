@@ -12,6 +12,7 @@ export { default as flatten } from "./flatten";
 export { default as getServer } from "./get-server";
 export { default as hasParent } from "./has-parent";
 export { default as inputToNum } from "./input-to-num";
+export { default as isSame } from "./is-same";
 export { default as loadViewConfig } from "./load-view-config";
 export { default as Logger } from "./logger";
 export { default as mergeError } from "./merge-error";
@@ -20,6 +21,7 @@ export { default as numToCassif } from "./num-to-classif";
 export { default as range } from "./range";
 export { default as readableDate } from "./readable-date";
 export { default as withRaf } from "./with-raf";
+export { default as zip } from "./zip";
 
 export {
   default as removeHiGlassEventListeners
