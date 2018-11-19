@@ -12,11 +12,17 @@ limitations under the License.* */
 const fs = require("fs");
 const changeCase = require("change-case");
 const globalEnvironment = require("../config/gEnv").env;
-const configBase = require("../config.json");
 
 const run = prod => {
   const config = {};
-  Object.assign(config, configBase);
+
+  try {
+    const configBase = require("../config.json");
+    Object.assign(config, configBase);
+  } catch (ex) {
+    // Nothing
+  }
+
   try {
     const configLocal = require(`../config.${prod ? "prod" : "dev"}.json`);
     Object.assign(config, configLocal);
