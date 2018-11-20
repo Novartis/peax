@@ -17,6 +17,7 @@ const classNames = props => {
   className += props.isIconMirrorOnFocus ? " is-icon-mirror-on-focus" : "";
   className += props.isIconRotationOnFocus ? " is-icon-rotation-on-focus" : "";
   className += props.iconPosition === "right" ? " flex-rev" : "";
+  className += props.isRound ? " is-round" : "";
 
   return className;
 };
@@ -66,6 +67,7 @@ ButtonIcon.propTypes = {
   isDisabled: PropTypes.bool,
   isIconMirrorOnFocus: PropTypes.bool,
   isIconRotationOnFocus: PropTypes.bool,
+  isRound: PropTypes.bool,
   onClick: PropTypes.func,
   onMouseDown: PropTypes.func,
   onMouseUp: PropTypes.func,
