@@ -1,6 +1,6 @@
-@import '../styles/colors';
-@import '../styles/transitions';
-@import '../styles/underline';
+@import "../styles/colors";
+@import "../styles/transitions";
+@import "../styles/underline";
 
 .footer {
   padding: 0.66rem 0;
@@ -20,12 +20,9 @@
 
     &.is-active {
       color: $primary;
+      font-weight: bold;
+      box-shadow: inset 0 -2px 0 0 $primary;
     }
-  }
-
-  a.is-active {
-    font-weight: bold;
-    box-shadow: inset 0 -2px 0 0 $primary;
   }
 
   .icon {

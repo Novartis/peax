@@ -1,5 +1,5 @@
-@import '../styles/colors';
-@import '../styles/transitions';
+@import "../styles/colors";
+@import "../styles/transitions";
 
 .button-check {
   height: 1.5em;
@@ -8,9 +8,8 @@
   border-radius: 0.25rem;
   background: $gray-lightest-rgba;
   transition: color $normal-transition $easing,
-              border-color $normal-transition $easing,
-              box-shadow $normal-transition $easing,
-              background $normal-transition $easing;
+    border-color $normal-transition $easing,
+    box-shadow $normal-transition $easing, background $normal-transition $easing;
   white-space: nowrap;
   user-select: none;
 
@@ -23,8 +22,7 @@
   &:focus,
   &:focus-within {
     outline: none;
-    box-shadow: inset 0 0 0 0 $blue-highlight,
-                0 0 0 2px $blue-highlight;
+    box-shadow: inset 0 0 0 0 $blue-highlight, 0 0 0 2px $blue-highlight;
   }
 
   &.is-disabled {
@@ -48,7 +46,7 @@
       appearance: none;
 
       &:after {
-        content: '';
+        content: "";
         display: block;
         width: 1em;
         height: 1em;
@@ -56,7 +54,7 @@
         background: transparent;
         box-shadow: inset 0 0 0 1px $gray-medium;
         transition: box-shadow $normal-transition $easing,
-                    background $normal-transition $easing;
+          background $normal-transition $easing;
       }
 
       &:checked:after {

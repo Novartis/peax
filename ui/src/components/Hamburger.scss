@@ -1,5 +1,5 @@
-@import '../styles/colors';
-@import '../styles/transitions';
+@import "../styles/colors";
+@import "../styles/transitions";
 
 /**
  * Copyright 2014, Call Me Nick
@@ -9,11 +9,11 @@
  * Adjusted by Fritz Lekschas
  */
 
-$button-width: 3rem;  // The width of the button area
-$button-height: 3rem;  // The height of the button area
-$bar-thickness: 0.135rem;  // The thickness of the button bars
-$button-pad: 0.5rem;  // The left/right padding between button area and bars.
-$button-bar-space: 0.375rem;  // The spacing between button bars
+$button-width: 3rem; // The width of the button area
+$button-height: 3rem; // The height of the button area
+$bar-thickness: 0.135rem; // The thickness of the button bars
+$button-pad: 0.5rem; // The left/right padding between button area and bars.
+$button-bar-space: 0.375rem; // The spacing between button bars
 
 .hamburger-wrapper {
   position: relative;
@@ -88,16 +88,19 @@ $button-bar-space: 0.375rem;  // The spacing between button bars
 
     &.hamburger-to-x span::before,
     &.hamburger-to-x span::after {
-      transition-duration: $fast-transition, $fast-transition, $fast-transition, $fast-transition, $fast-transition;
+      transition-duration: $fast-transition, $fast-transition, $fast-transition,
+        $fast-transition, $fast-transition;
       transition-delay: $fast-transition, 0s, 0s, 0s, $fast-transition;
     }
 
     &.hamburger-to-x span::before {
-      transition-property: top, transform, -moz-transform, -webkit-transform, background;
+      transition-property: top, transform, -moz-transform, -webkit-transform,
+        background;
     }
 
     &.hamburger-to-x span::after {
-      transition-property: bottom, transform, -moz-transform, -webkit-transform, background;
+      transition-property: bottom, transform, -moz-transform, -webkit-transform,
+        background;
     }
 
     /* active state, i.e. menu open */
