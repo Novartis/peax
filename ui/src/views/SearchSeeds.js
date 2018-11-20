@@ -119,7 +119,10 @@ SearchSeeds.propTypes = {
   isReady: PropTypes.bool,
   isTraining: PropTypes.bool,
   itemsPerPage: PropTypes.number,
-  normalizationSource: PropTypes.string,
+  normalizationSource: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.string
+  ]),
   normalizeBy: PropTypes.object,
   onNormalize: PropTypes.func.isRequired,
   onPage: PropTypes.func.isRequired,
