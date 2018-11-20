@@ -1,7 +1,7 @@
-import deepEqual from "deep-equal";
-import { HiGlassComponent } from "higlass";
-import PropTypes from "prop-types";
-import React from "react";
+import deepEqual from 'deep-equal';
+import { HiGlassComponent } from 'higlass';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Utils
 import {
@@ -9,15 +9,17 @@ import {
   deepClone,
   Logger,
   removeHiGlassEventListeners
-} from "../utils";
+} from '../utils';
 
 // Configs
-import { SELECT } from "../configs/mouse-tools";
+import { SELECT } from '../configs/mouse-tools';
 
 // Styles
-import "./HiGlassLauncher.scss";
+import './HiGlassLauncher.scss';
+import '../styles/bootstrap.less';
 
-const logger = Logger("HiGlassLauncher"); // eslint-disable-line
+const logger = Logger('HiGlassLauncher');  // eslint-disable-line
+
 
 class HiGlassLauncher extends React.Component {
   constructor(props) {
@@ -61,8 +63,8 @@ class HiGlassLauncher extends React.Component {
     if (!this.props.setViewConfig) return;
 
     this.hiGlassEventListeners.push({
-      event: "viewConfig",
-      id: this.api.on("viewConfig", this.updateViewConfigDb)
+      event: 'viewConfig',
+      id: this.api.on('viewConfig', this.updateViewConfigDb),
     });
   }
 
@@ -81,11 +83,11 @@ class HiGlassLauncher extends React.Component {
 
     switch (mouseTool) {
       case SELECT:
-        this.api.activateTool("select");
+        this.api.activateTool('select');
         break;
 
       default:
-        this.api.activateTool("move");
+        this.api.activateTool('move');
     }
   }
 
@@ -110,23 +112,21 @@ class HiGlassLauncher extends React.Component {
       ? false
       : this.props.options.bounded;
 
-    const className = !this.props.autoExpand ? "full-dim" : "rel";
+    const className = !this.props.autoExpand ? 'full-dim' : 'rel';
 
-    let classNameHgLauncher = "higlass-launcher twbs";
+    let classNameHgLauncher = 'higlass-launcher twbs';
     classNameHgLauncher += !this.props.autoExpand
-      ? " higlass-launcher-full"
-      : "";
+      ? ' higlass-launcher-full'
+      : '';
     classNameHgLauncher += this.props.isPadded
-      ? " higlass-launcher-padded"
-      : "";
+      ? ' higlass-launcher-padded'
+      : '';
 
     return (
       <div className={className}>
         <div className={classNameHgLauncher}>
           <HiGlassComponent
-            ref={c => {
-              this.hgc = c;
-            }}
+            ref={(c) => { this.hgc = c; }}
             options={options || {}}
             viewConfig={deepClone(this.props.viewConfig)}
             zoomFixed={this.props.isZoomFixed}
@@ -142,8 +142,8 @@ HiGlassLauncher.defaultProps = {
   options: {
     bounded: true,
     horizontalMargin: 0,
-    verticalMargin: 0
-  }
+    verticalMargin: 0,
+  },
 };
 
 HiGlassLauncher.propTypes = {
@@ -156,7 +156,7 @@ HiGlassLauncher.propTypes = {
   options: PropTypes.object,
   mouseTool: PropTypes.string,
   setViewConfig: PropTypes.func,
-  viewConfig: PropTypes.object
+  viewConfig: PropTypes.object,
 };
 
 export default HiGlassLauncher;

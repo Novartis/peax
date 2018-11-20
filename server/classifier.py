@@ -18,6 +18,7 @@ from sklearn.externals import joblib
 
 
 def done(instance, callback=None):
+
     def wrapped():
         instance.is_trained = True
         instance.is_training = False
@@ -33,10 +34,11 @@ def train_threaded(fit, train_X, train_y, done):
 
 
 class Classifier:
+
     def __init__(self, search_id: int, classifier_id: int):
         self.search_id = search_id
         self.classifier_id = classifier_id
-        self.model = RandomForestClassifier(n_estimators=100, n_jobs=-1)
+        self.model = RandomForestClassifier(n_estimators=100)
         self.is_trained = False
         self.is_training = False
         self.serialized_classifications = b""
@@ -55,9 +57,10 @@ class Classifier:
         self.is_training = True
         try:
             _thread.start_new_thread(
-                train_threaded, (self.model.fit, train_X, train_y, done(self, callback))
+                train_threaded,
+                (self.model.fit, train_X, train_y, done(self, callback)),
             )
-        except Exception:
+        except Exception as e:
             self.is_trained = False
             self.is_training = False
 

@@ -1,11 +1,11 @@
-import { PropTypes } from "prop-types";
-import React from "react";
+import { PropTypes } from 'prop-types';
+import React from 'react';
 
 // Components
-import Arrow from "./Arrow";
+import Arrow from './Arrow';
 
 // Styles
-import "./ToolTip.scss";
+import './ToolTip.scss';
 
 class ToolTip extends React.Component {
   constructor(props) {
@@ -36,31 +36,31 @@ class ToolTip extends React.Component {
   /* ---------------------------------- Render ------------------------------ */
 
   render() {
-    let classNames = "tool-tip";
+    let classNames = 'tool-tip';
 
-    classNames += this.state.isShown ? " is-shown" : "";
+    classNames += this.state.isShown ? ' is-shown' : '';
 
     switch (this.props.align) {
-      case "left":
-        classNames += " tool-tip-align-left";
+      case 'left':
+        classNames += ' tool-tip-align-left';
         break;
 
-      case "right":
-        classNames += " tool-tip-align-right";
+      case 'right':
+        classNames += ' tool-tip-align-right';
         break;
 
       default:
-      // Nothing
+        // Nothing
     }
     return (
       <div
-        className="rel tool-tip-wrapper"
+        className='rel tool-tip-wrapper'
         onMouseEnter={this.showBound}
         onMouseLeave={this.hideBound}
       >
-        <div className="tool-tip-anchor">
+        <div className='tool-tip-anchor'>
           <div className={classNames}>
-            <Arrow direction="down" size={4} />
+            <Arrow direction='down' size={4} />
             {this.props.title}
           </div>
         </div>
@@ -71,18 +71,18 @@ class ToolTip extends React.Component {
 }
 
 ToolTip.defaultProps = {
-  align: "center",
+  align: 'center',
   delayIn: 0,
-  delayOut: 0
+  delayOut: 0,
 };
 
 ToolTip.propTypes = {
-  align: PropTypes.oneOf(["center", "left", "right"]),
+  align: PropTypes.oneOf(['center', 'left', 'right']),
   children: PropTypes.node,
   closeOnClick: PropTypes.bool,
   delayIn: PropTypes.number,
   delayOut: PropTypes.number,
-  title: PropTypes.oneOfType([PropTypes.string, PropTypes.node])
+  title: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
 };
 
 export default ToolTip;

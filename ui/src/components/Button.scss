@@ -1,5 +1,5 @@
-@import "../styles/colors";
-@import "../styles/transitions";
+@import '../styles/colors';
+@import '../styles/transitions';
 
 .button {
   padding: 0.125em 0.33em;
@@ -7,7 +7,8 @@
   border-radius: 0.25rem;
   background: $gray-lightest-rgba;
   transition: color $normal-transition $easing,
-    box-shadow $normal-transition $easing, background $normal-transition $easing;
+              box-shadow $normal-transition $easing,
+              background $normal-transition $easing;
   user-select: none;
 
   &:hover {
@@ -17,7 +18,8 @@
 
   &:focus {
     outline: none;
-    box-shadow: inset 0 0 0 0 $blue-highlight, 0 0 0 2px $blue-highlight;
+    box-shadow: inset 0 0 0 0 $blue-highlight,
+                0 0 0 2px $blue-highlight;
   }
 
   &.is-disabled {
@@ -52,8 +54,7 @@
     padding: 0.25rem;
     background: transparent;
 
-    .one,
-    .two {
+    .one, .two {
       fill: $white;
     }
   }

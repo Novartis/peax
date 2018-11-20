@@ -1,12 +1,12 @@
-const numToCassif = num => {
+const numToCassif = (num) => {
   switch (num) {
     case -1:
-      return "negative";
+      return 'negative';
     case 1:
-      return "positive";
+      return 'positive';
     case 0:
     default:
-      return "neutral";
+      return 'neutral';
   }
 };
 

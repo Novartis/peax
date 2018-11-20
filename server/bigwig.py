@@ -18,7 +18,7 @@ import numpy as np
 import os
 import pandas as pd
 
-from server import utils
+from server import data
 
 
 TILE_SIZE = 1024
@@ -84,7 +84,9 @@ def chr2abs(chromsizes, chr: str, start: int, end: int):
     return (offset + start, offset + end)
 
 
-def abs2chr(chromsizes, start_pos: int, end_pos: int, is_idx2chr: bool = False):
+def abs2chr(
+    chromsizes, start_pos: int, end_pos: int, is_idx2chr: bool = False
+):
     """Convert absolute coordinates to chromosomal coordinates.
 
     Arguments:
@@ -97,7 +99,8 @@ def abs2chr(chromsizes, start_pos: int, end_pos: int, is_idx2chr: bool = False):
     """
     abs_chrom_offsets = np.r_[0, np.cumsum(chromsizes.values)]
     cid_lo, cid_hi = (
-        np.searchsorted(abs_chrom_offsets, [start_pos, end_pos], side="right") - 1
+        np.searchsorted(abs_chrom_offsets, [start_pos, end_pos], side="right")
+        - 1
     )
     rel_pos_lo = start_pos - abs_chrom_offsets[cid_lo]
     rel_pos_hi = end_pos - abs_chrom_offsets[cid_hi]
@@ -126,7 +129,9 @@ def get_tile(bwpath, zoom_level, start_pos, end_pos, chromsizes=None):
             chrom = chromsizes.index[cid]
             clen = chromsizes.values[cid]
 
-            x = bbi.fetch(bwpath, chrom, start, end, bins=n_bins, missing=np.nan)
+            x = bbi.fetch(
+                bwpath, chrom, start, end, bins=n_bins, missing=np.nan
+            )
 
             # drop the very last bin if it is smaller than the binsize
             if end == clen and clen % binsize != 0:
@@ -172,7 +177,9 @@ def tiles(bwpath, tile_ids):
         tile_size = TILE_SIZE * 2 ** (max_depth - zoom_level)
         start_pos = tile_pos * tile_size
         end_pos = start_pos + tile_size
-        dense = get_tile(bwpath, zoom_level, start_pos, end_pos, chromsizes=chromsizes)
+        dense = get_tile(
+            bwpath, zoom_level, start_pos, end_pos, chromsizes=chromsizes
+        )
 
         if len(dense):
             max_dense = max(dense)
@@ -194,12 +201,16 @@ def tiles(bwpath, tile_ids):
             and min_dense < max_f16
         ):
             tile_value = {
-                "dense": base64.b64encode(dense.astype("float16")).decode("utf-8"),
+                "dense": base64.b64encode(dense.astype("float16")).decode(
+                    "utf-8"
+                ),
                 "dtype": "float16",
             }
         else:
             tile_value = {
-                "dense": base64.b64encode(dense.astype("float32")).decode("utf-8"),
+                "dense": base64.b64encode(dense.astype("float32")).decode(
+                    "utf-8"
+                ),
                 "dtype": "float32",
             }
 
@@ -240,7 +251,13 @@ def tileset_info(bwpath):
 
 
 def chunk(
-    bigwig, window_size, resolution, step_size, chroms, normalize=True, verbose=False
+    bigwig,
+    window_size,
+    resolution,
+    step_size,
+    chroms,
+    normalize=True,
+    verbose=False,
 ):
     base_bins = np.ceil(window_size / resolution).astype(int)
 
@@ -249,7 +266,9 @@ def chunk(
 
     for chrom in chroms:
         chrom_size = bbi.chromsizes(bigwig)[chrom]
-        num_total_windows += np.ceil((chrom_size - step_size) / step_size).astype(int)
+        num_total_windows += np.ceil(
+            (chrom_size - step_size) / step_size
+        ).astype(int)
 
     values = np.zeros((num_total_windows, base_bins))
 
@@ -267,7 +286,9 @@ def chunk(
         num_windows = np.ceil((chrom_size - step_size) / step_size).astype(int)
 
         start_bps = np.arange(0, chrom_size - step_size, step_size)
-        end_bps = np.append(np.arange(window_size, chrom_size, step_size), chrom_size)
+        end_bps = np.append(
+            np.arange(window_size, chrom_size, step_size), chrom_size
+        )
 
         end = start + num_windows
 
@@ -281,15 +302,22 @@ def chunk(
             bins=bins,
             missing=0,
         )
-        final_bins = np.ceil((end_bps[-1] - start_bps[-1]) / resolution).astype(int)
+        final_bins = np.ceil(
+            (end_bps[-1] - start_bps[-1]) / resolution
+        ).astype(int)
         # Extract the last window separately because it's size is likely to be
         # different from the others
         values[end - 1, :final_bins] = bbi.fetch(
-            bigwig, chrom, start_bps[-1], end_bps[-1], bins=final_bins, missing=0.0
+            bigwig,
+            chrom,
+            start_bps[-1],
+            end_bps[-1],
+            bins=final_bins,
+            missing=0.0,
         )
 
         if normalize:
-            values[start:end] = utils.normalize(values[start:end])
+            values[start:end] = data.normalize(values[start:end])
 
         if verbose:
             print(
@@ -303,6 +331,11 @@ def chunk(
 
 
 def get(
-    bw_path: str, chrom: str, start: int, end: int, bins: int, missing: float = 0.0
+    bw_path: str,
+    chrom: str,
+    start: int,
+    end: int,
+    bins: int,
+    missing: float = 0.0,
 ):
     return bbi.fetch(bw_path, chrom, start, end, bins=bins, missing=missing)

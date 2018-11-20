@@ -1,18 +1,18 @@
-import { PropTypes } from "prop-types";
-import React from "react";
+import { PropTypes } from 'prop-types';
+import React from 'react';
 
 // Components
-import Icon from "./Icon";
+import Icon from './Icon';
 
 // Styles
-import "./InputIcon.scss";
+import './InputIcon.scss';
 
-const classNames = props => {
-  let className = "input-icon";
+const classNames = (props) => {
+  let className = 'input-icon';
 
   className += ` ${props.className}`;
-  className += props.isActive ? " is-active" : "";
-  className += props.isDisabled ? " is-disabled" : "";
+  className += props.isActive ? ' is-active' : '';
+  className += props.isDisabled ? ' is-disabled' : '';
 
   return className;
 };
@@ -36,8 +36,8 @@ const InputIcon = props => (
 
 InputIcon.defaultProps = {
   isDisabled: false,
-  placeholder: "",
-  type: "text"
+  placeholder: '',
+  type: 'text',
 };
 
 InputIcon.propTypes = {
@@ -50,7 +50,7 @@ InputIcon.propTypes = {
   onChange: PropTypes.func,
   onInput: PropTypes.func,
   type: PropTypes.string,
-  placeholder: PropTypes.string
+  placeholder: PropTypes.string,
 };
 
 export default InputIcon;

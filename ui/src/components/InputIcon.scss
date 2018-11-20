@@ -1,5 +1,5 @@
-@import "../styles/colors";
-@import "../styles/transitions";
+@import '../styles/colors';
+@import '../styles/transitions';
 
 .input-icon {
   position: relative;
@@ -8,8 +8,8 @@
   padding: 0;
   background: transparent;
   transition: color $normal-transition $easing,
-    border-color $normal-transition $easing,
-    background $normal-transition $easing;
+              border-color $normal-transition $easing,
+              background $normal-transition $easing;
   white-space: nowrap;
 
   &.is-disabled {
@@ -31,8 +31,8 @@
     border-radius: 0.25rem;
     background: transparent;
     transition: color $normal-transition $easing,
-      border-color $normal-transition $easing,
-      background $normal-transition $easing;
+                border-color $normal-transition $easing,
+                background $normal-transition $easing;
 
     &:focus {
       outline: none;

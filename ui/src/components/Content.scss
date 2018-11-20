@@ -1,10 +1,10 @@
-@import "../styles/transitions";
+@import '../styles/transitions';
 
 .content {
   margin-top: 3rem;
   margin-bottom: 1rem;
   transition: margin-left $fast-transition $easing,
-    margin-right $fast-transition $easing;
+              margin-right $fast-transition $easing;
 
   &.has-sub-top-bar {
     padding-top: 2rem;

@@ -50,7 +50,9 @@ def predict(encoder, decoder, test, validator=None):
         loss = K.eval(
             validator(
                 K.variable(test.reshape(test.shape[0], test.shape[1])),
-                K.variable(decoded.reshape(decoded.shape[0], decoded.shape[1])),
+                K.variable(
+                    decoded.reshape(decoded.shape[0], decoded.shape[1])
+                ),
             )
         )
 
@@ -60,7 +62,9 @@ def predict(encoder, decoder, test, validator=None):
 def predict_2d(encoder, decoder, test, validator=None):
     encoded = encoder.predict(test)
     decoded = decoder.predict(encoded)
-    decoded = decoded.reshape(decoded.shape[0], decoded.shape[1], decoded.shape[2])
+    decoded = decoded.reshape(
+        decoded.shape[0], decoded.shape[1], decoded.shape[2]
+    )
     test = test.reshape(test.shape[0], test.shape[1], test.shape[2])
 
     loss = None
@@ -77,7 +81,9 @@ def evaluate(autoencoder, test):
 def to_2d(data_1d, ydim, val_max=255, dtype=int):
     data_1d_scaled = data_1d * ydim
 
-    data_2d = np.zeros((data_1d.shape[0], data_1d.shape[1], ydim)).astype(dtype)
+    data_2d = np.zeros((data_1d.shape[0], data_1d.shape[1], ydim)).astype(
+        dtype
+    )
     data_2d[:, :] = np.arange(ydim)
 
     end_full = np.floor(data_1d_scaled).astype(int)
@@ -188,7 +194,9 @@ def peak_heights(intervals, values, num_peaks, aggregator):
         for j in range(indices.size - 1):
             val_idx = indices[j] + 1
             if intervals[i, val_idx] == 1:
-                heights[i, c] = np.max(values[i, val_idx : indices[(j + 1)] + 1])
+                heights[i, c] = np.max(
+                    values[i, val_idx : indices[(j + 1)] + 1]
+                )
                 c += 1
 
     return aggregator(heights, axis=1)
@@ -245,18 +253,24 @@ def peak_distances(arr, aggregator):
     return dists
 
 
-def get_stats(bigwig, bigbed, norm_vals, window_size, step_size, aggregation, chrom):
+def get_stats(
+    bigwig, bigbed, norm_vals, window_size, step_size, aggregation, chrom
+):
     base_bins = math.ceil(window_size / aggregation)
 
     if chrom not in bbi.chromsizes(bigwig):
         print(
-            "Skipping chrom (not in bigWig file):", chrom, bbi.chromsizes(bigwig)[chrom]
+            "Skipping chrom (not in bigWig file):",
+            chrom,
+            bbi.chromsizes(bigwig)[chrom],
         )
         return None
 
     chrom_size = bbi.chromsizes(bigwig)[chrom]
 
-    intervals = np.zeros((math.ceil((chrom_size - step_size) / step_size), base_bins))
+    intervals = np.zeros(
+        (math.ceil((chrom_size - step_size) / step_size), base_bins)
+    )
     starts = np.arange(0, chrom_size - step_size, step_size)
     ends = np.append(np.arange(window_size, chrom_size, step_size), chrom_size)
     bins = window_size / aggregation

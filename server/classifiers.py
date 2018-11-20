@@ -17,10 +17,14 @@ from server.classifier import Classifier
 
 
 class Classifiers:
-    def __init__(self, db, data, window_size: int, abs_offset: int):
+
+    def __init__(
+        self, db, data, chromsizes_path: str, window_size: int, abs_offset: int
+    ):
         self.classifiers = {}
         self.db = db
         self.data = data
+        self.chromsizes_path = chromsizes_path
         self.window_size = window_size
         self.abs_offset = abs_offset
 
@@ -35,7 +39,9 @@ class Classifiers:
         classifier_info = self.db.get_classifier(search_id, classifier_id)
 
         if classifier_info is not None:
-            classifier = Classifier(search_id, classifier_info["classifier_id"])
+            classifier = Classifier(
+                search_id, classifier_info["classifier_id"]
+            )
             if classifier_info["model"] is not None:
                 classifier.load(classifier_info["model"])
             classifier.serialized_classifications = classifier_info[
@@ -63,7 +69,12 @@ class Classifiers:
         N = self.data.shape[0]
 
         classifications = np.array(
-            list(map(lambda x: [int(x["windowId"]), int(x["classification"])], dbres))
+            list(
+                map(
+                    lambda x: [int(x["windowId"]), int(x["classification"])],
+                    dbres,
+                )
+            )
         )
 
         # Serialize classifications
@@ -74,11 +85,18 @@ class Classifiers:
             return None
 
         # Create a DB entry
-        classifier_id = self.db.create_classifier(search_id, classif=new_classif)
+        classifier_id = self.db.create_classifier(
+            search_id, classif=new_classif
+        )
 
         # Combine classifications with search target
-        if np.min(search_target_classif) >= 0 and np.max(search_target_classif) < N:
-            classifications = np.vstack((search_target_classif, classifications))
+        if (
+            np.min(search_target_classif) >= 0
+            and np.max(search_target_classif) < N
+        ):
+            classifications = np.vstack(
+                (search_target_classif, classifications)
+            )
 
         # Change `-1` to `0`
         classifications[:, 1][np.where(classifications[:, 1] == -1)] = 0

@@ -22,6 +22,7 @@ DEFAULT_MIN_DIST = projector.DEFAULT_PROJECTOR_SETTINGS["min_dist"]
 
 
 class Projectors:
+
     def __init__(self, db, data, window_size, abs_offset):
         self.projectors = {}
         self.db = db
@@ -116,11 +117,16 @@ class Projectors:
         )
 
         # Combine classifications with search target
-        if np.min(search_target_classif) >= 0 and np.max(search_target_classif) < N:
+        if (
+            np.min(search_target_classif) >= 0
+            and np.max(search_target_classif) < N
+        ):
             if classifications.size == 0:
                 classifications = search_target_classif
             else:
-                classifications = np.vstack((search_target_classif, classifications))
+                classifications = np.vstack(
+                    (search_target_classif, classifications)
+                )
 
         unclassified = np.where(classifications[:, 1] == 0)
         uninteresting = np.where(classifications[:, 1] == -1)
@@ -170,7 +176,9 @@ class Projectors:
             return prev_projector
 
         # Create a DB entry
-        projector_id = self.db.create_projector(search_id, classifications=new_classif)
+        projector_id = self.db.create_projector(
+            search_id, classifications=new_classif
+        )
 
         projector = Projector(
             search_id, projector_id, n_neighbors=n_neighbors, min_dist=min_dist

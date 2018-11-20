@@ -1,39 +1,41 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Components
-import Button from "../components/Button";
-import ButtonRadio from "../components/ButtonRadio";
-import HiglassResultList from "../components/HiglassResultList";
-import SubTopBar from "../components/SubTopBar";
-import SubTopBottomBarButtons from "../components/SubTopBottomBarButtons";
-import ToolTip from "../components/ToolTip";
+import Button from '../components/Button';
+import ButtonRadio from '../components/ButtonRadio';
+import HiglassResultList from '../components/HiglassResultList';
+import SubTopBar from '../components/SubTopBar';
+import SubTopBottomBarButtons from '../components/SubTopBottomBarButtons';
+import ToolTip from '../components/ToolTip';
 
 // Actions
-import { setSearchTab } from "../actions";
+import { setSearchTab } from '../actions';
 
 // Configs
 import {
   BUTTON_RADIO_FILTER_CLASSIFICATION_OPTIONS,
   BUTTON_RADIO_SORT_ORDER_OPTIONS,
   TAB_SEEDS
-} from "../configs/search";
+} from '../configs/search';
 
 // Utils
-import { Logger, numToCassif } from "../utils";
+import { Logger, numToCassif } from '../utils';
 
-const logger = Logger("SearchClassifications"); // eslint-disable-line
+const logger = Logger('SearchClassifications');  // eslint-disable-line
 
 const isEmpty = (
   <span>
-    {"Nothing classified! "}
-    <Button onClick={() => setSearchTab(TAB_SEEDS)}>Get started</Button>
+    {'Nothing classified! '}
+    <Button onClick={() => setSearchTab(TAB_SEEDS)}>
+      Get started
+    </Button>
   </span>
 );
 
 const isTraining = onTrainingCheck => (
   <span>
-    {"The classifier is training hard! "}
+    {'The classifier is training hard! '}
     <Button onClick={onTrainingCheck}>Check Status</Button>
   </span>
 );
@@ -48,7 +50,7 @@ class SearchClassifications extends React.Component {
 
     this.state = {
       filterByClf: null,
-      sortOrder: "desc"
+      sortOrder: 'desc',
     };
   }
 
@@ -71,14 +73,13 @@ class SearchClassifications extends React.Component {
   }
 
   render() {
-    const sortOrder = this.state.sortOrder === "desc" ? -1 : 1;
+    const sortOrder = this.state.sortOrder === 'desc' ? -1 : 1;
 
     const results = this.props.results
-      .filter(
-        win =>
-          !this.state.filterByClf ||
-          numToCassif(win.classification) === this.state.filterByClf
-      )
+      .filter(win => (
+        !this.state.filterByClf
+        || numToCassif(win.classification) === this.state.filterByClf
+      ))
       .sort((a, b) => {
         const aUpdated = Date.parse(a.updated);
         const bUpdated = Date.parse(b.updated);
@@ -91,7 +92,6 @@ class SearchClassifications extends React.Component {
         classification: numToCassif(win.classification),
         classificationChangeHandler: this.props.classificationChangeHandler,
         dataTracks: this.props.dataTracks,
-        normalizationSource: this.props.normalizationSource,
         normalizeBy: this.props.normalizeBy,
         onEnter: this.props.onResultEnter,
         onLeave: this.props.onResultLeave,
@@ -99,30 +99,34 @@ class SearchClassifications extends React.Component {
         searchId: this.props.searchInfo.id,
         viewHeight: this.props.searchInfo.viewHeight,
         windowId: win.windowId,
-        windows: this.props.windows
+        windows: this.props.windows,
       }));
 
     return (
       <div className="full-dim search-tab-wrapper">
         <SubTopBar>
-          <SubTopBottomBarButtons className="flex-c flex-a-c no-list-style">
-            <li>Classified {this.props.results.length} regions.</li>
+          <SubTopBottomBarButtons className='flex-c flex-a-c no-list-style'>
+            <li>
+              Classified {this.props.results.length} regions.
+            </li>
           </SubTopBottomBarButtons>
-          <SubTopBottomBarButtons className="flex-c flex-a-c flex-jc-e no-list-style">
+          <SubTopBottomBarButtons
+            className='flex-c flex-a-c flex-jc-e no-list-style'
+          >
             <li>
               <ToolTip
-                align="center"
+                align='center'
                 delayIn={2000}
                 delayOut={500}
                 title={
-                  <span className="flex-c">
+                  <span className='flex-c'>
                     <span>Sort by date</span>
                   </span>
                 }
               >
                 <ButtonRadio
-                  label="Sort"
-                  name="search-filter-by-classification"
+                  label='Sort'
+                  name='search-filter-by-classification'
                   onClick={this.onSortOrderBnd}
                   options={BUTTON_RADIO_SORT_ORDER_OPTIONS}
                   selection={this.state.sortOrder}
@@ -131,18 +135,18 @@ class SearchClassifications extends React.Component {
             </li>
             <li>
               <ToolTip
-                align="center"
+                align='center'
                 delayIn={2000}
                 delayOut={500}
                 title={
-                  <span className="flex-c">
+                  <span className='flex-c'>
                     <span>Filter by label (excl.)</span>
                   </span>
                 }
               >
                 <ButtonRadio
-                  label="Filter"
-                  name="search-filter-by-classification"
+                  label='Filter'
+                  name='search-filter-by-classification'
                   isDeselectable={true}
                   onClick={this.onFilterByClfBnd}
                   options={BUTTON_RADIO_FILTER_CLASSIFICATION_OPTIONS}
@@ -150,7 +154,7 @@ class SearchClassifications extends React.Component {
                 />
               </ToolTip>
             </li>
-            <li className="separator" />
+            <li className="separator"></li>
             <li>
               <Button
                 isDisabled={this.props.isTraining === true}
@@ -161,7 +165,10 @@ class SearchClassifications extends React.Component {
             </li>
           </SubTopBottomBarButtons>
         </SubTopBar>
-        <div ref={this.getResultsWrapperBound} className="search-tab-content">
+        <div
+          ref={this.getResultsWrapperBound}
+          className="search-tab-content"
+        >
           <HiglassResultList
             isError={this.props.isError}
             isLoading={this.props.isLoading}
@@ -184,7 +191,7 @@ SearchClassifications.defaultProps = {
   isLoading: true,
   isError: false,
   results: [],
-  windows: {}
+  windows: {},
 };
 
 SearchClassifications.propTypes = {
@@ -195,7 +202,6 @@ SearchClassifications.propTypes = {
   isLoading: PropTypes.bool,
   isTraining: PropTypes.bool,
   itemsPerPage: PropTypes.number,
-  normalizationSource: PropTypes.string,
   normalizeBy: PropTypes.object,
   onNormalize: PropTypes.func.isRequired,
   onPage: PropTypes.func.isRequired,
@@ -207,7 +213,7 @@ SearchClassifications.propTypes = {
   pageTotal: PropTypes.number,
   results: PropTypes.array,
   searchInfo: PropTypes.object.isRequired,
-  windows: PropTypes.object
+  windows: PropTypes.object,
 };
 
 export default SearchClassifications;

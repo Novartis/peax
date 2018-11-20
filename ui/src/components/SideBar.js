@@ -1,14 +1,15 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
-// Higher-order components
-import { withPubSub } from "../hocs/pub-sub";
+// Services
+import pubSub from '../services/pub-sub';
 
 // Utils
-import debounce from "../utils/debounce";
+import debounce from '../utils/debounce';
 
 // Styles
-import "./SideBar.scss";
+import './SideBar.scss';
+
 
 class SideBar extends React.Component {
   constructor(props) {
@@ -20,8 +21,8 @@ class SideBar extends React.Component {
     this.sidebarOffsetTop = 0;
     this.state = {
       style: {
-        marginTop: 0
-      }
+        marginTop: 0,
+      },
     };
 
     this.pubSubs = [];
@@ -31,35 +32,25 @@ class SideBar extends React.Component {
     if (this.props.isSticky) {
       this.checkStickAbility();
 
-      this.sidebarOffsetTop =
-        this.sideBarEl.getBoundingClientRect().top -
+      this.sidebarOffsetTop = this.sideBarEl.getBoundingClientRect().top -
         document.body.getBoundingClientRect().top;
 
-      this.pubSubs.push(
-        this.props.pubSub.subscribe("resize", this.checkStickAbilityDb)
-      );
-      this.pubSubs.push(
-        this.props.pubSub.subscribe("scrollTop", this.scrollHandlerDb)
-      );
+      this.pubSubs.push(pubSub.subscribe('resize', this.checkStickAbilityDb));
+      this.pubSubs.push(pubSub.subscribe('scrollTop', this.scrollHandlerDb));
     }
   }
 
   componentWillUnmount() {
-    this.pubSubs.forEach(subscription =>
-      this.props.pubSub.unsubscribe(subscription)
-    );
+    this.pubSubs.forEach(subscription => pubSub.unsubscribe(subscription));
     this.pubSubs = [];
   }
 
   render() {
     return (
       <aside
-        className="side-bar"
-        ref={el => {
-          this.sideBarEl = el;
-        }}
-        style={this.state.style}
-      >
+        className='side-bar'
+        ref={(el) => { this.sideBarEl = el; }}
+        style={this.state.style}>
         {this.props.children}
       </aside>
     );
@@ -74,7 +65,7 @@ class SideBar extends React.Component {
     }
 
     // Header = 3rem; Margin = 1rem; 1rem = 16px
-    const height = this.sideBarEl.getBoundingClientRect().height + 16 * 4;
+    const height = this.sideBarEl.getBoundingClientRect().height + (16 * 4);
 
     this.stickinessDisabled = window.innerHeight < height;
   }
@@ -83,30 +74,29 @@ class SideBar extends React.Component {
     if (!this.stickinessDisabled) {
       this.setState({
         style: {
-          marginTop: `${scrollTop}px`
-        }
+          marginTop: `${scrollTop}px`,
+        },
       });
     } else if (
       this.state.style.marginTop !== 0 ||
-      this.state.style.marginTop !== "0px"
+      this.state.style.marginTop !== '0px'
     ) {
       this.setState({
         style: {
-          marginTop: 0
-        }
+          marginTop: 0,
+        },
       });
     }
   }
 }
 
 SideBar.defaultProps = {
-  isSticky: false
+  isSticky: false,
 };
 
 SideBar.propTypes = {
   children: PropTypes.node.isRequired,
-  pubSub: PropTypes.object.isRequired,
-  isSticky: PropTypes.bool
+  isSticky: PropTypes.bool,
 };
 
-export default withPubSub(SideBar);
+export default SideBar;

@@ -1,6 +1,6 @@
-@import "../styles/colors";
-@import "../styles/columns";
-@import "../styles/ratio";
+@import '../styles/colors';
+@import '../styles/columns';
+@import '../styles/ratio';
 
 .home {
   .home-info-actions {
@@ -52,7 +52,7 @@
     @include ratio(0.55);
   }
 
-  [class^="reference-"] {
+  [class^='reference-'] {
     margin-right: 0.25rem;
   }
 }

@@ -6,7 +6,6 @@ $gray-darkest: #222;
 $gray-darker: #444;
 $gray-dark: #666;
 $gray-medium: #999;
-$gray-medium-light: #aaa;
 $gray-light: #bbb;
 $gray-lighter: #ddd;
 $gray-lightest: #eee;
@@ -22,7 +21,7 @@ $gray-lightest-rgba: transparentize(#000, 0.93);
 
 $gray-transparent: rgba(0, 0, 0, 0);
 
-$blue: #0f5d92;
+$blue: #0F5D92;
 $blue-darker: adjust-color($blue, $saturation: -66%, $lightness: -15%);
 $blue-dark: adjust-color($blue, $saturation: -25%, $lightness: -10%);
 $blue-light: adjust-color($blue, $saturation: -20%, $lightness: 60%);

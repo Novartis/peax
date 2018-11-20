@@ -3,7 +3,7 @@ const withThrottle = (delay, fn) => {
   return (...args) => {
     const now = Date.now();
     if (now - lastCall < delay) {
-      return undefined;
+      return;
     }
     lastCall = now;
     return fn(...args);

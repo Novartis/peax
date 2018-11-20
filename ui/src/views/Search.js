@@ -1,43 +1,43 @@
-import update from "immutability-helper";
-import PropTypes from "prop-types";
-import React from "react";
-import { connect } from "react-redux";
-import { Link, withRouter } from "react-router-dom";
-import { compose } from "recompose";
-
-// Higher-order components
-import { withPubSub } from "../hocs/pub-sub";
+import update from 'immutability-helper';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { Link, withRouter } from 'react-router-dom';
+import { compose } from 'recompose';
 
 // Components
-import Content from "../components/Content";
-import ContentWrapper from "../components/ContentWrapper";
-import HiGlassViewer from "../components/HiGlassViewer";
-import ErrorMsgCenter from "../components/ErrorMsgCenter";
-import SpinnerCenter from "../components/SpinnerCenter";
-import TabContent from "../components/TabContent";
-import ToolTip from "../components/ToolTip";
+import Content from '../components/Content';
+import ContentWrapper from '../components/ContentWrapper';
+import HiGlassViewer from '../components/HiGlassViewer';
+import ErrorMsgCenter from '../components/ErrorMsgCenter';
+import SpinnerCenter from '../components/SpinnerCenter';
+import TabContent from '../components/TabContent';
+import ToolTip from '../components/ToolTip';
 
 // View components
-import NotFound from "./NotFound";
-import SearchClassifications from "./SearchClassifications";
-import SearchResults from "./SearchResults";
-import SearchRightBar from "./SearchRightBar";
-import SearchSeeds from "./SearchSeeds";
-import SearchSubTopBar from "./SearchSubTopBar";
-import SearchSubTopBarAll from "./SearchSubTopBarAll";
-import SearchSubTopBarTabs from "./SearchSubTopBarTabs";
+import NotFound from './NotFound';
+import SearchClassifications from './SearchClassifications';
+import SearchResults from './SearchResults';
+import SearchRightBar from './SearchRightBar';
+import SearchSeeds from './SearchSeeds';
+import SearchSubTopBar from './SearchSubTopBar';
+import SearchSubTopBarAll from './SearchSubTopBarAll';
+import SearchSubTopBarTabs from './SearchSubTopBarTabs';
+
+// Services
+import pubSub from '../services/pub-sub';
+import search from '../services/search';
 
 // Actions
 import {
   setSearchRightBarShow,
   setSearchRightBarTab,
   setSearchSelection,
-  setSearchTab
-} from "../actions";
+  setSearchTab,
+} from '../actions';
 
 // Utils
 import {
-  api,
   withArray,
   Deferred,
   // inputToNum,
@@ -45,7 +45,7 @@ import {
   readableDate,
   removeHiGlassEventListeners,
   requestNextAnimationFrame
-} from "../utils";
+} from '../utils';
 
 // Configs
 import {
@@ -55,25 +55,28 @@ import {
   TAB_RIGHT_BAR_PROJECTION,
   TAB_SEEDS,
   TRAINING_CHECK_INTERVAL,
-  PER_PAGE_ITEMS
-} from "../configs/search";
+  PER_PAGE_ITEMS,
+} from '../configs/search';
 
-const logger = Logger("Search");
+const logger = Logger('Search');
 
-const resizeTrigger = () =>
-  requestNextAnimationFrame(() => {
-    window.dispatchEvent(new Event("resize"));
-  });
+const resizeTrigger = () => requestNextAnimationFrame(() => {
+  window.dispatchEvent(new Event('resize'));
+});
 
-const showInfo = (pubSub, msg) => {
-  pubSub.publish("globalDialog", {
-    message: msg,
-    request: new Deferred(),
-    resolveOnly: true,
-    resolveText: "Okay",
-    headline: "Peax"
-  });
+const showInfo = (msg) => {
+  pubSub.publish(
+    'globalDialog',
+    {
+      message: msg,
+      request: new Deferred(),
+      resolveOnly: true,
+      resolveText: 'Okay',
+      headline: 'Peax',
+    }
+  );
 };
+
 
 class Search extends React.Component {
   constructor(props) {
@@ -95,12 +98,11 @@ class Search extends React.Component {
       isLoadingClassifications: false,
       isLoadingResults: false,
       isLoadingSeeds: false,
-      isMinMaxValuesByTarget: false,
+      isMinMaxValsByTarget: false,
       isTraining: null,
       locationEnd: null,
       locationStart: null,
-      minMaxSource: null,
-      minMaxValues: {},
+      minMaxVals: {},
       pageClassifications: 0,
       pageClassificationsTotal: null,
       pageResults: 0,
@@ -112,7 +114,7 @@ class Search extends React.Component {
       searchInfo: null,
       searchInfosAll: null,
       seeds: {},
-      windows: {}
+      windows: {},
     };
 
     this.checkHgApiBnd = this.checkHgApi.bind(this);
@@ -123,31 +125,30 @@ class Search extends React.Component {
     this.onTrainingStartBnd = this.onTrainingStart.bind(this);
     this.onTrainingCheckBnd = this.onTrainingCheck.bind(this);
     this.onTrainingCheckSeedsBnd = this.onTrainingCheckSeeds.bind(this);
-    this.classificationChangeHandlerBnd = this.classificationChangeHandler.bind(
-      this
-    );
+    this.classificationChangeHandlerBnd =
+      this.classificationChangeHandler.bind(this);
     this.resetViewportBnd = this.resetViewport.bind(this);
     this.onNormalizeBnd = this.onNormalize.bind(this);
     this.normalizeByTargetBnd = this.normalizeByTarget.bind(this);
 
-    this.onPageClassifications = this.onPage("classifications");
-    this.onPageResults = this.onPage("results");
-    this.onPageSeeds = this.onPage("seeds");
+    this.onPageClassifications = this.onPage('classifications');
+    this.onPageResults = this.onPage('results');
+    this.onPageSeeds = this.onPage('seeds');
 
     this.onResultEnter = compose(
-      this.onAction("setSelection"),
+      this.onAction('setSelection'),
       withArray
     );
     this.onResultLeave = compose(
-      this.onAction("setSelection"),
+      this.onAction('setSelection'),
       () => []
     );
 
     this.pubSubs.push(
-      this.props.pubSub.subscribe("keydown", this.keyDownHandlerBnd)
+      pubSub.subscribe('keydown', this.keyDownHandlerBnd)
     );
     this.pubSubs.push(
-      this.props.pubSub.subscribe("keyup", this.keyUpHandlerBnd)
+      pubSub.subscribe('keyup', this.keyUpHandlerBnd)
     );
   }
 
@@ -156,9 +157,7 @@ class Search extends React.Component {
   }
 
   componentWillUnmount() {
-    this.pubSubs.forEach(subscription =>
-      this.props.pubSub.unsubscribe(subscription)
-    );
+    this.pubSubs.forEach(subscription => pubSub.unsubscribe(subscription));
     this.pubSubs = [];
     removeHiGlassEventListeners(this.hiGlassEventListeners, this.hgApi);
     this.hiGlassEventListeners = [];
@@ -167,15 +166,17 @@ class Search extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     if (this.id !== prevProps.match.params.id) this.loadMetadata();
     if (this.props.tab !== prevProps.tab) this.checkTabData();
-    if (this.state.minMaxValues !== prevState.minMaxValues) {
+    if (this.state.minMaxVals !== prevState.minMaxVals) {
       this.normalize();
     }
     if (
-      (this.props.tab !== prevProps.tab ||
-        this.state.pageClassifications !== prevState.pageClassifications ||
-        this.state.pageResults !== prevState.pageResults ||
-        this.state.pageSeeds !== prevState.pageSeeds) &&
-      !this.state.isMinMaxValuesByTarget
+      (
+        this.props.tab !== prevProps.tab
+        || this.state.pageClassifications !== prevState.pageClassifications
+        || this.state.pageResults !== prevState.pageResults
+        || this.state.pageSeeds !== prevState.pageSeeds
+      )
+      && !this.state.isMinMaxValsByTarget
     ) {
       this.denormalize();
     }
@@ -183,24 +184,20 @@ class Search extends React.Component {
 
   /* -------------------------- Getters & Setters --------------------------- */
 
-  get id() {
-    return this.props.match.params.id;
-  }
+  get id() { return this.props.match.params.id; }
 
   get isSeeded() {
     if (!this.state.searchInfo) return false;
     return (
-      this.state.searchInfo.classifications >=
-      this.state.info.minClassifications
+      this.state.searchInfo.classifications
+      >= this.state.info.minClassifications
     );
   }
 
   get isTrained() {
-    return (
-      this.state.searchInfo &&
-      this.state.searchInfo.classifiers > 0 &&
-      this.state.isTraining === false
-    );
+    return this.state.searchInfo
+      && this.state.searchInfo.classifiers > 0
+      && this.state.isTraining === false;
   }
 
   /* ---------------------------- Custom Methods ---------------------------- */
@@ -208,8 +205,10 @@ class Search extends React.Component {
   checkTabData() {
     if (!this.state.searchInfo || this.state.searchInfo.status === 404) return;
 
-    if (this.props.tab === TAB_SEEDS && !Object.values(this.state.seeds).length)
-      this.loadSeeds();
+    if (
+      this.props.tab === TAB_SEEDS
+      && !Object.values(this.state.seeds).length
+    ) this.loadSeeds();
 
     if (this.props.tab === TAB_RESULTS) this.loadResults();
 
@@ -221,25 +220,28 @@ class Search extends React.Component {
 
     this.setState({ isLoading: true, isError: false });
 
-    const info = await api.getInfo();
+    const info = await search.getInfo();
 
     let searchInfo;
     let searchInfosAll;
 
-    let dataTracks = await api.getDataTracks();
-    let isError =
-      dataTracks.status !== 200 ? "Couldn't load data tracks" : false;
+    let dataTracks = await search.getDataTracks();
+    let isError = dataTracks.status !== 200
+      ? 'Couldn\'t load data tracks'
+      : false;
     dataTracks = isError ? null : dataTracks.body.results;
 
-    if (typeof this.id !== "undefined") {
-      searchInfo = await api.getSearchInfo(this.id);
-      isError =
-        searchInfo.status !== 200 ? "Couldn't load search info." : false;
+    if (typeof this.id !== 'undefined') {
+      searchInfo = await search.getSearchInfo(this.id);
+      isError = searchInfo.status !== 200
+        ? 'Couldn\'t load search info.'
+        : false;
       searchInfo = isError ? null : searchInfo.body;
     } else {
-      searchInfosAll = await api.getAllSearchInfos();
-      isError =
-        searchInfosAll.status !== 200 ? "Couldn't load search infos." : false;
+      searchInfosAll = await search.getAllSearchInfos();
+      isError = searchInfosAll.status !== 200
+        ? 'Couldn\'t load search infos.'
+        : false;
       searchInfosAll = isError ? null : searchInfosAll.body;
     }
 
@@ -250,7 +252,7 @@ class Search extends React.Component {
       isInit: false,
       isLoading: false,
       searchInfo,
-      searchInfosAll
+      searchInfosAll,
     });
 
     this.checkTabData();
@@ -261,39 +263,41 @@ class Search extends React.Component {
 
     this.setState({ isLoadingSeeds: true, isErrorSeeds: false });
 
-    const seedsInfo = await api.getSeeds(this.id);
-    const isErrorSeeds =
-      seedsInfo.status !== 200 ? "Couldn't load seeds." : false;
-    const seeds =
-      !isErrorSeeds && seedsInfo.body.results ? seedsInfo.body.results : [];
-    const training =
-      !isErrorSeeds && !seedsInfo.body.results ? seedsInfo.body : undefined;
+    const seedsInfo = await search.getSeeds(this.id);
+    const isErrorSeeds = seedsInfo.status !== 200
+      ? 'Couldn\'t load seeds.'
+      : false;
+    const seeds = !isErrorSeeds && seedsInfo.body.results
+      ? seedsInfo.body.results
+      : [];
+    const training = !isErrorSeeds && !seedsInfo.body.results
+      ? seedsInfo.body
+      : undefined;
 
     // Check if seeds are ready or wether the classifier is still training
     if (seeds) {
       // Seeds are ready! Lets go and visualize them
-      const newSeeds = seeds.reduce((a, b) => {
-        a[b] = true;
-        return a;
-      }, {});
+      const newSeeds = seeds.reduce((a, b) => { a[b] = true; return a; }, {});
 
       this.setState({
         isLoadingSeeds: false,
         isErrorSeeds,
-        seeds: newSeeds
+        seeds: newSeeds,
       });
     }
     if (training) {
       // Classifier is training
       const trainingCheckTimerId = training.isTraining
-        ? setInterval(this.onTrainingCheckSeedsBnd, TRAINING_CHECK_INTERVAL)
+        ? setInterval(
+          this.onTrainingCheckSeedsBnd, TRAINING_CHECK_INTERVAL
+        )
         : null;
 
       if (training.isTraining) this.onTrainingCheckSeeds();
 
       this.setState({
         isTraining: training.isTraining,
-        trainingCheckTimerId
+        trainingCheckTimerId,
       });
     }
   }
@@ -303,15 +307,15 @@ class Search extends React.Component {
 
     this.setState({
       isLoadingClassifications: true,
-      isErrorClassifications: false
+      isErrorClassifications: false,
     });
 
-    let classifications = await api.getClassifications(this.id);
-    const isErrorClassifications =
-      classifications.status !== 200 ? "Could't load classifications." : false;
+    let classifications = await search.getClassifications(this.id);
+    const isErrorClassifications = classifications.status !== 200
+      ? 'Could\'t load classifications.'
+      : false;
     classifications = isErrorClassifications
-      ? []
-      : classifications.body.results;
+      ? [] : classifications.body.results;
 
     this.setState({
       isLoadingClassifications: false,
@@ -319,7 +323,7 @@ class Search extends React.Component {
       classifications,
       pageClassificationsTotal: Math.ceil(
         classifications.length / PER_PAGE_ITEMS
-      )
+      ),
     });
   }
 
@@ -327,38 +331,44 @@ class Search extends React.Component {
     if (this.state.isLoadingResults) return;
 
     this.setState({
-      isLoadingResults:
-        this.isSeeded &&
-        (this.state.searchInfo.classifiers > 0 && !this.state.isTraining),
-      isErrorResults: false
+      isLoadingResults: (
+        this.isSeeded && (
+          this.state.searchInfo.classifiers > 0 && !this.state.isTraining
+        )
+      ),
+      isErrorResults: false,
     });
 
     if (
-      this.state.searchInfo.classifiers > 0 &&
-      this.state.isTraining === null
+      this.state.searchInfo.classifiers > 0
+      && this.state.isTraining === null
     ) {
-      let trainingInfo = await api.getClassifier(this.id);
-      const isErrorResults =
-        trainingInfo.status !== 200 ? "Could't load classifier info." : false;
+      let trainingInfo = await search.getClassifier(this.id);
+      const isErrorResults = trainingInfo.status !== 200
+        ? 'Could\'t load classifier info.'
+        : false;
       trainingInfo = isErrorResults ? {} : trainingInfo.body;
 
       await this.setState({
         isErrorResults,
-        isTraining: trainingInfo.isTraining
+        isTraining: trainingInfo.isTraining,
       });
     }
 
     if (this.isSeeded && this.isTrained) {
-      let predictions = await api.getPredictions(this.id);
-      const isErrorResults =
-        predictions.status !== 200 ? "Could't load results." : false;
+      let predictions = await search.getPredictions(this.id);
+      const isErrorResults = predictions.status !== 200
+        ? 'Could\'t load results.'
+        : false;
       predictions = isErrorResults ? [] : predictions.body;
 
       this.setState({
         isLoadingResults: false,
         isErrorResults,
         results: predictions.results,
-        pageResultsTotal: Math.ceil(predictions.results.length / PER_PAGE_ITEMS)
+        pageResultsTotal: Math.ceil(
+          predictions.results.length / PER_PAGE_ITEMS
+        ),
       });
     }
   }
@@ -376,13 +386,11 @@ class Search extends React.Component {
   callHgApi(method) {
     return (...args) => {
       if (!this.hgApi) {
-        logger.warn("HiGlass not available yet.");
+        logger.warn('HiGlass not available yet.');
         return undefined;
       }
       if (!this.hgApi[method]) {
-        logger.warn(
-          `Method (${method}) not available. Incompatible version of HiGlass?`
-        );
+        logger.warn(`Method (${method}) not available. Incompatible version of HiGlass?`);
         return undefined;
       }
       return this.hgApi[method](...args);
@@ -404,8 +412,8 @@ class Search extends React.Component {
     if (!this.hgApi) return;
 
     this.hiGlassEventListeners.location = {
-      name: "location",
-      id: this.hgApi.on("location", this.locationHandlerBnd)
+      name: 'location',
+      id: this.hgApi.on('location', this.locationHandlerBnd),
     };
 
     if (!this.hiGlassEventListeners.mouseMoveZoom) {
@@ -420,18 +428,18 @@ class Search extends React.Component {
 
   resetViewport() {
     this.setState({ viewportChanged: false });
-    this.callHgApi("resetViewport")();
+    this.callHgApi('resetViewport')();
   }
 
   locationHandler({ xDomain }) {
     if (this.state.locationStart === null) {
       this.setState({
         locationStart: xDomain[0],
-        locationEnd: xDomain[1]
+        locationEnd: xDomain[1],
       });
     } else if (
-      xDomain[0] !== this.state.locationStart ||
-      xDomain[1] !== this.state.locationEnd
+      xDomain[0] !== this.state.locationStart
+      || xDomain[1] !== this.state.locationEnd
     ) {
       this.setState({ viewportChanged: true });
     }
@@ -439,11 +447,10 @@ class Search extends React.Component {
 
   mouseMoveZoomHandler({ center: [xPos] }) {
     if (
-      !this.state.searchInfo ||
-      xPos < this.state.searchInfo.dataFrom ||
-      xPos >= this.state.searchInfo.dataTo
-    )
-      return undefined;
+      !this.state.searchInfo
+      || xPos < this.state.searchInfo.dataFrom
+      || xPos >= this.state.searchInfo.dataTo
+    ) return undefined;
 
     const stepSize =
       this.state.searchInfo.windowSize / this.state.searchInfo.config.step_freq;
@@ -456,27 +463,24 @@ class Search extends React.Component {
   }
 
   removeHiGlassEventListeners() {
-    this.hiGlassEventListeners.forEach(event => {
+    this.hiGlassEventListeners.forEach((event) => {
       this.hgApi.off(event.name, event.id);
     });
     this.hiGlassEventListeners = [];
   }
 
   keyDownHandler(event) {
-    if (event.keyCode === 83) {
-      // S
+    if (event.keyCode === 83) {  // S
       event.preventDefault();
 
-      if (event.ctrlKey || event.metaKey) {
-        // CMD + S
-        logger.warn("Not implemented yet.");
+      if (event.ctrlKey || event.metaKey) {  // CMD + S
+        logger.warn('Not implemented yet.');
       }
     }
   }
 
   keyUpHandler(event) {
-    if (event.keyCode === 73) {
-      // I
+    if (event.keyCode === 73) {  // I
       event.preventDefault();
       if (this.props.rightBarTab !== TAB_RIGHT_BAR_INFO) {
         this.props.setRightBarTab(TAB_RIGHT_BAR_INFO);
@@ -490,8 +494,7 @@ class Search extends React.Component {
       }
     }
 
-    if (event.keyCode === 80) {
-      // P
+    if (event.keyCode === 80) {  // P
       event.preventDefault();
       if (this.props.rightBarTab !== TAB_RIGHT_BAR_PROJECTION) {
         this.props.setRightBarTab(TAB_RIGHT_BAR_PROJECTION);
@@ -505,19 +508,18 @@ class Search extends React.Component {
       }
     }
 
-    if (event.keyCode === 82) {
-      // R
+    if (event.keyCode === 82) {  // R
       event.preventDefault();
       this.resetViewport();
     }
   }
 
   resetAllViewports() {
-    logger.warn("Sorry, `Search.resetAllViewports()` not implemented yet.");
+    logger.warn('Sorry, `Search.resetAllViewports()` not implemented yet.');
   }
 
   classificationChangeHandler(windowId) {
-    return async classif => {
+    return async (classif) => {
       const isNew = !this.state.windows[windowId];
       const oldClassif = !isNew && this.state.windows[windowId].classification;
 
@@ -525,42 +527,50 @@ class Search extends React.Component {
 
       // Optimistic update
       this.setState({
-        windows: update(this.state.windows, {
-          [windowId]: win =>
-            update(win || {}, {
+        windows: update(
+          this.state.windows,
+          {
+            [windowId]: win => update(win || {}, {
               classification: { $set: classif },
-              classificationPending: { $set: true }
-            })
-        })
+              classificationPending: { $set: true },
+            }),
+          }
+        ),
       });
 
-      const setNewClassif = classif === "positive" || classif === "negative";
+      const setNewClassif = classif === 'positive' || classif === 'negative';
 
       // Send the new classification back to the server
       const response = setNewClassif
-        ? await api.setClassification(this.id, windowId, classif)
-        : await api.deleteClassification(this.id, windowId, classif);
+        ? await search.setClassification(this.id, windowId, classif)
+        : await search.deleteClassification(this.id, windowId, classif);
 
       // Set confirmed classification
       this.setState({
-        windows: update(this.state.windows, {
-          [windowId]: {
-            classification: {
-              $set: response.status === 200 ? classif : oldClassif
+        windows: update(
+          this.state.windows,
+          {
+            [windowId]: {
+              classification: {
+                $set: response.status === 200 ? classif : oldClassif,
+              },
+              classificationPending: { $set: false },
             },
-            classificationPending: { $set: false }
           }
-        })
+        ),
       });
 
       const numNewClassif = setNewClassif ? 1 : -1;
 
       this.setState({
-        searchInfo: update(this.state.searchInfo, {
-          classifications: {
-            $set: this.state.searchInfo.classifications + numNewClassif
+        searchInfo: update(
+          this.state.searchInfo,
+          {
+            classifications: {
+              $set: this.state.searchInfo.classifications + numNewClassif,
+            },
           }
-        })
+        ),
       });
     };
   }
@@ -568,66 +578,59 @@ class Search extends React.Component {
   async denormalize() {
     if (!this.hgApi) return;
 
-    const minMaxValues = {};
-    this.state.dataTracks.forEach(track => {
-      minMaxValues[track] = [undefined, undefined];
-    });
+    const minMaxVals = { __source__: undefined };
+    this.state.dataTracks
+      .forEach((track) => {
+        minMaxVals[track] = [undefined, undefined];
+      });
 
-    this.setState({
-      minMaxSource: undefined,
-      minMaxValues,
-      isMinMaxValuesByTarget: false
-    });
+    this.setState({ minMaxVals, isMinMaxValsByTarget: false });
   }
 
   async normalize() {
     if (!this.hgApi) return;
 
     if (
-      this.state.minMaxSource !== "target" &&
-      this.state.isMinMaxValuesByTarget
+      this.state.minMaxVals.__source__ !== 'target' &&
+      this.state.isMinMaxValsByTarget
     ) {
-      await this.setState({ isMinMaxValuesByTarget: false });
+      await this.setState({ isMinMaxValsByTarget: false });
     }
 
-    Object.keys(this.state.minMaxValues).forEach(track => {
-      this.hgApi.setTrackValueScaleLimits(
-        undefined,
-        track,
-        ...this.state.minMaxValues[track]
-      );
-    });
+    Object.keys(this.state.minMaxVals)
+      .filter(track => track !== '__source__')
+      .forEach((track) => {
+        this.hgApi.setTrackValueScaleLimits(
+          undefined, track, ...this.state.minMaxVals[track]
+        );
+      });
   }
 
   normalizeByTarget() {
     if (!this.hgApi) return;
 
-    const minMaxValues = {};
-    this.state.dataTracks.forEach(track => {
-      if (this.state.isMinMaxValuesByTarget) {
-        minMaxValues[track] = [undefined, undefined];
-      } else {
-        minMaxValues[track] = [
-          0,
-          this.hgApi.getMinMaxValue(undefined, track, true)[1]
-        ];
-      }
-    });
+    const minMaxVals = { __source__: 'target' };
+    this.state.dataTracks
+      .forEach((track) => {
+        if (this.state.isMinMaxValsByTarget) {
+          minMaxVals[track] = [undefined, undefined];
+        } else {
+          minMaxVals[track] = [
+            0, this.hgApi.getMinMaxValue(undefined, track, true)[1],
+          ];
+        }
+      });
 
-    this.onNormalize(
-      minMaxValues,
-      "target",
-      !this.state.isMinMaxValuesByTarget
-    );
+    this.onNormalize(minMaxVals, !this.state.isMinMaxValsByTarget);
   }
 
-  onNormalize(minMaxValues, minMaxSource, isMinMaxValuesByTarget = false) {
-    this.setState({ minMaxValues, minMaxSource, isMinMaxValuesByTarget });
+  onNormalize(minMaxVals, isMinMaxValsByTarget = false) {
+    this.setState({ minMaxVals, isMinMaxValsByTarget });
   }
 
   onPage(data) {
     const pageProp = `page${data[0].toUpperCase()}${data.slice(1)}`;
-    return pageNum => {
+    return (pageNum) => {
       if (pageNum === this.state[pageProp] + 1) {
         this.onPageNext(data);
       } else if (pageNum === this.state[pageProp] - 1) {
@@ -650,8 +653,8 @@ class Search extends React.Component {
     const numItems = this.state[data].length;
 
     if (
-      data === "seeds" &&
-      currentNumSeeds / (PER_PAGE_ITEMS * (currentPage + 2)) < 1
+      data === 'seeds'
+      && currentNumSeeds / (PER_PAGE_ITEMS * (currentPage + 2)) < 1
     ) {
       await this.setState({ [loadingProp]: true });
 
@@ -671,26 +674,25 @@ class Search extends React.Component {
   }
 
   async onTrainingStart(checker = this.onTrainingCheckBnd) {
-    const trainingInfo = await api.newClassifier(this.id);
+    const trainingInfo = await search.newClassifier(this.id);
 
     if (trainingInfo.status === 409) {
-      showInfo(this.props.pubSub, trainingInfo.body.error);
+      showInfo(trainingInfo.body.error);
       return;
     }
 
     this.setState({
       isTraining: true,
-      trainingCheckTimerId: setInterval(checker, TRAINING_CHECK_INTERVAL)
+      trainingCheckTimerId: setInterval(checker, TRAINING_CHECK_INTERVAL),
     });
   }
 
   async onTrainingCheck() {
-    let classifierInfo = await api.getClassifier(this.state.searchInfo.id);
+    let classifierInfo = await search.getClassifier(this.state.searchInfo.id);
 
-    const isErrorResults =
-      classifierInfo.status !== 200
-        ? "Could't get information on the training."
-        : false;
+    const isErrorResults = classifierInfo.status !== 200
+      ? 'Could\'t get information on the training.'
+      : false;
     classifierInfo = isErrorResults ? {} : classifierInfo.body;
 
     if (classifierInfo.isTraining) return;
@@ -702,16 +704,17 @@ class Search extends React.Component {
       isErrorResults,
       isTraining: classifierInfo.isTraining,
       trainingCheckTimerId: null,
-      pageResults: 0
+      pageResults: 0,
     });
 
     if (isErrorResults) return;
 
     // Update the classifier counter
     await this.setState({
-      searchInfo: update(this.state.searchInfo, {
-        classifiers: { $set: this.state.searchInfo.classifiers + 1 }
-      })
+      searchInfo: update(
+        this.state.searchInfo,
+        { classifiers: { $set: this.state.searchInfo.classifiers + 1 } }
+      ),
     });
 
     // Get results first
@@ -722,12 +725,11 @@ class Search extends React.Component {
   }
 
   async onTrainingCheckSeeds() {
-    let classifierInfo = await api.getClassifier(this.state.searchInfo.id);
+    let classifierInfo = await search.getClassifier(this.state.searchInfo.id);
 
-    const isErrorSeeds =
-      classifierInfo.status !== 200
-        ? "Could't get information on the training."
-        : false;
+    const isErrorSeeds = classifierInfo.status !== 200
+      ? 'Could\'t get information on the training.'
+      : false;
     classifierInfo = isErrorSeeds ? {} : classifierInfo.body;
 
     if (classifierInfo.isTraining) return;
@@ -739,16 +741,17 @@ class Search extends React.Component {
       isErrorSeeds,
       isTraining: classifierInfo.isTraining,
       trainingCheckTimerId: null,
-      pageSeeds: 0
+      pageSeeds: 0,
     });
 
     if (isErrorSeeds) return;
 
     // Update the classifier counter
     await this.setState({
-      searchInfo: update(this.state.searchInfo, {
-        classifiers: { $set: this.state.searchInfo.classifiers + 1 }
-      })
+      searchInfo: update(
+        this.state.searchInfo,
+        { classifiers: { $set: this.state.searchInfo.classifiers + 1 } }
+      ),
     });
 
     // Get new seeds
@@ -756,23 +759,18 @@ class Search extends React.Component {
   }
 
   onAction(action) {
-    return value => {
-      this.props[action](value);
-    };
+    return (value) => { this.props[action](value); };
   }
 
   onChangeState(key) {
-    return value => {
-      this.setState({ [key]: value });
-    };
+    return (value) => { this.setState({ [key]: value }); };
   }
 
   getHgViewId(
     showAes = this.props.showAutoencodings,
     showProbs = this.isTrained
   ) {
-    return searchId =>
-      `${searchId}..${showAes ? "e" : ""}${showProbs ? "p" : ""}`;
+    return searchId => `${searchId}..${showAes ? 'e' : ''}${showProbs ? 'p' : ''}`;
   }
 
   /* -------------------------------- Render -------------------------------- */
@@ -781,8 +779,10 @@ class Search extends React.Component {
     if (this.state.isLoading || this.state.isInit) return this.renderLoader();
     if (this.state.isError) return this.renderError();
 
-    if (this.state.searchInfo && this.state.searchInfo.status === 404)
-      return this.renderNotFound();
+    if (
+      this.state.searchInfo
+      && this.state.searchInfo.status === 404
+    ) return this.renderNotFound();
 
     if (this.state.searchInfosAll) return this.renderListAllSearches();
 
@@ -791,8 +791,8 @@ class Search extends React.Component {
 
   renderLoader() {
     return (
-      <ContentWrapper name="search" isFullDimOnly={true}>
-        <Content name="search" rel={true}>
+      <ContentWrapper name='search' isFullDimOnly={true}>
+        <Content name='search' rel={true}>
           <SpinnerCenter />
         </Content>
       </ContentWrapper>
@@ -800,13 +800,14 @@ class Search extends React.Component {
   }
 
   renderError() {
-    const msg = [this.state.searchInfo, this.state.searchInfosAll].find(
-      response => response && response.status !== 200
-    ).error;
+    const msg = [
+      this.state.searchInfo,
+      this.state.searchInfosAll,
+    ].find(response => response && response.status !== 200).error;
 
     return (
-      <ContentWrapper name="search" isFullDimOnly={true}>
-        <Content name="search" rel={true}>
+      <ContentWrapper name='search' isFullDimOnly={true}>
+        <Content name='search' rel={true}>
           <ErrorMsgCenter msg={msg} />
         </Content>
       </ContentWrapper>
@@ -814,24 +815,22 @@ class Search extends React.Component {
   }
 
   renderNotFound() {
-    return (
-      <NotFound
-        title="O Peaks, Where Art Thou?"
-        message={
-          `No search with id ${this.id} was found. How about starting a new ` +
-          "search?"
-        }
-      />
-    );
+    return <NotFound
+      title='O Peaks, Where Art Thou?'
+      message={
+        `No search with id ${this.id} was found. How about starting a new `
+        + 'search?'
+      }
+    />;
   }
 
   renderListAllSearches() {
     const hgViewId = this.getHgViewId(false);
 
     return (
-      <ContentWrapper name="search" isFullDimOnly={true}>
+      <ContentWrapper name='search' isFullDimOnly={true}>
         <Content
-          name="search"
+          name='search'
           rel={true}
           hasSubTopBar={true}
           bottomMargin={false}
@@ -843,55 +842,50 @@ class Search extends React.Component {
             resetViewport={this.resetAllViewports.bind(this)}
           />
           {this.state.searchInfosAll.length ? (
-            <ol className="no-list-style higlass-list">
-              {this.state.searchInfosAll.map(info => (
-                <li key={info.id} className="rel">
-                  <div className="flex-c flex-jc-sb searches-metadata">
-                    <Link to={`/search/${info.id}`} className="searches-name">
-                      {info.name || `Search #${info.id}`}
-                    </Link>
-                    <div className="rel">
-                      <ToolTip
-                        align="center"
-                        delayIn={2000}
-                        delayOut={500}
-                        title={
-                          <span className="flex-c">
-                            <span>Last updated</span>
-                          </span>
-                        }
-                      >
-                        <time dateTime={info.updated}>
-                          {readableDate(info.updated, true)}
-                        </time>
-                      </ToolTip>
-                    </div>
-                  </div>
-                  <div className="flex-c flex-jc-sb searches-progress">
-                    <div className="flex-g-1">
-                      Classifications: {info.classifications || 0}
-                    </div>
-                    <div className="flex-g-1">
-                      Trainings: {info.trainings || 0}
-                    </div>
-                    <div className="flex-g-1">Hits: {info.hits || 0}</div>
-                  </div>
-                  <HiGlassViewer
-                    height={info.viewHeight}
-                    isStatic={true}
-                    viewConfigId={hgViewId(info.id)}
-                  />
-                  <Link to={`/search/${info.id}`} className="searches-continue">
-                    Continue
+            <ol className='no-list-style higlass-list'>
+            {this.state.searchInfosAll.map(info => (
+              <li key={info.id} className='rel'>
+                <div className='flex-c flex-jc-sb searches-metadata'>
+                  <Link to={`/search/${info.id}`} className='searches-name'>
+                    {info.name || `Search #${info.id}`}
                   </Link>
-                </li>
-              ))}
+                  <div className='rel'>
+                    <ToolTip
+                      align='center'
+                      delayIn={2000}
+                      delayOut={500}
+                      title={
+                        <span className='flex-c'>
+                          <span>Last updated</span>
+                        </span>
+                      }>
+                      <time dateTime={info.updated}>
+                        {readableDate(info.updated, true)}
+                      </time>
+                    </ToolTip>
+                  </div>
+                </div>
+                <div className='flex-c flex-jc-sb searches-progress'>
+                  <div className='flex-g-1'>Classifications: {info.classifications || 0}</div>
+                  <div className='flex-g-1'>Trainings: {info.trainings || 0}</div>
+                  <div className='flex-g-1'>Hits: {info.hits || 0}</div>
+                </div>
+                <HiGlassViewer
+                  height={info.viewHeight}
+                  isStatic={true}
+                  viewConfigId={hgViewId(info.id)}
+                />
+                <Link
+                  to={`/search/${info.id}`}
+                  className='searches-continue'
+                >
+                  Continue
+                </Link>
+              </li>
+            ))}
             </ol>
           ) : (
-            <em>
-              No searches found. How about starting a{" "}
-              <Link to="/">new search</Link>?
-            </em>
+            <em>No searches found. How about starting a <Link to="/">new search</Link>?</em>
           )}
         </Content>
       </ContentWrapper>
@@ -902,9 +896,9 @@ class Search extends React.Component {
     const hgViewId = this.getHgViewId();
 
     return (
-      <ContentWrapper name="search" isFullDimOnly={true}>
+      <ContentWrapper name='search' isFullDimOnly={true}>
         <Content
-          name="search"
+          name='search'
           rel={true}
           hasRightBar={true}
           hasSubTopBar={true}
@@ -914,18 +908,17 @@ class Search extends React.Component {
           rightBarWidth={this.props.rightBarWidth}
         >
           <SearchSubTopBar
-            isMinMaxValuesByTarget={this.state.isMinMaxValuesByTarget}
+            isMinMaxValsByTarget={this.state.isMinMaxValsByTarget}
             normalize={this.normalizeByTargetBnd}
             resetViewport={this.resetViewportBnd}
             viewportChanged={this.state.viewportChanged}
           />
-          <div className="rel search-target">
+          <div className='rel search-target'>
             <HiGlassViewer
               api={this.checkHgApiBnd}
-              height={
-                this.isTrained
-                  ? this.state.searchInfo.maxViewHeight
-                  : this.state.searchInfo.viewHeight
+              height={this.isTrained
+                ? this.state.searchInfo.maxViewHeight
+                : this.state.searchInfo.viewHeight
               }
               isStatic={true}
               viewConfigId={hgViewId(this.state.searchInfo.id)}
@@ -938,14 +931,12 @@ class Search extends React.Component {
             />
             <div className="search-tabs">
               <TabContent
-                className="full-dim flex-c flex-v"
+                className='full-dim flex-c flex-v'
                 for={TAB_SEEDS}
                 tabOpen={this.props.tab}
               >
                 <SearchSeeds
-                  classificationChangeHandler={
-                    this.classificationChangeHandlerBnd
-                  }
+                  classificationChangeHandler={this.classificationChangeHandlerBnd}
                   dataTracks={this.state.dataTracks}
                   info={this.state.info}
                   isError={this.state.isErrorSeeds}
@@ -953,8 +944,7 @@ class Search extends React.Component {
                   isReady={this.isSeeded}
                   isTraining={this.state.isTraining}
                   itemsPerPage={PER_PAGE_ITEMS}
-                  normalizationSource={this.state.minMaxSource}
-                  normalizeBy={this.state.minMaxValues}
+                  normalizeBy={this.state.minMaxVals}
                   onNormalize={this.onNormalizeBnd}
                   onPage={this.onPageSeeds}
                   onResultEnter={this.onResultEnter}
@@ -969,14 +959,12 @@ class Search extends React.Component {
                 />
               </TabContent>
               <TabContent
-                className="full-dim flex-c flex-v"
+                className='full-dim flex-c flex-v'
                 for={TAB_RESULTS}
                 tabOpen={this.props.tab}
               >
                 <SearchResults
-                  classificationChangeHandler={
-                    this.classificationChangeHandlerBnd
-                  }
+                  classificationChangeHandler={this.classificationChangeHandlerBnd}
                   dataTracks={this.state.dataTracks}
                   info={this.state.info}
                   isError={this.state.isErrorResults}
@@ -985,8 +973,7 @@ class Search extends React.Component {
                   isTrained={this.isTrained}
                   isTraining={this.state.isTraining}
                   itemsPerPage={PER_PAGE_ITEMS}
-                  normalizationSource={this.state.minMaxSource}
-                  normalizeBy={this.state.minMaxValues}
+                  normalizeBy={this.state.minMaxVals}
                   onNormalize={this.onNormalizeBnd}
                   onPage={this.onPageResults}
                   onResultEnter={this.onResultEnter}
@@ -1002,22 +989,19 @@ class Search extends React.Component {
                 />
               </TabContent>
               <TabContent
-                className="full-dim flex-c flex-v"
+                className='full-dim flex-c flex-v'
                 for={TAB_CLASSIFICATIONS}
                 tabOpen={this.props.tab}
               >
                 <SearchClassifications
-                  classificationChangeHandler={
-                    this.classificationChangeHandlerBnd
-                  }
+                  classificationChangeHandler={this.classificationChangeHandlerBnd}
                   dataTracks={this.state.dataTracks}
                   info={this.state.info}
                   isError={this.state.isErrorClassifications}
                   isLoading={this.state.isLoadingClassifications}
                   isTraining={this.state.isTraining}
                   itemsPerPage={PER_PAGE_ITEMS}
-                  normalizationSource={this.state.minMaxSource}
-                  normalizeBy={this.state.minMaxValues}
+                  normalizeBy={this.state.minMaxVals}
                   onNormalize={this.onNormalizeBnd}
                   onPage={this.onPageClassifications}
                   onResultEnter={this.onResultEnter}
@@ -1045,23 +1029,27 @@ class Search extends React.Component {
 
 Search.defaultProps = {
   id: -1,
-  viewConfigId: "default"
+  viewConfigId: 'default',
 };
 
 Search.propTypes = {
   match: PropTypes.object,
-  pubSub: PropTypes.object.isRequired,
   rightBarShow: PropTypes.bool,
-  rightBarTab: PropTypes.oneOfType([PropTypes.string, PropTypes.symbol])
-    .isRequired,
+  rightBarTab: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.symbol,
+  ]).isRequired,
   rightBarWidth: PropTypes.number,
   setRightBarShow: PropTypes.func,
   setRightBarTab: PropTypes.func,
   setSelection: PropTypes.func,
   setTab: PropTypes.func.isRequired,
   showAutoencodings: PropTypes.bool,
-  tab: PropTypes.oneOfType([PropTypes.string, PropTypes.symbol]).isRequired,
-  viewConfig: PropTypes.object
+  tab: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.symbol,
+  ]).isRequired,
+  viewConfig: PropTypes.object,
 };
 
 const mapStateToProps = state => ({
@@ -1070,21 +1058,20 @@ const mapStateToProps = state => ({
   rightBarWidth: state.present.searchRightBarWidth,
   showAutoencodings: state.present.showAutoencodings,
   tab: state.present.searchTab,
-  viewConfig: state.present.viewConfig
+  viewConfig: state.present.viewConfig,
 });
 
 const mapDispatchToProps = dispatch => ({
-  setRightBarShow: rightBarShow =>
-    dispatch(setSearchRightBarShow(rightBarShow)),
-  setRightBarTab: searchRightBarTab =>
-    dispatch(setSearchRightBarTab(searchRightBarTab)),
-  setSelection: windowId => dispatch(setSearchSelection(windowId)),
-  setTab: searchTab => dispatch(setSearchTab(searchTab))
+  setRightBarShow:
+    rightBarShow => dispatch(setSearchRightBarShow(rightBarShow)),
+  setRightBarTab:
+    searchRightBarTab => dispatch(setSearchRightBarTab(searchRightBarTab)),
+  setSelection:
+    windowId => dispatch(setSearchSelection(windowId)),
+  setTab: searchTab => dispatch(setSearchTab(searchTab)),
 });
 
-export default withRouter(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(withPubSub(Search))
-);
+export default withRouter(connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Search));

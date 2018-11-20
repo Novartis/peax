@@ -1,17 +1,18 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Components
-import Button from "./Button";
-import Spinner from "./Spinner";
+import Button from './Button';
+import Spinner from './Spinner';
 
 // Utils
-import { range } from "../utils";
+import { range } from '../utils';
 
-const getCurrentPage = (list, page = 0, itemsPerPage = 10) =>
-  list.slice(page * itemsPerPage, (page + 1) * itemsPerPage);
+const getCurrentPage = (list, page = 0, itemsPerPage = 10) => list.slice(
+  page * itemsPerPage, (page + 1) * itemsPerPage
+);
 
-const withPagination = Component => {
+const withPagination = (Component) => {
   const Pagination = ({
     list,
     isLoadingMore,
@@ -60,9 +61,9 @@ const withPagination = Component => {
                 {page + 1}
               </Button>
             </li>
-            {pageTotal &&
-              pageTotal > page + 2 &&
-              range(page + 2, Math.min(pageTotal, page + 4)).map(pageNum => (
+            {pageTotal
+              && pageTotal > page + 2
+              && range(page + 2, Math.min(pageTotal, page + 4)).map(pageNum => (
                 <li key={pageNum}>
                   <Button
                     className="with-pagination-page-button"
@@ -72,8 +73,11 @@ const withPagination = Component => {
                     {pageNum}
                   </Button>
                 </li>
-              ))}
-            {pageTotal && pageTotal > page + 4 && <li>&hellip;</li>}
+              ))
+            }
+            {pageTotal && pageTotal > page + 4 && (
+              <li>&hellip;</li>
+            )}
             {pageTotal && pageTotal > page + 1 && (
               <li>
                 <Button
@@ -89,14 +93,17 @@ const withPagination = Component => {
         )}
         {page !== pageTotal && (!pageTotal || pageTotal > page + 1) && (
           <Button
-            className={`with-pagination-next-prev has-spinner ${
-              isLoadingMore ? "is-spinning" : ""
-            }`}
+            className={`with-pagination-next-prev has-spinner ${isLoadingMore ? 'is-spinning' : ''}`}
             onClick={() => onPage(page + 1)}
             isDisabled={isLoadingMore}
           >
             <span className="text">{textNext}</span>
-            {isLoadingMore && <Spinner height="1em" width="1em" />}
+            {isLoadingMore && (
+              <Spinner
+                height='1em'
+                width='1em'
+              />
+            )}
           </Button>
         )}
       </footer>
@@ -104,8 +111,8 @@ const withPagination = Component => {
   );
 
   Pagination.defaultProps = {
-    textNext: "Next",
-    textPrev: "Prev"
+    textNext: 'Next',
+    textPrev: 'Prev',
   };
 
   Pagination.propTypes = {
@@ -116,7 +123,7 @@ const withPagination = Component => {
     itemsPerPage: PropTypes.number,
     textNext: PropTypes.string,
     textPrev: PropTypes.string,
-    onPage: PropTypes.func
+    onPage: PropTypes.func,
   };
 
   return Pagination;

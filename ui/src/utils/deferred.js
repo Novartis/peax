@@ -11,10 +11,7 @@ Deferred.prototype.catch = function deferredCatch(callback) {
 };
 
 Deferred.prototype.finally = function deferredFinally(callback) {
-  this.promise
-    .then(() => {})
-    .catch(() => {})
-    .then(callback);
+  this.promise.then(() => {}).catch(() => {}).then(callback);
   return this;
 };
 

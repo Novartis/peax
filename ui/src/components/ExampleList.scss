@@ -1,8 +1,8 @@
-@import "../styles/colors";
-@import "../styles/ratio";
+@import '../styles/colors';
+@import '../styles/ratio';
 
 .example-list {
-  & > li {
+  &> li {
     position: relative;
     width: 50%;
     margin-bottom: 0.5rem;
@@ -34,7 +34,7 @@
 
   .one-line {
     &.location::before {
-      content: "Location";
+      content: 'Location';
       font-size: 0.8em;
       font-weight: bold;
       text-transform: uppercase;
@@ -50,11 +50,13 @@
   }
 }
 
+
 /*
  * -----------------------------------------------------------------------------
  * Media Queries
  * -----------------------------------------------------------------------------
  */
+
 
 /* 960px */
 @media screen and (min-width: 60em) {

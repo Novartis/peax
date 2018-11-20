@@ -1,45 +1,46 @@
-import React from "react";
+import React from 'react';
 
 // Components
-import Content from "../components/Content";
-import ContentWrapper from "../components/ContentWrapper";
-import Footer from "../components/Footer";
-import Icon from "../components/Icon";
+import Content from '../components/Content';
+import ContentWrapper from '../components/ContentWrapper';
+import Footer from '../components/Footer';
+import Icon from '../components/Icon';
 
 // Stylesheets
-import "./About.scss";
+import './About.scss';
 
 const About = () => (
-  <ContentWrapper name="about">
-    <Content name="about">
-      <div className="wrap p-b-2">
-        <h3 id="abstract" className="iconized underlined anchored">
-          <a href="#abstract" className="hidden-anchor">
-            <Icon iconId="link" />
+  <ContentWrapper name='about'>
+    <Content name='about'>
+
+      <div className='wrap p-b-2'>
+        <h3 id='abstract' className='iconized underlined anchored'>
+          <a href='#abstract' className='hidden-anchor'>
+            <Icon iconId='link' />
           </a>
-          <Icon iconId="text" />
+          <Icon iconId='text' />
           <span>Summary</span>
         </h3>
-        <p className="abstract">
+        <p className='abstract'>
           Epigenomic data expresses a rich body of diverse patterns, but
           extracting patterns genome wide is limited, as specialized algorithms
-          are required or the expressiveness is low. Peax is a tool for
-          interactive concept learning and exploration of epigenomic patterns
-          based on unsupervised featurization with autorencoders. Genomic
-          regions are manually labeled for actively learning feature weights to
-          build a custom classifiers based on a researchers notion of
+          are required or the expressiveness is low. Peax is a tool
+          for interactive concept learning and exploration of epigenomic
+          patterns based on unsupervised featurization with autorencoders.
+          Genomic regions are manually labeled for actively learning feature
+          weights to build a custom classifiers based on a researchers notion of
           interstingness.
         </p>
 
-        <h3 id="abstract" className="iconized underlined anchored">
-          <a href="#abstract" className="hidden-anchor">
-            <Icon iconId="link" />
+        <h3 id='abstract' className='iconized underlined anchored'>
+          <a href='#abstract' className='hidden-anchor'>
+            <Icon iconId='link' />
           </a>
-          <Icon iconId="person" />
+          <Icon iconId='person' />
           <span>Authors</span>
         </h3>
 
-        <ol className="no-list-style authors">
+        <ol className='no-list-style authors'>
           <li className="flex-c flex-v">
             <span className="name">
               Fritz Lekschas
@@ -48,7 +49,7 @@ const About = () => (
             <span className="affiliation">
               Harvard John A. Paulson School of Engineering and Applied Sciences
             </span>
-            <ul className="no-list-style flex-c out-links">
+            <ul className='no-list-style flex-c out-links'>
               <li>
                 <a
                   className="flex-c flex-a-c"
@@ -56,7 +57,7 @@ const About = () => (
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Icon iconId="globe" />
+                  <Icon iconId="globe"/>
                   lekschas.de
                 </a>
               </li>
@@ -67,7 +68,7 @@ const About = () => (
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Icon iconId="gezwitscher" />
+                  <Icon iconId="gezwitscher"/>
                   flekschas
                 </a>
               </li>
@@ -78,7 +79,7 @@ const About = () => (
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Icon iconId="github" />
+                  <Icon iconId="github"/>
                   flekschas
                 </a>
               </li>
@@ -101,7 +102,7 @@ const About = () => (
             <span className="affiliation">
               Novartis Institutes for BioMedical Research
             </span>
-            <ul className="no-list-style flex-c out-links">
+            <ul className='no-list-style flex-c out-links'>
               <li>
                 <a
                   className="flex-c flex-a-c"
@@ -109,7 +110,7 @@ const About = () => (
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Icon iconId="globe" />
+                  <Icon iconId="globe"/>
                   ericmjl.com
                 </a>
               </li>
@@ -120,7 +121,7 @@ const About = () => (
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Icon iconId="gezwitscher" />
+                  <Icon iconId="gezwitscher"/>
                   ericmjl
                 </a>
               </li>
@@ -131,7 +132,7 @@ const About = () => (
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Icon iconId="github" />
+                  <Icon iconId="github"/>
                   ericmjl
                 </a>
               </li>
@@ -139,41 +140,41 @@ const About = () => (
           </li>
         </ol>
 
-        <h3 id="copyright" className="iconized underlined anchored">
-          <a href="#copyright" className="hidden-anchor">
-            <Icon iconId="link" />
+        <h3 id='copyright' className='iconized underlined anchored'>
+          <a href='#copyright' className='hidden-anchor'>
+            <Icon iconId='link' />
           </a>
-          <Icon iconId="info-circle" />
+          <Icon iconId='info-circle' />
           Icons
         </h3>
 
         <p>
           The following sets of beautiful icons have been slightly adjusted by
-          Fritz Lekschas and are used across the application. Hugs thanks to the
-          authors for their fantastic work!
+          Fritz Lekschas and are used across the application.
+          Hugs thanks to the authors for their fantastic work!
         </p>
 
-        <ul className="no-list-style large-spacing iconized">
-          <li className="flex-c iconized">
-            <Icon iconId="code" />
-            <p className="nm">
+        <ul className='no-list-style large-spacing iconized'>
+          <li className='flex-c iconized'>
+            <Icon iconId='code' />
+            <p className='nm'>
               <a
-                href="https://thenounproject.com/term/code/821469/"
-                target="_blank"
-                rel="noopener noreferrer"
+                href='https://thenounproject.com/term/code/821469/'
+                target='_blank'
+                rel='noopener noreferrer'
               >
                 Code
               </a>
               by Bernar Novalyi
             </p>
           </li>
-          <li className="flex-c iconized">
-            <Icon iconId="launch" />
-            <p className="nm">
+          <li className='flex-c iconized'>
+            <Icon iconId='launch' />
+            <p className='nm'>
               <a
-                href="https://thenounproject.com/icon/1372884/"
-                target="_blank"
-                rel="noopener noreferrer"
+                href='https://thenounproject.com/icon/1372884/'
+                target='_blank'
+                rel='noopener noreferrer'
               >
                 Launch
               </a>

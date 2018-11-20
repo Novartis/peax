@@ -1,6 +1,6 @@
-@import "../styles/colors";
-@import "../styles/transitions";
-@import "../styles/input-range";
+@import '../styles/colors';
+@import '../styles/transitions';
+@import '../styles/input-range';
 
 .right-bar {
   @include range($gray-lightest);
@@ -73,7 +73,7 @@
       font-weight: bold;
 
       &:after {
-        content: ":";
+        content: ':';
       }
     }
     .separator {

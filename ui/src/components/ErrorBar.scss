@@ -1,12 +1,12 @@
-@import "../styles/colors";
-@import "../styles/transitions";
+@import '../styles/colors';
+@import '../styles/transitions';
 
 .error-bar {
   z-index: 1;
   margin-top: 3rem;
   padding: 0.25rem 0;
-  color: $pink-dark;
-  background: $pink-light;
+  color: $red-dark;
+  background: $red-light;
   transition: padding $fast-transition $easing;
 
   .error-bar-content.no-wrap {
@@ -30,9 +30,9 @@
     transition: margin $fast-transition $easing;
 
     .button-icon {
-      color: transparentize($pink-dark, 0.6);
-      border-color: transparentize($pink-dark, 0.8);
-      background: $pink-light;
+      color: transparentize($red-dark, 0.6);
+      border-color: transparentize($red-dark, 0.8);
+      background: $red-light;
 
       .icon {
         width: 0.75rem;
@@ -42,7 +42,7 @@
       &:focus,
       &:hover {
         color: $white;
-        background: $pink-dark;
+        background: $red-dark;
       }
 
       &:focus {

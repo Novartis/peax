@@ -12,30 +12,11 @@ limitations under the License.
 """
 
 import numpy as np
-import itertools
-import operator
-
 from contextlib import contextmanager
 from scipy.ndimage.interpolation import zoom
 from scipy.spatial.distance import cdist
 from scipy.stats import norm
-from sklearn.preprocessing import MinMaxScaler
-from typing import Callable, List
-
-
-def compare_lists(
-    a: List, b: List, conditionator: Callable = all, comparator: Callable = operator.eq
-):
-    return conditionator(map(comparator, a, itertools.islice(a, 1, None)))
-
-
-def normalize(data, percentile: float = 99.9):
-    cutoff = np.percentile(data, (0, percentile))
-    data_norm = np.copy(data)
-    data_norm[np.where(data_norm < cutoff[0])] = cutoff[0]
-    data_norm[np.where(data_norm > cutoff[1])] = cutoff[1]
-
-    return MinMaxScaler().fit_transform(data_norm)
+from typing import Callable
 
 
 def get_search_target_classif(db, search_id, window_size, abs_offset):
@@ -59,7 +40,7 @@ def get_search_target_classif(db, search_id, window_size, abs_offset):
     ).astype(int)
 
 
-def scaleup_vector(v, out_len, aggregator: Callable = np.mean):
+def scaleup_vector(v, out_len, aggregator=np.mean):
     in_len = v.shape[0]
     lcm = np.lcm(in_len, out_len)
     blowup = np.repeat(v, lcm / in_len)
@@ -70,9 +51,9 @@ def zoom_array(
     in_array,
     final_shape,
     same_sum=False,
-    aggregator=np.mean,
-    zoomor=zoom,
-    **zoomor_kwargs
+    aggregate_fn=np.mean,
+    zoom_fn=zoom,
+    **zoom_fn_kwargs
 ):
     """Rescale vectors savely.
 
@@ -98,14 +79,13 @@ def zoom_array(
     final_shape: resulting shape of an array
     same_sum: bool, preserve a sum of the array, rather than values.
              by default, values are preserved
-    aggregator: by default, np.mean. You can plug your own.
-    zoomor: by default, scipy.ndimage.zoom. You can plug your own.
-    zoomor_kwargs:  a dict of options to pass to zoomor.
+    zoom_fn: by default, scipy.ndimage.zoom. You can plug your own.
+    zoom_fn_kwargs:  a dict of options to pass to zoom_fn.
     """
     in_array = np.asarray(in_array, dtype=np.double)
     in_shape = in_array.shape
 
-    assert len(in_shape) == len(final_shape), "Number of dimensions need to equal"
+    assert len(in_shape) == len(final_shape)
 
     mults = []  # multipliers for the final coarsegraining
     for i in range(len(in_shape)):
@@ -122,7 +102,7 @@ def zoom_array(
     assert zoom_multipliers.min() >= 1
 
     # applying zoom
-    rescaled = zoomor(in_array, zoom_multipliers, **zoomor_kwargs)
+    rescaled = zoom_fn(in_array, zoom_multipliers, **zoom_fn_kwargs)
 
     for ind, mult in enumerate(mults):
         if mult != 1:
@@ -130,7 +110,7 @@ def zoom_array(
             assert sh[ind] % mult == 0
             newshape = sh[:ind] + [sh[ind] // mult, mult] + sh[ind + 1 :]
             rescaled.shape = newshape
-            rescaled = aggregator(rescaled, axis=ind + 1)
+            rescaled = aggregate_fn(rescaled, axis=ind + 1)
 
     assert rescaled.shape == final_shape
 
@@ -149,7 +129,9 @@ def merge_interleaved(v, step_freq, aggregator=np.nanmean):
     blowup[:] = np.nan
 
     for i in np.arange(step_freq):
-        blowup[:, i][i : min(i + v_len, out_len)] = v[: min(v_len, out_len - i)]
+        blowup[:, i][i : min(i + v_len, out_len)] = v[
+            : min(v_len, out_len - i)
+        ]
 
     return aggregator(blowup, axis=1)
 
@@ -173,7 +155,9 @@ def get_norm_sym_norm_kernel(size):
     return kn
 
 
-def merge_interleaved_mat(m: np.ndarray, step_freq: int, kernel: np.ndarray = None):
+def merge_interleaved_mat(
+    m: np.ndarray, step_freq: int, kernel: np.ndarray = None
+):
     if kernel is None:
         # Take the mean of the interleave vectors by default
         kernel = np.ones(m.shape[1])
@@ -289,7 +273,7 @@ def knn_density(
     # Compute the pairwise distance
     try:
         pw_dist = cdist(data, data, dist_metric)
-    except ValueError:
+    except ValueError as e:
         pw_dist = cdist(data, data)
 
     # Get the selection for the k nearest neighbors
@@ -303,26 +287,14 @@ def knn_density(
     # Compute the summary density of the knn
     try:
         return summary(pw_k_dist, axis=0)
-    except Exception:
+    except Exception as e:
         out = np.zeros(pw_k_dist.shape[0])
         out[:] = np.nan
         return out
 
 
 @contextmanager
-def suppress_with_default(*exceptions, **kwargs):
-    """Like contextlib.suppress but with a default value on exception
-
-    Decorators:
-        contextmanager
-
-    Arguments:
-        *exceptions {list} -- List of exceptions to suppress. By default all exceptions are suppressed.
-        **kwargs {dict} -- Dictionary of key word arguments
-
-    Yields:
-        any -- Default value from ``kwargs``
-    """
+def catch(*exceptions, **kwargs):
     try:
         yield kwargs.get("default", None)
     except exceptions or Exception:
@@ -332,4 +304,6 @@ def suppress_with_default(*exceptions, **kwargs):
 def get_c(target_c: list, bg_c: list, opacity: float):
     target = np.array(target_c) / 255
     bg = np.array(bg_c) / 255
-    return ((target * (1 / opacity) - bg * ((1 - opacity) / opacity)) * 255).astype(int)
+    return (
+        (target * (1 / opacity) - bg * ((1 - opacity) / opacity)) * 255
+    ).astype(int)

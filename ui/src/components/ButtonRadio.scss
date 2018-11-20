@@ -1,5 +1,5 @@
-@import "../styles/colors";
-@import "../styles/transitions";
+@import '../styles/colors';
+@import '../styles/transitions';
 
 .button-radio {
   height: 1.5em;
@@ -13,7 +13,7 @@
     text-transform: uppercase;
 
     &:after {
-      content: ":";
+      content: ':';
     }
   }
 

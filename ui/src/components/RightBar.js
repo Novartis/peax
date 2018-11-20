@@ -1,16 +1,17 @@
-import PropTypes from "prop-types";
-import React from "react";
-
-// Higher-order components
-import { withPubSub } from "../hocs/pub-sub";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Components
-import ButtonIcon from "./ButtonIcon";
+import ButtonIcon from './ButtonIcon';
+
+// Services
+import pubSub from '../services/pub-sub';
 
 // Styles
-import "./RightBar.scss";
+import './RightBar.scss';
 
 export const RIGHT_BAR_MIN_WIDTH = 4;
+
 
 class RightBar extends React.Component {
   constructor(props) {
@@ -21,31 +22,29 @@ class RightBar extends React.Component {
 
   componentDidMount() {
     this.pubSubs.push(
-      this.props.pubSub.subscribe("mousemove", this.mouseMoveHandler.bind(this))
+      pubSub.subscribe('mousemove', this.mouseMoveHandler.bind(this))
     );
     this.pubSubs.push(
-      this.props.pubSub.subscribe("mouseup", this.mouseUpHandler.bind(this))
+      pubSub.subscribe('mouseup', this.mouseUpHandler.bind(this))
     );
   }
 
   componentWillUnmount() {
-    this.pubSubs.forEach(subscription =>
-      this.props.pubSub.unsubscribe(subscription)
-    );
+    this.pubSubs.forEach(subscription => pubSub.unsubscribe(subscription));
     this.pubSubs = [];
   }
 
   render() {
-    let classNames = "right-bar";
-    classNames += this.props.isShown ? " is-shown" : "";
-    classNames += this.props.className ? ` ${this.props.className}` : "";
+    let classNames = 'right-bar';
+    classNames += this.props.isShown ? ' is-shown' : '';
+    classNames += this.props.className ? ` ${this.props.className}` : '';
 
     const styles = {
       width: `${
         this.props.isShown
           ? Math.max(RIGHT_BAR_MIN_WIDTH, this.props.width)
           : RIGHT_BAR_MIN_WIDTH
-      }px`
+      }px`,
     };
 
     return (
@@ -55,13 +54,15 @@ class RightBar extends React.Component {
         onTransitionEnd={this.transitionListener.bind(this)}
       >
         <ButtonIcon
-          className="right-bar-toggler"
-          icon="arrow-right-double"
+          className='right-bar-toggler'
+          icon='arrow-right-double'
           iconMirrorV={!this.props.isShown}
           iconOnly={true}
           onMouseDown={this.mouseDownHandler.bind(this)}
         />
-        <div className="right-bar-container">{this.props.children}</div>
+        <div className='right-bar-container'>
+          {this.props.children}
+        </div>
       </aside>
     );
   }
@@ -116,19 +117,18 @@ class RightBar extends React.Component {
 }
 
 RightBar.defaultProps = {
-  className: ""
+  className: '',
 };
 
 RightBar.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
   isShown: PropTypes.bool,
-  pubSub: PropTypes.object.isRequired,
   show: PropTypes.func,
   toggle: PropTypes.func,
   width: PropTypes.number,
   widthSetter: PropTypes.func,
-  widthSetterFinal: PropTypes.func
+  widthSetterFinal: PropTypes.func,
 };
 
-export default withPubSub(RightBar);
+export default RightBar;

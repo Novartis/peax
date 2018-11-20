@@ -1,30 +1,32 @@
-import PropTypes from "prop-types";
-import React from "react";
-
-// Higher-order components
-import { withPubSub } from "../hocs/pub-sub";
+import React from 'react';
 
 // Components
-import Content from "../components/Content";
-import ContentWrapper from "../components/ContentWrapper";
-import Footer from "../components/Footer";
-import Icon from "../components/Icon";
-import IconGallery from "../components/IconGallery";
+import Content from '../components/Content';
+import ContentWrapper from '../components/ContentWrapper';
+import Footer from '../components/Footer';
+import Icon from '../components/Icon';
+import IconGallery from '../components/IconGallery';
+
+// Services
+import pubSub from '../services/pub-sub';
 
 // Utils
-import Deferred from "../utils/deferred";
+import Deferred from '../utils/deferred';
 
 // Stylesheets
-import "./About.scss";
+import './About.scss';
 
-const showIcons = pubSub => {
-  pubSub.publish("globalDialog", {
-    message: <IconGallery />,
-    request: new Deferred(),
-    resolveOnly: true,
-    resolveText: "Close",
-    headline: "All Available Icons"
-  });
+const showIcons = () => {
+  pubSub.publish(
+    'globalDialog',
+    {
+      message: <IconGallery />,
+      request: new Deferred(),
+      resolveOnly: true,
+      resolveText: 'Close',
+      headline: 'All Available Icons',
+    }
+  );
 };
 
 class Help extends React.Component {
@@ -42,14 +44,12 @@ class Help extends React.Component {
 
   componentDidMount() {
     this.pubSubs.push(
-      this.props.pubSub.subscribe("keyup", this.keyUpHandler.bind(this))
+      pubSub.subscribe('keyup', this.keyUpHandler.bind(this))
     );
   }
 
   componentWillUnmount() {
-    this.pubSubs.forEach(subscription =>
-      this.props.pubSub.unsubscribe(subscription)
-    );
+    this.pubSubs.forEach(subscription => pubSub.unsubscribe(subscription));
     this.pubSubs = [];
   }
 
@@ -80,85 +80,87 @@ class Help extends React.Component {
     if (this.swagJ === this.swag[this.swagI].length) {
       switch (this.swagI) {
         case 0:
-          showIcons(this.props.pubSub);
+          showIcons();
           break;
         default:
-        // Nothing
+          // Nothing
       }
     }
   }
 
   render() {
     return (
-      <ContentWrapper name="help">
-        <Content name="help">
-          <div className="border-bottom p-t-1 p-b-1">
-            <div className="wrap">
+      <ContentWrapper name='help'>
+        <Content name='help'>
+          <div className='border-bottom p-t-1 p-b-1'>
+            <div className='wrap'>
               <p>
-                You need help getting started with Peax or ran into a tricky
-                issue? Fear not! Below is a list of excellent resources that can
-                hopefully help you out!
+              You need help getting started with Peax or ran into a tricky issue?
+              Fear not! Below is a list of excellent resources that can hopefully help
+              you out!
               </p>
             </div>
           </div>
 
-          <div className="wrap p-b-2">
-            <h3 id="getting-started" className="iconized underlined anchored">
-              <a href="#getting-started" className="hidden-anchor">
-                <Icon iconId="link" />
+          <div className='wrap p-b-2'>
+            <h3 id='getting-started' className='iconized underlined anchored'>
+              <a href='#getting-started' className='hidden-anchor'>
+                <Icon iconId='link' />
               </a>
-              <Icon iconId="launch" />
+              <Icon iconId='launch' />
               <span>Getting Started</span>
             </h3>
 
             <p>
-              At some point in the far far away future you will find some
-              marvelous getting started guide here. Until then you are excused
-              to freak out.
+              At some point in the far far away future you will find some marvelous
+              getting started guide here. Until then you are excused to freak out.
             </p>
 
-            <h3 id="source-code" className="iconized underlined anchored">
-              <a href="#source-code" className="hidden-anchor">
-                <Icon iconId="link" />
+            <h3 id='source-code' className='iconized underlined anchored'>
+              <a href='#source-code' className='hidden-anchor'>
+                <Icon iconId='link' />
               </a>
-              <Icon iconId="code" />
+              <Icon iconId='code' />
               Source Code
             </h3>
 
-            <p>Peax uses and adopted the following open source component:</p>
+            <p>
+              Peax uses and adopted the following open source component:
+            </p>
 
-            <ul className="no-list-style large-spacing">
+            <ul className='no-list-style large-spacing'>
               <li>
                 <strong>Genome viewer: </strong>
                 <a
-                  href="https://github.com/higlass/higlass"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href='https://github.com/hms-dbmi/higlass'
+                  target='_blank'
+                  rel='noopener noreferrer'
                 >
-                  github.com/higlass/higlass
+                  github.com/hms-dbmi/higlass
                 </a>
               </li>
               <li>
                 <strong>UI architecture: </strong>
                 <a
-                  href="https://github.com/higlass/higlass-app"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href='https://github.com/hms-dbmi/higlass-app'
+                  target='_blank'
+                  rel='noopener noreferrer'
                 >
-                  github.com/higlass/higlass-app
+                  github.com/hms-dbmi/higlass-app
                 </a>
               </li>
               <li>
                 <strong>Server: </strong>
                 <a
-                  href="https://github.com/higlass/hgflask"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href='https://github.com/pkerpedjiev/hgflask'
+                  target='_blank'
+                  rel='noopener noreferrer'
                 >
-                  github.com/higlass/hgflask
+                  github.com/pkerpedjiev/hgflask
                 </a>
               </li>
             </ul>
+
           </div>
         </Content>
         <Footer />
@@ -167,8 +169,4 @@ class Help extends React.Component {
   }
 }
 
-Help.propTypes = {
-  pubSub: PropTypes.object.isRequired
-};
-
-export default withPubSub(Help);
+export default Help;

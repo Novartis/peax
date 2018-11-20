@@ -1,6 +1,6 @@
-@import "../styles/colors";
-@import "../styles/transitions";
-@import "../styles/underline";
+@import '../styles/colors';
+@import '../styles/transitions';
+@import '../styles/underline';
 
 .top-bar {
   position: fixed;
@@ -9,7 +9,7 @@
   left: 0;
   width: 100%;
   height: 3rem;
-  font-size: 1.25rem; // 20 / 16
+  font-size: 1.25rem;  // 20 / 16
   z-index: 2;
   background: transparentize($white, 0.1);
   box-shadow: 0 2px 0 0 transparentize($black, 0.95);
@@ -59,7 +59,7 @@
     font-weight: bold;
     color: $black;
     box-shadow: none;
-    font-size: 1.375rem; // 22 / 16
+    font-size: 1.375rem;  // 22 / 16
 
     &.is-active {
       box-shadow: 0 2px 0 0 $primary;
@@ -149,6 +149,11 @@
 
   nav li {
     line-height: inherit;
+
+    &.separated-left::before {
+      content: '';
+      width: 2px;
+    }
 
     &.separated-left::before {
       margin: 0.25rem 0.25rem;
@@ -319,7 +324,7 @@
         background: rgba(234, 234, 234, 0.9);
         transform: scale(1, 0);
         transition: opacity $fast-transition $easing,
-          transform $fast-transition $easing;
+                    transform $fast-transition $easing;
         transform-origin: top center;
 
         &.flex-c {

@@ -1,21 +1,20 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Styles
-import "./Hamburger.scss";
+import './Hamburger.scss';
+
 
 class Hamburger extends React.Component {
   render() {
     return (
-      <button className="hamburger-wrapper" onClick={this.toggle.bind(this)}>
-        <div
-          className={`hamburger hamburger-to-x ${
-            this.props.isActive ? "is-active" : ""
-          }`}
-        >
-          <span />
+      <button
+        className='hamburger-wrapper'
+        onClick={this.toggle.bind(this)}>
+        <div className={`hamburger hamburger-to-x ${this.props.isActive ? 'is-active' : ''}`}>
+          <span></span>
         </div>
-        <div className="hamburger-bg" />
+        <div className='hamburger-bg' />
       </button>
     );
   }
@@ -29,7 +28,7 @@ class Hamburger extends React.Component {
 
 Hamburger.propTypes = {
   isActive: PropTypes.bool,
-  onClick: PropTypes.func.isRequired
+  onClick: PropTypes.func.isRequired,
 };
 
 export default Hamburger;

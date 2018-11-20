@@ -1,10 +1,9 @@
 // Custom event Handlers
-const resize = pubSub => event => pubSub.publish("resize", event);
-const scroll = pubSub => event =>
-  pubSub.publish(
-    "scrollTop",
-    event.target.scrollTop || document.body.scrollTop
-  );
+const resize = pubSub => event => pubSub.publish('resize', event);
+const scroll = pubSub => event => pubSub.publish(
+  'scrollTop',
+  event.target.scrollTop || document.body.scrollTop
+);
 
 /**
  * Supported event handlers.
@@ -13,7 +12,7 @@ const scroll = pubSub => event =>
  */
 const customEventHandlers = {
   orientationchange: resize,
-  scroll
+  scroll,
 };
 
 /**
@@ -43,9 +42,7 @@ const registeredEls = {};
  * @param {object} element - DOM element which we listened to.
  */
 const unregister = (event, element) => {
-  if (!registeredEls[event] && registeredEls[event] !== element) {
-    return;
-  }
+  if (!registeredEls[event] && registeredEls[event] !== element) { return; }
 
   registeredEls[event].removeEventListener(event, registeredEls[event].handler);
 
@@ -60,9 +57,7 @@ const unregister = (event, element) => {
  * @param {object} newElement - DOM element which to listen to.
  */
 const register = pubSub => (event, newElement) => {
-  if (!newElement || registeredEls[event] === newElement) {
-    return;
-  }
+  if (!newElement || registeredEls[event] === newElement) { return; }
 
   if (registeredEls[event]) {
     unregister(registeredEls[event]);
@@ -80,7 +75,7 @@ const register = pubSub => (event, newElement) => {
  */
 const createDomEvent = pubSub => ({
   register: register(pubSub),
-  unregister
+  unregister,
 });
 
 export default createDomEvent;

@@ -1,5 +1,5 @@
-@import "../styles/colors";
-@import "../styles/transitions";
+@import '../styles/colors';
+@import '../styles/transitions';
 
 .tool-tip-wrapper {
   .tool-tip-anchor {
@@ -30,24 +30,6 @@
       animation-timing-function: $easing;
     }
 
-    .arrow {
-      position: absolute;
-      bottom: -0.25rem;
-      left: 50%;
-      margin-left: -0.25rem;
-    }
-
-    .short-cut {
-      margin: 0.175rem 0 0.175rem 0.33rem;
-      padding: 0 0.125rem;
-      color: $gray-lighter;
-      font-size: 0.7rem;
-      font-weight: bold;
-      line-height: 0.9rem;
-      border-radius: 0.125rem;
-      background: $gray-dark;
-    }
-
     &.tool-tip-align-left {
       transform: translate(0, 0) scale(0);
       transform-origin: top left;
@@ -73,6 +55,24 @@
         left: auto;
         right: 0.5rem;
       }
+    }
+
+    .arrow {
+      position: absolute;
+      bottom: -0.25rem;
+      left: 50%;
+      margin-left: -0.25rem;
+    }
+
+    .short-cut {
+      margin: 0.175rem 0 0.175rem 0.33rem;
+      padding: 0 0.125rem;
+      color: $gray-lighter;
+      font-size: 0.7rem;
+      font-weight: bold;
+      line-height: 0.9rem;
+      border-radius: 0.125rem;
+      background: $gray-dark;
     }
   }
 

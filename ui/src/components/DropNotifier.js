@@ -1,15 +1,15 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Styles
-import "./DropNotifier.scss";
+import './DropNotifier.scss';
 
 class DropNotifier extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      isActive: false
+      isActive: false,
     };
 
     this.listeners = [];
@@ -22,17 +22,10 @@ class DropNotifier extends React.Component {
 
   render() {
     return (
-      <div
-        className={`drop-notifier flex-c flex-jc-c flex-a-c ${
-          this.state.isActive ? "is-active" : ""
-        }`}
-      >
+      <div className={`drop-notifier flex-c flex-jc-c flex-a-c ${this.state.isActive ? 'is-active' : ''}`}>
         <div
-          className="drop-layer full-dim-win"
-          ref={el => {
-            this.dropLayer = el;
-          }}
-        />
+          className='drop-layer full-dim-win'
+          ref={(el) => { this.dropLayer = el; }}></div>
         <span>Drop JSON Config</span>
       </div>
     );
@@ -43,67 +36,67 @@ class DropNotifier extends React.Component {
   addEventListeners() {
     this.eventListeners = [
       {
-        name: "dragenter",
-        callback: event => {
+        name: 'dragenter',
+        callback: (event) => {
           this.setState({
-            isActive: true
+            isActive: true,
           });
 
           event.stopPropagation();
           event.preventDefault();
           return false;
-        }
+        },
       },
       {
-        name: "dragover",
-        callback: event => {
+        name: 'dragover',
+        callback: (event) => {
           event.stopPropagation();
           event.preventDefault();
           return false;
-        }
+        },
       },
       {
-        name: "dragleave",
-        callback: event => {
+        name: 'dragleave',
+        callback: (event) => {
           if (event.target === this.dropLayer) {
             this.setState({
-              isActive: false
+              isActive: false,
             });
           }
 
           event.stopPropagation();
           event.preventDefault();
           return false;
-        }
+        },
       },
       {
-        name: "drop",
-        callback: event => {
+        name: 'drop',
+        callback: (event) => {
           this.setState({
-            isActive: false
+            isActive: false,
           });
 
           this.props.drop(event);
 
           event.preventDefault();
-        }
-      }
+        },
+      },
     ];
 
-    this.eventListeners.forEach(event =>
-      document.addEventListener(event.name, event.callback, false)
+    this.eventListeners.forEach(
+      event => document.addEventListener(event.name, event.callback, false)
     );
   }
 
   removeEventListeners() {
-    this.eventListeners.forEach(event =>
-      document.removeEventListener(event.name, event.fnc)
+    this.eventListeners.forEach(
+      event => document.removeEventListener(event.name, event.fnc)
     );
   }
 }
 
 DropNotifier.propTypes = {
-  drop: PropTypes.func.isRequired
+  drop: PropTypes.func.isRequired,
 };
 
 export default DropNotifier;

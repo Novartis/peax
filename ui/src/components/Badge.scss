@@ -1,5 +1,5 @@
-@import "../styles/colors";
-@import "../styles/transitions";
+@import '../styles/colors';
+@import '../styles/transitions';
 
 .badge {
   min-width: 1.5em;
@@ -9,7 +9,7 @@
   border-radius: 0.25rem;
   background: $gray-lighter;
   transition: color $fast-transition $easing,
-    background $fast-transition $easing;
+              background $fast-transition $easing;
 }
 
 .badge-level-poor {

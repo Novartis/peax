@@ -1,46 +1,47 @@
-import { ChromosomeInfo } from "higlass";
-import PropTypes from "prop-types";
-import React from "react";
-import { connect } from "react-redux";
-import { Link } from "react-router-dom";
-
-// Higher-order components
-import { withPubSub } from "../hocs/pub-sub";
+import { ChromosomeInfo } from 'higlass';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 // Components
-import ButtonLikeLink from "../components/ButtonLikeLink";
-import Content from "../components/Content";
-import ContentWrapper from "../components/ContentWrapper";
-import Footer from "../components/Footer";
-import HiGlassViewer from "../components/HiGlassViewer";
-import Icon from "../components/Icon";
-import InfoBar from "../components/InfoBar";
-import HomeSubTopBar from "./HomeSubTopBar";
+import ButtonLikeLink from '../components/ButtonLikeLink';
+import Content from '../components/Content';
+import ContentWrapper from '../components/ContentWrapper';
+import Footer from '../components/Footer';
+import HiGlassViewer from '../components/HiGlassViewer';
+import Icon from '../components/Icon';
+import InfoBar from '../components/InfoBar';
+import HomeSubTopBar from './HomeSubTopBar';
 
 // Actions
 import {
   setHomeInfoBarClose,
   setHiglassMouseTool,
-  setSearchTab
-} from "../actions";
+  setSearchTab,
+} from '../actions';
+
+// Services
+import pubSub from '../services/pub-sub';
+import search from '../services/search';
 
 // Utils
 import {
-  api,
   debounce,
   Logger,
   readableDate,
-  removeHiGlassEventListeners
-} from "../utils";
+  removeHiGlassEventListeners,
+} from '../utils';
 
 // Configs
-import { PAN_ZOOM, SELECT } from "../configs/mouse-tools";
-import { TAB_SEEDS } from "../configs/search";
+import { PAN_ZOOM, SELECT } from '../configs/mouse-tools';
+import { TAB_SEEDS } from '../configs/search';
 
 // Stylesheets
-import "./Home.scss";
+import './Home.scss';
 
-const logger = Logger("Home");
+const logger = Logger('Home');
+
 
 class Home extends React.Component {
   constructor(props) {
@@ -51,31 +52,26 @@ class Home extends React.Component {
 
     this.state = {
       rangeSelection: [null, null],
-      searches: []
+      searches: [],
     };
 
     this.checkChromInfo();
 
     this.keyDownHandlerBound = this.keyDownHandler.bind(this);
     this.rangeSelectionHandlerDb = debounce(
-      this.rangeSelectionHandler.bind(this),
-      250
+      this.rangeSelectionHandler.bind(this), 250
     );
   }
 
   /* ----------------------- React Life Cycle Methods ----------------------- */
 
-  componentDidMount() {
-    this.pubSubs.push(
-      this.props.pubSub.subscribe("keydown", this.keyDownHandlerBound)
-    );
+  componentWillMount() {
+    this.pubSubs.push(pubSub.subscribe('keydown', this.keyDownHandlerBound));
     this.getSearches();
   }
 
   componentWillUnmount() {
-    this.pubSubs.forEach(subscription =>
-      this.props.pubSub.unsubscribe(subscription)
-    );
+    this.pubSubs.forEach(subscription => pubSub.unsubscribe(subscription));
     this.pubSubs = [];
     removeHiGlassEventListeners(this.hiGlassEventListeners, this.hgApi);
     this.hiGlassEventListeners = {};
@@ -90,13 +86,13 @@ class Home extends React.Component {
   async getSearches() {
     this.setState({ isLoadingSearches: true, isErrorSearches: false });
 
-    const searches = await api.getAllSearchInfos(3);
+    const searches = await search.getAllSearchInfos(3);
     const isErrorSearches = searches.status !== 200;
 
     this.setState({
       isLoadingSearches: false,
       isErrorSearches,
-      searches: searches.body
+      searches: searches.body,
     });
   }
 
@@ -116,12 +112,12 @@ class Home extends React.Component {
     if (!this.hgApi) return;
 
     if (
-      this.props.mouseTool === SELECT &&
-      !this.hiGlassEventListeners.rangeSelection
+      this.props.mouseTool === SELECT
+      && !this.hiGlassEventListeners.rangeSelection
     ) {
       this.hiGlassEventListeners.rangeSelection = {
-        name: "rangeSelection",
-        id: this.hgApi.on("rangeSelection", this.rangeSelectionHandlerDb)
+        name: 'rangeSelection',
+        id: this.hgApi.on('rangeSelection', this.rangeSelectionHandlerDb),
       };
     }
   }
@@ -129,7 +125,7 @@ class Home extends React.Component {
   async checkHgSetup() {
     if (!this.hgApi) return;
 
-    this.searchInfo = await api.getInfo();
+    this.searchInfo = await search.getInfo();
     this.hgApi.setRangeSelection1dSize(
       this.searchInfo.windowSizeMin,
       this.searchInfo.windowSizeMax
@@ -142,8 +138,8 @@ class Home extends React.Component {
 
     let newChromInfoUrl;
     try {
-      newChromInfoUrl = this.props.viewConfig.views[0].tracks.top[1]
-        .chromInfoPath;
+      newChromInfoUrl = this.props.viewConfig
+        .views[0].tracks.top[1].chromInfoPath;
     } finally {
       // Nothing
     }
@@ -156,21 +152,17 @@ class Home extends React.Component {
   }
 
   keyDownHandler(event) {
-    if (event.keyCode === 83) {
-      // S
+    if (event.keyCode === 83) {  // S
       event.preventDefault();
 
-      if (event.ctrlKey || event.metaKey) {
-        // CMD + S
+      if (event.ctrlKey || event.metaKey) {  // CMD + S
         this.downloadViewConfig();
-      } else {
-        // S
+      } else {  // S
         this.props.setMouseTool(SELECT);
       }
     }
 
-    if (event.keyCode === 90) {
-      // Z
+    if (event.keyCode === 90) {  // Z
       event.preventDefault();
 
       if (!event.ctrlKey && !event.metaKey) {
@@ -188,7 +180,7 @@ class Home extends React.Component {
   }
 
   async search(rangeSelection) {
-    const response = await api.newSearch(rangeSelection);
+    const response = await search.newSearch(rangeSelection);
     logger.info(response);
     if (response.status === 200) {
       await this.props.setSearchToSeeds();
@@ -197,7 +189,7 @@ class Home extends React.Component {
   }
 
   getHgViewId(showAes = this.props.showAutoencodings) {
-    return `default${showAes ? ".e" : ""}`;
+    return `default${showAes ? '.e' : ''}`;
   }
 
   /* -------------------------------- Render -------------------------------- */
@@ -207,40 +199,37 @@ class Home extends React.Component {
     const hgViewId = this.getHgViewId();
 
     return (
-      <ContentWrapper name="home">
+      <ContentWrapper name='home'>
         <InfoBar
           isClose={this.props.homeInfoBarClose}
           isClosable={true}
-          onClose={() =>
-            this.props.setHomeInfoBarClose(!this.props.homeInfoBarClose)
-          }
-          wrap={true}
-        >
-          <div className="flex-c">
-            <p className="column-1-2 m-r-1 home-info-intro">
-              Peax is a tool to visually search and explore peaks or other kind
-              of patterns in 1D and 2D epigenomic tracks.
+          onClose={() => this.props.setHomeInfoBarClose(!this.props.homeInfoBarClose)}
+          wrap={true}>
+          <div className='flex-c'>
+            <p className='column-1-2 m-r-1 home-info-intro'>
+            Peax is a tool to visually search and explore peaks or other kind of
+            patterns in 1D and 2D epigenomic tracks.
             </p>
-            <div className="column-1-2 m-l-1 flex-c flex-v home-info-actions">
-              <ol className="no-list-style">
+            <div className='column-1-2 m-l-1 flex-c flex-v home-info-actions'>
+              <ol className='no-list-style'>
                 {this.state.searches.map(s => (
-                  <li key={s.id} className="flex-c flex-jc-sb">
+                  <li key={s.id} className='flex-c flex-jc-sb'>
                     <Link to={`/search/${s.id}`}>
-                      {api.name || `Search #${s.id}`}
+                      {search.name || `Search #${s.id}`}
                     </Link>
-                    <time dateTime={s.updated}>{readableDate(s.updated)}</time>
+                    <time dateTime={s.updated}>
+                      {readableDate(s.updated)}
+                    </time>
                   </li>
                 ))}
                 {!this.state.searches.length && (
-                  <li>
-                    <em>No previsous searches found. So sad!</em>
-                  </li>
+                  <li><em>No previsous searches found. So sad!</em></li>
                 )}
               </ol>
-              <ButtonLikeLink className="flex-g-1" to="/search">
+              <ButtonLikeLink className='flex-g-1' to='/search'>
                 <div className="flex-c flex-a-c full-h">
-                  <div className="flex-g-1">All searches</div>
-                  <Icon iconId="arrow-right" />
+                  <div className='flex-g-1'>All searches</div>
+                  <Icon iconId='arrow-right' />
                 </div>
               </ButtonLikeLink>
             </div>
@@ -250,7 +239,7 @@ class Home extends React.Component {
           rangeSelection={this.state.rangeSelection}
           search={this.search.bind(this)}
         />
-        <Content name="home" rel={true} wrap={true}>
+        <Content name='home' rel={true} wrap={true}>
           <HiGlassViewer
             api={this.checkHgApi.bind(this)}
             enableAltMouseTools={true}
@@ -267,28 +256,24 @@ Home.propTypes = {
   history: PropTypes.object.isRequired,
   homeInfoBarClose: PropTypes.bool,
   mouseTool: PropTypes.string,
-  pubSub: PropTypes.object.isRequired,
   setHomeInfoBarClose: PropTypes.func,
   setMouseTool: PropTypes.func,
   setSearchToSeeds: PropTypes.func,
   showAutoencodings: PropTypes.bool,
-  viewConfig: PropTypes.object
+  viewConfig: PropTypes.object,
 };
 
 const mapStateToProps = state => ({
   homeInfoBarClose: state.present.homeInfoBarClose,
   mouseTool: state.present.higlassMouseTool,
   showAutoencodings: state.present.showAutoencodings,
-  viewConfig: state.present.viewConfig
+  viewConfig: state.present.viewConfig,
 });
 
 const mapDispatchToProps = dispatch => ({
   setHomeInfoBarClose: isClosed => dispatch(setHomeInfoBarClose(isClosed)),
   setMouseTool: mouseTool => dispatch(setHiglassMouseTool(mouseTool)),
-  setSearchToSeeds: () => dispatch(setSearchTab(TAB_SEEDS))
+  setSearchToSeeds: () => dispatch(setSearchTab(TAB_SEEDS)),
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withPubSub(Home));
+export default connect(mapStateToProps, mapDispatchToProps)(Home);

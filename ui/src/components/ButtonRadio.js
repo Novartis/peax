@@ -1,28 +1,28 @@
-import { PropTypes } from "prop-types";
-import React from "react";
+import { PropTypes } from 'prop-types';
+import React from 'react';
 
 // Components
-import ButtonIcon from "./ButtonIcon";
+import ButtonIcon from './ButtonIcon';
 
 // Styles
-import "./ButtonRadio.scss";
+import './ButtonRadio.scss';
 
-const classNames = props => {
-  let className = "flex-c flex-a-c flex-jc-c button-radio";
+const classNames = (props) => {
+  let className = 'flex-c flex-a-c flex-jc-c button-radio';
 
-  className += props.isVertical ? " flex-v" : "";
-  className += props.isActive ? " is-active" : "";
-  className += props.isDisabled ? " is-disabled" : "";
-  className += props.selection ? " is-selected" : "";
+  className += props.isVertical ? ' flex-v' : '';
+  className += props.isActive ? ' is-active' : '';
+  className += props.isDisabled ? ' is-disabled' : '';
+  className += props.selection ? ' is-selected' : '';
   className += ` ${props.className}`;
 
   return className;
 };
 
-const classNamesLabel = props => {
-  let className = "flex-g-1 flex-c flex-a-c flex-jc-c button-radio-wrapper";
+const classNamesLabel = (props) => {
+  let className = 'flex-g-1 flex-c flex-a-c flex-jc-c button-radio-wrapper';
 
-  className += props.isVertical ? " full-w" : " full-h";
+  className += props.isVertical ? ' full-w' : ' full-h';
 
   return className;
 };
@@ -33,11 +33,12 @@ const onClickHandler = (props, value, deselectedValue) => {
 
 const isActive = (props, value) => {
   if (
-    props.defaultSelection === value &&
-    ((props.isMultiple && !props.selection.some(s => props.options[s])) ||
-      !props.options[props.selection])
-  )
-    return true;
+    props.defaultSelection === value
+    && (
+      (props.isMultiple && !props.selection.some(s => props.options[s]))
+      || !props.options[props.selection]
+    )
+  ) return true;
 
   if (props.isMultiple) return props.selection.includes(value);
 
@@ -46,9 +47,14 @@ const isActive = (props, value) => {
 
 const ButtonRadio = props => (
   <div className={classNames(props)}>
-    {props.label && <label>{props.label}</label>}
+    {props.label && (
+      <label>{props.label}</label>
+    )}
     {Object.values(props.options).map(option => (
-      <div key={option.value} className={classNamesLabel(props)}>
+      <div
+        key={option.value}
+        className={classNamesLabel(props)}
+      >
         <ButtonIcon
           className={option.value}
           icon={option.icon}
@@ -73,7 +79,7 @@ const ButtonRadio = props => (
 );
 
 ButtonRadio.defaultProps = {
-  className: ""
+  className: '',
 };
 
 ButtonRadio.propTypes = {
@@ -87,17 +93,15 @@ ButtonRadio.propTypes = {
   label: PropTypes.string,
   name: PropTypes.string,
   onClick: PropTypes.func,
-  options: PropTypes.objectOf(
-    PropTypes.shape({
-      icon: PropTypes.string,
-      iconMirrorH: PropTypes.bool,
-      iconMirrorV: PropTypes.bool,
-      iconOnly: PropTypes.bool,
-      name: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-      value: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
-    })
-  ),
-  selection: PropTypes.oneOfType([PropTypes.string, PropTypes.array])
+  options: PropTypes.objectOf(PropTypes.shape({
+    icon: PropTypes.string,
+    iconMirrorH: PropTypes.bool,
+    iconMirrorV: PropTypes.bool,
+    iconOnly: PropTypes.bool,
+    name: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  })),
+  selection: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
 };
 
 export default ButtonRadio;

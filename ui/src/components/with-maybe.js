@@ -1,8 +1,9 @@
-import React from "react";
+import React from 'react';
 
-const withMaybe = conditionalRenderingFn => Component => {
-  const Maybe = props =>
-    conditionalRenderingFn(props) ? null : <Component {...props} />;
+const withMaybe = conditionalRenderingFn => (Component) => {
+  const Maybe = props => (
+    conditionalRenderingFn(props) ? null : <Component { ...props } />
+  );
 
   return Maybe;
 };
