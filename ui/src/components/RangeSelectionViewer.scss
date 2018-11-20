@@ -1,22 +1,20 @@
-@import '../styles/colors';
-@import '../styles/transitions';
-
-.range-selection-viewer {}
+@import "../styles/colors";
+@import "../styles/transitions";
 
 .range-selection-viewer-center,
 .range-selection-viewer-x,
 .range-selection-viewer-y {
   padding: 0.5rem 0.25rem;
   transition: box-shadow $fast-transition $easing,
-              color $fast-transition $easing;
+    color $fast-transition $easing;
 
   &:hover .axis {
     color: $primary;
   }
 
   .axis:after {
-    content: ':';
-    margin-right: 0.25rem
+    content: ":";
+    margin-right: 0.25rem;
   }
 
   .icon {
@@ -79,7 +77,6 @@
 .range-selection-separator {
   margin: 0 0.5rem;
 }
-
 
 .range-selection-headline {
   margin: 0;
