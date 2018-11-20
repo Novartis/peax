@@ -257,7 +257,7 @@ HiglassResult.propTypes = {
   classificationChangeHandler: PropTypes.func.isRequired,
   dataTracks: PropTypes.array,
   isInfoSideBar: PropTypes.bool,
-  normalizationSource: this.props.normalizationSource,
+  normalizationSource: PropTypes.string,
   normalizeBy: PropTypes.object,
   onEnter: PropTypes.func,
   onLeave: PropTypes.func,
