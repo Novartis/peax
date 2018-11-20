@@ -5,10 +5,10 @@
   },
   "extends": [
     "eslint:recommended",
-    "airbnb/base",
     "plugin:react/recommended",
-    "prettier",
     "plugin:prettier/recommended",
+    "airbnb/base",
+    "prettier",
     "prettier/react"
   ],
   "parser": "babel-eslint",
@@ -51,6 +51,7 @@
         ]
       }
     ],
+    "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
     "import/prefer-default-export": "warn",
     "no-console": "warn",
     "no-param-reassign": ["error", { "props": false }],
@@ -60,6 +61,6 @@
         "allowForLoopAfterthoughts": true
       }
     ],
-    "no-underscore-dangle": 0,
+    "prefer-destructuring": 0
   }
 }
