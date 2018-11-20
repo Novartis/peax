@@ -1,5 +1,5 @@
-@import '../styles/colors';
-@import '../styles/transitions';
+@import "../styles/colors";
+@import "../styles/transitions";
 
 .tab-entry {
   &:first-child .tab-entry-header {
@@ -10,6 +10,8 @@
 .tab-entry-header {
   margin: 0.25rem -0.25rem 0;
   padding: 0.25rem;
+  font-size: 0.9em;
+  line-height: 1.25em;
   text-transform: uppercase;
   border-bottom: 1px solid $gray-lighter;
   background: $gray-lighter;
@@ -17,8 +19,8 @@
   user-select: none;
 
   .icon {
-    width: 0.9em;
-    height: 0.9em;
+    width: 1em;
+    height: 1em;
     margin-right: 0.25rem;
   }
 }
