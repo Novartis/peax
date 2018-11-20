@@ -1,5 +1,5 @@
-@import '../styles/colors';
-@import '../styles/ratio';
+@import "../styles/colors";
+@import "../styles/ratio";
 
 .about {
   .authors > li {
@@ -52,10 +52,10 @@
     color: $gray-medium;
 
     &:after {
-      content: ']';
+      content: "]";
     }
     &:before {
-      content: '[';
+      content: "[";
     }
   }
 }

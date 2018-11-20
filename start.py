@@ -13,69 +13,72 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import argparse
+import atexit
 import json
 import sys
 
+
+parser = argparse.ArgumentParser(description="Peak Explorer CLI")
+parser.add_argument(
+    "--config", help="path to your JSON config file", default="config.json"
+)
+parser.add_argument(
+    "--clear", action="store_true", help="clears the cache and database on startup"
+)
+parser.add_argument(
+    "--clear-cache", action="store_true", help="clears the cache on startup"
+)
+parser.add_argument(
+    "--clear-cache-after", action="store_true", help="clears the cache on shutdown"
+)
+parser.add_argument(
+    "--clear-db", action="store_true", help="clears the database on startup"
+)
+parser.add_argument("--debug", action="store_true", help="turn on debug mode")
+parser.add_argument("--host", help="customize the hostname", default="localhost")
+parser.add_argument("--port", help="customize the port", default=5000)
+parser.add_argument("--verbose", action="store_true", help="turn verbose logging on")
+
+try:
+    args = parser.parse_args()
+except SystemExit as err:
+    if err.code == 0:
+        sys.exit(0)
+    if err.code == 2:
+        parser.print_help()
+        sys.exit(0)
+    raise
+
 from server import server
+from server.config import Config
 
-
-class MyParser(argparse.ArgumentParser):
-
-    def error(self, message):
-        sys.stderr.write("error: %s\n" % message)
-        self.print_help()
-        sys.exit(2)
-
-
-parser = MyParser(description="Peak Explorer CLI")
-parser.add_argument("-e", "--encoder", help="path to saved encoder")
-parser.add_argument("-d", "--dataset", help="path to saved dataset (bigwig)")
-parser.add_argument(
-    "-w", "--windowsize", help="path to saved dataset (bigwig)"
-)
-parser.add_argument("-r", "--resolution", help="number of bp per bin")
-parser.add_argument(
-    "-s",
-    "--stepsize",
-    help="relative to window, e.g., `2` => `windowsize / 2 = stepsize in bp`",
-)
-parser.add_argument(
-    "-c", "--chroms", help="comma-separated list of chromosomes to search over"
-)
-parser.add_argument("--config", help="use config file instead of args")
-parser.add_argument(
-    "--clear", action="store_true", help="clears the db on startup"
-)
-parser.add_argument("--debug", action="store_true", help="debug flag")
-parser.add_argument(
-    "--host", help="Customize the hostname", default="localhost"
-)
-parser.add_argument("--port", help="Customize the port", default=5000)
-parser.add_argument("--verbose", action="store_true", help="verbose flag")
-
-args = parser.parse_args()
-
-if args.config:
+try:
     with open(args.config, "r") as f:
-        config = json.load(f)
-
-    app = server.create(
-        config["aes"],
-        config["datasets"],
-        config["config"],
-        db_path=config.get("db_path", None),
-        clear=args.clear,
-        verbose=args.verbose,
+        config_file = json.load(f)
+except FileNotFoundError:
+    print(
+        "You need to provide either provide a config file via `--config` or "
+        "have it as `config.json` in the root directory of Peax"
     )
-else:
-    app = server.create(
-        args.encoder,
-        args.dataset,
-        args.windowsize,
-        args.resolution,
-        args.stepsize,
-        args.chroms,
-        args.verbose,
-    )
+    raise
 
+# Create a config object
+config = Config(config_file)
+
+# Create app instance
+app = server.create(
+    config,
+    clear_cache=args.clear or args.clear_cache,
+    clear_db=args.clear or args.clear_db,
+    verbose=args.verbose,
+)
+
+
+def remove_cache(config):
+    config.datasets.remove_cache()
+
+
+atexit.register(remove_cache, config)
+
+# Run the instance
 app.run(debug=args.debug, host=args.host, port=args.port)

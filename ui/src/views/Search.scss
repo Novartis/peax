@@ -1,7 +1,6 @@
-@import '../styles/colors';
-@import '../styles/ratio';
-@import '../styles/transitions';
-
+@import "../styles/colors";
+@import "../styles/ratio";
+@import "../styles/transitions";
 
 .search-right-bar {
   .search-right-bar-padding {
@@ -35,6 +34,7 @@
 .sub-top-bar .button {
   padding-top: 0;
   padding-bottom: 0;
+  line-height: 1.5em;
 }
 
 .search-results {
@@ -111,7 +111,7 @@
   background: $gray-lightest;
   border-radius: 0.25rem 0 0.25rem 0;
   transition: color $fast-transition $easing,
-              background $fast-transition $easing;
+    background $fast-transition $easing;
 }
 
 .search-tabs {
@@ -156,7 +156,7 @@
 
       &:focus {
         box-shadow: 0 0 0 2px $gray-lightest-rgba,
-                    inset 0 0 0 2px $blue-highlight;
+          inset 0 0 0 2px $blue-highlight;
       }
 
       .icon {
@@ -205,9 +205,14 @@
   border-radius: 0.25rem;
   box-shadow: 0 0 0 1px $gray-lighter;
 
-  .message-error .icon {
+  .message .icon {
     width: 2rem;
     height: 2rem;
+  }
+
+  .message-default {
+    padding: 0;
+    background: none;
   }
 }
 

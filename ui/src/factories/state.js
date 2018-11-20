@@ -1,17 +1,16 @@
-import createHistory from 'history/createBrowserHistory';
-import localforage from 'localforage';
-import { routerMiddleware } from 'react-router-redux';
-import { applyMiddleware, compose, createStore } from 'redux';
-import { enableBatching } from 'redux-batched-actions';
-import freeze from 'redux-freeze';
-import { createLogger } from 'redux-logger';
-import { autoRehydrate, persistStore, purgeStoredState } from 'redux-persist';
-import { asyncSessionStorage } from 'redux-persist/storages';
-import thunk from 'redux-thunk';
-import undoable, { ActionCreators, groupByActionTypes } from 'redux-undo';
+import createHistory from "history/createBrowserHistory";
+import { routerMiddleware } from "react-router-redux";
+import { applyMiddleware, compose, createStore } from "redux";
+import { enableBatching } from "redux-batched-actions";
+import freeze from "redux-freeze";
+import { createLogger } from "redux-logger";
+import { autoRehydrate, persistStore, purgeStoredState } from "redux-persist";
+import { asyncSessionStorage } from "redux-persist/storages";
+import thunk from "redux-thunk";
+import undoable, { ActionCreators, groupByActionTypes } from "redux-undo";
 
 // Reducer
-import rootReducer from '../reducers';
+import rootReducer from "../reducers";
 
 // Actions
 import {
@@ -19,22 +18,15 @@ import {
   setViewConfig,
   setHiglassMouseTool,
   setSearchRightBarShow,
-  setSearchRightBarWidth,
-} from '../actions';
+  setSearchRightBarWidth
+} from "../actions";
 
-// Utils
-import MultiStorage from '../utils/multi-storage';
-
-const prefix = 'HiGlassApp.';
-
-const prepareStore = MultiStorage([
-  asyncSessionStorage,
-  localforage,
-], prefix);
+const prefix = "HiGlassApp.";
 
 const config = {
-  debounce: 25,
-  keyPrefix: prefix,
+  storage: asyncSessionStorage,
+  debounce: 1000,
+  keyPrefix: prefix
 };
 
 const history = createHistory();
@@ -42,30 +34,30 @@ const history = createHistory();
 const middleware = [
   autoRehydrate(),
   applyMiddleware(thunk),
-  applyMiddleware(routerMiddleware(history)),
+  applyMiddleware(routerMiddleware(history))
 ];
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === "development") {
   // Configure the logger middleware
   const logger = createLogger({
-    level: 'info',
-    collapsed: true,
+    level: "info",
+    collapsed: true
   });
 
   middleware.push(applyMiddleware(freeze));
   middleware.push(applyMiddleware(logger));
 }
 
-const configureStore = (initialState) => {
+const configureStore = initialState => {
   const store = createStore(
     undoable(enableBatching(rootReducer), {
       groupBy: groupByActionTypes([
         setViewConfig().type,
         setHiglassMouseTool().type,
         setSearchRightBarShow().type,
-        setSearchRightBarWidth().type,
+        setSearchRightBarWidth().type
       ]),
-      limit: 20,
+      limit: 20
     }),
     initialState,
     compose(...middleware)
@@ -78,17 +70,13 @@ const configureStore = (initialState) => {
     });
   }
 
-  return prepareStore.then((storage) => {
-    config.storage = storage;
-
-    return new Promise((resolve, reject) => {
-      persistStore(store, config, (error) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(store);
-        }
-      });
+  return new Promise((resolve, reject) => {
+    persistStore(store, config, error => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(store);
+      }
     });
   });
 };
@@ -96,8 +84,8 @@ const configureStore = (initialState) => {
 const createState = () => {
   let store;
 
-  const configure = initialState => configureStore(initialState)
-    .then((configuredStore) => {
+  const configure = initialState =>
+    configureStore(initialState).then(configuredStore => {
       store = configuredStore;
       return store;
     });
@@ -114,14 +102,12 @@ const createState = () => {
   };
 
   return {
-    get store() { return store; },
+    get store() {
+      return store;
+    },
     configure,
-    reset,
+    reset
   };
 };
 
-export {
-  configureStore,
-  history,
-  createState,
-};
+export { configureStore, history, createState };

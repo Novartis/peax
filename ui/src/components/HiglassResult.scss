@@ -1,5 +1,5 @@
-@import '../styles/colors';
-@import '../styles/transitions';
+@import "../styles/colors";
+@import "../styles/transitions";
 
 .higlass-result {
   overflow: hidden;
@@ -173,7 +173,7 @@
         text-transform: uppercase;
 
         &:after {
-          content: ':';
+          content: ":";
         }
       }
     }

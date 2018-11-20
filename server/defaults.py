@@ -11,6 +11,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+CACHE_DIR = "cache"
+
+# If set to `False` the chunked, encoded, and potentially autoencoded data will not be
+# cached. Unless you know what you're doing and you have rather small data leave
+# caching on.
+CACHING = True
+
 DB_PATH = "search.db"
 
 CHROMS = [
@@ -41,11 +48,9 @@ CHROMS = [
     "chrX",
 ]
 
-CONFIG = {
-    "chroms": CHROMS,
-    "step_freq": 2,  # Relative to window size, e.g., windowsize // stepsize
-    "min_classifications": 20,
-}
+STEP_FREQ = 2
+
+MIN_CLASSIFICATIONS = 20
 
 TILE_SIZE = 1024
 
@@ -177,13 +182,7 @@ VIEW_CONFIG = {
         {
             "initialXDomain": [0, 3095677412],
             "genomePositionSearchBoxVisible": False,
-            "tracks": {
-                "top": [],
-                "left": [],
-                "center": [],
-                "right": [],
-                "bottom": [],
-            },
+            "tracks": {"top": [], "left": [], "center": [], "right": [], "bottom": []},
             "layout": {
                 "w": 12,
                 "h": 12,

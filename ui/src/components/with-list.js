@@ -1,7 +1,7 @@
-import PropTypes from 'prop-types';
-import React from 'react';
+import PropTypes from "prop-types";
+import React from "react";
 
-const withList = getKey => (Component) => {
+const withList = getKey => Component => {
   const List = ({ list }) => (
     <ul className="list no-list-style">
       {list.map(item => (
@@ -13,13 +13,15 @@ const withList = getKey => (Component) => {
   );
 
   List.propTypes = {
-    list: PropTypes.arrayOf(PropTypes.shape({
-      id: PropTypes.oneOfType([
-        PropTypes.number,
-        PropTypes.string,
-        PropTypes.symbol,
-      ]),
-    })),
+    list: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.oneOfType([
+          PropTypes.number,
+          PropTypes.string,
+          PropTypes.symbol
+        ])
+      })
+    )
   };
 
   return List;

@@ -4,7 +4,7 @@
   &::after {
     position: absolute;
     display: block;
-    content: '';
+    content: "";
     bottom: $bottom;
     left: 0;
     right: 0;
@@ -12,7 +12,8 @@
     background: $color;
     transform: scale(0, 1);
     opacity: 0;
-    transition: transform $normal-transition $easing, opacity $fast-transition $easing;
+    transition: transform $normal-transition $easing,
+      opacity $fast-transition $easing;
   }
 
   &:hover::after {

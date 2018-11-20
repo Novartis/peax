@@ -1,5 +1,5 @@
-@import '../styles/colors';
-@import '../styles/transitions';
+@import "../styles/colors";
+@import "../styles/transitions";
 
 .drop-notifier {
   position: fixed;
@@ -13,7 +13,7 @@
   font-size: 4em;
   font-weight: bold;
   text-transform: uppercase;
-  background: transparentize(lighten($primary, 20%), 0.20);
+  background: transparentize(lighten($primary, 20%), 0.2);
   opacity: 0;
   transition: opacity $normal-transition $easing;
 
@@ -41,13 +41,13 @@
 
   @keyframes pulsePrimary {
     0% {
-      background: transparentize(lighten($primary, 20%), 0.20);
+      background: transparentize(lighten($primary, 20%), 0.2);
     }
     60% {
       background: transparentize(lighten($primary, 20%), 0.05);
     }
     100% {
-      background: transparentize(lighten($primary, 20%), 0.20);
+      background: transparentize(lighten($primary, 20%), 0.2);
     }
   }
 

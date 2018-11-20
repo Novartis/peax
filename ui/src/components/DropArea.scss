@@ -1,4 +1,4 @@
-@import '../styles/colors';
+@import "../styles/colors";
 
 .drop-area {
   padding: 0 0.5rem;
@@ -6,7 +6,7 @@
 
   &:after {
     position: absolute;
-    content: '';
+    content: "";
     top: 0.225rem;
     right: 0.225rem;
     bottom: 0.225rem;

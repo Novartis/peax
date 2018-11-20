@@ -1,57 +1,53 @@
-import PropTypes from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
+import PropTypes from "prop-types";
+import React from "react";
+import { connect } from "react-redux";
 
 // Components
-import Button from '../components/Button';
-import ButtonIcon from '../components/ButtonIcon';
-import ButtonRadio from '../components/ButtonRadio';
-import HiglassResultList from '../components/HiglassResultList';
-import SubTopBar from '../components/SubTopBar';
-import SubTopBottomBarButtons from '../components/SubTopBottomBarButtons';
-import ToolTip from '../components/ToolTip';
+import Button from "../components/Button";
+import ButtonIcon from "../components/ButtonIcon";
+import ButtonRadio from "../components/ButtonRadio";
+import HiglassResultList from "../components/HiglassResultList";
+import SubTopBar from "../components/SubTopBar";
+import SubTopBottomBarButtons from "../components/SubTopBottomBarButtons";
+import ToolTip from "../components/ToolTip";
 
 // Actions
-import { setSearchTab } from '../actions';
+import { setSearchTab } from "../actions";
 
 // Configs
 import {
   BUTTON_RADIO_FILTER_CLASSIFICATION_OPTIONS,
   BUTTON_RADIO_SORT_ORDER_OPTIONS,
   TAB_SEEDS
-} from '../configs/search';
+} from "../configs/search";
 
 // Utils
-import { Logger, numToCassif } from '../utils';
+import { Logger, numToCassif } from "../utils";
 
-const logger = Logger('SearchResults');  // eslint-disable-line
+const logger = Logger("SearchResults"); // eslint-disable-line
 
 const isNotReady = onGetStarted => (
   <span>
-    {'More seeds need to be classified. '}
+    {"More seeds need to be classified. "}
     <Button onClick={onGetStarted}>Get started</Button>
   </span>
 );
 
 const isNotTrained = onTrainingStart => (
   <span>
-    {'Classifier needs to be trained first. '}
+    {"Classifier needs to be trained first. "}
     <Button onClick={onTrainingStart}>Start training</Button>
   </span>
 );
 
 const isTraining = onTrainingCheck => (
   <span>
-    {'The classifier is training hard! '}
+    {"The classifier is training hard! "}
     <Button onClick={onTrainingCheck}>Check Status</Button>
   </span>
 );
 
-const isEmpty = (
-  <span>
-    {'Nothing found! This is bad.'}
-  </span>
-);
+const isEmpty = <span>{"Nothing found! This is bad."}</span>;
 
 class SearchResults extends React.Component {
   constructor(props) {
@@ -61,9 +57,12 @@ class SearchResults extends React.Component {
     this.onSortOrderBnd = this.onSortOrder.bind(this);
 
     this.state = {
-      filterByClf: ['positive', 'negative'],
-      sortOrder: 'desc',
+      filterByClf: ["positive", "negative"],
+      sortOrder: "desc"
     };
+
+    // Bound methods
+    this.goToSeedsBound = this.goToSeeds.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -97,12 +96,13 @@ class SearchResults extends React.Component {
   }
 
   render() {
-    const sortOrder = this.state.sortOrder === 'desc' ? -1 : 1;
+    const sortOrder = this.state.sortOrder === "desc" ? -1 : 1;
     const results = this.props.results
-      .filter(win => (
-        numToCassif(win.classification) === 'neutral'
-        || this.state.filterByClf.includes(numToCassif(win.classification))
-      ))
+      .filter(
+        win =>
+          numToCassif(win.classification) === "neutral" ||
+          this.state.filterByClf.includes(numToCassif(win.classification))
+      )
       .sort((a, b) => {
         const aProbability = a.probability;
         const bProbability = b.probability;
@@ -117,6 +117,7 @@ class SearchResults extends React.Component {
         classificationProb: win.probability,
         dataTracks: this.props.dataTracks,
         isInfoSideBar: true,
+        normalizationSource: this.props.normalizationSource,
         normalizeBy: this.props.normalizeBy,
         onEnter: this.props.onResultEnter,
         onLeave: this.props.onResultLeave,
@@ -124,55 +125,51 @@ class SearchResults extends React.Component {
         searchId: this.props.searchInfo.id,
         viewHeight: this.props.searchInfo.viewHeight,
         windowId: win.windowId,
-        windows: this.props.windows,
+        windows: this.props.windows
       }));
 
     return (
       <div className="full-dim search-tab-wrapper">
         <SubTopBar>
-          <SubTopBottomBarButtons className='flex-c flex-a-c no-list-style'>
-            {!this.props.isLoading && !this.props.isError && this.props.isTrained && (
-              <li>
-                Found {results.length} regions.
-              </li>
-            )}
+          <SubTopBottomBarButtons className="flex-c flex-a-c no-list-style">
+            {!this.props.isLoading &&
+              !this.props.isError &&
+              this.props.isTrained && <li>Found {results.length} regions.</li>}
           </SubTopBottomBarButtons>
-          <SubTopBottomBarButtons
-            className='flex-c flex-a-c flex-jc-e no-list-style'
-          >
+          <SubTopBottomBarButtons className="flex-c flex-a-c flex-jc-e no-list-style">
             <li>
               <ToolTip
-                align='center'
+                align="center"
                 delayIn={2000}
                 delayOut={500}
                 title={
-                  <span className='flex-c'>
+                  <span className="flex-c">
                     <span>Download Results</span>
                   </span>
                 }
               >
                 <ButtonIcon
-                  icon='download'
+                  icon="download"
                   iconOnly={true}
                   isDisabled={true}
                   onClick={this.props.onTrainingStart}
                 />
               </ToolTip>
             </li>
-            <li className="separator"></li>
+            <li className="separator" />
             <li>
               <ToolTip
-                align='center'
+                align="center"
                 delayIn={2000}
                 delayOut={500}
                 title={
-                  <span className='flex-c'>
+                  <span className="flex-c">
                     <span>Sort by prediction prob.</span>
                   </span>
                 }
               >
                 <ButtonRadio
-                  name='search-filter-by-classification'
+                  name="search-filter-by-classification"
                   onClick={this.onSortOrderBnd}
                   options={BUTTON_RADIO_SORT_ORDER_OPTIONS}
                   selection={this.state.sortOrder}
@@ -181,17 +178,17 @@ class SearchResults extends React.Component {
             </li>
             <li>
               <ToolTip
-                align='center'
+                align="center"
                 delayIn={2000}
                 delayOut={500}
                 title={
-                  <span className='flex-c'>
+                  <span className="flex-c">
                     <span>Filter by label (incl.)</span>
                   </span>
                 }
               >
                 <ButtonRadio
-                  name='search-filter-by-classification'
+                  name="search-filter-by-classification"
                   isDeselectable={true}
                   isMultiple={true}
                   onClick={this.onFilterByClfBnd}
@@ -200,7 +197,7 @@ class SearchResults extends React.Component {
                 />
               </ToolTip>
             </li>
-            <li className="separator"></li>
+            <li className="separator" />
             <li>
               <Button
                 isDisabled={this.props.isTraining === true}
@@ -211,15 +208,12 @@ class SearchResults extends React.Component {
             </li>
           </SubTopBottomBarButtons>
         </SubTopBar>
-        <div
-          ref={this.getResultsWrapperBound}
-          className="search-tab-content"
-        >
+        <div ref={this.getResultsWrapperBound} className="search-tab-content">
           <HiglassResultList
             isError={this.props.isError}
             isLoading={this.props.isLoading}
             isNotReady={this.props.isReady === false}
-            isNotReadyNodes={isNotReady(this.goToSeeds)}
+            isNotReadyNodes={isNotReady(this.goToSeedsBound)}
             isNotTrained={this.props.isTrained === false}
             isNotTrainedNodes={isNotTrained(this.props.onTrainingStart)}
             isTraining={this.props.isTraining === true}
@@ -245,7 +239,7 @@ SearchResults.defaultProps = {
   isTrained: false,
   isTraining: null,
   results: [],
-  searchInfo: {},
+  searchInfo: {}
 };
 
 SearchResults.propTypes = {
@@ -258,6 +252,7 @@ SearchResults.propTypes = {
   isTrained: PropTypes.bool,
   isTraining: PropTypes.bool,
   itemsPerPage: PropTypes.number,
+  normalizationSource: PropTypes.string,
   normalizeBy: PropTypes.object,
   onNormalize: PropTypes.func.isRequired,
   onPage: PropTypes.func.isRequired,
@@ -270,13 +265,13 @@ SearchResults.propTypes = {
   results: PropTypes.array,
   searchInfo: PropTypes.object,
   setTab: PropTypes.func,
-  windows: PropTypes.object,
+  windows: PropTypes.object
 };
 
 const mapStateToProps = (/* state */) => ({});
 
 const mapDispatchToProps = dispatch => ({
-  setTab: tab => dispatch(setSearchTab(tab)),
+  setTab: tab => dispatch(setSearchTab(tab))
 });
 
 export default connect(
