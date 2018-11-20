@@ -11,7 +11,7 @@ const ModuleScopePlugin = require("react-dev-utils/ModuleScopePlugin");
 const getCSSModuleLocalIdent = require("react-dev-utils/getCSSModuleLocalIdent");
 const ManifestPlugin = require("webpack-manifest-plugin");
 const ModuleNotFoundPlugin = require("react-dev-utils/ModuleNotFoundPlugin");
-// const StyleLintPlugin = require("stylelint-webpack-plugin");
+const StyleLintPlugin = require("stylelint-webpack-plugin");
 
 // Custom
 const changeCase = require("change-case");
@@ -452,8 +452,8 @@ module.exports = {
       VERSION_HIGLASS: JSON.stringify(packageJsonHg.version),
       VERSION_PEAX: JSON.stringify(packageJson.version)
     }),
-    new webpack.DefinePlugin(configConst)
-    // new StyleLintPlugin()
+    new webpack.DefinePlugin(configConst),
+    new StyleLintPlugin()
   ],
 
   // Some libraries import Node modules but don't use them in the browser.
