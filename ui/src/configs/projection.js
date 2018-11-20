@@ -1,7 +1,9 @@
 export const BASE_COLOR = [0.3, 0.3, 0.3, 0.075];
 
 // export const HIGHLIGHT_COLOR = [1, 0.749019608, 0, 1];
-//
+
+export const COLOR_BG = "#eeeeee";
+
 export const COLORMAP_CAT = [
   BASE_COLOR, // Base color
   [0.752941176, 0.141176471, 0.541176471, 0.75], // Negative
@@ -36,6 +38,14 @@ export const REDRAW_DELAY = 750;
 
 export const PROJECTION_CHECK_INTERVAL = 2000;
 
-export const PROJECTION_VIEW = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+export const PROJECTION_VIEW_SCALING = 0.95;
+
+// prettier-ignore
+export const PROJECTION_VIEW = [
+  PROJECTION_VIEW_SCALING, 0, 0, 0,
+  0, PROJECTION_VIEW_SCALING, 0, 0,
+  0, 0, PROJECTION_VIEW_SCALING, 0,
+  0, 0, 0, 1
+];
 
 export const PROJECTION_VIEW_INTERVAL = 500;

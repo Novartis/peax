@@ -23,8 +23,7 @@ import { api, debounce, inputToNum, zip } from "../utils";
 
 // Configs
 import {
-  // BASE_COLOR,
-  // HIGHLIGHT_COLOR,
+  COLOR_BG,
   COLORMAP_CAT,
   COLORMAP_PRB,
   REDRAW_DELAY,
@@ -142,9 +141,11 @@ class SearchRightBarProjection extends React.Component {
     const bBox = this.canvasWrapper.getBoundingClientRect();
 
     const scatterplot = createScatterplot({
+      background: COLOR_BG,
       width: bBox.width,
       height: bBox.height,
-      pointSize: this.state.pointSize
+      pointSize: this.state.pointSize,
+      view: PROJECTION_VIEW
     });
 
     scatterplot.subscribe("view", this.checkViewDb);
