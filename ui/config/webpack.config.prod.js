@@ -14,8 +14,8 @@ const InterpolateHtmlPlugin = require("react-dev-utils/InterpolateHtmlPlugin");
 const WorkboxWebpackPlugin = require("workbox-webpack-plugin");
 const ModuleScopePlugin = require("react-dev-utils/ModuleScopePlugin");
 const getCSSModuleLocalIdent = require("react-dev-utils/getCSSModuleLocalIdent");
-const getCacheIdentifier = require("react-dev-utils/getCacheIdentifier");
 const ModuleNotFoundPlugin = require("react-dev-utils/ModuleNotFoundPlugin");
+// const StyleLintPlugin = require("stylelint-webpack-plugin");
 
 // Custom
 const changeCase = require("change-case");
@@ -51,21 +51,21 @@ const packageJsonHg = require("../node_modules/higlass/package.json");
 const config = {};
 
 try {
-  const configBase = require("../config.json");
+  const configBase = require("../config.json"); // eslint-disable-line import/no-unresolved
   Object.assign(config, configBase);
 } catch (ex) {
   // Nothing
 }
 
 try {
-  const configLocal = require("../config.prod.json");
+  const configLocal = require("../config.prod.json"); // eslint-disable-line import/no-unresolved
   Object.assign(config, configLocal);
 } catch (ex) {
   // Nothing
 }
 
 try {
-  const configLocal = require("../config.local.json");
+  const configLocal = require("../config.local.json"); // eslint-disable-line import/no-unresolved
   Object.assign(config, configLocal);
 } catch (ex) {
   // Nothing
@@ -613,6 +613,7 @@ module.exports = {
       VERSION_PEAX: JSON.stringify(packageJson.version)
     }),
     new webpack.DefinePlugin(configConst)
+    // new StyleLintPlugin()
   ],
   // Some libraries import Node modules but don't use them in the browser.
   // Tell Webpack to provide empty mocks for them so importing them works.
