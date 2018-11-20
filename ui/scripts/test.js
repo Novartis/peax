@@ -1,3 +1,5 @@
+/* eslint-env: node */
+
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
  *
@@ -19,15 +21,20 @@ process.on("unhandledRejection", err => {
 
 // Ensure environment variables are read.
 require("../config/env");
-// @remove-on-eject-begin
+
+const path = require("path");
+
+const jest = require("jest");
+const execSync = require("child_process").execSync;
+const resolve = require("resolve"); // eslint-disable-line
+const verifyPackageTree = require("./utils/verifyPackageTree");
+const createJestConfig = require("./utils/createJestConfig");
+const paths = require("../config/paths");
+
 // Do the preflight check (only happens before eject).
 if (process.env.SKIP_PREFLIGHT_CHECK !== "true") {
   verifyPackageTree();
 }
-// @remove-on-eject-end
-
-const jest = require("jest");
-const execSync = require("child_process").execSync;
 
 let argv = process.argv.slice(2);
 
@@ -62,9 +69,6 @@ if (
 
 // @remove-on-eject-begin
 // This is not necessary after eject because we embed config into package.json.
-const path = require("path");
-const createJestConfig = require("./utils/createJestConfig");
-const paths = require("../config/paths");
 
 argv.push(
   "--config",
@@ -80,8 +84,6 @@ argv.push(
 // This is a very dirty workaround for https://github.com/facebook/jest/issues/5913.
 // We're trying to resolve the environment ourselves because Jest does it incorrectly.
 // TODO: remove this (and the `resolve` dependency) as soon as it's fixed in Jest.
-const resolve = require("resolve");
-const verifyPackageTree = require("./utils/verifyPackageTree");
 
 function resolveJestDefaultEnvironment(name) {
   const jestDir = path.dirname(

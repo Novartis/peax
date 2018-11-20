@@ -1,3 +1,5 @@
+/* eslint-env: node */
+
 /** Copyright 2018 Novartis Institutes for BioMedical Research Inc.
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,20 +19,20 @@ const run = prod => {
   const config = {};
 
   try {
-    const configBase = require("../config.json");
+    const configBase = require("../config.json"); // eslint-disable-line global-require, import/no-unresolved
     Object.assign(config, configBase);
   } catch (ex) {
     // Nothing
   }
 
   try {
-    const configLocal = require(`../config.${prod ? "prod" : "dev"}.json`);
+    const configLocal = require(`../config.${prod ? "prod" : "dev"}.json`); // eslint-disable-line global-require, import/no-unresolved, import/no-dynamic-require
     Object.assign(config, configLocal);
   } catch (e) {
     /* Nothing */
   }
   try {
-    const configLocal = require("../config.local.json");
+    const configLocal = require("../config.local.json"); // eslint-disable-line global-require, import/no-unresolved
     Object.assign(config, configLocal);
   } catch (e) {
     /* Nothing */
