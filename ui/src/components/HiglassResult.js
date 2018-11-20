@@ -27,10 +27,10 @@ class HiglassResult extends React.Component {
 
     this.state = {
       isInfoSideBarShown: false,
-      isMinMaxValsByTarget: false
+      isMinMaxValuesByTarget: false
     };
 
-    this.minMaxVals = {};
+    this.minMaxValues = {};
 
     this.initApi = false;
     this.onApiBnd = this.onApi.bind(this);
@@ -70,7 +70,6 @@ class HiglassResult extends React.Component {
 
   isToBeNormalized() {
     return Object.keys(this.props.normalizeBy)
-      .filter(key => key !== "__source__")
       .map(key => this.props.normalizeBy[key])
       .reduce((a, b) => [...a, ...b], [])
       .some(x => x);
@@ -79,19 +78,17 @@ class HiglassResult extends React.Component {
   async normalize() {
     if (!this.api) return;
 
-    if (this.props.normalizeBy.__source__ !== this.props.windowId) {
-      await this.setState({ isMinMaxValsByTarget: false });
+    if (this.props.normalizationSource !== this.props.windowId) {
+      await this.setState({ isMinMaxValuesByTarget: false });
     }
 
-    Object.keys(this.props.normalizeBy)
-      .filter(track => track !== "__source__")
-      .forEach(track => {
-        this.api.setTrackValueScaleLimits(
-          undefined,
-          track,
-          ...this.props.normalizeBy[track]
-        );
-      });
+    Object.keys(this.props.normalizeBy).forEach(track => {
+      this.api.setTrackValueScaleLimits(
+        undefined,
+        track,
+        ...this.props.normalizeBy[track]
+      );
+    });
   }
 
   onApi(api) {
@@ -103,12 +100,12 @@ class HiglassResult extends React.Component {
   async onNormalize() {
     if (!this.api) return;
 
-    this.minMaxVals = { __source__: this.props.windowId };
+    this.minMaxValues = {};
     this.props.dataTracks.forEach(track => {
-      if (this.state.isMinMaxValsByTarget) {
-        this.minMaxVals[track] = [undefined, undefined];
+      if (this.state.isMinMaxValuesByTarget) {
+        this.minMaxValues[track] = [undefined, undefined];
       } else {
-        this.minMaxVals[track] = [
+        this.minMaxValues[track] = [
           0,
           this.api.getMinMaxValue(undefined, track, true)[1]
         ];
@@ -116,10 +113,10 @@ class HiglassResult extends React.Component {
     });
 
     await this.setState({
-      isMinMaxValsByTarget: !this.state.isMinMaxValsByTarget
+      isMinMaxValuesByTarget: !this.state.isMinMaxValuesByTarget
     });
 
-    this.props.onNormalize(this.minMaxVals);
+    this.props.onNormalize(this.minMaxValues, this.props.windowId);
   }
 
   onToggleInfoSideBar() {
@@ -165,7 +162,7 @@ class HiglassResult extends React.Component {
             className="higlass-result-normalizer"
             icon="ratio"
             iconOnly={true}
-            isActive={this.state.isMinMaxValsByTarget}
+            isActive={this.state.isMinMaxValuesByTarget}
             isIconMirrorOnFocus={true}
             onClick={this.onNormalizeBnd}
           />
@@ -260,6 +257,7 @@ HiglassResult.propTypes = {
   classificationChangeHandler: PropTypes.func.isRequired,
   dataTracks: PropTypes.array,
   isInfoSideBar: PropTypes.bool,
+  normalizationSource: this.props.normalizationSource,
   normalizeBy: PropTypes.object,
   onEnter: PropTypes.func,
   onLeave: PropTypes.func,

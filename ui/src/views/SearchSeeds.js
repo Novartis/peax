@@ -82,6 +82,7 @@ class SearchSeeds extends React.Component {
               classificationChangeHandler: this.props
                 .classificationChangeHandler,
               dataTracks: this.props.dataTracks,
+              normalizationSource: this.props.normalizationSource,
               normalizeBy: this.props.normalizeBy,
               onEnter: this.props.onResultEnter,
               onLeave: this.props.onResultLeave,
@@ -118,6 +119,7 @@ SearchSeeds.propTypes = {
   isReady: PropTypes.bool,
   isTraining: PropTypes.bool,
   itemsPerPage: PropTypes.number,
+  normalizationSource: PropTypes.string,
   normalizeBy: PropTypes.object,
   onNormalize: PropTypes.func.isRequired,
   onPage: PropTypes.func.isRequired,

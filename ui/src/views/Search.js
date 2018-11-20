@@ -622,7 +622,7 @@ class Search extends React.Component {
   }
 
   onNormalize(minMaxValues, minMaxSource, isMinMaxValuesByTarget = false) {
-    this.setState({ minMaxSource, minMaxValues, isMinMaxValuesByTarget });
+    this.setState({ minMaxValues, minMaxSource, isMinMaxValuesByTarget });
   }
 
   onPage(data) {
@@ -953,6 +953,7 @@ class Search extends React.Component {
                   isReady={this.isSeeded}
                   isTraining={this.state.isTraining}
                   itemsPerPage={PER_PAGE_ITEMS}
+                  normalizationSource={this.state.minMaxSource}
                   normalizeBy={this.state.minMaxValues}
                   onNormalize={this.onNormalizeBnd}
                   onPage={this.onPageSeeds}
@@ -984,6 +985,7 @@ class Search extends React.Component {
                   isTrained={this.isTrained}
                   isTraining={this.state.isTraining}
                   itemsPerPage={PER_PAGE_ITEMS}
+                  normalizationSource={this.state.minMaxSource}
                   normalizeBy={this.state.minMaxValues}
                   onNormalize={this.onNormalizeBnd}
                   onPage={this.onPageResults}
@@ -1014,6 +1016,7 @@ class Search extends React.Component {
                   isLoading={this.state.isLoadingClassifications}
                   isTraining={this.state.isTraining}
                   itemsPerPage={PER_PAGE_ITEMS}
+                  normalizationSource={this.state.minMaxSource}
                   normalizeBy={this.state.minMaxValues}
                   onNormalize={this.onNormalizeBnd}
                   onPage={this.onPageClassifications}
