@@ -151,6 +151,8 @@
     line-height: inherit;
 
     &.separated-left::before {
+      content: "";
+      width: 2px;
       margin: 0.25rem 0.25rem;
       background: $gray-lightest;
     }
