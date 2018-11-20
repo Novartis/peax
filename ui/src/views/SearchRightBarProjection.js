@@ -9,6 +9,7 @@ import Button from "../components/Button";
 import ButtonIcon from "../components/ButtonIcon";
 import ButtonRadio from "../components/ButtonRadio";
 import ElementWrapperAdvanced from "../components/ElementWrapperAdvanced";
+import LabeledSlider from "../components/LabeledSlider";
 import TabEntry from "../components/TabEntry";
 
 // Actions
@@ -334,21 +335,15 @@ class SearchRightBarProjection extends React.Component {
                 />
               </li>
               <li>
-                <label
-                  className="flex-c"
-                  htmlFor="search-projection-settings-point-size"
-                >
-                  Point size
-                </label>
-                <input
-                  id="search-projection-settings-point-size"
-                  type="range"
-                  min="2"
-                  max="12"
-                  step="1"
+                <LabeledSlider
                   disabled={this.state.isLoading || this.state.isError}
-                  value={this.state.pointSize}
+                  id="search-projection-settings-point-size"
+                  label="Point size"
+                  max={12}
+                  min={2}
                   onChange={this.onChangePointSize}
+                  step={1}
+                  value={this.state.pointSize}
                 />
               </li>
             </ul>
@@ -362,54 +357,29 @@ class SearchRightBarProjection extends React.Component {
           <div className="search-right-bar-padding">
             <ul className="no-list-style compact-list">
               <li>
-                <label
-                  className="flex-c flex-jc-sb"
-                  htmlFor="search-projection-settings-nn"
-                >
-                  <abbr title="Nearest Neighbors">Near. Neigh.</abbr>
-                  <ButtonIcon
-                    className="info-external"
-                    external={true}
-                    icon="info"
-                    iconOnly={true}
-                    href="https://umap-learn.readthedocs.io/en/latest/parameters.html#n-neighbors"
-                  />
-                </label>
-                <input
-                  className="full-w"
-                  id="search-projection-settings-nn"
-                  type="number"
-                  min="2"
-                  step="1"
-                  value={this.state.settingsUmapNN}
-                  onChange={this.onChangeSettingsUmapNN}
+                <LabeledSlider
                   disabled={true}
+                  id="search-projection-settings-nn"
+                  info="https://umap-learn.readthedocs.io/en/latest/parameters.html#n-neighbors"
+                  label="Near. Neigh."
+                  max={Math.max(Math.sqrt(this.state.points.length), 5)}
+                  min={2}
+                  onChange={this.onChangeSettingsUmapNN}
+                  step={2}
+                  value={this.state.settingsUmapNN}
                 />
               </li>
               <li>
-                <label
-                  className="flex-c flex-jc-sb"
-                  htmlFor="search-projection-settings-min-dist"
-                >
-                  <abbr title="Minimum Distance">Min. Dist.</abbr>
-                  <ButtonIcon
-                    className="info-external"
-                    external={true}
-                    icon="info"
-                    iconOnly={true}
-                    href="https://umap-learn.readthedocs.io/en/latest/parameters.html#min-dist"
-                  />
-                </label>
-                <input
-                  className="full-w"
-                  id="search-projection-settings-min-dist"
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  value={this.state.settingsUmapMinDist}
-                  onChange={this.onChangeSettingsUmapMinDist}
+                <LabeledSlider
                   disabled={true}
+                  id="search-projection-settings-min-dist"
+                  info="https://umap-learn.readthedocs.io/en/latest/parameters.html#min-dist"
+                  label="Min. Dist."
+                  max={1}
+                  min={0}
+                  onChange={this.onChangeSettingsUmapMinDist}
+                  step={0.01}
+                  value={this.state.settingsUmapMinDist}
                 />
               </li>
               <li>
