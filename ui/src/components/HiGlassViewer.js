@@ -1,45 +1,45 @@
-import PropTypes from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
+import PropTypes from "prop-types";
+import React from "react";
+import { connect } from "react-redux";
+
+// Higher-order components
+import { withPubSub } from "../hocs/pub-sub";
 
 // Components
-import MessageCenter from './MessageCenter';
-import HiGlassLauncher from './HiGlassLauncher';
-import SpinnerCenter from './SpinnerCenter';
+import MessageCenter from "./MessageCenter";
+import HiGlassLauncher from "./HiGlassLauncher";
+import SpinnerCenter from "./SpinnerCenter";
 
 // Containers
-import HiGlassLoader from '../containers/HiGlassLoader';
+import HiGlassLoader from "../containers/HiGlassLoader";
 
 // Actions
-import { setViewConfig } from '../actions';
-
-// Services
-import pubSub from '../services/pub-sub';
+import { setViewConfig } from "../actions";
 
 // Utils
-import { Deferred, getServer, Logger } from '../utils';
+import { Deferred, getServer, Logger } from "../utils";
 
 // Styles
-import './HiGlassViewer.scss';
+import "./HiGlassViewer.scss";
 
-const logger = Logger('HiGlassViewer');
+const logger = Logger("HiGlassViewer");
 
-const fetchViewConfig = (configId, base = getServer()) => fetch(
-  `${base}/api/v1/viewconfs/?d=${configId}`
-)
-  .then(response => response.text())
-  .then(viewConfig => JSON.parse(viewConfig.replace(/\/\/localhost:5000/g, getServer())));
+const fetchViewConfig = (configId, base = getServer()) =>
+  fetch(`${base}/api/v1/viewconfs/?d=${configId}`)
+    .then(response => response.text())
+    .then(viewConfig =>
+      JSON.parse(viewConfig.replace(/\/\/localhost:5000/g, getServer()))
+    );
 
-const defaultViewConfigId = 'default';
-
+const defaultViewConfigId = "default";
 
 class HiGlassViewer extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      error: '',
-      isLoading: true,
+      error: "",
+      isLoading: true
     };
   }
 
@@ -57,47 +57,45 @@ class HiGlassViewer extends React.Component {
 
   confirmViewConfigChange() {
     const dialog = new Deferred();
-    pubSub.publish(
-      'globalDialog',
-      {
-        message: 'You are about to override the existing view config.',
-        request: dialog,
-        rejectText: 'Cancel',
-        resolveText: 'Okay',
-      }
-    );
+    this.props.pubSub.publish("globalDialog", {
+      message: "You are about to override the existing view config.",
+      request: dialog,
+      rejectText: "Cancel",
+      resolveText: "Okay"
+    });
   }
 
   loadViewConfig(viewConfigId = this.props.viewConfigId) {
     // Make sure we always load the default view config
     if (!viewConfigId && this.props.viewConfig) {
       this.setState({
-        error: '',
-        isLoading: false,
+        error: "",
+        isLoading: false
       });
       return;
     }
 
     this.setState({
-      error: '',
-      isLoading: true,
+      error: "",
+      isLoading: true
     });
 
     fetchViewConfig(viewConfigId || defaultViewConfigId)
       .catch(() => {
-        logger.warn('View config is not available locally!');
+        logger.warn("View config is not available locally!");
 
         // Try loading config from HiGlass.io
         return fetchViewConfig(
-          viewConfigId || defaultViewConfigId, '//higlass.io'
+          viewConfigId || defaultViewConfigId,
+          "//higlass.io"
         );
       })
       .then(this.setViewConfig.bind(this))
-      .catch((error) => {
-        logger.error('Could not load or parse config.', error);
+      .catch(error => {
+        logger.error("Could not load or parse config.", error);
         this.setState({
-          error: 'Could not load config.',
-          isLoading: false,
+          error: "Could not load config.",
+          isLoading: false
         });
       });
   }
@@ -105,30 +103,31 @@ class HiGlassViewer extends React.Component {
   onError(error) {
     this.setState({
       error,
-      isLoading: false,
+      isLoading: false
     });
   }
 
   setViewConfig(viewConfig) {
     if (!viewConfig || viewConfig.error) {
-      const errorMsg = viewConfig && viewConfig.error
-        ? viewConfig.error
-        : 'View config broken.';
+      const errorMsg =
+        viewConfig && viewConfig.error
+          ? viewConfig.error
+          : "View config broken.";
       this.setState({
         error: errorMsg,
-        isLoading: false,
+        isLoading: false
       });
     } else if (this.props.isStatic) {
       this.setState({
-        error: '',
+        error: "",
         isLoading: false,
-        viewConfigStatic: viewConfig,
+        viewConfigStatic: viewConfig
       });
     } else {
       this.props.setViewConfig(viewConfig);
       this.setState({
-        error: '',
-        isLoading: false,
+        error: "",
+        isLoading: false
       });
     }
   }
@@ -136,30 +135,26 @@ class HiGlassViewer extends React.Component {
   /* -------------------------------- Render -------------------------------- */
 
   render() {
-    let className = 'higlass-viewer';
+    let className = "higlass-viewer";
 
-    className += this.props.hasSubTopBar ? ' has-sub-top-bar' : '';
-    className += this.props.height ? ' higlass-viewer-abs-height' : ' full-dim';
-    className += ` ${this.props.className || ''}`;
+    className += this.props.hasSubTopBar ? " has-sub-top-bar" : "";
+    className += this.props.height ? " higlass-viewer-abs-height" : " full-dim";
+    className += ` ${this.props.className || ""}`;
 
     const style = {
-      height: this.props.height ? `${this.props.height}px` : 'auto',
+      height: this.props.height ? `${this.props.height}px` : "auto"
     };
 
     return (
-      <div
-        className={className}
-        style={style}
-      >
-        <div className='higlass-viewer-padded-container'>
-        {this.state.error && (
-          <MessageCenter msg={this.state.error} type='error' />
-        )}
-        {!this.state.error && (
-          this.state.isLoading ? (  // eslint-disable-line no-nested-ternary
-            <SpinnerCenter />
-          ) : (
-            this.props.isStatic ? (
+      <div className={className} style={style}>
+        <div className="higlass-viewer-padded-container">
+          {this.state.error && (
+            <MessageCenter msg={this.state.error} type="error" />
+          )}
+          {!this.state.error &&
+            (this.state.isLoading ? ( // eslint-disable-line no-nested-ternary
+              <SpinnerCenter />
+            ) : this.props.isStatic ? (
               <HiGlassLauncher
                 api={this.props.api}
                 autoExpand={this.props.autoExpand}
@@ -177,9 +172,7 @@ class HiGlassViewer extends React.Component {
                 isPadded={this.props.isPadded}
                 isZoomFixed={this.props.isZoomFixed}
               />
-            )
-          )
-        )}
+            ))}
         </div>
       </div>
     );
@@ -189,7 +182,7 @@ class HiGlassViewer extends React.Component {
 HiGlassViewer.defaultProps = {
   api: () => {},
   isStatic: false,
-  isZoomFixed: false,
+  isZoomFixed: false
 };
 
 HiGlassViewer.propTypes = {
@@ -202,19 +195,23 @@ HiGlassViewer.propTypes = {
   isPadded: PropTypes.bool,
   isStatic: PropTypes.bool,
   isZoomFixed: PropTypes.bool,
+  pubSub: PropTypes.object.isRequired,
   setViewConfig: PropTypes.func.isRequired,
   viewConfig: PropTypes.object,
-  viewConfigId: PropTypes.string,
+  viewConfigId: PropTypes.string
 };
 
 const mapStateToProps = state => ({
-  viewConfig: state.present.viewConfig,
+  viewConfig: state.present.viewConfig
 });
 
 const mapDispatchToProps = dispatch => ({
-  setViewConfig: (viewConfig) => {
+  setViewConfig: viewConfig => {
     dispatch(setViewConfig(viewConfig));
-  },
+  }
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(HiGlassViewer);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withPubSub(HiGlassViewer));

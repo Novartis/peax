@@ -1,4 +1,4 @@
-import { DEFAULT_SERVER_PORT } from '../configs';
+import { DEFAULT_SERVER_PORT } from "../configs";
 
 const hostname = window.HGAC_SERVER || window.location.hostname;
 const port = window.HGAC_SERVER_PORT || DEFAULT_SERVER_PORT;

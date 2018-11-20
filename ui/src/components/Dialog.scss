@@ -1,5 +1,5 @@
-@import '../styles/colors';
-@import '../styles/transitions';
+@import "../styles/colors";
+@import "../styles/transitions";
 
 .dialog {
   position: fixed;
@@ -55,9 +55,8 @@
     border-bottom: 0;
     border-left: 0;
     background: transparent;
-    transition: color $fast-transition $easing,
-                border $fast-transition $easing,
-                background $fast-transition $easing;
+    transition: color $fast-transition $easing, border $fast-transition $easing,
+      background $fast-transition $easing;
 
     &:first-child {
       border-right: 1px solid $gray-lightest;

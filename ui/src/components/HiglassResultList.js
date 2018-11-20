@@ -1,17 +1,17 @@
-import PropTypes from 'prop-types';
-import React from 'react';
-import { compose } from 'recompose';
+import PropTypes from "prop-types";
+import React from "react";
+import { compose } from "recompose";
 
 // Components
-import HiglassResult from './HiglassResult';
-import MessageCenter from './MessageCenter';
-import SpinnerCenter from './SpinnerCenter';
+import HiglassResult from "./HiglassResult";
+import MessageCenter from "./MessageCenter";
+import SpinnerCenter from "./SpinnerCenter";
 
 // HOCs
-import withEither from './with-either';
-import withList from './with-list';
-import withMaybe from './with-maybe';
-import withPagination from './with-pagination';
+import withEither from "./with-either";
+import withList from "./with-list";
+import withMaybe from "./with-maybe";
+import withPagination from "./with-pagination";
 
 const getKey = props => props.windowId;
 const isError = props => props.isError;
@@ -23,53 +23,53 @@ const isNotTrained = props => props.isNotTrained;
 const isTraining = props => props.isTraining;
 
 const ErrorMsg = props => (
-  <MessageCenter msg={props.isError} type='error'>
+  <MessageCenter msg={props.isError} type="error">
     {props.isErrorNodes}
   </MessageCenter>
 );
 ErrorMsg.propTypes = {
   isError: PropTypes.string,
-  isErrorNodes: PropTypes.node,
+  isErrorNodes: PropTypes.node
 };
 
 const IsEmptyMsg = props => (
-  <MessageCenter msg={props.isEmptyText} type='warning'>
+  <MessageCenter msg={props.isEmptyText} type="warning">
     {props.isEmptyNodes}
   </MessageCenter>
 );
 IsEmptyMsg.propTypes = {
   isEmptyText: PropTypes.string,
-  isEmptyNodes: PropTypes.node,
+  isEmptyNodes: PropTypes.node
 };
 
 const IsNotReadyMsg = props => (
-  <MessageCenter msg={props.isNotReadyText} type='default'>
+  <MessageCenter msg={props.isNotReadyText} type="default">
     {props.isNotReadyNodes}
   </MessageCenter>
 );
 IsNotReadyMsg.propTypes = {
   isNotReadyText: PropTypes.string,
-  isNotReadyNodes: PropTypes.node,
+  isNotReadyNodes: PropTypes.node
 };
 
 const IsTrainingMsg = props => (
-  <MessageCenter msg={props.isTrainingText} type='loading'>
+  <MessageCenter msg={props.isTrainingText} type="loading">
     {props.isTrainingNodes}
   </MessageCenter>
 );
 IsTrainingMsg.propTypes = {
   isTrainingText: PropTypes.string,
-  isTrainingNodes: PropTypes.node,
+  isTrainingNodes: PropTypes.node
 };
 
 const IsNotTrainedMsg = props => (
-  <MessageCenter msg={props.isNotTrainedText} type='info'>
+  <MessageCenter msg={props.isNotTrainedText} type="info">
     {props.isNotTrainedNodes}
   </MessageCenter>
 );
 IsNotTrainedMsg.propTypes = {
   isNotTrainedText: PropTypes.string,
-  isNotTrainedNodes: PropTypes.node,
+  isNotTrainedNodes: PropTypes.node
 };
 
 // Order of application is top to bottom

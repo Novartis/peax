@@ -1,10 +1,10 @@
-import { requestAnimationFrame } from './request-animation-frame';
+import { requestAnimationFrame } from "./request-animation-frame";
 
 const withRaf = (fn, callback) => {
   let isRequesting = false;
   return (...args) => {
     if (isRequesting) {
-      return;
+      return undefined;
     }
     return requestAnimationFrame(() => {
       const resp = fn(...args);

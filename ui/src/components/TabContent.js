@@ -1,14 +1,14 @@
-import PropTypes from 'prop-types';
-import React from 'react';
+import PropTypes from "prop-types";
+import React from "react";
 
 // Styles
-import './TabContent.scss';
+import "./TabContent.scss";
 
-const classNames = (props) => {
-  let className = 'tab-content';
+const classNames = props => {
+  let className = "tab-content";
 
   className += ` ${props.className}`;
-  className += props.tabOpen === props.for ? ' is-open' : '';
+  className += props.tabOpen === props.for ? " is-open" : "";
 
   return className;
 };
@@ -22,14 +22,8 @@ const TabContent = props => (
 TabContent.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
-  for: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.symbol,
-  ]).isRequired,
-  tabOpen: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.symbol,
-  ]).isRequired,
+  for: PropTypes.oneOfType([PropTypes.string, PropTypes.symbol]).isRequired,
+  tabOpen: PropTypes.oneOfType([PropTypes.string, PropTypes.symbol]).isRequired
 };
 
 export default TabContent;

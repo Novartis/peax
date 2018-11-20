@@ -1,11 +1,12 @@
-import React from 'react';
+import React from "react";
 
-const withEither = (conditionalRenderingFn, EitherComponent) => (Component) => {
-  const Either = props => (
-    conditionalRenderingFn(props)
-      ? <EitherComponent {...props} />
-      : <Component { ...props } />
-  );
+const withEither = (conditionalRenderingFn, EitherComponent) => Component => {
+  const Either = props =>
+    conditionalRenderingFn(props) ? (
+      <EitherComponent {...props} />
+    ) : (
+      <Component {...props} />
+    );
 
   return Either;
 };

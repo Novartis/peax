@@ -1,38 +1,39 @@
-import PropTypes from 'prop-types';
-import React from 'react';
+import PropTypes from "prop-types";
+import React from "react";
 
 // Components
-import Icon from './Icon';
+import Icon from "./Icon";
 
 // Styles
-import './TabEntry.scss';
+import "./TabEntry.scss";
 
 class TabEntry extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      isOpen: true,
+      isOpen: true
     };
   }
 
   render() {
-    let className = 'tab-entry';
+    let className = "tab-entry";
 
-    className += this.props.className ? ` ${this.props.className}` : '';
-    className += this.isOpen && this.props.isHeightStretching ? ' flex-g-1' : '';
+    className += this.props.className ? ` ${this.props.className}` : "";
+    className +=
+      this.isOpen && this.props.isHeightStretching ? " flex-g-1" : "";
 
     return (
       <div className={className}>
-        {this.props.title &&
+        {this.props.title && (
           <div
-            className='tab-entry-header flex-c'
+            className="tab-entry-header flex-c"
             onClick={this.toggle.bind(this)}
           >
-            <Icon iconId='arrow-bottom' mirrorH={!this.isOpen} />
+            <Icon iconId="arrow-bottom" mirrorH={!this.isOpen} />
             {this.props.title}
           </div>
-        }
+        )}
         {this.isOpen && this.props.children}
       </div>
     );
@@ -41,26 +42,27 @@ class TabEntry extends React.Component {
   /* ----------------------------- Getter / Setter -------------------------- */
 
   get isOpen() {
-    return typeof this.props.isOpen !== 'undefined' ?
-      this.props.isOpen : this.state.isOpen;
+    return typeof this.props.isOpen !== "undefined"
+      ? this.props.isOpen
+      : this.state.isOpen;
   }
 
   /* ------------------------------ Custom Methods -------------------------- */
 
   close() {
     this.setState({
-      isOpen: false,
+      isOpen: false
     });
   }
 
   open() {
     this.setState({
-      isOpen: true,
+      isOpen: true
     });
   }
 
   toggle() {
-    if (typeof this.props.isOpen !== 'undefined' && this.props.toggle) {
+    if (typeof this.props.isOpen !== "undefined" && this.props.toggle) {
       this.props.toggle(this.props.isOpen);
       return;
     }
@@ -80,7 +82,7 @@ TabEntry.propTypes = {
   isHeightStretching: PropTypes.bool,
   isOpen: PropTypes.bool,
   title: PropTypes.string,
-  toggle: PropTypes.func,
+  toggle: PropTypes.func
 };
 
 export default TabEntry;

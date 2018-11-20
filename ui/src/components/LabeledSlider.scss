@@ -1,0 +1,60 @@
+@import "../styles/colors";
+@import "../styles/transitions";
+
+.labeled-slider {
+  margin-top: 0.25rem;
+
+  .labeled-slider-label {
+    text-transform: capitalize;
+
+    &:after {
+      content: ":";
+      margin-right: 0.3em;
+    }
+  }
+
+  .labeled-slider-value {
+    position: relative;
+    margin: 0 -0.25em;
+    padding: 0 0.25em;
+    transition: color $slow-transition $easing;
+
+    .labeled-slider-value-bam {
+      position: absolute;
+      display: block;
+      z-index: -1;
+      content: "";
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 0.25em;
+      background: $blue-highlight;
+      opacity: 0;
+    }
+
+    &.labeled-slider-value-changed {
+      color: $blue;
+
+      .labeled-slider-value-bam {
+        animation: bam-in $slow-transition $easing forwards;
+      }
+    }
+
+    @keyframes bam-in {
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+
+      20% {
+        opacity: 0.5;
+      }
+
+      100% {
+        opacity: 0;
+        transform: scale(1.2);
+      }
+    }
+  }
+}

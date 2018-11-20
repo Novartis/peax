@@ -1,3 +1,5 @@
+/* eslint-env: node */
+
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
  *
@@ -6,34 +8,39 @@
  */
 
 // Do this as the first thing so that any code reading it knows the right env.
-process.env.BABEL_ENV = 'test';
-process.env.NODE_ENV = 'test';
-process.env.PUBLIC_URL = '';
+process.env.BABEL_ENV = "test";
+process.env.NODE_ENV = "test";
+process.env.PUBLIC_URL = "";
 
 // Makes the script crash on unhandled rejections instead of silently
 // ignoring them. In the future, promise rejections that are not handled will
 // terminate the Node.js process with a non-zero exit code.
-process.on('unhandledRejection', (err) => {
+process.on("unhandledRejection", err => {
   throw err;
 });
 
 // Ensure environment variables are read.
-require('../config/env');
-// @remove-on-eject-begin
+require("../config/env");
+
+const path = require("path");
+
+const jest = require("jest");
+const execSync = require("child_process").execSync;
+const resolve = require("resolve"); // eslint-disable-line
+const verifyPackageTree = require("./utils/verifyPackageTree");
+const createJestConfig = require("./utils/createJestConfig");
+const paths = require("../config/paths");
+
 // Do the preflight check (only happens before eject).
-if (process.env.SKIP_PREFLIGHT_CHECK !== 'true') {
+if (process.env.SKIP_PREFLIGHT_CHECK !== "true") {
   verifyPackageTree();
 }
-// @remove-on-eject-end
-
-const jest = require('jest');
-const execSync = require('child_process').execSync;
 
 let argv = process.argv.slice(2);
 
 function isInGitRepository() {
   try {
-    execSync('git rev-parse --is-inside-work-tree', { stdio: 'ignore' });
+    execSync("git rev-parse --is-inside-work-tree", { stdio: "ignore" });
     return true;
   } catch (e) {
     return false;
@@ -42,7 +49,7 @@ function isInGitRepository() {
 
 function isInMercurialRepository() {
   try {
-    execSync('hg --cwd . root', { stdio: 'ignore' });
+    execSync("hg --cwd . root", { stdio: "ignore" });
     return true;
   } catch (e) {
     return false;
@@ -52,26 +59,23 @@ function isInMercurialRepository() {
 // Watch unless on CI, in coverage mode, or explicitly running all tests
 if (
   !process.env.CI &&
-  argv.indexOf('--coverage') === -1 &&
-  argv.indexOf('--watchAll') === -1
+  argv.indexOf("--coverage") === -1 &&
+  argv.indexOf("--watchAll") === -1
 ) {
   // https://github.com/facebook/create-react-app/issues/5210
   const hasSourceControl = isInGitRepository() || isInMercurialRepository();
-  argv.push(hasSourceControl ? '--watch' : '--watchAll');
+  argv.push(hasSourceControl ? "--watch" : "--watchAll");
 }
 
 // @remove-on-eject-begin
 // This is not necessary after eject because we embed config into package.json.
-const path = require('path');
-const createJestConfig = require('./utils/createJestConfig');
-const paths = require('../config/paths');
 
 argv.push(
-  '--config',
+  "--config",
   JSON.stringify(
     createJestConfig(
-      relativePath => path.resolve(__dirname, '..', relativePath),
-      path.resolve(paths.appSrc, '..'),
+      relativePath => path.resolve(__dirname, "..", relativePath),
+      path.resolve(paths.appSrc, ".."),
       false
     )
   )
@@ -80,38 +84,36 @@ argv.push(
 // This is a very dirty workaround for https://github.com/facebook/jest/issues/5913.
 // We're trying to resolve the environment ourselves because Jest does it incorrectly.
 // TODO: remove this (and the `resolve` dependency) as soon as it's fixed in Jest.
-const resolve = require('resolve');
-const verifyPackageTree = require('./utils/verifyPackageTree');
 
 function resolveJestDefaultEnvironment(name) {
   const jestDir = path.dirname(
-    resolve.sync('jest', {
-      basedir: __dirname,
+    resolve.sync("jest", {
+      basedir: __dirname
     })
   );
   const jestCLIDir = path.dirname(
-    resolve.sync('jest-cli', {
-      basedir: jestDir,
+    resolve.sync("jest-cli", {
+      basedir: jestDir
     })
   );
   const jestConfigDir = path.dirname(
-    resolve.sync('jest-config', {
-      basedir: jestCLIDir,
+    resolve.sync("jest-config", {
+      basedir: jestCLIDir
     })
   );
   return resolve.sync(name, {
-    basedir: jestConfigDir,
+    basedir: jestConfigDir
   });
 }
 const cleanArgv = [];
-let env = 'jsdom';
+let env = "jsdom";
 let next;
 do {
   next = argv.shift();
-  if (next === '--env') {
+  if (next === "--env") {
     env = argv.shift();
-  } else if (next.indexOf('--env=') === 0) {
-    env = next.substring('--env='.length);
+  } else if (next.indexOf("--env=") === 0) {
+    env = next.substring("--env=".length);
   } else {
     cleanArgv.push(next);
   }
@@ -131,6 +133,6 @@ if (!resolvedEnv) {
   }
 }
 const testEnvironment = resolvedEnv || env;
-argv.push('--env', testEnvironment);
+argv.push("--env", testEnvironment);
 // @remove-on-eject-end
 jest.run(argv);

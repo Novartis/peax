@@ -1,18 +1,18 @@
-import PropTypes from 'prop-types';
-import React from 'react';
+import PropTypes from "prop-types";
+import React from "react";
 
-// Services
-import pubSub from '../services/pub-sub';
+// Higher-order components
+import { withPubSub } from "../hocs/pub-sub";
 
 // Utils
-import hasParent from '../utils/has-parent';
+import hasParent from "../utils/has-parent";
 
 class DropDown extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      isOpen: false,
+      isOpen: false
     };
 
     this.pubSubs = [];
@@ -21,13 +21,15 @@ class DropDown extends React.Component {
   componentDidMount() {
     if (this.props.closeOnOuterClick) {
       this.pubSubs.push(
-        pubSub.subscribe('click', this.clickHandler.bind(this))
+        this.props.pubSub.subscribe("click", this.clickHandler.bind(this))
       );
     }
   }
 
   componentWillUnmount() {
-    this.pubSubs.forEach(subscription => pubSub.unsubscribe(subscription));
+    this.pubSubs.forEach(subscription =>
+      this.props.pubSub.unsubscribe(subscription)
+    );
     this.pubSubs = [];
   }
 
@@ -37,30 +39,32 @@ class DropDown extends React.Component {
       this.state.isOpen &&
       this.state.isOpen !== prevState.isOpen
     ) {
-      pubSub.publish(`DropDown${this.props.id}`, this.state.isOpen);
+      this.props.pubSub.publish(`DropDown${this.props.id}`, this.state.isOpen);
     }
   }
 
   render() {
-    const childrenWithProps = React.Children.map(
-      this.props.children,
-      child => React.cloneElement(child, {
+    const childrenWithProps = React.Children.map(this.props.children, child =>
+      React.cloneElement(child, {
         dropDownIsOpen: this.state.isOpen,
-        dropDownToggle: this.toggle.bind(this),
+        dropDownToggle: this.toggle.bind(this)
       })
     );
 
-    let className = 'rel drop-down';
+    let className = "rel drop-down";
 
-    className += this.props.className ? ` ${this.props.className}` : '';
-    className += this.state.isOpen ? ' drop-down-is-open' : '';
-    className += this.props.alignRight ? ' drop-down-align-right' : '';
-    className += this.props.alignTop ? ' drop-down-align-top' : '';
+    className += this.props.className ? ` ${this.props.className}` : "";
+    className += this.state.isOpen ? " drop-down-is-open" : "";
+    className += this.props.alignRight ? " drop-down-align-right" : "";
+    className += this.props.alignTop ? " drop-down-align-top" : "";
 
     return (
       <div
         className={className}
-        ref={(el) => { this.el = el; }}>
+        ref={el => {
+          this.el = el;
+        }}
+      >
         {childrenWithProps}
       </div>
     );
@@ -76,13 +80,13 @@ class DropDown extends React.Component {
 
   close() {
     this.setState({
-      isOpen: false,
+      isOpen: false
     });
   }
 
   open() {
     this.setState({
-      isOpen: true,
+      isOpen: true
     });
   }
 
@@ -102,6 +106,7 @@ DropDown.propTypes = {
   alignRight: PropTypes.bool,
   alignTop: PropTypes.bool,
   id: PropTypes.string,
+  pubSub: PropTypes.object.isRequired
 };
 
-export default DropDown;
+export default withPubSub(DropDown);

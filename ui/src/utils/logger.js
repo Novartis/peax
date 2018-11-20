@@ -1,17 +1,17 @@
 const LEVELS = {
-  debug: 'log',
-  info: 'info',
-  warn: 'warn',
-  error: 'error',
+  debug: "log",
+  info: "info",
+  warn: "warn",
+  error: "error"
 };
 
 const logger = {
-  name: 'Unnamed',
+  name: "Unnamed"
 };
 
-Object.keys(LEVELS).forEach((level) => {
+Object.keys(LEVELS).forEach(level => {
   logger[level] = function log(...args) {
-    console[LEVELS[level]](`[${level.toUpperCase()}: ${this.name}]`, ...args);  // eslint-disable-line no-console
+    console[LEVELS[level]](`[${level.toUpperCase()}: ${this.name}]`, ...args); // eslint-disable-line no-console
   };
 });
 
