@@ -95,11 +95,12 @@ class Search extends React.Component {
       isLoadingClassifications: false,
       isLoadingResults: false,
       isLoadingSeeds: false,
-      isMinMaxValsByTarget: false,
+      isMinMaxValuesByTarget: false,
       isTraining: null,
       locationEnd: null,
       locationStart: null,
-      minMaxVals: {},
+      minMaxSource: null,
+      minMaxValues: {},
       pageClassifications: 0,
       pageClassificationsTotal: null,
       pageResults: 0,
@@ -166,7 +167,7 @@ class Search extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     if (this.id !== prevProps.match.params.id) this.loadMetadata();
     if (this.props.tab !== prevProps.tab) this.checkTabData();
-    if (this.state.minMaxVals !== prevState.minMaxVals) {
+    if (this.state.minMaxValues !== prevState.minMaxValues) {
       this.normalize();
     }
     if (
@@ -174,7 +175,7 @@ class Search extends React.Component {
         this.state.pageClassifications !== prevState.pageClassifications ||
         this.state.pageResults !== prevState.pageResults ||
         this.state.pageSeeds !== prevState.pageSeeds) &&
-      !this.state.isMinMaxValsByTarget
+      !this.state.isMinMaxValuesByTarget
     ) {
       this.denormalize();
     }
@@ -567,55 +568,61 @@ class Search extends React.Component {
   async denormalize() {
     if (!this.hgApi) return;
 
-    const minMaxVals = { __source__: undefined };
+    const minMaxValues = {};
     this.state.dataTracks.forEach(track => {
-      minMaxVals[track] = [undefined, undefined];
+      minMaxValues[track] = [undefined, undefined];
     });
 
-    this.setState({ minMaxVals, isMinMaxValsByTarget: false });
+    this.setState({
+      minMaxSource: undefined,
+      minMaxValues,
+      isMinMaxValuesByTarget: false
+    });
   }
 
   async normalize() {
     if (!this.hgApi) return;
 
     if (
-      this.state.minMaxVals.__source__ !== "target" &&
-      this.state.isMinMaxValsByTarget
+      this.state.minMaxSource !== "target" &&
+      this.state.isMinMaxValuesByTarget
     ) {
-      await this.setState({ isMinMaxValsByTarget: false });
+      await this.setState({ isMinMaxValuesByTarget: false });
     }
 
-    Object.keys(this.state.minMaxVals)
-      .filter(track => track !== "__source__")
-      .forEach(track => {
-        this.hgApi.setTrackValueScaleLimits(
-          undefined,
-          track,
-          ...this.state.minMaxVals[track]
-        );
-      });
+    Object.keys(this.state.minMaxValues).forEach(track => {
+      this.hgApi.setTrackValueScaleLimits(
+        undefined,
+        track,
+        ...this.state.minMaxValues[track]
+      );
+    });
   }
 
   normalizeByTarget() {
     if (!this.hgApi) return;
 
-    const minMaxVals = { __source__: "target" };
+    const minMaxValues = {};
     this.state.dataTracks.forEach(track => {
-      if (this.state.isMinMaxValsByTarget) {
-        minMaxVals[track] = [undefined, undefined];
+      if (this.state.isMinMaxValuesByTarget) {
+        minMaxValues[track] = [undefined, undefined];
       } else {
-        minMaxVals[track] = [
+        minMaxValues[track] = [
           0,
           this.hgApi.getMinMaxValue(undefined, track, true)[1]
         ];
       }
     });
 
-    this.onNormalize(minMaxVals, !this.state.isMinMaxValsByTarget);
+    this.onNormalize(
+      minMaxValues,
+      "target",
+      !this.state.isMinMaxValuesByTarget
+    );
   }
 
-  onNormalize(minMaxVals, isMinMaxValsByTarget = false) {
-    this.setState({ minMaxVals, isMinMaxValsByTarget });
+  onNormalize(minMaxValues, minMaxSource, isMinMaxValuesByTarget = false) {
+    this.setState({ minMaxSource, minMaxValues, isMinMaxValuesByTarget });
   }
 
   onPage(data) {
@@ -907,7 +914,7 @@ class Search extends React.Component {
           rightBarWidth={this.props.rightBarWidth}
         >
           <SearchSubTopBar
-            isMinMaxValsByTarget={this.state.isMinMaxValsByTarget}
+            isMinMaxValuesByTarget={this.state.isMinMaxValuesByTarget}
             normalize={this.normalizeByTargetBnd}
             resetViewport={this.resetViewportBnd}
             viewportChanged={this.state.viewportChanged}
@@ -946,7 +953,7 @@ class Search extends React.Component {
                   isReady={this.isSeeded}
                   isTraining={this.state.isTraining}
                   itemsPerPage={PER_PAGE_ITEMS}
-                  normalizeBy={this.state.minMaxVals}
+                  normalizeBy={this.state.minMaxValues}
                   onNormalize={this.onNormalizeBnd}
                   onPage={this.onPageSeeds}
                   onResultEnter={this.onResultEnter}
@@ -977,7 +984,7 @@ class Search extends React.Component {
                   isTrained={this.isTrained}
                   isTraining={this.state.isTraining}
                   itemsPerPage={PER_PAGE_ITEMS}
-                  normalizeBy={this.state.minMaxVals}
+                  normalizeBy={this.state.minMaxValues}
                   onNormalize={this.onNormalizeBnd}
                   onPage={this.onPageResults}
                   onResultEnter={this.onResultEnter}
@@ -1007,7 +1014,7 @@ class Search extends React.Component {
                   isLoading={this.state.isLoadingClassifications}
                   isTraining={this.state.isTraining}
                   itemsPerPage={PER_PAGE_ITEMS}
-                  normalizeBy={this.state.minMaxVals}
+                  normalizeBy={this.state.minMaxValues}
                   onNormalize={this.onNormalizeBnd}
                   onPage={this.onPageClassifications}
                   onResultEnter={this.onResultEnter}
