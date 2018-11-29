@@ -9,9 +9,11 @@
     "url": "https://github.com/flekschas/peax.git"
   },
   "dependencies": {
+    "@babel/plugin-proposal-decorators": "^7.1.6",
+    "autobind-decorator": "^2.3.1",
     "canvas-camera-2d": "0.1.0",
     "deep-equal": "1.0.1",
-    "higlass": "1.2.8",
+    "higlass": "1.3.0-rc.2",
     "history": "4.7.2",
     "immutability-helper": "2.8.1",
     "key-pressed": "flekschas/key-pressed",
@@ -20,9 +22,9 @@
     "pixi.js": "4.8.2",
     "prop-types": "15.6.2",
     "pub-sub-es": "1.2.0",
-    "react": "16.6.1",
+    "react": "16.6.3",
     "react-bootstrap": "0.32.1",
-    "react-dom": "16.6.1",
+    "react-dom": "16.6.3",
     "react-redux": "5.1.0",
     "react-router": "4.3.1",
     "react-router-dom": "4.3.1",
@@ -36,7 +38,7 @@
     "redux-thunk": "2.3.0",
     "redux-undo": "1.0.0-beta9-9-7",
     "regl": "1.3.9",
-    "regl-scatterplot": "0.3.3",
+    "regl-scatterplot": "0.4.0",
     "scroll-speed": "flekschas/scroll-speed",
     "tab64": "0.0.1"
   },

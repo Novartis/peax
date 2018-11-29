@@ -1,25 +1,26 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { connect } from "react-redux";
-import { compose } from "recompose";
-import createScatterplot from "regl-scatterplot";
+import { boundMethod } from 'autobind-decorator';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { compose } from 'recompose';
+import createScatterplot from 'regl-scatterplot';
 
 // Components
-import Button from "../components/Button";
-import ButtonIcon from "../components/ButtonIcon";
-import ButtonRadio from "../components/ButtonRadio";
-import ElementWrapperAdvanced from "../components/ElementWrapperAdvanced";
-import LabeledSlider from "../components/LabeledSlider";
-import TabEntry from "../components/TabEntry";
+import Button from '../components/Button';
+import ButtonIcon from '../components/ButtonIcon';
+import ButtonRadio from '../components/ButtonRadio';
+import ElementWrapperAdvanced from '../components/ElementWrapperAdvanced';
+import LabeledSlider from '../components/LabeledSlider';
+import TabEntry from '../components/TabEntry';
 
 // Actions
 import {
   setSearchRightBarProjectionSettings,
   setSearchSelection
-} from "../actions";
+} from '../actions';
 
 // Utils
-import { api, debounce, inputToNum, zip } from "../utils";
+import { api, debounce, inputToNum, zip } from '../utils';
 
 // Configs
 import {
@@ -30,14 +31,14 @@ import {
   PROJECTION_CHECK_INTERVAL,
   PROJECTION_VIEW,
   PROJECTION_VIEW_INTERVAL
-} from "../configs/projection";
+} from '../configs/projection';
 import {
   BUTTON_RADIO_PROJECTION_COLOR_ENCODING_OPTIONS,
   TAB_RIGHT_BAR_PROJECTION
-} from "../configs/search";
+} from '../configs/search';
 
 // Styles
-import "./Search.scss";
+import './Search.scss';
 
 class SearchRightBarProjection extends React.Component {
   constructor(props) {
@@ -45,7 +46,7 @@ class SearchRightBarProjection extends React.Component {
 
     this.state = {
       canvas: null,
-      colorEncoding: "categorical",
+      colorEncoding: 'categorical',
       isColorByProb: false,
       isDefaultView: true,
       isError: false,
@@ -59,9 +60,9 @@ class SearchRightBarProjection extends React.Component {
       settingsUmapNN: 5
     };
 
-    this.onChangeColorEncoding = compose(this.onChangeState("colorEncoding"));
+    this.onChangeColorEncoding = compose(this.onChangeState('colorEncoding'));
     this.onChangePointSize = compose(
-      this.onChangeState("pointSize"),
+      this.onChangeState('pointSize'),
       pointSize => {
         if (this.scatterplot) {
           this.scatterplot.style({ pointSize });
@@ -71,18 +72,13 @@ class SearchRightBarProjection extends React.Component {
       inputToNum
     );
     this.onChangeSettingsUmapNN = compose(
-      this.onChangeState("settingsUmapNN"),
+      this.onChangeState('settingsUmapNN'),
       inputToNum
     );
     this.onChangeSettingsUmapMinDist = compose(
-      this.onChangeState("settingsUmapMinDist"),
+      this.onChangeState('settingsUmapMinDist'),
       inputToNum
     );
-    this.onRefBnd = this.onRef.bind(this);
-    this.newProjectionBnd = this.newProjection.bind(this);
-    this.onResetLocationBnd = this.onResetLocation.bind(this);
-    this.onSelectBnd = this.onSelect.bind(this);
-    this.onDeselectBnd = this.onDeselect.bind(this);
 
     this.checkViewDb = debounce(
       this.checkView.bind(this),
@@ -123,10 +119,10 @@ class SearchRightBarProjection extends React.Component {
 
   setColorEncoding() {
     if (!this.scatterplot) return;
-    if (this.state.colorEncoding === "probability") {
-      this.scatterplot.style({ colorBy: "value", colors: COLORMAP_PRB });
+    if (this.state.colorEncoding === 'probability') {
+      this.scatterplot.style({ colorBy: 'value', colors: COLORMAP_PRB });
     } else {
-      this.scatterplot.style({ colorBy: "category", colors: COLORMAP_CAT });
+      this.scatterplot.style({ colorBy: 'category', colors: COLORMAP_CAT });
     }
   }
 
@@ -148,9 +144,9 @@ class SearchRightBarProjection extends React.Component {
       view: PROJECTION_VIEW
     });
 
-    scatterplot.subscribe("view", this.checkViewDb);
-    scatterplot.subscribe("select", this.onSelectBnd);
-    scatterplot.subscribe("deselect", this.onDeselectBnd);
+    scatterplot.subscribe('view', this.checkViewDb);
+    scatterplot.subscribe('select', this.onSelect);
+    scatterplot.subscribe('deselect', this.onDeselect);
 
     scatterplot.draw(points);
 
@@ -177,6 +173,7 @@ class SearchRightBarProjection extends React.Component {
     return zip([projection, classes, probabilities], [2, 1, 1]);
   }
 
+  @boundMethod
   async newProjection() {
     if (this.state.isLoading) return;
 
@@ -227,10 +224,10 @@ class SearchRightBarProjection extends React.Component {
     ]).size;
 
     const isNotFound =
-      respProj.status === 404 ? "Projection not computed." : false;
+      respProj.status === 404 ? 'Projection not computed.' : false;
 
     let isError =
-      !isNotFound && numDiffLenghts > 1 ? "Data is correpted! RUN!1!" : false;
+      !isNotFound && numDiffLenghts > 1 ? 'Data is correpted! RUN!1!' : false;
 
     isError =
       !isError &&
@@ -265,14 +262,17 @@ class SearchRightBarProjection extends React.Component {
     };
   }
 
+  @boundMethod
   onRef(canvasWrapper) {
     this.canvasWrapper = canvasWrapper;
   }
 
+  @boundMethod
   onSelect({ points: selectedPoints = [] } = {}) {
     this.props.setSelection(selectedPoints);
   }
 
+  @boundMethod
   onDeselect() {
     this.props.setSelection([]);
   }
@@ -284,6 +284,7 @@ class SearchRightBarProjection extends React.Component {
     this.setState({ isDefaultView });
   }
 
+  @boundMethod
   onResetLocation() {
     this.scatterplot.reset();
   }
@@ -294,7 +295,7 @@ class SearchRightBarProjection extends React.Component {
     return (
       <div className="right-bar-info flex-c flex-v full-wh">
         <div className="search-right-bar-padding">
-          <div className="search-projection-wrapper" ref={this.onRefBnd}>
+          <div className="search-projection-wrapper" ref={this.onRef}>
             {this.isOpen && (
               <ElementWrapperAdvanced
                 className="search-projection"
@@ -311,16 +312,14 @@ class SearchRightBarProjection extends React.Component {
                 iconOnly={true}
                 isIconRotationOnFocus={true}
                 isDisabled={this.state.isDefaultView}
-                onClick={this.onResetLocationBnd}
+                onClick={this.onResetLocation}
               />
             )}
           </div>
           {this.state.isNotFound && (
             <ul className="no-list-style compact-list right-bar-v-padding">
               <li className="flex-c flex-jc-sb">
-                <Button onClick={this.newProjectionBnd}>
-                  Compute projection
-                </Button>
+                <Button onClick={this.newProjection}>Compute projection</Button>
               </li>
             </ul>
           )}
@@ -384,7 +383,7 @@ class SearchRightBarProjection extends React.Component {
                 />
               </li>
               <li>
-                <Button onClick={this.newProjectionBnd}>Update</Button>
+                <Button onClick={this.newProjection}>Update</Button>
               </li>
             </ul>
           </div>
