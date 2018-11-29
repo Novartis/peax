@@ -20,6 +20,7 @@ export { default as mergeJsonResponse } from './merge-json-response';
 export { default as numToCassif } from './num-to-classif';
 export { default as range } from './range';
 export { default as readableDate } from './readable-date';
+export { default as toVoid } from './to-void';
 export { default as withRaf } from './with-raf';
 export { default as zip } from './zip';
 
