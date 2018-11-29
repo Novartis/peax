@@ -1,11 +1,11 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Higher-order components
-import { withPubSub } from "../hocs/pub-sub";
+import { withPubSub } from '../hocs/pub-sub';
 
 // Utils
-import hasParent from "../utils/has-parent";
+import hasParent from '../utils/has-parent';
 
 class DropDown extends React.Component {
   constructor(props) {
@@ -21,7 +21,7 @@ class DropDown extends React.Component {
   componentDidMount() {
     if (this.props.closeOnOuterClick) {
       this.pubSubs.push(
-        this.props.pubSub.subscribe("click", this.clickHandler.bind(this))
+        this.props.pubSub.subscribe('click', this.clickHandler.bind(this))
       );
     }
   }
@@ -51,12 +51,12 @@ class DropDown extends React.Component {
       })
     );
 
-    let className = "rel drop-down";
+    let className = 'rel drop-down';
 
-    className += this.props.className ? ` ${this.props.className}` : "";
-    className += this.state.isOpen ? " drop-down-is-open" : "";
-    className += this.props.alignRight ? " drop-down-align-right" : "";
-    className += this.props.alignTop ? " drop-down-align-top" : "";
+    className += this.props.className ? ` ${this.props.className}` : '';
+    className += this.state.isOpen ? ' drop-down-is-open' : '';
+    className += this.props.alignRight ? ' drop-down-align-right' : '';
+    className += this.props.alignTop ? ' drop-down-align-top' : '';
 
     return (
       <div

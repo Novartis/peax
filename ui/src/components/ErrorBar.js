@@ -1,15 +1,15 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Higher-order components
-import { withPubSub } from "../hocs/pub-sub";
+import { withPubSub } from '../hocs/pub-sub';
 
 // Components
-import ButtonIcon from "./ButtonIcon";
-import Icon from "./Icon";
+import ButtonIcon from './ButtonIcon';
+import Icon from './Icon';
 
 // Styles
-import "./ErrorBar.scss";
+import './ErrorBar.scss';
 
 class ErrorBar extends React.Component {
   constructor(props) {
@@ -18,7 +18,7 @@ class ErrorBar extends React.Component {
     this.pubSubs = [];
 
     this.pubSubs.push(
-      this.props.pubSub.subscribe("keyup", this.keyUpHandler.bind(this))
+      this.props.pubSub.subscribe('keyup', this.keyUpHandler.bind(this))
     );
   }
 
@@ -34,7 +34,7 @@ class ErrorBar extends React.Component {
       <header className="error-bar rel">
         <div
           className={`error-bar-content flex-c flex-a-c flex-jc-sb ${
-            this.props.wrap ? "wrap" : "no-wrap"
+            this.props.wrap ? 'wrap' : 'no-wrap'
           }`}
         >
           <div className="flex-c flex-a-c error-bar-content">

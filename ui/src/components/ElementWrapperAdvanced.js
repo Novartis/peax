@@ -1,14 +1,14 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { compose } from "recompose";
+import PropTypes from 'prop-types';
+import React from 'react';
+import { compose } from 'recompose';
 
 // Components
-import ElementWrapper from "./ElementWrapper";
-import MessageCenter from "./MessageCenter";
-import SpinnerCenter from "./SpinnerCenter";
+import ElementWrapper from './ElementWrapper';
+import MessageCenter from './MessageCenter';
+import SpinnerCenter from './SpinnerCenter';
 
 // HOCs
-import withEither from "./with-either";
+import withEither from './with-either';
 
 const isNotFound = props => props.isNotFound;
 const isError = props => props.isError;

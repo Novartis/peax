@@ -1,20 +1,20 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Components
-import Button from "../components/Button";
-import HiglassResultList from "../components/HiglassResultList";
-import SubTopBar from "../components/SubTopBar";
-import SubTopBottomBarButtons from "../components/SubTopBottomBarButtons";
+import Button from '../components/Button';
+import HiglassResultList from '../components/HiglassResultList';
+import SubTopBar from '../components/SubTopBar';
+import SubTopBottomBarButtons from '../components/SubTopBottomBarButtons';
 
 // Utils
-import { Logger } from "../utils";
+import { Logger } from '../utils';
 
-const logger = Logger("SearchSeeds"); // eslint-disable-line
+const logger = Logger('SearchSeeds'); // eslint-disable-line
 
 const isTraining = onTrainingCheck => (
   <span>
-    {"The classifier is training hard! "}
+    {'The classifier is training hard! '}
     <Button onClick={onTrainingCheck}>Check Status</Button>
   </span>
 );
@@ -73,7 +73,7 @@ class SearchSeeds extends React.Component {
           <HiglassResultList
             isError={this.props.isError}
             isLoading={this.props.isLoading}
-            isEmpty={"No seeds found!"}
+            isEmpty={'No seeds found!'}
             isTraining={this.props.isTraining === true}
             isTrainingNodes={isTraining(this.props.onTrainingCheck)}
             itemsPerPage={this.props.itemsPerPage}

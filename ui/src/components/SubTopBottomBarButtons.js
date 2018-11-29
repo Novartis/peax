@@ -1,15 +1,15 @@
-import { PropTypes } from "prop-types";
-import React from "react";
+import { PropTypes } from 'prop-types';
+import React from 'react';
 
 // Styles
-import "./SubTopBottomBarButtons.scss";
+import './SubTopBottomBarButtons.scss';
 
 const classNames = props => {
-  let className = "sub-top-bottom-bar-buttons";
+  let className = 'sub-top-bottom-bar-buttons';
 
   className += ` ${props.className}`;
-  className += props.iconOnly ? " button-icon-only" : "";
-  className += props.isActive ? " is-active" : "";
+  className += props.iconOnly ? ' button-icon-only' : '';
+  className += props.isActive ? ' is-active' : '';
 
   return className;
 };

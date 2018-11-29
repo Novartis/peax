@@ -1,12 +1,12 @@
-import React from "react";
-import { NavLink } from "react-router-dom";
+import React from 'react';
+import { NavLink } from 'react-router-dom';
 
 // Components
-import Icon from "./Icon";
-import ToolTip from "./ToolTip";
+import Icon from './Icon';
+import ToolTip from './ToolTip';
 
 // Styles
-import "./Footer.scss";
+import './Footer.scss';
 
 const Footer = () => (
   <footer className="footer">

@@ -1,10 +1,10 @@
-import update from "immutability-helper";
-import { decode } from "tab64";
+import update from 'immutability-helper';
+import { decode } from 'tab64';
 
 // Utils
-import getServer from "./get-server";
-import mergeError from "./merge-error";
-import mergeJsonResponse from "./merge-json-response";
+import getServer from './get-server';
+import mergeError from './merge-error';
+import mergeJsonResponse from './merge-json-response';
 
 const server = `${getServer()}/api/v1`;
 
@@ -18,8 +18,8 @@ const getInfo = async () =>
 
 const newSearch = async rangeSelection =>
   fetch(`${server}/search/`, {
-    method: "post",
-    headers: { "Content-Type": "application/json; charset=utf-8" },
+    method: 'post',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
     body: JSON.stringify({ window: rangeSelection })
   })
     .then(mergeJsonResponse)
@@ -37,8 +37,8 @@ const getAllSearchInfos = async (max = 0) =>
 
 const setClassification = async (searchId, windowId, classification) =>
   fetch(`${server}/classification/`, {
-    method: "put",
-    headers: { "Content-Type": "application/json; charset=utf-8" },
+    method: 'put',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
     body: JSON.stringify({ searchId, windowId, classification })
   })
     .then(mergeJsonResponse)
@@ -46,8 +46,8 @@ const setClassification = async (searchId, windowId, classification) =>
 
 const deleteClassification = async (searchId, windowId) =>
   fetch(`${server}/classification/`, {
-    method: "delete",
-    headers: { "Content-Type": "application/json; charset=utf-8" },
+    method: 'delete',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
     body: JSON.stringify({ searchId, windowId })
   })
     .then(mergeJsonResponse)
@@ -74,7 +74,7 @@ const getSeeds = async searchId =>
     .catch(mergeError);
 
 const newClassifier = async searchId =>
-  fetch(`${server}/classifier/?s=${searchId}`, { method: "post" })
+  fetch(`${server}/classifier/?s=${searchId}`, { method: 'post' })
     .then(mergeJsonResponse)
     .catch(mergeError);
 
@@ -84,7 +84,7 @@ const getClassifier = async searchId =>
     .catch(mergeError);
 
 const newProjection = async searchId =>
-  fetch(`${server}/projection/?s=${searchId}`, { method: "put" })
+  fetch(`${server}/projection/?s=${searchId}`, { method: 'put' })
     .then(mergeJsonResponse)
     .catch(mergeError);
 
@@ -95,7 +95,7 @@ const getProjection = async searchId =>
       update(resp, {
         body: (body = {}) =>
           update(body, {
-            projection: { $set: decode(body.projection || "", "float32") }
+            projection: { $set: decode(body.projection || '', 'float32') }
           })
       })
     )
@@ -108,7 +108,7 @@ const getProbabilities = async searchId =>
       update(resp, {
         body: (body = {}) =>
           update(body, {
-            results: { $set: decode(body.results || "", "float32") }
+            results: { $set: decode(body.results || '', 'float32') }
           })
       })
     )
@@ -121,7 +121,7 @@ const getClasses = async searchId =>
       update(resp, {
         body: (body = {}) =>
           update(body, {
-            results: { $set: decode(body.results || "", "uint8") }
+            results: { $set: decode(body.results || '', 'uint8') }
           })
       })
     )

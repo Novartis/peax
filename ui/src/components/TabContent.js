@@ -1,14 +1,14 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Styles
-import "./TabContent.scss";
+import './TabContent.scss';
 
 const classNames = props => {
-  let className = "tab-content";
+  let className = 'tab-content';
 
   className += ` ${props.className}`;
-  className += props.tabOpen === props.for ? " is-open" : "";
+  className += props.tabOpen === props.for ? ' is-open' : '';
 
   return className;
 };

@@ -1,14 +1,14 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Components
-import Icon from "./Icon";
+import Icon from './Icon';
 
 // Styles
-import "./RangeSelectionViewer.scss";
+import './RangeSelectionViewer.scss';
 
 const getValue = (rangeSelection, axis, locus) => {
-  let val = "Unknown";
+  let val = 'Unknown';
 
   try {
     const idx = 2 * locus;
@@ -40,7 +40,7 @@ const RangeSelectionViewer = props => (
     {(!props.is1d || (props.is1d && props.isX)) && (
       <div
         className={`flex-c range-selection-viewer-x ${
-          props.is1d ? "range-selection-viewer-x-only" : ""
+          props.is1d ? 'range-selection-viewer-x-only' : ''
         }`}
       >
         {!props.is1d && <Icon iconId="arrow-bottom-from-right" />}
@@ -55,7 +55,7 @@ const RangeSelectionViewer = props => (
     {(!props.is1d || (props.is1d && !props.isX)) && (
       <div
         className={`flex-c range-selection-viewer-y ${
-          props.is1d ? "range-selection-viewer-y-only" : ""
+          props.is1d ? 'range-selection-viewer-y-only' : ''
         }`}
       >
         {!props.is1d && <Icon iconId="arrow-right-with-body" mirrorV={true} />}

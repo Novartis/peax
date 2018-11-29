@@ -1,13 +1,13 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Components
-import Content from "../components/Content";
-import ContentWrapper from "../components/ContentWrapper";
-import Footer from "../components/Footer";
-import Icon from "../components/Icon";
+import Content from '../components/Content';
+import ContentWrapper from '../components/ContentWrapper';
+import Footer from '../components/Footer';
+import Icon from '../components/Icon';
 
-import "./NotFound.scss";
+import './NotFound.scss';
 
 const NotFound = props => (
   <ContentWrapper name="not-found">
@@ -27,8 +27,8 @@ const NotFound = props => (
 );
 
 NotFound.defaultProps = {
-  message: "The requested page either moved or does not exist.",
-  title: "Nothing Found!"
+  message: 'The requested page either moved or does not exist.',
+  title: 'Nothing Found!'
 };
 
 NotFound.propTypes = {

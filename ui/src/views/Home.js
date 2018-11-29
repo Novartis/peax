@@ -1,28 +1,28 @@
-import { ChromosomeInfo } from "higlass";
-import PropTypes from "prop-types";
-import React from "react";
-import { connect } from "react-redux";
-import { Link } from "react-router-dom";
+import { ChromosomeInfo } from 'higlass';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 // Higher-order components
-import { withPubSub } from "../hocs/pub-sub";
+import { withPubSub } from '../hocs/pub-sub';
 
 // Components
-import ButtonLikeLink from "../components/ButtonLikeLink";
-import Content from "../components/Content";
-import ContentWrapper from "../components/ContentWrapper";
-import Footer from "../components/Footer";
-import HiGlassViewer from "../components/HiGlassViewer";
-import Icon from "../components/Icon";
-import InfoBar from "../components/InfoBar";
-import HomeSubTopBar from "./HomeSubTopBar";
+import ButtonLikeLink from '../components/ButtonLikeLink';
+import Content from '../components/Content';
+import ContentWrapper from '../components/ContentWrapper';
+import Footer from '../components/Footer';
+import HiGlassViewer from '../components/HiGlassViewer';
+import Icon from '../components/Icon';
+import InfoBar from '../components/InfoBar';
+import HomeSubTopBar from './HomeSubTopBar';
 
 // Actions
 import {
   setHomeInfoBarClose,
   setHiglassMouseTool,
   setSearchTab
-} from "../actions";
+} from '../actions';
 
 // Utils
 import {
@@ -31,16 +31,16 @@ import {
   Logger,
   readableDate,
   removeHiGlassEventListeners
-} from "../utils";
+} from '../utils';
 
 // Configs
-import { PAN_ZOOM, SELECT } from "../configs/mouse-tools";
-import { TAB_SEEDS } from "../configs/search";
+import { PAN_ZOOM, SELECT } from '../configs/mouse-tools';
+import { TAB_SEEDS } from '../configs/search';
 
 // Stylesheets
-import "./Home.scss";
+import './Home.scss';
 
-const logger = Logger("Home");
+const logger = Logger('Home');
 
 class Home extends React.Component {
   constructor(props) {
@@ -67,7 +67,7 @@ class Home extends React.Component {
 
   componentDidMount() {
     this.pubSubs.push(
-      this.props.pubSub.subscribe("keydown", this.keyDownHandlerBound)
+      this.props.pubSub.subscribe('keydown', this.keyDownHandlerBound)
     );
     this.getSearches();
   }
@@ -120,8 +120,8 @@ class Home extends React.Component {
       !this.hiGlassEventListeners.rangeSelection
     ) {
       this.hiGlassEventListeners.rangeSelection = {
-        name: "rangeSelection",
-        id: this.hgApi.on("rangeSelection", this.rangeSelectionHandlerDb)
+        name: 'rangeSelection',
+        id: this.hgApi.on('rangeSelection', this.rangeSelectionHandlerDb)
       };
     }
   }
@@ -197,7 +197,7 @@ class Home extends React.Component {
   }
 
   getHgViewId(showAes = this.props.showAutoencodings) {
-    return `default${showAes ? ".e" : ""}`;
+    return `default${showAes ? '.e' : ''}`;
   }
 
   /* -------------------------------- Render -------------------------------- */

@@ -1,11 +1,11 @@
-import { PropTypes } from "prop-types";
-import React from "react";
+import { PropTypes } from 'prop-types';
+import React from 'react';
 
 // Components
-import Icon from "./Icon";
+import Icon from './Icon';
 
 // Styles
-import "./ButtonLikeFileSelect.scss";
+import './ButtonLikeFileSelect.scss';
 
 let inputEl;
 
@@ -28,7 +28,7 @@ const ButtonLikeFileSelect = props => (
 );
 
 ButtonLikeFileSelect.defaultProps = {
-  className: ""
+  className: ''
 };
 
 ButtonLikeFileSelect.propTypes = {

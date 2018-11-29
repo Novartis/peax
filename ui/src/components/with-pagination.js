@@ -1,12 +1,12 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Components
-import Button from "./Button";
-import Spinner from "./Spinner";
+import Button from './Button';
+import Spinner from './Spinner';
 
 // Utils
-import { range } from "../utils";
+import { range } from '../utils';
 
 const getCurrentPage = (list, page = 0, itemsPerPage = 10) =>
   list.slice(page * itemsPerPage, (page + 1) * itemsPerPage);
@@ -90,7 +90,7 @@ const withPagination = Component => {
         {page !== pageTotal && (!pageTotal || pageTotal > page + 1) && (
           <Button
             className={`with-pagination-next-prev has-spinner ${
-              isLoadingMore ? "is-spinning" : ""
+              isLoadingMore ? 'is-spinning' : ''
             }`}
             onClick={() => onPage(page + 1)}
             isDisabled={isLoadingMore}
@@ -104,8 +104,8 @@ const withPagination = Component => {
   );
 
   Pagination.defaultProps = {
-    textNext: "Next",
-    textPrev: "Prev"
+    textNext: 'Next',
+    textPrev: 'Prev'
   };
 
   Pagination.propTypes = {

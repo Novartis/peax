@@ -1,11 +1,11 @@
-import deepEqual from "deep-equal";
+import deepEqual from 'deep-equal';
 
-import camelToConst from "./camel-to-const";
-import deepClone from "./deep-clone";
+import camelToConst from './camel-to-const';
+import deepClone from './deep-clone';
 
 const clone = (value, state) => {
   switch (typeof value) {
-    case "object": {
+    case 'object': {
       if (!deepEqual(value, state)) {
         return deepClone(value);
       }

@@ -7,7 +7,7 @@
  * @return {object} Cloned `source` object
  */
 const extend = (target, source) => {
-  if (source === null || typeof source !== "object") {
+  if (source === null || typeof source !== 'object') {
     return source;
   }
 
@@ -30,7 +30,7 @@ const extend = (target, source) => {
 
   Object.keys(source).forEach(attr => {
     out[attr] =
-      typeof out[attr] === "undefined"
+      typeof out[attr] === 'undefined'
         ? extend(undefined, source[attr])
         : out[attr];
   });

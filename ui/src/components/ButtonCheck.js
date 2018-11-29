@@ -1,20 +1,20 @@
-import { PropTypes } from "prop-types";
-import React from "react";
+import { PropTypes } from 'prop-types';
+import React from 'react';
 
 // Components
-import Icon from "./Icon";
+import Icon from './Icon';
 
 // Styles
-import "./ButtonCheck.scss";
+import './ButtonCheck.scss';
 
 const classNames = props => {
-  let className = "flex-c flex-a-c flex-jc-c button-check";
+  let className = 'flex-c flex-a-c flex-jc-c button-check';
 
-  className += props.isActive ? " is-active" : "";
-  className += props.isChecked ? " is-checked" : "";
-  className += props.isDisabled ? " is-disabled" : "";
-  className += props.checkboxPosition === "right" ? " flex-rev" : "";
-  className += ` ${props.className || ""}`;
+  className += props.isActive ? ' is-active' : '';
+  className += props.isChecked ? ' is-checked' : '';
+  className += props.isDisabled ? ' is-disabled' : '';
+  className += props.checkboxPosition === 'right' ? ' flex-rev' : '';
+  className += ` ${props.className || ''}`;
 
   return className;
 };
@@ -35,11 +35,11 @@ const ButtonIcon = props => (
 );
 
 ButtonIcon.defaultProps = {
-  checkboxPosition: "left"
+  checkboxPosition: 'left'
 };
 
 ButtonIcon.propTypes = {
-  checkboxPosition: PropTypes.oneOf(["left", "right"]),
+  checkboxPosition: PropTypes.oneOf(['left', 'right']),
   children: PropTypes.node,
   className: PropTypes.string,
   isActive: PropTypes.bool,

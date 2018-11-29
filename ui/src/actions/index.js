@@ -1,74 +1,74 @@
-import { ActionCreators } from "redux-undo";
+import { ActionCreators } from 'redux-undo';
 
 export const redo = ActionCreators.redo();
 
 export const reset = () => ({
-  type: "RESET",
+  type: 'RESET',
   payload: {}
 });
 
 export const setSearchId = searchId => ({
-  type: "SET_SEARCH_ID",
+  type: 'SET_SEARCH_ID',
   payload: { searchId }
 });
 
 export const setServerStartTime = serverStartTime => ({
-  type: "SET_SERVER_START_TIME",
+  type: 'SET_SERVER_START_TIME',
   payload: { serverStartTime }
 });
 
 export const setHomeInfoBarClose = homeInfoBarClose => ({
-  type: "SET_HOME_INFO_BAR_CLOSE",
+  type: 'SET_HOME_INFO_BAR_CLOSE',
   payload: { homeInfoBarClose }
 });
 
 export const setViewConfig = viewConfig => ({
-  type: "SET_VIEW_CONFIG",
+  type: 'SET_VIEW_CONFIG',
   payload: { viewConfig }
 });
 
 export const setHiglassMouseTool = higlassMouseTool => ({
-  type: "SET_HIGLASS_MOUSE_TOOL",
+  type: 'SET_HIGLASS_MOUSE_TOOL',
   payload: { higlassMouseTool }
 });
 
 export const setSearchRightBarInfoMetadata = searchRightBarInfoMetadata => ({
-  type: "SET_SEARCH_RIGHT_BAR_INFO_METADATA",
+  type: 'SET_SEARCH_RIGHT_BAR_INFO_METADATA',
   payload: { searchRightBarInfoMetadata }
 });
 
 export const setSearchRightBarProjectionSettings = searchRightBarProjectionSettings => ({
-  type: "SET_SEARCH_RIGHT_BAR_PROJECTION_SETTINGS",
+  type: 'SET_SEARCH_RIGHT_BAR_PROJECTION_SETTINGS',
   payload: { searchRightBarProjectionSettings }
 });
 
 export const setSearchRightBarShow = searchRightBarShow => ({
-  type: "SET_SEARCH_RIGHT_BAR_SHOW",
+  type: 'SET_SEARCH_RIGHT_BAR_SHOW',
   payload: { searchRightBarShow }
 });
 
 export const setSearchRightBarTab = searchRightBarTab => ({
-  type: "SET_SEARCH_RIGHT_BAR_TAB",
+  type: 'SET_SEARCH_RIGHT_BAR_TAB',
   payload: { searchRightBarTab }
 });
 
 export const setSearchRightBarWidth = searchRightBarWidth => ({
-  type: "SET_SEARCH_RIGHT_BAR_WIDTH",
+  type: 'SET_SEARCH_RIGHT_BAR_WIDTH',
   payload: { searchRightBarWidth }
 });
 
 export const setSearchSelection = searchSelection => ({
-  type: "SET_SEARCH_SELECTION",
+  type: 'SET_SEARCH_SELECTION',
   payload: { searchSelection }
 });
 
 export const setSearchTab = searchTab => ({
-  type: "SET_SEARCH_TAB",
+  type: 'SET_SEARCH_TAB',
   payload: { searchTab }
 });
 
 export const setShowAutoencodings = showAutoencodings => ({
-  type: "SET_SHOW_AUTOENCODINGS",
+  type: 'SET_SHOW_AUTOENCODINGS',
   payload: { showAutoencodings }
 });
 

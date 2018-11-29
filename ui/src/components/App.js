@@ -1,29 +1,29 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { connect } from "react-redux";
-import { withRouter } from "react-router";
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
 
 // Higher-order components
-import { withPubSub } from "../hocs/pub-sub";
+import { withPubSub } from '../hocs/pub-sub';
 
 // Components
-import Dialog from "./Dialog";
-import DropNotifier from "./DropNotifier";
-import Main from "./Main";
-import TopBar from "./TopBar";
+import Dialog from './Dialog';
+import DropNotifier from './DropNotifier';
+import Main from './Main';
+import TopBar from './TopBar';
 
 // Actions
-import { redo, setViewConfig, undo } from "../actions";
+import { redo, setViewConfig, undo } from '../actions';
 
 // Factories
-import createDomEvent from "../factories/dom-event";
+import createDomEvent from '../factories/dom-event';
 
 // Utils
-import { loadViewConfig, Logger } from "../utils";
+import { loadViewConfig, Logger } from '../utils';
 
-import "./App.scss";
+import './App.scss';
 
-const logger = Logger("App");
+const logger = Logger('App');
 
 class App extends React.Component {
   constructor(props) {
@@ -39,33 +39,33 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    this.domEvent.register("click", document);
-    this.domEvent.register("keydown", document);
-    this.domEvent.register("keyup", document);
-    this.domEvent.register("mousemove", document);
-    this.domEvent.register("mouseup", document);
-    this.domEvent.register("orientationchange", window);
-    this.domEvent.register("resize", window);
-    this.domEvent.register("scroll", document);
+    this.domEvent.register('click', document);
+    this.domEvent.register('keydown', document);
+    this.domEvent.register('keyup', document);
+    this.domEvent.register('mousemove', document);
+    this.domEvent.register('mouseup', document);
+    this.domEvent.register('orientationchange', window);
+    this.domEvent.register('resize', window);
+    this.domEvent.register('scroll', document);
 
     this.pubSubs.push(
-      this.props.pubSub.subscribe("globalDialog", this.dialogHandler.bind(this))
+      this.props.pubSub.subscribe('globalDialog', this.dialogHandler.bind(this))
     );
 
     this.pubSubs.push(
-      this.props.pubSub.subscribe("keydown", this.keyDownHandler.bind(this))
+      this.props.pubSub.subscribe('keydown', this.keyDownHandler.bind(this))
     );
   }
 
   componentWillUnmount() {
-    this.domEvent.unregister("click", document);
-    this.domEvent.unregister("keydown", document);
-    this.domEvent.unregister("keyup", document);
-    this.domEvent.unregister("mousemove", document);
-    this.domEvent.unregister("mouseup", document);
-    this.domEvent.unregister("orientationchange", window);
-    this.domEvent.unregister("resize", window);
-    this.domEvent.unregister("scroll", document);
+    this.domEvent.unregister('click', document);
+    this.domEvent.unregister('keydown', document);
+    this.domEvent.unregister('keyup', document);
+    this.domEvent.unregister('mousemove', document);
+    this.domEvent.unregister('mouseup', document);
+    this.domEvent.unregister('orientationchange', window);
+    this.domEvent.unregister('resize', window);
+    this.domEvent.unregister('scroll', document);
 
     this.pubSubs.forEach(subscription =>
       this.props.pubSub.unsubscribe(subscription)
@@ -116,19 +116,19 @@ class App extends React.Component {
   dropHandler(event) {
     loadViewConfig(event.dataTransfer.files[0])
       .then(viewConfig => {
-        logger.debug("ViewConfig JSON loaded");
+        logger.debug('ViewConfig JSON loaded');
 
         this.props.setViewConfig(viewConfig);
 
-        if (this.props.location.pathname.substr(0, 4) !== "/app") {
-          this.props.history.push("/app");
+        if (this.props.location.pathname.substr(0, 4) !== '/app') {
+          this.props.history.push('/app');
         }
       })
       .catch(error => {
         logger.error(error);
         this.props.pubSub.publish(
-          "globalError",
-          "Only drop valid JSON view configs."
+          'globalError',
+          'Only drop valid JSON view configs.'
         );
       });
   }

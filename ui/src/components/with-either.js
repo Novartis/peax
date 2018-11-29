@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 const withEither = (conditionalRenderingFn, EitherComponent) => Component => {
   const Either = props =>

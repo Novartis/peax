@@ -1,8 +1,8 @@
-import { PropTypes } from "prop-types";
-import React from "react";
+import { PropTypes } from 'prop-types';
+import React from 'react';
 
 // Components
-import ButtonIcon from "./ButtonIcon";
+import ButtonIcon from './ButtonIcon';
 
 const AnnotationList = props => (
   <ol className={`annotation-list ${props.className}`}>
@@ -32,7 +32,7 @@ const AnnotationList = props => (
 
 AnnotationList.defaultProps = {
   annotations: [],
-  className: ""
+  className: ''
 };
 
 AnnotationList.propTypes = {

@@ -1,19 +1,19 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { connect } from "react-redux";
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 
 // Components
-import Badge from "../components/Badge";
-import TabEntry from "../components/TabEntry";
+import Badge from '../components/Badge';
+import TabEntry from '../components/TabEntry';
 
 // Utils
-import { readableDate } from "../utils";
+import { readableDate } from '../utils';
 
 // Actions
-import { setSearchRightBarInfoMetadata } from "../actions";
+import { setSearchRightBarInfoMetadata } from '../actions';
 
 // Styles
-import "./Search.scss";
+import './Search.scss';
 
 const SearchRightBarInfo = props => (
   <div className="right-bar-info flex-c flex-v full-wh">
@@ -49,14 +49,14 @@ const SearchRightBarInfo = props => (
         <ul className="no-list-style compact-list">
           <li className="flex-c flex-jc-sb">
             <span className="label flex-g-1">Search ID</span>
-            <span className="value">{props.searchInfo.id || "?"}</span>
+            <span className="value">{props.searchInfo.id || '?'}</span>
           </li>
           <li className="flex-c flex-jc-sb">
             <span className="label flex-g-1">Last Update</span>
             <span className="value">
               {props.searchInfo.updated
                 ? readableDate(props.searchInfo.updated)
-                : "?"}
+                : '?'}
             </span>
           </li>
         </ul>

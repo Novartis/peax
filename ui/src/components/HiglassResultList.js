@@ -1,17 +1,17 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { compose } from "recompose";
+import PropTypes from 'prop-types';
+import React from 'react';
+import { compose } from 'recompose';
 
 // Components
-import HiglassResult from "./HiglassResult";
-import MessageCenter from "./MessageCenter";
-import SpinnerCenter from "./SpinnerCenter";
+import HiglassResult from './HiglassResult';
+import MessageCenter from './MessageCenter';
+import SpinnerCenter from './SpinnerCenter';
 
 // HOCs
-import withEither from "./with-either";
-import withList from "./with-list";
-import withMaybe from "./with-maybe";
-import withPagination from "./with-pagination";
+import withEither from './with-either';
+import withList from './with-list';
+import withMaybe from './with-maybe';
+import withPagination from './with-pagination';
 
 const getKey = props => props.windowId;
 const isError = props => props.isError;

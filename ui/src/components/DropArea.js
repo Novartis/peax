@@ -1,8 +1,8 @@
-import { PropTypes } from "prop-types";
-import React from "react";
+import { PropTypes } from 'prop-types';
+import React from 'react';
 
 // Styles
-import "./DropArea.scss";
+import './DropArea.scss';
 
 const DropArea = props => (
   <div className={`flex-c flex-a-c rel drop-area ${props.className}`}>
@@ -11,7 +11,7 @@ const DropArea = props => (
 );
 
 DropArea.defaultProps = {
-  className: ""
+  className: ''
 };
 
 DropArea.propTypes = {

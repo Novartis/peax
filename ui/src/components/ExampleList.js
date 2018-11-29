@@ -1,18 +1,18 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Styles
-import "./ExampleList.scss";
+import './ExampleList.scss';
 
 const ExampleList = props => (
   <ul className="example-list flex-c flex-w-w no-list-style">
     {props.examples.map((example, index) => (
-      <li className={example.columns === 2 && "two-columns"} key={index}>
+      <li className={example.columns === 2 && 'two-columns'} key={index}>
         <a href={example.url && example.url}>
           <figure
             className="example-figure"
             style={{
-              backgroundImage: `url(${example.image ? example.image : ""})`
+              backgroundImage: `url(${example.image ? example.image : ''})`
             }}
           />
         </a>

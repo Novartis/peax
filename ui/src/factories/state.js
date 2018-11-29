@@ -1,16 +1,16 @@
-import createHistory from "history/createBrowserHistory";
-import { routerMiddleware } from "react-router-redux";
-import { applyMiddleware, compose, createStore } from "redux";
-import { enableBatching } from "redux-batched-actions";
-import freeze from "redux-freeze";
-import { createLogger } from "redux-logger";
-import { autoRehydrate, persistStore, purgeStoredState } from "redux-persist";
-import { asyncSessionStorage } from "redux-persist/storages";
-import thunk from "redux-thunk";
-import undoable, { ActionCreators, groupByActionTypes } from "redux-undo";
+import createHistory from 'history/createBrowserHistory';
+import { routerMiddleware } from 'react-router-redux';
+import { applyMiddleware, compose, createStore } from 'redux';
+import { enableBatching } from 'redux-batched-actions';
+import freeze from 'redux-freeze';
+import { createLogger } from 'redux-logger';
+import { autoRehydrate, persistStore, purgeStoredState } from 'redux-persist';
+import { asyncSessionStorage } from 'redux-persist/storages';
+import thunk from 'redux-thunk';
+import undoable, { ActionCreators, groupByActionTypes } from 'redux-undo';
 
 // Reducer
-import rootReducer from "../reducers";
+import rootReducer from '../reducers';
 
 // Actions
 import {
@@ -19,9 +19,9 @@ import {
   setHiglassMouseTool,
   setSearchRightBarShow,
   setSearchRightBarWidth
-} from "../actions";
+} from '../actions';
 
-const prefix = "HiGlassApp.";
+const prefix = 'HiGlassApp.';
 
 const config = {
   storage: asyncSessionStorage,
@@ -37,10 +37,10 @@ const middleware = [
   applyMiddleware(routerMiddleware(history))
 ];
 
-if (process.env.NODE_ENV === "development") {
+if (process.env.NODE_ENV === 'development') {
   // Configure the logger middleware
   const logger = createLogger({
-    level: "info",
+    level: 'info',
     collapsed: true
   });
 

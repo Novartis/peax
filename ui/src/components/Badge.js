@@ -1,19 +1,19 @@
-import { PropTypes } from "prop-types";
-import React from "react";
+import { PropTypes } from 'prop-types';
+import React from 'react';
 
 // Styles
-import "./Badge.scss";
+import './Badge.scss';
 
 const classNames = props => {
-  let className = "badge";
+  let className = 'badge';
 
-  let level = "poor";
-  if (props.value >= props.levelOkay) level = "okay";
-  if (props.value >= props.levelGood) level = "good";
+  let level = 'poor';
+  if (props.value >= props.levelOkay) level = 'okay';
+  if (props.value >= props.levelGood) level = 'good';
 
   className += ` badge-level-${level}`;
 
-  if (props.isBordered) className += " badge-border";
+  if (props.isBordered) className += ' badge-border';
 
   return className;
 };

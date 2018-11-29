@@ -1,12 +1,12 @@
 const LEVELS = {
-  debug: "log",
-  info: "info",
-  warn: "warn",
-  error: "error"
+  debug: 'log',
+  info: 'info',
+  warn: 'warn',
+  error: 'error'
 };
 
 const logger = {
-  name: "Unnamed"
+  name: 'Unnamed'
 };
 
 Object.keys(LEVELS).forEach(level => {

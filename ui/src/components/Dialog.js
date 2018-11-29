@@ -1,14 +1,14 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Higher-order components
-import { withPubSub } from "../hocs/pub-sub";
+import { withPubSub } from '../hocs/pub-sub';
 
 // Components
-import Icon from "./Icon";
+import Icon from './Icon';
 
 // Styles
-import "./Dialog.scss";
+import './Dialog.scss';
 
 class Dialog extends React.Component {
   constructor(props) {
@@ -17,7 +17,7 @@ class Dialog extends React.Component {
     this.pubSubs = [];
 
     this.pubSubs.push(
-      this.props.pubSub.subscribe("keyup", this.keyUpHandler.bind(this))
+      this.props.pubSub.subscribe('keyup', this.keyUpHandler.bind(this))
     );
   }
 
@@ -39,7 +39,7 @@ class Dialog extends React.Component {
                 {this.props.headline && <h2>{this.props.headline}</h2>}
               </header>
             )}
-            {typeof this.props.message === "string" ? (
+            {typeof this.props.message === 'string' ? (
               <p className="dialog-message">{this.props.message}</p>
             ) : (
               <div className="dialog-message">{this.props.message}</div>
@@ -52,7 +52,7 @@ class Dialog extends React.Component {
               </button>
             )}
             <button
-              className={this.props.resolveOnly ? "column-1" : "column-1-2"}
+              className={this.props.resolveOnly ? 'column-1' : 'column-1-2'}
               onClick={this.props.resolve}
             >
               {this.props.resolveText}
@@ -68,11 +68,11 @@ class Dialog extends React.Component {
   keyUpHandler(event) {
     switch (event.keyCode) {
       case 13: // ENTER
-        this.props.resolve("Accept dialog on ENTER");
+        this.props.resolve('Accept dialog on ENTER');
         break;
 
       case 27: // ESC
-        this.props.reject("Closed dialog on ESC");
+        this.props.reject('Closed dialog on ESC');
         break;
 
       default:
@@ -82,8 +82,8 @@ class Dialog extends React.Component {
 }
 
 Dialog.defaultProps = {
-  rejectText: "Cancel",
-  resolveText: "OK"
+  rejectText: 'Cancel',
+  resolveText: 'OK'
 };
 
 Dialog.propTypes = {

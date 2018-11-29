@@ -1,4 +1,4 @@
-import { requestAnimationFrame } from "./request-animation-frame";
+import { requestAnimationFrame } from './request-animation-frame';
 
 const withRaf = (fn, callback) => {
   let isRequesting = false;

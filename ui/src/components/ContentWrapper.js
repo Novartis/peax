@@ -1,18 +1,18 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Higher-order components
-import { withPubSub } from "../hocs/pub-sub";
+import { withPubSub } from '../hocs/pub-sub';
 
 // Components
-import ErrorBar from "./ErrorBar";
+import ErrorBar from './ErrorBar';
 
 class ContentWrapper extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      error: ""
+      error: ''
     };
 
     this.pubSubs = [];
@@ -20,7 +20,7 @@ class ContentWrapper extends React.Component {
 
   componentDidMount() {
     this.pubSubs.push(
-      this.props.pubSub.subscribe("globalError", this.errorHandler.bind(this))
+      this.props.pubSub.subscribe('globalError', this.errorHandler.bind(this))
     );
   }
 
@@ -35,9 +35,9 @@ class ContentWrapper extends React.Component {
       this.props.name
     }`;
 
-    className += this.props.isFullDimOnly ? " oh" : "";
-    className += this.props.bottomBar ? " content-wrapper-bottom-bar" : "";
-    className += this.state.error ? " content-wrapper-has-error" : "";
+    className += this.props.isFullDimOnly ? ' oh' : '';
+    className += this.props.bottomBar ? ' content-wrapper-bottom-bar' : '';
+    className += this.state.error ? ' content-wrapper-has-error' : '';
 
     return (
       <div className={className}>
@@ -46,7 +46,7 @@ class ContentWrapper extends React.Component {
             autoClose={true}
             isClosable={true}
             msg={this.state.error}
-            onClose={() => this.setState({ error: "" })}
+            onClose={() => this.setState({ error: '' })}
             wrap={!this.props.isFullDimOnly}
           />
         )}

@@ -1,13 +1,13 @@
-import React from "react";
+import React from 'react';
 
 // Components
-import Content from "../components/Content";
-import ContentWrapper from "../components/ContentWrapper";
-import Footer from "../components/Footer";
-import Icon from "../components/Icon";
+import Content from '../components/Content';
+import ContentWrapper from '../components/ContentWrapper';
+import Footer from '../components/Footer';
+import Icon from '../components/Icon';
 
 // Stylesheets
-import "./About.scss";
+import './About.scss';
 
 const About = () => (
   <ContentWrapper name="about">

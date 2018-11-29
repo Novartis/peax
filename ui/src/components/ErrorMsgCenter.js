@@ -1,8 +1,8 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Components
-import ErrorMsg from "./ErrorMsg";
+import ErrorMsg from './ErrorMsg';
 
 const ErrorMsgCenter = props => (
   <div className="full-dim flex-c flex-a-c flex-jc-c error-msg-center">

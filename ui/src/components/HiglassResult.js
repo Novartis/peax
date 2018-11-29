@@ -1,20 +1,20 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { connect } from "react-redux";
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 
 // Components
-import ButtonIcon from "./ButtonIcon";
-import HiGlassViewer from "./HiGlassViewer";
-import ButtonRadio from "./ButtonRadio";
+import ButtonIcon from './ButtonIcon';
+import HiGlassViewer from './HiGlassViewer';
+import ButtonRadio from './ButtonRadio';
 
 // Configs
 import {
   BUTTON_RADIO_CLASSIFICATION_OPTIONS,
   BLUE_PINK_CMAP,
   BLUE_PINK_TEXT_CMAP
-} from "../configs/search";
+} from '../configs/search';
 
-import "./HiglassResult.scss";
+import './HiglassResult.scss';
 
 const getColor = prob =>
   BLUE_PINK_CMAP[Math.round(prob * BLUE_PINK_CMAP.length)];
@@ -56,7 +56,7 @@ class HiglassResult extends React.Component {
 
   get viewId() {
     return `${this.props.searchId}.${this.props.windowId}.${
-      this.props.showAutoencodings ? "e" : ""
+      this.props.showAutoencodings ? 'e' : ''
     }`;
   }
 
@@ -134,13 +134,13 @@ class HiglassResult extends React.Component {
   /* -------------------------------- Render -------------------------------- */
 
   render() {
-    let classNameInfoSideBar = "higlass-result-side-panel";
+    let classNameInfoSideBar = 'higlass-result-side-panel';
 
     if (this.props.isInfoSideBar) {
-      classNameInfoSideBar += " higlass-result-has-info";
+      classNameInfoSideBar += ' higlass-result-has-info';
     }
     if (this.state.isInfoSideBarShown) {
-      classNameInfoSideBar += " higlass-result-show-info";
+      classNameInfoSideBar += ' higlass-result-show-info';
     }
 
     return (
@@ -243,7 +243,7 @@ class HiglassResult extends React.Component {
 }
 
 HiglassResult.defaultProps = {
-  classification: "neutral",
+  classification: 'neutral',
   classificationProb: null,
   dataTracks: [],
   isInfoSideBar: false,

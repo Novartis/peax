@@ -7,17 +7,17 @@ const readableDate = (date, hasHour) => {
   }
 
   const format = {
-    year: "numeric",
-    month: "short",
-    day: "numeric"
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
   };
 
   if (hasHour) {
-    format.hour = "numeric";
-    format.minute = "numeric";
+    format.hour = 'numeric';
+    format.minute = 'numeric';
   }
 
-  return d.toLocaleString("en-us", format);
+  return d.toLocaleString('en-us', format);
 };
 
 export default readableDate;

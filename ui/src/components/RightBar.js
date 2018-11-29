@@ -1,14 +1,14 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Higher-order components
-import { withPubSub } from "../hocs/pub-sub";
+import { withPubSub } from '../hocs/pub-sub';
 
 // Components
-import ButtonIcon from "./ButtonIcon";
+import ButtonIcon from './ButtonIcon';
 
 // Styles
-import "./RightBar.scss";
+import './RightBar.scss';
 
 export const RIGHT_BAR_MIN_WIDTH = 4;
 
@@ -21,10 +21,10 @@ class RightBar extends React.Component {
 
   componentDidMount() {
     this.pubSubs.push(
-      this.props.pubSub.subscribe("mousemove", this.mouseMoveHandler.bind(this))
+      this.props.pubSub.subscribe('mousemove', this.mouseMoveHandler.bind(this))
     );
     this.pubSubs.push(
-      this.props.pubSub.subscribe("mouseup", this.mouseUpHandler.bind(this))
+      this.props.pubSub.subscribe('mouseup', this.mouseUpHandler.bind(this))
     );
   }
 
@@ -36,9 +36,9 @@ class RightBar extends React.Component {
   }
 
   render() {
-    let classNames = "right-bar";
-    classNames += this.props.isShown ? " is-shown" : "";
-    classNames += this.props.className ? ` ${this.props.className}` : "";
+    let classNames = 'right-bar';
+    classNames += this.props.isShown ? ' is-shown' : '';
+    classNames += this.props.className ? ` ${this.props.className}` : '';
 
     const styles = {
       width: `${
@@ -116,7 +116,7 @@ class RightBar extends React.Component {
 }
 
 RightBar.defaultProps = {
-  className: ""
+  className: ''
 };
 
 RightBar.propTypes = {

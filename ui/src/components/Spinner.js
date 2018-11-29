@@ -1,11 +1,11 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Styles
-import "./Spinner.scss";
+import './Spinner.scss';
 
 const Spinner = props => (
-  <div className={`spinner ${props.delayed ? "is-delayed" : ""}`}>
+  <div className={`spinner ${props.delayed ? 'is-delayed' : ''}`}>
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 40 40"

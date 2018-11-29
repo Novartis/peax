@@ -1,11 +1,11 @@
-import { PropTypes } from "prop-types";
-import React from "react";
+import { PropTypes } from 'prop-types';
+import React from 'react';
 
 // Utils
-import ButtonIcon from "./ButtonIcon";
+import ButtonIcon from './ButtonIcon';
 
 // Styles
-import "./LabeledSlider.scss";
+import './LabeledSlider.scss';
 
 class LabeledSlider extends React.Component {
   constructor(props) {
@@ -19,19 +19,19 @@ class LabeledSlider extends React.Component {
   }
 
   componentDidMount() {
-    this.bamEl.addEventListener("animationend", this.onBamEndBnd);
+    this.bamEl.addEventListener('animationend', this.onBamEndBnd);
   }
 
   componentWillUnmount() {
-    this.bamEl.removeEventListener("animationend", this.onBamEndBnd);
+    this.bamEl.removeEventListener('animationend', this.onBamEndBnd);
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.value !== this.props.value) {
       if (this.state.isBam) {
-        this.bamEl.style.webkitAnimation = "none";
+        this.bamEl.style.webkitAnimation = 'none';
         setTimeout(() => {
-          this.bamEl.style.webkitAnimation = "";
+          this.bamEl.style.webkitAnimation = '';
         }, 0);
       } else {
         this.setState({ isBam: true });
@@ -41,8 +41,8 @@ class LabeledSlider extends React.Component {
 
   get valueClass() {
     return this.state.isBam
-      ? "labeled-slider-value labeled-slider-value-changed"
-      : "labeled-slider-value";
+      ? 'labeled-slider-value labeled-slider-value-changed'
+      : 'labeled-slider-value';
   }
 
   onBamEnd() {
@@ -50,9 +50,9 @@ class LabeledSlider extends React.Component {
   }
 
   render() {
-    let className = "labeled-slider";
+    let className = 'labeled-slider';
 
-    className += ` ${this.props.className || ""}`;
+    className += ` ${this.props.className || ''}`;
 
     return (
       <div className={className}>
@@ -98,7 +98,7 @@ class LabeledSlider extends React.Component {
 }
 
 LabeledSlider.defaultProps = {
-  className: "",
+  className: '',
   min: 0,
   max: 10,
   onChange: () => {},

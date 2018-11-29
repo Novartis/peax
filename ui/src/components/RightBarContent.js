@@ -1,11 +1,11 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Styles
-import "./RightBarContent.scss";
+import './RightBarContent.scss';
 
 const classNames = () => {
-  const className = "full-dim right-bar-content";
+  const className = 'full-dim right-bar-content';
 
   return className;
 };

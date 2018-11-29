@@ -1,11 +1,11 @@
-import { PropTypes } from "prop-types";
-import React from "react";
+import { PropTypes } from 'prop-types';
+import React from 'react';
 
 // Components
-import Button from "./Button";
-import ButtonIcon from "./ButtonIcon";
-import Icon from "./Icon";
-import ToolTip from "./ToolTip";
+import Button from './Button';
+import ButtonIcon from './ButtonIcon';
+import Icon from './Icon';
+import ToolTip from './ToolTip';
 
 const AnnotationDetails = props => (
   <div className={`annotation-details ${props.className}`}>
@@ -37,7 +37,7 @@ const AnnotationDetails = props => (
 );
 
 AnnotationDetails.defaultProps = {
-  className: ""
+  className: ''
 };
 
 AnnotationDetails.propTypes = {

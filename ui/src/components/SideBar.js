@@ -1,14 +1,14 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Higher-order components
-import { withPubSub } from "../hocs/pub-sub";
+import { withPubSub } from '../hocs/pub-sub';
 
 // Utils
-import debounce from "../utils/debounce";
+import debounce from '../utils/debounce';
 
 // Styles
-import "./SideBar.scss";
+import './SideBar.scss';
 
 class SideBar extends React.Component {
   constructor(props) {
@@ -36,10 +36,10 @@ class SideBar extends React.Component {
         document.body.getBoundingClientRect().top;
 
       this.pubSubs.push(
-        this.props.pubSub.subscribe("resize", this.checkStickAbilityDb)
+        this.props.pubSub.subscribe('resize', this.checkStickAbilityDb)
       );
       this.pubSubs.push(
-        this.props.pubSub.subscribe("scrollTop", this.scrollHandlerDb)
+        this.props.pubSub.subscribe('scrollTop', this.scrollHandlerDb)
       );
     }
   }
@@ -88,7 +88,7 @@ class SideBar extends React.Component {
       });
     } else if (
       this.state.style.marginTop !== 0 ||
-      this.state.style.marginTop !== "0px"
+      this.state.style.marginTop !== '0px'
     ) {
       this.setState({
         style: {

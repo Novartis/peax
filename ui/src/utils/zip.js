@@ -1,4 +1,4 @@
-import isSame from "./is-same";
+import isSame from './is-same';
 
 class ZipError extends Error {
   constructor(...args) {
@@ -9,12 +9,12 @@ class ZipError extends Error {
 
 const zip = (arrays, strides) => {
   if (arrays.length !== strides.length)
-    throw new ZipError("number of arrays and number of strides does not match");
+    throw new ZipError('number of arrays and number of strides does not match');
 
   const normLenghts = arrays.map((array, i) => array.length / strides[i]);
 
   if (!isSame(normLenghts))
-    throw new ZipError("normalized array length does not equal");
+    throw new ZipError('normalized array length does not equal');
 
   const out = [];
   const indices = arrays.map(() => 0);

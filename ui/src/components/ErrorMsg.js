@@ -1,10 +1,10 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Components
-import Icon from "./Icon";
+import Icon from './Icon';
 
-import "./ErrorMsg.scss";
+import './ErrorMsg.scss';
 
 const ErrorMsg = props => (
   <div className="error-msg flex-c flex-v flex-a-c">

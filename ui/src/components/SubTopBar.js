@@ -1,15 +1,15 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Styles
-import "./SubTopBar.scss";
+import './SubTopBar.scss';
 
 const SubTopBar = props => (
   <header className={`sub-top-bar ${props.className}`}>
     <div
       className={`flex-c ${
-        props.stretch ? "flex-a-s" : "flex-a-c"
-      } flex-jc-sb sub-top-bar-content-wrap ${props.wrap ? "wrap" : ""}`}
+        props.stretch ? 'flex-a-s' : 'flex-a-c'
+      } flex-jc-sb sub-top-bar-content-wrap ${props.wrap ? 'wrap' : ''}`}
     >
       {props.children}
     </div>
@@ -17,7 +17,7 @@ const SubTopBar = props => (
 );
 
 SubTopBar.defaultProps = {
-  className: "",
+  className: '',
   stretch: false,
   wrap: false
 };

@@ -1,11 +1,11 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Components
-import ButtonIcon from "./ButtonIcon";
+import ButtonIcon from './ButtonIcon';
 
 // Styles
-import "./ShareViewConfigUrl.scss";
+import './ShareViewConfigUrl.scss';
 
 const ShareViewConfigUrl = props => (
   <div className="share-view-config-url">

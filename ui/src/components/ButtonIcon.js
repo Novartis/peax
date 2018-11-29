@@ -1,28 +1,28 @@
-import { PropTypes } from "prop-types";
-import React from "react";
+import { PropTypes } from 'prop-types';
+import React from 'react';
 
 // Components
-import Icon from "./Icon";
+import Icon from './Icon';
 
 // Styles
-import "./ButtonIcon.scss";
+import './ButtonIcon.scss';
 
 const classNames = props => {
-  let className = "flex-c flex-a-c flex-jc-c button-icon";
+  let className = 'flex-c flex-a-c flex-jc-c button-icon';
 
-  className += ` ${props.className || ""}`;
-  className += props.iconOnly ? " button-icon-only" : "";
-  className += props.isActive ? " is-active" : "";
-  className += props.isDisabled ? " is-disabled" : "";
-  className += props.isIconMirrorOnFocus ? " is-icon-mirror-on-focus" : "";
-  className += props.isIconRotationOnFocus ? " is-icon-rotation-on-focus" : "";
-  className += props.iconPosition === "right" ? " flex-rev" : "";
-  className += props.isRound ? " is-round" : "";
+  className += ` ${props.className || ''}`;
+  className += props.iconOnly ? ' button-icon-only' : '';
+  className += props.isActive ? ' is-active' : '';
+  className += props.isDisabled ? ' is-disabled' : '';
+  className += props.isIconMirrorOnFocus ? ' is-icon-mirror-on-focus' : '';
+  className += props.isIconRotationOnFocus ? ' is-icon-rotation-on-focus' : '';
+  className += props.iconPosition === 'right' ? ' flex-rev' : '';
+  className += props.isRound ? ' is-round' : '';
 
   return className;
 };
 
-const getTag = href => (href && href.length ? "a" : "button");
+const getTag = href => (href && href.length ? 'a' : 'button');
 
 const ButtonIcon = props => {
   const Tag = getTag(props.href);
@@ -30,7 +30,7 @@ const ButtonIcon = props => {
     <Tag
       className={classNames(props)}
       href={props.href}
-      target={props.external ? "_blank" : ""}
+      target={props.external ? '_blank' : ''}
       title={props.title}
       onClick={props.onClick}
       onMouseDown={props.onMouseDown}
@@ -50,7 +50,7 @@ const ButtonIcon = props => {
 };
 
 ButtonIcon.defaultProps = {
-  iconPosition: "left"
+  iconPosition: 'left'
 };
 
 ButtonIcon.propTypes = {
@@ -62,7 +62,7 @@ ButtonIcon.propTypes = {
   iconMirrorH: PropTypes.bool,
   iconMirrorV: PropTypes.bool,
   iconOnly: PropTypes.bool,
-  iconPosition: PropTypes.oneOf(["left", "right"]),
+  iconPosition: PropTypes.oneOf(['left', 'right']),
   isActive: PropTypes.bool,
   isDisabled: PropTypes.bool,
   isIconMirrorOnFocus: PropTypes.bool,

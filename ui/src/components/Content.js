@@ -1,22 +1,22 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Configs
-import { RIGHT_BAR_MIN_WIDTH } from "./RightBar";
+import { RIGHT_BAR_MIN_WIDTH } from './RightBar';
 
 // Styles
-import "./Content.scss";
+import './Content.scss';
 
 const classNames = props => {
-  let className = "flex-g-1 content";
+  let className = 'flex-g-1 content';
 
   className += ` ${props.name}-content`;
-  className += props.hasRightBar ? " has-right-bar" : "";
-  className += props.hasSubTopBar ? " has-sub-top-bar" : "";
-  className += props.rel ? " rel" : "";
-  className += props.wrap ? " wrap" : "";
-  className += !props.bottomMargin ? " no-bottom-margin" : "";
-  className += props.isVertFlex ? " flex-c flex-v" : "";
+  className += props.hasRightBar ? ' has-right-bar' : '';
+  className += props.hasSubTopBar ? ' has-sub-top-bar' : '';
+  className += props.rel ? ' rel' : '';
+  className += props.wrap ? ' wrap' : '';
+  className += !props.bottomMargin ? ' no-bottom-margin' : '';
+  className += props.isVertFlex ? ' flex-c flex-v' : '';
 
   return className;
 };

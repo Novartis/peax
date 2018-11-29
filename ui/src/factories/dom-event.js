@@ -1,8 +1,8 @@
 // Custom event Handlers
-const resize = pubSub => event => pubSub.publish("resize", event);
+const resize = pubSub => event => pubSub.publish('resize', event);
 const scroll = pubSub => event =>
   pubSub.publish(
-    "scrollTop",
+    'scrollTop',
     event.target.scrollTop || document.body.scrollTop
   );
 

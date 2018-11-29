@@ -1,9 +1,9 @@
-import { PropTypes } from "prop-types";
-import React from "react";
-import { Link } from "react-router-dom";
+import { PropTypes } from 'prop-types';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 // Styles
-import "./ButtonLikeLink.scss";
+import './ButtonLikeLink.scss';
 
 const ButtonLikeLink = props => (
   <div className={`flex-c flex-a-c button-like-link ${props.className}`}>
@@ -12,7 +12,7 @@ const ButtonLikeLink = props => (
 );
 
 ButtonLikeLink.defaultProps = {
-  className: ""
+  className: ''
 };
 
 ButtonLikeLink.propTypes = {

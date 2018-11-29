@@ -1,26 +1,26 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { connect } from "react-redux";
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 
 // Components
-import ButtonIcon from "../components/ButtonIcon";
-import SubTopBar from "../components/SubTopBar";
-import SubTopBottomBarButtons from "../components/SubTopBottomBarButtons";
-import ToolTip from "../components/ToolTip";
+import ButtonIcon from '../components/ButtonIcon';
+import SubTopBar from '../components/SubTopBar';
+import SubTopBottomBarButtons from '../components/SubTopBottomBarButtons';
+import ToolTip from '../components/ToolTip';
 
 // Actions
-import { setHiglassMouseTool, setShowAutoencodings } from "../actions";
+import { setHiglassMouseTool, setShowAutoencodings } from '../actions';
 
 // Utils
-import { Logger } from "../utils";
+import { Logger } from '../utils';
 
 // Configs
-import { PAN_ZOOM, SELECT } from "../configs/mouse-tools";
+import { PAN_ZOOM, SELECT } from '../configs/mouse-tools';
 
 // Stylesheets
-import "./HomeSubTopBar.scss";
+import './HomeSubTopBar.scss';
 
-const logger = Logger("ViewerSubTopBar"); // eslint-disable-line
+const logger = Logger('ViewerSubTopBar'); // eslint-disable-line
 
 const HomeSubTopBar = props => (
   <SubTopBar className="home-sub-top-bar" wrap={true}>
@@ -107,7 +107,7 @@ const HomeSubTopBar = props => (
         >
           <ButtonIcon
             icon="magnifier"
-            className={`${props.rangeSelection[0] !== null ? "primary" : ""}`}
+            className={`${props.rangeSelection[0] !== null ? 'primary' : ''}`}
             onClick={() => props.search(props.rangeSelection)}
             isDisabled={props.rangeSelection[0] === null}
           >

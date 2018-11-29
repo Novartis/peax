@@ -1,33 +1,33 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { connect } from "react-redux";
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 
 // Higher-order components
-import { withPubSub } from "../hocs/pub-sub";
+import { withPubSub } from '../hocs/pub-sub';
 
 // Components
-import AppInfo from "../components/AppInfo";
-import ButtonIcon from "../components/ButtonIcon";
-import SubTopBar from "../components/SubTopBar";
-import SubTopBottomBarButtons from "../components/SubTopBottomBarButtons";
-import ToolTip from "../components/ToolTip";
+import AppInfo from '../components/AppInfo';
+import ButtonIcon from '../components/ButtonIcon';
+import SubTopBar from '../components/SubTopBar';
+import SubTopBottomBarButtons from '../components/SubTopBottomBarButtons';
+import ToolTip from '../components/ToolTip';
 
 // Services
-import { setShowAutoencodings } from "../actions";
+import { setShowAutoencodings } from '../actions';
 
 // Utils
-import { Deferred, Logger } from "../utils";
+import { Deferred, Logger } from '../utils';
 
-const logger = Logger("SearchSubTopBar");
+const logger = Logger('SearchSubTopBar');
 
 const showInfo = pubSub => () => {
-  pubSub.publish("globalDialog", {
+  pubSub.publish('globalDialog', {
     message: <AppInfo />,
     request: new Deferred(),
     resolveOnly: true,
-    resolveText: "Close",
-    icon: "logo",
-    headline: "Peax"
+    resolveText: 'Close',
+    icon: 'logo',
+    headline: 'Peax'
   });
 };
 
@@ -134,7 +134,7 @@ const SearchSubTopBar = props => (
             iconOnly={true}
             isDisabled={true}
             onClick={() => {
-              logger.warn("Not supported yet.");
+              logger.warn('Not supported yet.');
             }}
           />
         </ToolTip>

@@ -1,16 +1,16 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Components
-import Content from "./Content";
-import ContentWrapper from "./ContentWrapper";
-import MessageCenter from "./MessageCenter";
-import Icon from "./Icon";
-import SpinnerCenter from "./SpinnerCenter";
+import Content from './Content';
+import ContentWrapper from './ContentWrapper';
+import MessageCenter from './MessageCenter';
+import Icon from './Icon';
+import SpinnerCenter from './SpinnerCenter';
 
 // Styles
-import "./Footer.scss";
-import "./TopBar.scss";
+import './Footer.scss';
+import './TopBar.scss';
 
 const AppLoading = props => (
   <div className="app full-mdim">

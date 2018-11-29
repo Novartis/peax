@@ -1,28 +1,28 @@
-import { PropTypes } from "prop-types";
-import React from "react";
+import { PropTypes } from 'prop-types';
+import React from 'react';
 
 // Components
-import ButtonIcon from "./ButtonIcon";
+import ButtonIcon from './ButtonIcon';
 
 // Styles
-import "./ButtonRadio.scss";
+import './ButtonRadio.scss';
 
 const classNames = props => {
-  let className = "flex-c flex-a-c flex-jc-c button-radio";
+  let className = 'flex-c flex-a-c flex-jc-c button-radio';
 
-  className += props.isVertical ? " flex-v" : "";
-  className += props.isActive ? " is-active" : "";
-  className += props.isDisabled ? " is-disabled" : "";
-  className += props.selection ? " is-selected" : "";
+  className += props.isVertical ? ' flex-v' : '';
+  className += props.isActive ? ' is-active' : '';
+  className += props.isDisabled ? ' is-disabled' : '';
+  className += props.selection ? ' is-selected' : '';
   className += ` ${props.className}`;
 
   return className;
 };
 
 const classNamesLabel = props => {
-  let className = "flex-g-1 flex-c flex-a-c flex-jc-c button-radio-wrapper";
+  let className = 'flex-g-1 flex-c flex-a-c flex-jc-c button-radio-wrapper';
 
-  className += props.isVertical ? " full-w" : " full-h";
+  className += props.isVertical ? ' full-w' : ' full-h';
 
   return className;
 };
@@ -73,7 +73,7 @@ const ButtonRadio = props => (
 );
 
 ButtonRadio.defaultProps = {
-  className: ""
+  className: ''
 };
 
 ButtonRadio.propTypes = {

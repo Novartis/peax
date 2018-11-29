@@ -1,29 +1,29 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { connect } from "react-redux";
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 
 // Actions
 import {
   setSearchRightBarShow,
   setSearchRightBarTab,
   setSearchRightBarWidth
-} from "../actions";
+} from '../actions';
 
 // Components
-import Button from "../components/Button";
-import RightBar from "../components/RightBar";
-import RightBarSubTopBar from "../components/RightBarSubTopBar";
-import RightBarContent from "../components/RightBarContent";
-import TabContent from "../components/TabContent";
-import TabTrigger from "../components/TabTrigger";
-import SearchRightBarInfo from "./SearchRightBarInfo";
-import SearchRightBarProjection from "./SearchRightBarProjection";
+import Button from '../components/Button';
+import RightBar from '../components/RightBar';
+import RightBarSubTopBar from '../components/RightBarSubTopBar';
+import RightBarContent from '../components/RightBarContent';
+import TabContent from '../components/TabContent';
+import TabTrigger from '../components/TabTrigger';
+import SearchRightBarInfo from './SearchRightBarInfo';
+import SearchRightBarProjection from './SearchRightBarProjection';
 
 // Configs
 import {
   TAB_RIGHT_BAR_PROJECTION,
   TAB_RIGHT_BAR_INFO
-} from "../configs/search";
+} from '../configs/search';
 
 const rightBarWidthToggler = props => () => {
   props.setRightBarShow(!props.rightBarShow);

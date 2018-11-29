@@ -1,23 +1,23 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { connect } from "react-redux";
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 
 // Components
-import Button from "../components/Button";
-import ButtonIcon from "../components/ButtonIcon";
-import SubTopBar from "../components/SubTopBar";
-import TabTrigger from "../components/TabTrigger";
+import Button from '../components/Button';
+import ButtonIcon from '../components/ButtonIcon';
+import SubTopBar from '../components/SubTopBar';
+import TabTrigger from '../components/TabTrigger';
 
 // Services
-import { setSearchTab } from "../actions";
+import { setSearchTab } from '../actions';
 
 // Configs
-import { TAB_CLASSIFICATIONS, TAB_RESULTS, TAB_SEEDS } from "../configs/search";
+import { TAB_CLASSIFICATIONS, TAB_RESULTS, TAB_SEEDS } from '../configs/search';
 
 // Utils
-import { Logger } from "../utils";
+import { Logger } from '../utils';
 
-const logger = Logger("SearchSubTopBarTabs"); // eslint-disable-line
+const logger = Logger('SearchSubTopBarTabs'); // eslint-disable-line
 
 const SearchSubTopBarTabs = props => (
   <SubTopBar className="search-tab-triggers" stretch={true}>

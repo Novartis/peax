@@ -1,31 +1,31 @@
-import update from "immutability-helper";
-import PropTypes from "prop-types";
-import React from "react";
-import { connect } from "react-redux";
-import { Link, withRouter } from "react-router-dom";
-import { compose } from "recompose";
+import update from 'immutability-helper';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { Link, withRouter } from 'react-router-dom';
+import { compose } from 'recompose';
 
 // Higher-order components
-import { withPubSub } from "../hocs/pub-sub";
+import { withPubSub } from '../hocs/pub-sub';
 
 // Components
-import Content from "../components/Content";
-import ContentWrapper from "../components/ContentWrapper";
-import HiGlassViewer from "../components/HiGlassViewer";
-import ErrorMsgCenter from "../components/ErrorMsgCenter";
-import SpinnerCenter from "../components/SpinnerCenter";
-import TabContent from "../components/TabContent";
-import ToolTip from "../components/ToolTip";
+import Content from '../components/Content';
+import ContentWrapper from '../components/ContentWrapper';
+import HiGlassViewer from '../components/HiGlassViewer';
+import ErrorMsgCenter from '../components/ErrorMsgCenter';
+import SpinnerCenter from '../components/SpinnerCenter';
+import TabContent from '../components/TabContent';
+import ToolTip from '../components/ToolTip';
 
 // View components
-import NotFound from "./NotFound";
-import SearchClassifications from "./SearchClassifications";
-import SearchResults from "./SearchResults";
-import SearchRightBar from "./SearchRightBar";
-import SearchSeeds from "./SearchSeeds";
-import SearchSubTopBar from "./SearchSubTopBar";
-import SearchSubTopBarAll from "./SearchSubTopBarAll";
-import SearchSubTopBarTabs from "./SearchSubTopBarTabs";
+import NotFound from './NotFound';
+import SearchClassifications from './SearchClassifications';
+import SearchResults from './SearchResults';
+import SearchRightBar from './SearchRightBar';
+import SearchSeeds from './SearchSeeds';
+import SearchSubTopBar from './SearchSubTopBar';
+import SearchSubTopBarAll from './SearchSubTopBarAll';
+import SearchSubTopBarTabs from './SearchSubTopBarTabs';
 
 // Actions
 import {
@@ -33,7 +33,7 @@ import {
   setSearchRightBarTab,
   setSearchSelection,
   setSearchTab
-} from "../actions";
+} from '../actions';
 
 // Utils
 import {
@@ -45,7 +45,7 @@ import {
   readableDate,
   removeHiGlassEventListeners,
   requestNextAnimationFrame
-} from "../utils";
+} from '../utils';
 
 // Configs
 import {
@@ -56,22 +56,22 @@ import {
   TAB_SEEDS,
   TRAINING_CHECK_INTERVAL,
   PER_PAGE_ITEMS
-} from "../configs/search";
+} from '../configs/search';
 
-const logger = Logger("Search");
+const logger = Logger('Search');
 
 const resizeTrigger = () =>
   requestNextAnimationFrame(() => {
-    window.dispatchEvent(new Event("resize"));
+    window.dispatchEvent(new Event('resize'));
   });
 
 const showInfo = (pubSub, msg) => {
-  pubSub.publish("globalDialog", {
+  pubSub.publish('globalDialog', {
     message: msg,
     request: new Deferred(),
     resolveOnly: true,
-    resolveText: "Okay",
-    headline: "Peax"
+    resolveText: 'Okay',
+    headline: 'Peax'
   });
 };
 
@@ -130,24 +130,24 @@ class Search extends React.Component {
     this.onNormalizeBnd = this.onNormalize.bind(this);
     this.normalizeByTargetBnd = this.normalizeByTarget.bind(this);
 
-    this.onPageClassifications = this.onPage("classifications");
-    this.onPageResults = this.onPage("results");
-    this.onPageSeeds = this.onPage("seeds");
+    this.onPageClassifications = this.onPage('classifications');
+    this.onPageResults = this.onPage('results');
+    this.onPageSeeds = this.onPage('seeds');
 
     this.onResultEnter = compose(
-      this.onAction("setSelection"),
+      this.onAction('setSelection'),
       withArray
     );
     this.onResultLeave = compose(
-      this.onAction("setSelection"),
+      this.onAction('setSelection'),
       () => []
     );
 
     this.pubSubs.push(
-      this.props.pubSub.subscribe("keydown", this.keyDownHandlerBnd)
+      this.props.pubSub.subscribe('keydown', this.keyDownHandlerBnd)
     );
     this.pubSubs.push(
-      this.props.pubSub.subscribe("keyup", this.keyUpHandlerBnd)
+      this.props.pubSub.subscribe('keyup', this.keyUpHandlerBnd)
     );
   }
 
@@ -231,7 +231,7 @@ class Search extends React.Component {
       dataTracks.status !== 200 ? "Couldn't load data tracks" : false;
     dataTracks = isError ? null : dataTracks.body.results;
 
-    if (typeof this.id !== "undefined") {
+    if (typeof this.id !== 'undefined') {
       searchInfo = await api.getSearchInfo(this.id);
       isError =
         searchInfo.status !== 200 ? "Couldn't load search info." : false;
@@ -376,7 +376,7 @@ class Search extends React.Component {
   callHgApi(method) {
     return (...args) => {
       if (!this.hgApi) {
-        logger.warn("HiGlass not available yet.");
+        logger.warn('HiGlass not available yet.');
         return undefined;
       }
       if (!this.hgApi[method]) {
@@ -404,8 +404,8 @@ class Search extends React.Component {
     if (!this.hgApi) return;
 
     this.hiGlassEventListeners.location = {
-      name: "location",
-      id: this.hgApi.on("location", this.locationHandlerBnd)
+      name: 'location',
+      id: this.hgApi.on('location', this.locationHandlerBnd)
     };
 
     if (!this.hiGlassEventListeners.mouseMoveZoom) {
@@ -420,7 +420,7 @@ class Search extends React.Component {
 
   resetViewport() {
     this.setState({ viewportChanged: false });
-    this.callHgApi("resetViewport")();
+    this.callHgApi('resetViewport')();
   }
 
   locationHandler({ xDomain }) {
@@ -469,7 +469,7 @@ class Search extends React.Component {
 
       if (event.ctrlKey || event.metaKey) {
         // CMD + S
-        logger.warn("Not implemented yet.");
+        logger.warn('Not implemented yet.');
       }
     }
   }
@@ -513,7 +513,7 @@ class Search extends React.Component {
   }
 
   resetAllViewports() {
-    logger.warn("Sorry, `Search.resetAllViewports()` not implemented yet.");
+    logger.warn('Sorry, `Search.resetAllViewports()` not implemented yet.');
   }
 
   classificationChangeHandler(windowId) {
@@ -534,7 +534,7 @@ class Search extends React.Component {
         })
       });
 
-      const setNewClassif = classif === "positive" || classif === "negative";
+      const setNewClassif = classif === 'positive' || classif === 'negative';
 
       // Send the new classification back to the server
       const response = setNewClassif
@@ -584,7 +584,7 @@ class Search extends React.Component {
     if (!this.hgApi) return;
 
     if (
-      this.state.minMaxSource !== "target" &&
+      this.state.minMaxSource !== 'target' &&
       this.state.isMinMaxValuesByTarget
     ) {
       await this.setState({ isMinMaxValuesByTarget: false });
@@ -616,7 +616,7 @@ class Search extends React.Component {
 
     this.onNormalize(
       minMaxValues,
-      "target",
+      'target',
       !this.state.isMinMaxValuesByTarget
     );
   }
@@ -650,7 +650,7 @@ class Search extends React.Component {
     const numItems = this.state[data].length;
 
     if (
-      data === "seeds" &&
+      data === 'seeds' &&
       currentNumSeeds / (PER_PAGE_ITEMS * (currentPage + 2)) < 1
     ) {
       await this.setState({ [loadingProp]: true });
@@ -772,7 +772,7 @@ class Search extends React.Component {
     showProbs = this.isTrained
   ) {
     return searchId =>
-      `${searchId}..${showAes ? "e" : ""}${showProbs ? "p" : ""}`;
+      `${searchId}..${showAes ? 'e' : ''}${showProbs ? 'p' : ''}`;
   }
 
   /* -------------------------------- Render -------------------------------- */
@@ -819,7 +819,7 @@ class Search extends React.Component {
         title="O Peaks, Where Art Thou?"
         message={
           `No search with id ${this.id} was found. How about starting a new ` +
-          "search?"
+          'search?'
         }
       />
     );
@@ -889,7 +889,7 @@ class Search extends React.Component {
             </ol>
           ) : (
             <em>
-              No searches found. How about starting a{" "}
+              No searches found. How about starting a{' '}
               <Link to="/">new search</Link>?
             </em>
           )}
@@ -1045,7 +1045,7 @@ class Search extends React.Component {
 
 Search.defaultProps = {
   id: -1,
-  viewConfigId: "default"
+  viewConfigId: 'default'
 };
 
 Search.propTypes = {

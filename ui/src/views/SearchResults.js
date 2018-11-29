@@ -1,53 +1,53 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { connect } from "react-redux";
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 
 // Components
-import Button from "../components/Button";
-import ButtonIcon from "../components/ButtonIcon";
-import ButtonRadio from "../components/ButtonRadio";
-import HiglassResultList from "../components/HiglassResultList";
-import SubTopBar from "../components/SubTopBar";
-import SubTopBottomBarButtons from "../components/SubTopBottomBarButtons";
-import ToolTip from "../components/ToolTip";
+import Button from '../components/Button';
+import ButtonIcon from '../components/ButtonIcon';
+import ButtonRadio from '../components/ButtonRadio';
+import HiglassResultList from '../components/HiglassResultList';
+import SubTopBar from '../components/SubTopBar';
+import SubTopBottomBarButtons from '../components/SubTopBottomBarButtons';
+import ToolTip from '../components/ToolTip';
 
 // Actions
-import { setSearchTab } from "../actions";
+import { setSearchTab } from '../actions';
 
 // Configs
 import {
   BUTTON_RADIO_FILTER_CLASSIFICATION_OPTIONS,
   BUTTON_RADIO_SORT_ORDER_OPTIONS,
   TAB_SEEDS
-} from "../configs/search";
+} from '../configs/search';
 
 // Utils
-import { Logger, numToCassif } from "../utils";
+import { Logger, numToCassif } from '../utils';
 
-const logger = Logger("SearchResults"); // eslint-disable-line
+const logger = Logger('SearchResults'); // eslint-disable-line
 
 const isNotReady = onGetStarted => (
   <span>
-    {"More seeds need to be classified. "}
+    {'More seeds need to be classified. '}
     <Button onClick={onGetStarted}>Get started</Button>
   </span>
 );
 
 const isNotTrained = onTrainingStart => (
   <span>
-    {"Classifier needs to be trained first. "}
+    {'Classifier needs to be trained first. '}
     <Button onClick={onTrainingStart}>Start training</Button>
   </span>
 );
 
 const isTraining = onTrainingCheck => (
   <span>
-    {"The classifier is training hard! "}
+    {'The classifier is training hard! '}
     <Button onClick={onTrainingCheck}>Check Status</Button>
   </span>
 );
 
-const isEmpty = <span>{"Nothing found! This is bad."}</span>;
+const isEmpty = <span>{'Nothing found! This is bad.'}</span>;
 
 class SearchResults extends React.Component {
   constructor(props) {
@@ -57,8 +57,8 @@ class SearchResults extends React.Component {
     this.onSortOrderBnd = this.onSortOrder.bind(this);
 
     this.state = {
-      filterByClf: ["positive", "negative"],
-      sortOrder: "desc"
+      filterByClf: ['positive', 'negative'],
+      sortOrder: 'desc'
     };
 
     // Bound methods
@@ -96,11 +96,11 @@ class SearchResults extends React.Component {
   }
 
   render() {
-    const sortOrder = this.state.sortOrder === "desc" ? -1 : 1;
+    const sortOrder = this.state.sortOrder === 'desc' ? -1 : 1;
     const results = this.props.results
       .filter(
         win =>
-          numToCassif(win.classification) === "neutral" ||
+          numToCassif(win.classification) === 'neutral' ||
           this.state.filterByClf.includes(numToCassif(win.classification))
       )
       .sort((a, b) => {

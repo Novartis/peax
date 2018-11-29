@@ -1,14 +1,14 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { withRouter } from "react-router";
-import { NavLink } from "react-router-dom";
+import PropTypes from 'prop-types';
+import React from 'react';
+import { withRouter } from 'react-router';
+import { NavLink } from 'react-router-dom';
 
 // Components
-import Hamburger from "./Hamburger";
-import Icon from "./Icon";
+import Hamburger from './Hamburger';
+import Icon from './Icon';
 
 // Styles
-import "./TopBar.scss";
+import './TopBar.scss';
 
 const isSearch = pathname =>
   pathname && pathname.match(/\/search(?:(?=.)(\?|\/)|$)/);
@@ -47,7 +47,7 @@ class TopBar extends React.Component {
       <header className="top-bar">
         <div
           className={`flex-c flex-jc-sb top-bar-wrapper ${
-            isSearch(this.props.location.pathname) ? "wrap-basic" : "wrap"
+            isSearch(this.props.location.pathname) ? 'wrap-basic' : 'wrap'
           }`}
         >
           <div className="flex-c branding-launch">
@@ -60,7 +60,7 @@ class TopBar extends React.Component {
           </div>
           <nav
             className={`flex-c flex-jc-e flex-a-s is-toggable ${
-              this.state.menuIsShown ? "is-shown" : ""
+              this.state.menuIsShown ? 'is-shown' : ''
             }`}
           >
             <ul className="flex-c flex-jc-e flex-a-s no-list-style primary-nav-list">

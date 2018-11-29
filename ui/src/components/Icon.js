@@ -1,29 +1,29 @@
-import { PropTypes } from "prop-types";
-import React from "react";
+import { PropTypes } from 'prop-types';
+import React from 'react';
 
 // Config
-import icons, { WARNING } from "../configs/icons";
+import icons, { WARNING } from '../configs/icons';
 
 // Styles
-import "./Icon.scss";
+import './Icon.scss';
 
 const wrapHtml = html => ({ __html: html });
 
 const getSvg = id => wrapHtml(icons[id] ? icons[id].svg : WARNING.svg);
 
 const getFillRule = id =>
-  icons[id] && icons[id].fillRule ? icons[id].fillRule : "";
+  icons[id] && icons[id].fillRule ? icons[id].fillRule : '';
 
 const getViewBox = id =>
-  icons[id] && icons[id].viewBox ? icons[id].viewBox : "0 0 16 16";
+  icons[id] && icons[id].viewBox ? icons[id].viewBox : '0 0 16 16';
 
-const convertId = id => (id ? id.replace(/-/g, "_").toUpperCase() : "");
+const convertId = id => (id ? id.replace(/-/g, '_').toUpperCase() : '');
 
 const Icon = props => (
   <div
     className={`icon icon-${props.iconId} ${
-      props.mirrorH ? "is-mirror-h" : ""
-    } ${props.mirrorV ? "is-mirror-v" : ""}`}
+      props.mirrorH ? 'is-mirror-h' : ''
+    } ${props.mirrorV ? 'is-mirror-v' : ''}`}
     title={props.title}
   >
     <svg

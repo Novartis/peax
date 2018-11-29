@@ -1,11 +1,11 @@
-import React from "react";
+import React from 'react';
 // Utils
-import getServer from "../utils/get-server";
-import Logger from "../utils/logger";
+import getServer from '../utils/get-server';
+import Logger from '../utils/logger';
 
 const URL = `${getServer()}/version.txt`;
 
-const logger = Logger("AppInfo");
+const logger = Logger('AppInfo');
 
 class AppInfo extends React.Component {
   constructor(props) {
@@ -18,18 +18,18 @@ class AppInfo extends React.Component {
     fetch(URL)
       .then(response => response.text())
       .then(response => {
-        if (response.split("\n")[0].substr(0, 14) !== "SERVER_VERSION") {
+        if (response.split('\n')[0].substr(0, 14) !== 'SERVER_VERSION') {
           throw Error(
-            "Could not parse `version.txt`. Expecting the first line to start with `SERVER_VERSION`."
+            'Could not parse `version.txt`. Expecting the first line to start with `SERVER_VERSION`.'
           );
         }
 
         this.setState({
-          serverVersion: response.split("\n")[0].slice(16)
+          serverVersion: response.split('\n')[0].slice(16)
         });
       })
       .catch(error => {
-        logger.warn("Could not retrieve or parse server version.", error);
+        logger.warn('Could not retrieve or parse server version.', error);
         this.setState({
           serverVersion: <em>(unknown)</em>
         });

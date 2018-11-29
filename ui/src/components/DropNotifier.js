@@ -1,8 +1,8 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Styles
-import "./DropNotifier.scss";
+import './DropNotifier.scss';
 
 class DropNotifier extends React.Component {
   constructor(props) {
@@ -24,7 +24,7 @@ class DropNotifier extends React.Component {
     return (
       <div
         className={`drop-notifier flex-c flex-jc-c flex-a-c ${
-          this.state.isActive ? "is-active" : ""
+          this.state.isActive ? 'is-active' : ''
         }`}
       >
         <div
@@ -43,7 +43,7 @@ class DropNotifier extends React.Component {
   addEventListeners() {
     this.eventListeners = [
       {
-        name: "dragenter",
+        name: 'dragenter',
         callback: event => {
           this.setState({
             isActive: true
@@ -55,7 +55,7 @@ class DropNotifier extends React.Component {
         }
       },
       {
-        name: "dragover",
+        name: 'dragover',
         callback: event => {
           event.stopPropagation();
           event.preventDefault();
@@ -63,7 +63,7 @@ class DropNotifier extends React.Component {
         }
       },
       {
-        name: "dragleave",
+        name: 'dragleave',
         callback: event => {
           if (event.target === this.dropLayer) {
             this.setState({
@@ -77,7 +77,7 @@ class DropNotifier extends React.Component {
         }
       },
       {
-        name: "drop",
+        name: 'drop',
         callback: event => {
           this.setState({
             isActive: false

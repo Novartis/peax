@@ -1,11 +1,11 @@
-import { PropTypes } from "prop-types";
-import React from "react";
+import { PropTypes } from 'prop-types';
+import React from 'react';
 
 // Components
-import Arrow from "./Arrow";
+import Arrow from './Arrow';
 
 // Styles
-import "./ToolTip.scss";
+import './ToolTip.scss';
 
 class ToolTip extends React.Component {
   constructor(props) {
@@ -36,17 +36,17 @@ class ToolTip extends React.Component {
   /* ---------------------------------- Render ------------------------------ */
 
   render() {
-    let classNames = "tool-tip";
+    let classNames = 'tool-tip';
 
-    classNames += this.state.isShown ? " is-shown" : "";
+    classNames += this.state.isShown ? ' is-shown' : '';
 
     switch (this.props.align) {
-      case "left":
-        classNames += " tool-tip-align-left";
+      case 'left':
+        classNames += ' tool-tip-align-left';
         break;
 
-      case "right":
-        classNames += " tool-tip-align-right";
+      case 'right':
+        classNames += ' tool-tip-align-right';
         break;
 
       default:
@@ -71,13 +71,13 @@ class ToolTip extends React.Component {
 }
 
 ToolTip.defaultProps = {
-  align: "center",
+  align: 'center',
   delayIn: 0,
   delayOut: 0
 };
 
 ToolTip.propTypes = {
-  align: PropTypes.oneOf(["center", "left", "right"]),
+  align: PropTypes.oneOf(['center', 'left', 'right']),
   children: PropTypes.node,
   closeOnClick: PropTypes.bool,
   delayIn: PropTypes.number,

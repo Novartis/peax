@@ -2,7 +2,7 @@ export const BASE_COLOR = [0.3, 0.3, 0.3, 0.075];
 
 // export const HIGHLIGHT_COLOR = [1, 0.749019608, 0, 1];
 
-export const COLOR_BG = "#eeeeee";
+export const COLOR_BG = '#eeeeee';
 
 export const COLORMAP_CAT = [
   BASE_COLOR, // Base color

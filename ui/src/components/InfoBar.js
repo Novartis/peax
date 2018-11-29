@@ -1,15 +1,15 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Components
-import ButtonIcon from "./ButtonIcon";
+import ButtonIcon from './ButtonIcon';
 
 // Styles
-import "./InfoBar.scss";
+import './InfoBar.scss';
 
 const InfoBar = props => (
-  <header className={`info-bar ${props.isClose ? "info-bar-is-close" : ""}`}>
-    <div className={`info-bar-content ${props.wrap ? "wrap" : ""}`}>
+  <header className={`info-bar ${props.isClose ? 'info-bar-is-close' : ''}`}>
+    <div className={`info-bar-content ${props.wrap ? 'wrap' : ''}`}>
       {props.children}
     </div>
     {props.isClosable && (

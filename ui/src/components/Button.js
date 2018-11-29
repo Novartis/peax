@@ -1,15 +1,15 @@
-import { PropTypes } from "prop-types";
-import React from "react";
+import { PropTypes } from 'prop-types';
+import React from 'react';
 
 // Styles
-import "./Button.scss";
+import './Button.scss';
 
 const classNames = props => {
-  let className = "button";
+  let className = 'button';
 
   className += ` ${props.className}`;
-  className += props.isActive ? " is-active" : "";
-  className += props.isDisabled ? " is-disabled" : "";
+  className += props.isActive ? ' is-active' : '';
+  className += props.isDisabled ? ' is-disabled' : '';
 
   return className;
 };
@@ -26,7 +26,7 @@ const Button = props => (
 );
 
 Button.defaultProps = {
-  className: ""
+  className: ''
 };
 
 Button.propTypes = {

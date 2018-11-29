@@ -1,39 +1,39 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Components
-import Button from "../components/Button";
-import ButtonRadio from "../components/ButtonRadio";
-import HiglassResultList from "../components/HiglassResultList";
-import SubTopBar from "../components/SubTopBar";
-import SubTopBottomBarButtons from "../components/SubTopBottomBarButtons";
-import ToolTip from "../components/ToolTip";
+import Button from '../components/Button';
+import ButtonRadio from '../components/ButtonRadio';
+import HiglassResultList from '../components/HiglassResultList';
+import SubTopBar from '../components/SubTopBar';
+import SubTopBottomBarButtons from '../components/SubTopBottomBarButtons';
+import ToolTip from '../components/ToolTip';
 
 // Actions
-import { setSearchTab } from "../actions";
+import { setSearchTab } from '../actions';
 
 // Configs
 import {
   BUTTON_RADIO_FILTER_CLASSIFICATION_OPTIONS,
   BUTTON_RADIO_SORT_ORDER_OPTIONS,
   TAB_SEEDS
-} from "../configs/search";
+} from '../configs/search';
 
 // Utils
-import { Logger, numToCassif } from "../utils";
+import { Logger, numToCassif } from '../utils';
 
-const logger = Logger("SearchClassifications"); // eslint-disable-line
+const logger = Logger('SearchClassifications'); // eslint-disable-line
 
 const isEmpty = (
   <span>
-    {"Nothing classified! "}
+    {'Nothing classified! '}
     <Button onClick={() => setSearchTab(TAB_SEEDS)}>Get started</Button>
   </span>
 );
 
 const isTraining = onTrainingCheck => (
   <span>
-    {"The classifier is training hard! "}
+    {'The classifier is training hard! '}
     <Button onClick={onTrainingCheck}>Check Status</Button>
   </span>
 );
@@ -48,7 +48,7 @@ class SearchClassifications extends React.Component {
 
     this.state = {
       filterByClf: null,
-      sortOrder: "desc"
+      sortOrder: 'desc'
     };
   }
 
@@ -71,7 +71,7 @@ class SearchClassifications extends React.Component {
   }
 
   render() {
-    const sortOrder = this.state.sortOrder === "desc" ? -1 : 1;
+    const sortOrder = this.state.sortOrder === 'desc' ? -1 : 1;
 
     const results = this.props.results
       .filter(

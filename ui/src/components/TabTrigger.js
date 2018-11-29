@@ -1,5 +1,5 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 const TabTrigger = props => (
   <div className={`tab-trigger ${props.className}`}>
@@ -11,7 +11,7 @@ const TabTrigger = props => (
 );
 
 TabTrigger.defaultProps = {
-  className: ""
+  className: ''
 };
 
 TabTrigger.propTypes = {

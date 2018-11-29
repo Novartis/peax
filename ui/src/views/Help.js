@@ -1,29 +1,29 @@
-import PropTypes from "prop-types";
-import React from "react";
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Higher-order components
-import { withPubSub } from "../hocs/pub-sub";
+import { withPubSub } from '../hocs/pub-sub';
 
 // Components
-import Content from "../components/Content";
-import ContentWrapper from "../components/ContentWrapper";
-import Footer from "../components/Footer";
-import Icon from "../components/Icon";
-import IconGallery from "../components/IconGallery";
+import Content from '../components/Content';
+import ContentWrapper from '../components/ContentWrapper';
+import Footer from '../components/Footer';
+import Icon from '../components/Icon';
+import IconGallery from '../components/IconGallery';
 
 // Utils
-import Deferred from "../utils/deferred";
+import Deferred from '../utils/deferred';
 
 // Stylesheets
-import "./About.scss";
+import './About.scss';
 
 const showIcons = pubSub => {
-  pubSub.publish("globalDialog", {
+  pubSub.publish('globalDialog', {
     message: <IconGallery />,
     request: new Deferred(),
     resolveOnly: true,
-    resolveText: "Close",
-    headline: "All Available Icons"
+    resolveText: 'Close',
+    headline: 'All Available Icons'
   });
 };
 
@@ -42,7 +42,7 @@ class Help extends React.Component {
 
   componentDidMount() {
     this.pubSubs.push(
-      this.props.pubSub.subscribe("keyup", this.keyUpHandler.bind(this))
+      this.props.pubSub.subscribe('keyup', this.keyUpHandler.bind(this))
     );
   }
 

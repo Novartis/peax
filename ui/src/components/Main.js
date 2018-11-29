@@ -1,13 +1,13 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { Route, Switch, withRouter } from "react-router";
+import PropTypes from 'prop-types';
+import React from 'react';
+import { Route, Switch, withRouter } from 'react-router';
 
 // Views
-import About from "../views/About";
-import Help from "../views/Help";
-import Home from "../views/Home";
-import NotFound from "../views/NotFound";
-import Search from "../views/Search";
+import About from '../views/About';
+import Help from '../views/Help';
+import Home from '../views/Home';
+import NotFound from '../views/NotFound';
+import Search from '../views/Search';
 
 class Main extends React.Component {
   componentDidUpdate(prevProps) {
