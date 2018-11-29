@@ -1,29 +1,29 @@
-import createPubSub from "pub-sub-es";
-import React from "react";
-import ReactDOM from "react-dom";
-import { ConnectedRouter } from "react-router-redux";
-import { Provider } from "react-redux";
-import { createState, history } from "./factories/state";
+import createPubSub from 'pub-sub-es';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { ConnectedRouter } from 'react-router-redux';
+import { Provider } from 'react-redux';
+import { createState, history } from './factories/state';
 
 // HOCs
-import { Provider as PubSubProvider } from "./hocs/pub-sub";
+import { Provider as PubSubProvider } from './hocs/pub-sub';
 
 // Components
-import App from "./components/App";
-import AppFake from "./components/AppFake";
+import App from './components/App';
+import AppFake from './components/AppFake';
 
 // Actions
-import { setServerStartTime } from "./actions";
+import { setServerStartTime } from './actions';
 
 // Utils
-import getServer from "./utils/get-server";
-import Logger from "./utils/logger";
-import registerServiceWorker from "./registerServiceWorker";
+import getServer from './utils/get-server';
+import Logger from './utils/logger';
+import registerServiceWorker from './registerServiceWorker';
 
 // Styles
-import "./index.scss";
+import './index.scss';
 
-const logger = Logger("Index");
+const logger = Logger('Index');
 
 // Initialize store
 const state = createState();
@@ -44,7 +44,7 @@ const render = (Component, store, error) => {
       <PubSubProvider value={pubSub}>
         <AppFake error={error} />
       </PubSubProvider>,
-      document.getElementById("root")
+      document.getElementById('root')
     );
   } else {
     ReactDOM.render(
@@ -55,7 +55,7 @@ const render = (Component, store, error) => {
           </PubSubProvider>
         </ConnectedRouter>
       </Provider>,
-      document.getElementById("root")
+      document.getElementById('root')
     );
   }
 };
@@ -75,17 +75,17 @@ storeRehydrated
     render(App, store);
   })
   .catch(error => {
-    logger.error("Failed to rehydrate the store! This is fatal!", error);
+    logger.error('Failed to rehydrate the store! This is fatal!', error);
     render(
       undefined,
       undefined,
-      "Failed to initialize! This is bad, please contact an admin."
+      'Failed to initialize! This is bad, please contact an admin.'
     );
   });
 
 if (module.hot) {
-  module.hot.accept("./components/App", () => {
-    const NextApp = require("./components/App").default; // eslint-disable-line global-require
+  module.hot.accept('./components/App', () => {
+    const NextApp = require('./components/App').default; // eslint-disable-line global-require
     render(NextApp, rehydratedStore);
   });
   storeRehydrated.then(store => {
