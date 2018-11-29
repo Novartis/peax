@@ -1,3 +1,4 @@
+import { boundMethod } from 'autobind-decorator';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -6,6 +7,9 @@ import { connect } from 'react-redux';
 import ButtonIcon from './ButtonIcon';
 import HiGlassViewer from './HiGlassViewer';
 import ButtonRadio from './ButtonRadio';
+
+// Utils
+import { toVoid } from '../utils';
 
 // Configs
 import {
@@ -33,11 +37,6 @@ class HiglassResult extends React.Component {
     this.minMaxValues = {};
 
     this.initApi = false;
-    this.onApiBnd = this.onApi.bind(this);
-    this.onNormalizeBnd = this.onNormalize.bind(this);
-    this.onToggleInfoSideBarBnd = this.onToggleInfoSideBar.bind(this);
-    this.onEnterBnd = this.onEnter.bind(this);
-    this.onLeaveBnd = this.onLeave.bind(this);
   }
 
   componentDidMount() {
@@ -91,12 +90,14 @@ class HiglassResult extends React.Component {
     });
   }
 
+  @boundMethod
   onApi(api) {
     this.api = api;
     this.checkInitNormalize();
     this.initApi = true;
   }
 
+  @boundMethod
   async onNormalize() {
     if (!this.api) return;
 
@@ -119,16 +120,19 @@ class HiglassResult extends React.Component {
     this.props.onNormalize(this.minMaxValues, this.props.windowId);
   }
 
+  @boundMethod
   onToggleInfoSideBar() {
     this.setState({ isInfoSideBarShown: !this.state.isInfoSideBarShown });
   }
 
+  @boundMethod
   onEnter() {
-    if (this.props.onEnter) this.props.onEnter(this.props.windowId);
+    this.props.onEnter(this.props.windowId);
   }
 
+  @boundMethod
   onLeave() {
-    if (this.props.onLeave) this.props.onLeave();
+    this.props.onLeave();
   }
 
   /* -------------------------------- Render -------------------------------- */
@@ -146,8 +150,8 @@ class HiglassResult extends React.Component {
     return (
       <div
         className="rel flex-c higlass-result"
-        onMouseEnter={this.onEnterBnd}
-        onMouseLeave={this.onLeaveBnd}
+        onMouseEnter={this.onEnter}
+        onMouseLeave={this.onLeave}
       >
         <aside className={classNameInfoSideBar}>
           {this.props.isInfoSideBar && (
@@ -155,7 +159,7 @@ class HiglassResult extends React.Component {
               className="higlass-result-info-panel-toggler"
               icon="info"
               iconOnly={true}
-              onClick={this.onToggleInfoSideBarBnd}
+              onClick={this.onToggleInfoSideBar}
             />
           )}
           <ButtonIcon
@@ -164,7 +168,7 @@ class HiglassResult extends React.Component {
             iconOnly={true}
             isActive={this.state.isMinMaxValuesByTarget}
             isIconMirrorOnFocus={true}
-            onClick={this.onNormalizeBnd}
+            onClick={this.onNormalize}
           />
           {this.props.isInfoSideBar && (
             <div className="full-dim higlass-result-info-panel-content">
@@ -182,7 +186,7 @@ class HiglassResult extends React.Component {
           )}
         </aside>
         <HiGlassViewer
-          api={this.onApiBnd}
+          api={this.onApi}
           height={this.props.viewHeight}
           isStatic={true}
           isZoomFixed={true}
@@ -248,6 +252,8 @@ HiglassResult.defaultProps = {
   dataTracks: [],
   isInfoSideBar: false,
   normalizeBy: {},
+  onEnter: toVoid,
+  onLeave: toVoid,
   windows: {}
 };
 
