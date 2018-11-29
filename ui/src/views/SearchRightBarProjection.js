@@ -105,6 +105,7 @@ class SearchRightBarProjection extends React.Component {
       this.setColorEncoding();
     if (this.props.barWidth && this.props.barWidth !== prevProps.barWidth)
       this.drawScatterplotDb(true);
+    if (this.props.selection !== this.selection) this.select();
   }
 
   componentWillUnmount() {
@@ -115,6 +116,15 @@ class SearchRightBarProjection extends React.Component {
 
   get isOpen() {
     return this.props.barShow && this.props.tab === TAB_RIGHT_BAR_PROJECTION;
+  }
+
+  select() {
+    if (!this.scatterplot || this.props.selection === this.selection) return;
+    if (this.props.selection.length) {
+      this.scatterplot.select(this.props.selection);
+    } else {
+      this.scatterplot.deselect();
+    }
   }
 
   setColorEncoding() {
@@ -269,6 +279,8 @@ class SearchRightBarProjection extends React.Component {
 
   @boundMethod
   onSelect({ points: selectedPoints = [] } = {}) {
+    // We need to store a reference to this object to avoid circular events
+    this.selection = selectedPoints;
     this.props.setSelection(selectedPoints);
   }
 
@@ -403,10 +415,10 @@ SearchRightBarProjection.propTypes = {
   hoveringWindowId: PropTypes.number,
   searchInfo: PropTypes.object,
   selection: PropTypes.arrayOf(PropTypes.number),
-  setSelection: PropTypes.func,
+  setSelection: PropTypes.func.isRequired,
   settingsIsOpen: PropTypes.bool,
   tab: PropTypes.oneOfType([PropTypes.string, PropTypes.symbol]),
-  toggleSettings: PropTypes.func
+  toggleSettings: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
