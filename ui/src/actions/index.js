@@ -32,6 +32,11 @@ export const setHiglassMouseTool = higlassMouseTool => ({
   payload: { higlassMouseTool }
 });
 
+export const setSearchHover = searchHover => ({
+  type: 'SET_SEARCH_HOVER',
+  payload: { searchHover }
+});
+
 export const setSearchRightBarInfoMetadata = searchRightBarInfoMetadata => ({
   type: 'SET_SEARCH_RIGHT_BAR_INFO_METADATA',
   payload: { searchRightBarInfoMetadata }
