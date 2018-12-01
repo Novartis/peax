@@ -15,6 +15,7 @@ import TabEntry from '../components/TabEntry';
 
 // Actions
 import {
+  setSearchHover,
   setSearchRightBarProjectionSettings,
   setSearchSelection
 } from '../actions';
@@ -278,7 +279,14 @@ class SearchRightBarProjection extends React.Component {
   }
 
   @boundMethod
-  onSelect({ points: selectedPoints = [] } = {}) {
+  onHover(point) {
+    // We need to store a reference to this object to avoid circular events
+    this.hoveredPoint = point;
+    this.props.setHover(point);
+  }
+
+  @boundMethod
+  onSelect({ points: selectedPoints = new Set() } = {}) {
     // We need to store a reference to this object to avoid circular events
     this.selection = selectedPoints;
     this.props.setSelection(selectedPoints);
@@ -286,7 +294,7 @@ class SearchRightBarProjection extends React.Component {
 
   @boundMethod
   onDeselect() {
-    this.props.setSelection([]);
+    this.props.setSelection(new Set());
   }
 
   checkView(view) {
@@ -414,7 +422,8 @@ SearchRightBarProjection.propTypes = {
   barWidth: PropTypes.number,
   hoveringWindowId: PropTypes.number,
   searchInfo: PropTypes.object,
-  selection: PropTypes.arrayOf(PropTypes.number),
+  selection: PropTypes.array.isRequired,
+  setHover: PropTypes.func.isRequired,
   setSelection: PropTypes.func.isRequired,
   settingsIsOpen: PropTypes.bool,
   tab: PropTypes.oneOfType([PropTypes.string, PropTypes.symbol]),
@@ -430,7 +439,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  setSelection: windowId => dispatch(setSearchSelection(windowId)),
+  setHover: windowId => dispatch(setSearchHover(windowId)),
+  setSelection: windowIds => dispatch(setSearchSelection(windowIds)),
   toggleSettings: isOpen =>
     dispatch(setSearchRightBarProjectionSettings(!isOpen))
 });

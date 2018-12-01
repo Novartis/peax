@@ -18,6 +18,9 @@ import {
   BLUE_PINK_TEXT_CMAP
 } from '../configs/search';
 
+// Actions
+import { setSearchHover, setSearchSelection } from '../actions';
+
 import './HiglassResult.scss';
 
 const getColor = prob =>
@@ -52,6 +55,14 @@ class HiglassResult extends React.Component {
   }
 
   /* ---------------------------- Getter & Setter --------------------------- */
+
+  get isHovered() {
+    return this.props.hover === this.props.windowId;
+  }
+
+  get isSelected() {
+    return this.props.selection.indexOf(this.props.windowId) >= 0;
+  }
 
   get viewId() {
     return `${this.props.searchId}.${this.props.windowId}.${
@@ -127,17 +138,27 @@ class HiglassResult extends React.Component {
 
   @boundMethod
   onEnter() {
-    this.props.onEnter(this.props.windowId);
+    this.props.setHover(this.props.windowId);
   }
 
   @boundMethod
   onLeave() {
-    this.props.onLeave();
+    this.props.setHover(-1);
+  }
+
+  @boundMethod
+  onSelect() {
+    this.props.setSelection([this.props.windowId]);
   }
 
   /* -------------------------------- Render -------------------------------- */
 
   render() {
+    let className = 'rel flex-c higlass-result';
+
+    if (this.isHovered) className += ' is-hovered';
+    if (this.isSelected) className += ' is-selected';
+
     let classNameInfoSideBar = 'higlass-result-side-panel';
 
     if (this.props.isInfoSideBar) {
@@ -149,7 +170,7 @@ class HiglassResult extends React.Component {
 
     return (
       <div
-        className="rel flex-c higlass-result"
+        className={className}
         onMouseEnter={this.onEnter}
         onMouseLeave={this.onLeave}
       >
@@ -162,6 +183,13 @@ class HiglassResult extends React.Component {
               onClick={this.onToggleInfoSideBar}
             />
           )}
+          <ButtonIcon
+            className="higlass-result-selector"
+            icon={this.isSelected ? 'circle-nested' : 'circle-hollow'}
+            iconOnly={true}
+            isActive={this.isSelected}
+            onClick={this.onSelect}
+          />
           <ButtonIcon
             className="higlass-result-normalizer"
             icon="ratio"
@@ -262,13 +290,15 @@ HiglassResult.propTypes = {
   classificationProb: PropTypes.number,
   classificationChangeHandler: PropTypes.func.isRequired,
   dataTracks: PropTypes.array,
+  hover: PropTypes.number.isRequired,
   isInfoSideBar: PropTypes.bool,
   normalizationSource: PropTypes.string,
   normalizeBy: PropTypes.object,
-  onEnter: PropTypes.func,
-  onLeave: PropTypes.func,
   onNormalize: PropTypes.func.isRequired,
   searchId: PropTypes.number.isRequired,
+  selection: PropTypes.array.isRequired,
+  setHover: PropTypes.func.isRequired,
+  setSelection: PropTypes.func.isRequired,
   showAutoencodings: PropTypes.bool.isRequired,
   viewHeight: PropTypes.number.isRequired,
   windowId: PropTypes.number.isRequired,
@@ -276,9 +306,15 @@ HiglassResult.propTypes = {
 };
 
 const mapStateToProps = state => ({
+  hover: state.present.searchHover,
+  selection: state.present.searchSelection,
   showAutoencodings: state.present.showAutoencodings
 });
-const mapDispatchToProps = (/* dispatch */) => ({});
+
+const mapDispatchToProps = dispatch => ({
+  setHover: windowId => dispatch(setSearchHover(windowId)),
+  setSelection: windowIds => dispatch(setSearchSelection(windowIds))
+});
 
 export default connect(
   mapStateToProps,

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
-import { compose } from 'recompose';
 
 // Higher-order components
 import { withPubSub } from '../hocs/pub-sub';
@@ -31,14 +30,12 @@ import SearchSubTopBarTabs from './SearchSubTopBarTabs';
 import {
   setSearchRightBarShow,
   setSearchRightBarTab,
-  setSearchSelection,
   setSearchTab
 } from '../actions';
 
 // Utils
 import {
   api,
-  withArray,
   Deferred,
   // inputToNum,
   Logger,
@@ -133,15 +130,6 @@ class Search extends React.Component {
     this.onPageClassifications = this.onPage('classifications');
     this.onPageResults = this.onPage('results');
     this.onPageSeeds = this.onPage('seeds');
-
-    this.onResultEnter = compose(
-      this.onAction('setSelection'),
-      withArray
-    );
-    this.onResultLeave = compose(
-      this.onAction('setSelection'),
-      () => []
-    );
 
     this.pubSubs.push(
       this.props.pubSub.subscribe('keydown', this.keyDownHandlerBnd)
@@ -957,8 +945,6 @@ class Search extends React.Component {
                   normalizeBy={this.state.minMaxValues}
                   onNormalize={this.onNormalizeBnd}
                   onPage={this.onPageSeeds}
-                  onResultEnter={this.onResultEnter}
-                  onResultLeave={this.onResultLeave}
                   onTrainingStart={this.onTrainingStartBnd}
                   onTrainingCheck={this.onTrainingCheckBnd}
                   page={this.state.pageSeeds}
@@ -989,8 +975,6 @@ class Search extends React.Component {
                   normalizeBy={this.state.minMaxValues}
                   onNormalize={this.onNormalizeBnd}
                   onPage={this.onPageResults}
-                  onResultEnter={this.onResultEnter}
-                  onResultLeave={this.onResultLeave}
                   onTrainingStart={this.onTrainingStartBnd}
                   onTrainingCheck={this.onTrainingCheckBnd}
                   page={this.state.pageResults}
@@ -1020,8 +1004,6 @@ class Search extends React.Component {
                   normalizeBy={this.state.minMaxValues}
                   onNormalize={this.onNormalizeBnd}
                   onPage={this.onPageClassifications}
-                  onResultEnter={this.onResultEnter}
-                  onResultLeave={this.onResultLeave}
                   onTrainingStart={this.onTrainingStartBnd}
                   onTrainingCheck={this.onTrainingCheckBnd}
                   page={this.state.pageClassifications}
@@ -1057,7 +1039,6 @@ Search.propTypes = {
   rightBarWidth: PropTypes.number,
   setRightBarShow: PropTypes.func,
   setRightBarTab: PropTypes.func,
-  setSelection: PropTypes.func,
   setTab: PropTypes.func.isRequired,
   showAutoencodings: PropTypes.bool,
   tab: PropTypes.oneOfType([PropTypes.string, PropTypes.symbol]).isRequired,
@@ -1078,7 +1059,6 @@ const mapDispatchToProps = dispatch => ({
     dispatch(setSearchRightBarShow(rightBarShow)),
   setRightBarTab: searchRightBarTab =>
     dispatch(setSearchRightBarTab(searchRightBarTab)),
-  setSelection: windowId => dispatch(setSearchSelection(windowId)),
   setTab: searchTab => dispatch(setSearchTab(searchTab))
 });
 

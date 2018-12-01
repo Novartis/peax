@@ -120,6 +120,7 @@
     bottom: 0;
     width: 10rem;
     border-radius: 0.25rem 0 0 0.25rem;
+    color: $gray-dark;
     transform: translate(-10rem, 0);
     transition: transform $fast-transition $easing;
 
@@ -135,8 +136,12 @@
       width: 1.5rem;
       height: 1.5rem;
       border: 0;
-      border-radius: 0 0 0.25rem 0;
+      border-radius: 0;
       background: $gray-lightest;
+
+      &:last-child {
+        border-radius: 0 0 0.25rem 0;
+      }
     }
 
     .higlass-result-info-panel-toggler {
@@ -145,13 +150,18 @@
     }
 
     &.higlass-result-show-info .higlass-result-info-panel-toggler,
-    .higlass-result-normalizer.is-active {
+    .higlass-result-normalizer.is-active,
+    .higlass-result-selector.is-active {
       color: $white;
       background: $blue;
     }
 
-    .higlass-result-normalizer {
+    .higlass-result-selector {
       top: 0;
+    }
+
+    .higlass-result-normalizer {
+      top: 1.5em;
     }
 
     &.higlass-result-has-info .higlass-result-normalizer {
@@ -177,5 +187,20 @@
         }
       }
     }
+  }
+}
+
+.list-item > .higlass-result {
+  margin: 0.5rem;
+  border-radius: 0.25rem;
+  box-shadow: 0 0 0 1px $gray-lightest;
+  transition: box-shadow $fast-transition $easing;
+
+  &.is-hovered {
+    box-shadow: 0 0 0 1px $primary;
+  }
+
+  &.is-selected {
+    box-shadow: 0 0 0 2px $primary;
   }
 }
