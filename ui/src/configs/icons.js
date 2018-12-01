@@ -69,6 +69,17 @@ export const CHECKMARK = {
     '<path d="M6.086 9.964L2.904 6.782a.5.5 0 0 0-.707 0L.783 8.196a.5.5 0 0 0 0 .707l3.534 3.535.001.001 1.416 1.415c.194.195.51.195.704 0l8.78-8.779a.5.5 0 0 0 0-.705l-1.417-1.417a.5.5 0 0 0-.705 0l-7.01 7.011z" fill-rule="evenodd" fill="currentColor"/>'
 };
 
+export const CIRCLE_NESTED = {
+  viewBox: '0 0 16 16',
+  svg:
+    '<circle cx="8" cy="8" r="6" fill="none" stroke="currentColor"/><circle cx="8" cy="8" r="4" fill="currentColor"/>'
+};
+
+export const CIRCLE_HOLLOW = {
+  viewBox: '0 0 16 16',
+  svg: '<circle cx="8" cy="8" r="5" fill="none" stroke="currentColor"/>'
+};
+
 export const CODE = {
   viewBox: '0 0 16 16',
   svg:
@@ -352,6 +363,8 @@ export default {
   CALENDAR,
   CENTER,
   CHECKMARK,
+  CIRCLE_NESTED,
+  CIRCLE_HOLLOW,
   CODE,
   CROSS,
   // DATA,
