@@ -1,4 +1,4 @@
-import deepEqual from 'deep-equal';
+import { isEqual } from 'lodash-es';
 import { HiGlassComponent } from 'higlass';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -40,7 +40,7 @@ class HiGlassLauncher extends React.Component {
       this.setMouseTool(nextProps.mouseTool);
     }
 
-    if (deepEqual(this.newViewConfig, nextProps.viewConfig)) {
+    if (isEqual(this.newViewConfig, nextProps.viewConfig)) {
       return false;
     }
 
@@ -92,7 +92,7 @@ class HiGlassLauncher extends React.Component {
   updateViewConfig(newViewConfig) {
     this.newViewConfig = JSON.parse(newViewConfig);
 
-    if (!deepEqual(this.newViewConfig, this.props.viewConfig)) {
+    if (!isEqual(this.newViewConfig, this.props.viewConfig)) {
       this.props.setViewConfig(this.newViewConfig);
     }
   }

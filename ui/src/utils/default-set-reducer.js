@@ -1,4 +1,4 @@
-import deepEqual from 'deep-equal';
+import { isEqual } from 'lodash-es';
 
 import camelToConst from './camel-to-const';
 import deepClone from './deep-clone';
@@ -6,7 +6,7 @@ import deepClone from './deep-clone';
 const clone = (value, state) => {
   switch (typeof value) {
     case 'object': {
-      if (!deepEqual(value, state)) {
+      if (!isEqual(value, state)) {
         return deepClone(value);
       }
 
