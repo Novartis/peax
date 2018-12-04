@@ -21,6 +21,7 @@ import SearchRightBarProjection from './SearchRightBarProjection';
 
 // Configs
 import {
+  RIGHT_BAR_MIN_WIDTH,
   TAB_RIGHT_BAR_PROJECTION,
   TAB_RIGHT_BAR_INFO
 } from '../configs/search';
@@ -98,7 +99,9 @@ const mapDispatchToProps = dispatch => ({
     dispatch(setSearchRightBarShow(rightBarShow)),
   setRightBarTab: rightBarTab => dispatch(setSearchRightBarTab(rightBarTab)),
   setRightBarWidth: rightBarWidth =>
-    dispatch(setSearchRightBarWidth(rightBarWidth))
+    dispatch(
+      setSearchRightBarWidth(Math.max(rightBarWidth, RIGHT_BAR_MIN_WIDTH))
+    )
 });
 
 export default connect(

@@ -1,5 +1,7 @@
 export const PER_PAGE_ITEMS = 5;
 
+export const RIGHT_BAR_MIN_WIDTH = 192;
+
 export const TAB_SEEDS = 'TAB_SEEDS';
 
 export const TAB_RESULTS = 'TAB_RESULTS';
