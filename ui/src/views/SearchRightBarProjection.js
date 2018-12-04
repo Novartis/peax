@@ -107,6 +107,7 @@ class SearchRightBarProjection extends React.Component {
     if (this.props.barWidth && this.props.barWidth !== prevProps.barWidth)
       this.drawScatterplotDb(true);
     if (this.props.selection !== this.selection) this.select();
+    if (this.props.hover !== this.hover) this.hover();
   }
 
   componentWillUnmount() {
@@ -120,11 +121,20 @@ class SearchRightBarProjection extends React.Component {
   }
 
   select() {
-    if (!this.scatterplot || this.props.selection === this.selection) return;
+    if (!this.scatterplot) return;
     if (this.props.selection.length) {
       this.scatterplot.select(this.props.selection);
     } else {
       this.scatterplot.deselect();
+    }
+  }
+
+  hover() {
+    if (!this.scatterplot) return;
+    if (this.props.hover >= 0) {
+      this.scatterplot.hover(this.props.hover);
+    } else {
+      this.scatterplot.hover();
     }
   }
 
@@ -286,7 +296,7 @@ class SearchRightBarProjection extends React.Component {
   }
 
   @boundMethod
-  onSelect({ points: selectedPoints = new Set() } = {}) {
+  onSelect({ points: selectedPoints = [] } = {}) {
     // We need to store a reference to this object to avoid circular events
     this.selection = selectedPoints;
     this.props.setSelection(selectedPoints);
@@ -294,7 +304,7 @@ class SearchRightBarProjection extends React.Component {
 
   @boundMethod
   onDeselect() {
-    this.props.setSelection(new Set());
+    this.props.setSelection([]);
   }
 
   checkView(view) {
@@ -420,7 +430,7 @@ SearchRightBarProjection.defaultProps = {
 SearchRightBarProjection.propTypes = {
   barShow: PropTypes.bool,
   barWidth: PropTypes.number,
-  hoveringWindowId: PropTypes.number,
+  hover: PropTypes.number.isRequired,
   searchInfo: PropTypes.object,
   selection: PropTypes.array.isRequired,
   setHover: PropTypes.func.isRequired,
@@ -433,6 +443,7 @@ SearchRightBarProjection.propTypes = {
 const mapStateToProps = state => ({
   barShow: state.present.searchRightBarShow,
   barWidth: state.present.searchRightBarWidth,
+  hover: state.present.searchHover,
   selection: state.present.searchSelection,
   settingsIsOpen: state.present.searchRightBarProjectionSettings,
   tab: state.present.searchRightBarTab
