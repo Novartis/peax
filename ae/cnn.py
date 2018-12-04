@@ -73,10 +73,7 @@ def cnn3(
         encoded = Dropout(dropouts[i], name="drop{}".format(k))(encoded)
 
     encoded = Dense(
-        embedding,
-        activation="relu",
-        name="embed",
-        kernel_regularizer=l1(reg_lambda),
+        embedding, activation="relu", name="embed", kernel_regularizer=l1(reg_lambda)
     )(encoded)
 
     decoded = encoded
@@ -107,15 +104,9 @@ def cnn3(
         )(decoded)
         decoded = Dropout(dropouts[i], name="drop{}".format(k))(decoded)
 
-    decoded = UpSampling1D(2, name="upsample{}".format(len(cfilters) - 1))(
-        decoded
-    )
+    decoded = UpSampling1D(2, name="upsample{}".format(len(cfilters) - 1))(decoded)
     decoded = Conv1D(
-        channels,
-        ckernel_sizes[0],
-        activation="sigmoid",
-        padding="same",
-        name="out",
+        channels, ckernel_sizes[0], activation="sigmoid", padding="same", name="out"
     )(decoded)
 
     autoencoder = Model(inputs, decoded)
@@ -137,22 +128,13 @@ def cnn3(
 
     if plot:
         plot_model(
-            autoencoder,
-            to_file="cnn3_ae.png",
-            show_shapes=True,
-            show_layer_names=True,
+            autoencoder, to_file="cnn3_ae.png", show_shapes=True, show_layer_names=True
         )
         plot_model(
-            encoder,
-            to_file="cnn3_de.png",
-            show_shapes=True,
-            show_layer_names=True,
+            encoder, to_file="cnn3_de.png", show_shapes=True, show_layer_names=True
         )
         plot_model(
-            encoder,
-            to_file="cnn3_en.png",
-            show_shapes=True,
-            show_layer_names=True,
+            encoder, to_file="cnn3_en.png", show_shapes=True, show_layer_names=True
         )
 
     return (encoder, decoder, autoencoder)
@@ -180,35 +162,23 @@ def cnn(
     pooling = MaxPooling1D if not avg_pooling else AveragePooling1D
 
     x = Conv1D(
-        filters[0],
-        kernel_sizes[0],
-        activation="relu",
-        padding="same",
-        name="conv1",
+        filters[0], kernel_sizes[0], activation="relu", padding="same", name="conv1"
     )(inputs)
     x = pooling(2, padding="same", name="pool1")(x)
     x = Conv1D(
-        filters[1],
-        kernel_sizes[1],
-        activation="relu",
-        padding="same",
-        name="conv2",
+        filters[1], kernel_sizes[1], activation="relu", padding="same", name="conv2"
     )(x)
     x = pooling(2, padding="same", name="pool2")(x)
     x = Conv1D(
-        filters[2],
-        kernel_sizes[2],
-        activation="relu",
-        padding=pad3,
-        name="conv3",
+        filters[2], kernel_sizes[2], activation="relu", padding=pad3, name="conv3"
     )(x)
     x = pooling(2, padding=pad3, name="pool3")(x)
     x = Flatten(name="flatten")(x)
     encoded = Dense(filters[3], activation="relu", name="embed")(x)
 
-    x = Dense(
-        filters[2] * int(input_shape[0] / 8), activation="relu", name="deembed"
-    )(encoded)
+    x = Dense(filters[2] * int(input_shape[0] / 8), activation="relu", name="deembed")(
+        encoded
+    )
     x = Reshape((int(input_shape[0] / 8), filters[2]), name="unflatten")(x)
     # x = Conv1D(
     #     filters[2],
@@ -219,19 +189,11 @@ def cnn(
     # )(x)
     x = UpSampling1D(2, name="up1")(x)
     x = Conv1D(
-        filters[1],
-        kernel_sizes[2],
-        activation="relu",
-        padding="same",
-        name="deconv1",
+        filters[1], kernel_sizes[2], activation="relu", padding="same", name="deconv1"
     )(x)
     x = UpSampling1D(2, name="up2")(x)
     x = Conv1D(
-        filters[0],
-        kernel_sizes[1],
-        activation="relu",
-        padding="same",
-        name="deconv2",
+        filters[0], kernel_sizes[1], activation="relu", padding="same", name="deconv2"
     )(x)
     x = UpSampling1D(2, name="up3")(x)
     decoded = Conv1D(
@@ -314,32 +276,20 @@ def cnn2(
 
     if dr:
         x = Dense(
-            filters[2] * int(input_shape[0] / 8),
-            activation="relu",
-            name="deembed",
+            filters[2] * int(input_shape[0] / 8), activation="relu", name="deembed"
         )(encoded)
 
         x = Reshape((int(input_shape[0] / 8), filters[2]), name="unflatten")(x)
     else:
-        x = Reshape((int(input_shape[0] / 8), filters[2]), name="unflatten")(
-            encoded
-        )
+        x = Reshape((int(input_shape[0] / 8), filters[2]), name="unflatten")(encoded)
 
     x = UpSampling1D(2, name="up1")(x)
     x = Conv1D(
-        filters[1],
-        kernel_sizes[2],
-        activation="relu",
-        padding="same",
-        name="deconv1",
+        filters[1], kernel_sizes[2], activation="relu", padding="same", name="deconv1"
     )(x)
     x = UpSampling1D(2, name="up2")(x)
     x = Conv1D(
-        filters[0],
-        kernel_sizes[1],
-        activation="relu",
-        padding="same",
-        name="deconv2",
+        filters[0], kernel_sizes[1], activation="relu", padding="same", name="deconv2"
     )(x)
     x = UpSampling1D(2, name="up3")(x)
     decoded = Conv1D(
@@ -433,8 +383,7 @@ def cae2d(
         name="blowup",
     )(x)
     x = Reshape(
-        (int(input_shape[0] / 8), int(input_shape[1] / 8), filters[2]),
-        name="unflatten",
+        (int(input_shape[0] / 8), int(input_shape[1] / 8), filters[2]), name="unflatten"
     )(x)
     x = Conv2DTranspose(
         filters[1],
