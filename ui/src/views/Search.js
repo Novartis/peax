@@ -1,3 +1,4 @@
+import { boundMethod } from 'autobind-decorator';
 import update from 'immutability-helper';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -112,31 +113,14 @@ class Search extends React.Component {
       windows: {}
     };
 
-    this.checkHgApiBnd = this.checkHgApi.bind(this);
-    this.keyDownHandlerBnd = this.keyDownHandler.bind(this);
-    this.keyUpHandlerBnd = this.keyUpHandler.bind(this);
-    this.locationHandlerBnd = this.locationHandler.bind(this);
-    this.mouseMoveZoomHandlerBnd = this.mouseMoveZoomHandler.bind(this);
-    this.onTrainingStartBnd = this.onTrainingStart.bind(this);
-    this.onTrainingCheckBnd = this.onTrainingCheck.bind(this);
-    this.onTrainingCheckSeedsBnd = this.onTrainingCheckSeeds.bind(this);
-    this.classificationChangeHandlerBnd = this.classificationChangeHandler.bind(
-      this
-    );
-    this.resetViewportBnd = this.resetViewport.bind(this);
-    this.onNormalizeBnd = this.onNormalize.bind(this);
-    this.normalizeByTargetBnd = this.normalizeByTarget.bind(this);
-
     this.onPageClassifications = this.onPage('classifications');
     this.onPageResults = this.onPage('results');
     this.onPageSeeds = this.onPage('seeds');
 
     this.pubSubs.push(
-      this.props.pubSub.subscribe('keydown', this.keyDownHandlerBnd)
+      this.props.pubSub.subscribe('keydown', this.keyDownHandler)
     );
-    this.pubSubs.push(
-      this.props.pubSub.subscribe('keyup', this.keyUpHandlerBnd)
-    );
+    this.pubSubs.push(this.props.pubSub.subscribe('keyup', this.keyUpHandler));
   }
 
   componentDidMount() {
@@ -274,7 +258,7 @@ class Search extends React.Component {
     if (training) {
       // Classifier is training
       const trainingCheckTimerId = training.isTraining
-        ? setInterval(this.onTrainingCheckSeedsBnd, TRAINING_CHECK_INTERVAL)
+        ? setInterval(this.onTrainingCheckSeeds, TRAINING_CHECK_INTERVAL)
         : null;
 
       if (training.isTraining) this.onTrainingCheckSeeds();
@@ -377,6 +361,7 @@ class Search extends React.Component {
     };
   }
 
+  @boundMethod
   checkHgApi(newHgApi) {
     if (this.hgApi !== newHgApi) {
       removeHiGlassEventListeners(this.hiGlassEventListeners, this.hgApi);
@@ -393,7 +378,7 @@ class Search extends React.Component {
 
     this.hiGlassEventListeners.location = {
       name: 'location',
-      id: this.hgApi.on('location', this.locationHandlerBnd)
+      id: this.hgApi.on('location', this.locationHandler)
     };
 
     if (!this.hiGlassEventListeners.mouseMoveZoom) {
@@ -401,16 +386,18 @@ class Search extends React.Component {
       // we get mouseMoveZoom callbacks from *all* HG instances.
       // this.hiGlassEventListeners.mouseMoveZoom = {
       //   name: 'mouseMoveZoom',
-      //   id: this.hgApi.on('mouseMoveZoom', this.mouseMoveZoomHandlerBnd),
+      //   id: this.hgApi.on('mouseMoveZoom', this.mouseMoveZoomHandler),
       // };
     }
   }
 
+  @boundMethod
   resetViewport() {
     this.setState({ viewportChanged: false });
     this.callHgApi('resetViewport')();
   }
 
+  @boundMethod
   locationHandler({ xDomain }) {
     if (this.state.locationStart === null) {
       this.setState({
@@ -425,6 +412,7 @@ class Search extends React.Component {
     }
   }
 
+  @boundMethod
   mouseMoveZoomHandler({ center: [xPos] }) {
     if (
       !this.state.searchInfo ||
@@ -450,6 +438,7 @@ class Search extends React.Component {
     this.hiGlassEventListeners = [];
   }
 
+  @boundMethod
   keyDownHandler(event) {
     if (event.keyCode === 83) {
       // S
@@ -462,6 +451,7 @@ class Search extends React.Component {
     }
   }
 
+  @boundMethod
   keyUpHandler(event) {
     if (event.keyCode === 73) {
       // I
@@ -500,10 +490,12 @@ class Search extends React.Component {
     }
   }
 
+  @boundMethod
   resetAllViewports() {
     logger.warn('Sorry, `Search.resetAllViewports()` not implemented yet.');
   }
 
+  @boundMethod
   classificationChangeHandler(windowId) {
     return async classif => {
       const isNew = !this.state.windows[windowId];
@@ -587,6 +579,7 @@ class Search extends React.Component {
     });
   }
 
+  @boundMethod
   normalizeByTarget() {
     if (!this.hgApi) return;
 
@@ -609,6 +602,7 @@ class Search extends React.Component {
     );
   }
 
+  @boundMethod
   onNormalize(minMaxValues, minMaxSource, isMinMaxValuesByTarget = false) {
     this.setState({ minMaxValues, minMaxSource, isMinMaxValuesByTarget });
   }
@@ -644,7 +638,7 @@ class Search extends React.Component {
       await this.setState({ [loadingProp]: true });
 
       // Re-train classifier and get new seeds once the training is done
-      await this.onTrainingStart(this.onTrainingCheckSeedsBnd);
+      await this.onTrainingStart(this.onTrainingCheckSeeds);
 
       this.setState({ [loadingProp]: false });
     } else if (numItems / (PER_PAGE_ITEMS * (currentPage + 1)) > 1) {
@@ -658,7 +652,8 @@ class Search extends React.Component {
     this.setState({ [pageProp]: Math.max(0, currentPage - 1) });
   }
 
-  async onTrainingStart(checker = this.onTrainingCheckBnd) {
+  @boundMethod
+  async onTrainingStart(checker = this.onTrainingCheck) {
     const trainingInfo = await api.newClassifier(this.id);
 
     if (trainingInfo.status === 409) {
@@ -672,6 +667,7 @@ class Search extends React.Component {
     });
   }
 
+  @boundMethod
   async onTrainingCheck() {
     let classifierInfo = await api.getClassifier(this.state.searchInfo.id);
 
@@ -709,6 +705,7 @@ class Search extends React.Component {
     this.props.setTab(TAB_RESULTS);
   }
 
+  @boundMethod
   async onTrainingCheckSeeds() {
     let classifierInfo = await api.getClassifier(this.state.searchInfo.id);
 
@@ -828,7 +825,7 @@ class Search extends React.Component {
         >
           <SearchSubTopBarAll
             viewportChanged={false}
-            resetViewport={this.resetAllViewports.bind(this)}
+            resetViewport={this.resetAllViewports}
           />
           {this.state.searchInfosAll.length ? (
             <ol className="no-list-style higlass-list">
@@ -903,13 +900,13 @@ class Search extends React.Component {
         >
           <SearchSubTopBar
             isMinMaxValuesByTarget={this.state.isMinMaxValuesByTarget}
-            normalize={this.normalizeByTargetBnd}
-            resetViewport={this.resetViewportBnd}
+            normalize={this.normalizeByTarget}
+            resetViewport={this.resetViewport}
             viewportChanged={this.state.viewportChanged}
           />
           <div className="rel search-target">
             <HiGlassViewer
-              api={this.checkHgApiBnd}
+              api={this.checkHgApi}
               height={
                 this.isTrained
                   ? this.state.searchInfo.maxViewHeight
@@ -931,9 +928,7 @@ class Search extends React.Component {
                 tabOpen={this.props.tab}
               >
                 <SearchSeeds
-                  classificationChangeHandler={
-                    this.classificationChangeHandlerBnd
-                  }
+                  classificationChangeHandler={this.classificationChangeHandler}
                   dataTracks={this.state.dataTracks}
                   info={this.state.info}
                   isError={this.state.isErrorSeeds}
@@ -943,10 +938,10 @@ class Search extends React.Component {
                   itemsPerPage={PER_PAGE_ITEMS}
                   normalizationSource={this.state.minMaxSource}
                   normalizeBy={this.state.minMaxValues}
-                  onNormalize={this.onNormalizeBnd}
+                  onNormalize={this.onNormalize}
                   onPage={this.onPageSeeds}
-                  onTrainingStart={this.onTrainingStartBnd}
-                  onTrainingCheck={this.onTrainingCheckBnd}
+                  onTrainingStart={this.onTrainingStart}
+                  onTrainingCheck={this.onTrainingCheck}
                   page={this.state.pageSeeds}
                   pageTotal={this.state.pageSeedsTotal}
                   results={this.state.seeds}
@@ -960,9 +955,7 @@ class Search extends React.Component {
                 tabOpen={this.props.tab}
               >
                 <SearchResults
-                  classificationChangeHandler={
-                    this.classificationChangeHandlerBnd
-                  }
+                  classificationChangeHandler={this.classificationChangeHandler}
                   dataTracks={this.state.dataTracks}
                   info={this.state.info}
                   isError={this.state.isErrorResults}
@@ -973,10 +966,10 @@ class Search extends React.Component {
                   itemsPerPage={PER_PAGE_ITEMS}
                   normalizationSource={this.state.minMaxSource}
                   normalizeBy={this.state.minMaxValues}
-                  onNormalize={this.onNormalizeBnd}
+                  onNormalize={this.onNormalize}
                   onPage={this.onPageResults}
-                  onTrainingStart={this.onTrainingStartBnd}
-                  onTrainingCheck={this.onTrainingCheckBnd}
+                  onTrainingStart={this.onTrainingStart}
+                  onTrainingCheck={this.onTrainingCheck}
                   page={this.state.pageResults}
                   pageTotal={this.state.pageResultsTotal}
                   results={this.state.results}
@@ -991,9 +984,7 @@ class Search extends React.Component {
                 tabOpen={this.props.tab}
               >
                 <SearchClassifications
-                  classificationChangeHandler={
-                    this.classificationChangeHandlerBnd
-                  }
+                  classificationChangeHandler={this.classificationChangeHandler}
                   dataTracks={this.state.dataTracks}
                   info={this.state.info}
                   isError={this.state.isErrorClassifications}
@@ -1002,10 +993,10 @@ class Search extends React.Component {
                   itemsPerPage={PER_PAGE_ITEMS}
                   normalizationSource={this.state.minMaxSource}
                   normalizeBy={this.state.minMaxValues}
-                  onNormalize={this.onNormalizeBnd}
+                  onNormalize={this.onNormalize}
                   onPage={this.onPageClassifications}
-                  onTrainingStart={this.onTrainingStartBnd}
-                  onTrainingCheck={this.onTrainingCheckBnd}
+                  onTrainingStart={this.onTrainingStart}
+                  onTrainingCheck={this.onTrainingCheck}
                   page={this.state.pageClassifications}
                   pageTotal={this.state.pageClassificationsTotal}
                   results={this.state.classifications}
