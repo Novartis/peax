@@ -148,7 +148,15 @@ class HiglassResult extends React.Component {
 
   @boundMethod
   onSelect() {
-    this.props.setSelection([this.props.windowId]);
+    const windowIndex = this.props.selection.indexOf(this.props.windowId);
+    const newSelection = [...this.props.selection];
+    if (windowIndex >= 0) {
+      newSelection.splice(windowIndex, 1);
+      this.props.setSelection(newSelection);
+    } else {
+      newSelection.push(this.props.windowId);
+      this.props.setSelection(newSelection);
+    }
   }
 
   /* -------------------------------- Render -------------------------------- */
