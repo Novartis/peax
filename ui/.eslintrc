@@ -55,12 +55,7 @@
     "import/prefer-default-export": "warn",
     "no-console": "warn",
     "no-param-reassign": ["error", { "props": false }],
-    "no-plusplus": [
-      "error",
-      {
-        "allowForLoopAfterthoughts": true
-      }
-    ],
+    "no-plusplus": 0,
     "prefer-destructuring": 0
   }
 }
