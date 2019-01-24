@@ -25,6 +25,8 @@ dependencies:
 # removed in the future: https://stackoverflow.com/a/52598942/981933
 - testpath>=0.4.2
 - tqdm
+# A bug in matplotlib: https://github.com/matplotlib/matplotlib/issues/12601
+- matplotlib>=3.0.2
 - pip
 - pip:
   - pysam==0.13
