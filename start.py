@@ -57,7 +57,7 @@ try:
         config_file = json.load(f)
 except FileNotFoundError:
     print(
-        "You need to provide either provide a config file via `--config` or "
+        "You need to either provide a config file via `--config` or "
         "have it as `config.json` in the root directory of Peax"
     )
     raise
