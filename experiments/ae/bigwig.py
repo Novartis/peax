@@ -16,7 +16,15 @@ import math
 import numpy as np
 
 
-def chunk(bigwig, window_size, step_size, aggregation, chroms, verbose=False):
+def chunk(
+    bigwig,
+    window_size,
+    step_size,
+    aggregation,
+    chroms,
+    verbose=False,
+    print_per_chrom=None,
+):
     base_bins = math.ceil(window_size / aggregation)
 
     chrom_values = []
@@ -32,13 +40,9 @@ def chunk(bigwig, window_size, step_size, aggregation, chroms, verbose=False):
 
         chrom_size = bbi.chromsizes(bigwig)[chrom]
 
-        values = np.zeros(
-            (math.ceil((chrom_size - step_size) / step_size), base_bins)
-        )
+        values = np.zeros((math.ceil((chrom_size - step_size) / step_size), base_bins))
         starts = np.arange(0, chrom_size - step_size, step_size)
-        ends = np.append(
-            np.arange(window_size, chrom_size, step_size), chrom_size
-        )
+        ends = np.append(np.arange(window_size, chrom_size, step_size), chrom_size)
         bins = window_size / aggregation
 
         # Extract all but the last window in one fashion (faster than `fetch`
@@ -66,5 +70,8 @@ def chunk(bigwig, window_size, step_size, aggregation, chroms, verbose=False):
             )
 
         chrom_values.append(values)
+
+        if print_per_chrom:
+            print_per_chrom()
 
     return chrom_values
