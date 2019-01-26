@@ -310,3 +310,75 @@ def get_stats(bigwig, bigbed, norm_vals, window_size, step_size, aggregation, ch
     stats[:, 12] = peak_widths(intervals, np.sum) / base_bins
 
     return stats, np.round(intervals).astype(int)
+
+
+def chunk_beds_binary(
+    bigBed: str,
+    window_size: int,
+    step_size: int,
+    chroms: list,
+    verbose: bool = True,
+    print_per_chrom: callable = None,
+):
+    base_bins = 1
+    num_total_windows = 0
+
+    chrom_sizes = bbi.chromsizes(bigBed)
+    step_freq = int(window_size / step_size)
+
+    for chrom in chroms:
+        chrom_size = chrom_sizes[chrom]
+        num_total_windows += np.ceil((chrom_size - step_size) / step_size).astype(int)
+
+    values = np.zeros((num_total_windows, base_bins))
+
+    start = 0
+    for chrom in chroms:
+        if chrom not in chrom_sizes:
+            print("Skipping chrom (not in bigBed file):", chrom, chrom_sizes[chrom])
+            continue
+
+        chrom_size = chrom_sizes[chrom]
+        bins = np.ceil(chrom_size / window_size).astype(int)
+        num_windows = np.ceil((chrom_size - step_size) / step_size).astype(int)
+
+        start_pos = np.arange(0, step_size * step_freq, step_size)
+        end_pos = np.arange(
+            bins * window_size, bins * window_size + step_size * step_freq, step_size
+        )
+
+        end = start + num_windows
+
+        # Extract all but the last window in one fashion (faster than `fetch`
+        # with loops)
+        tmp = (
+            np.transpose(
+                bbi.stackup(
+                    bigBed,
+                    [chrom] * start_pos.size,
+                    start_pos,
+                    end_pos,
+                    bins=bins,
+                    missing=0,
+                )
+            )
+            .reshape((bins * step_freq, base_bins))
+            .astype(int)
+        )
+
+        values[start:end] = tmp[0:num_windows]
+
+        if verbose:
+            print(
+                "Extracted",
+                "{} windows".format(num_windows),
+                "from {}".format(chrom),
+                "with a max value of {}.".format(np.max(values[start:end])),
+            )
+
+        if print_per_chrom:
+            print_per_chrom()
+
+        start = end
+
+    return values.astype(int)
