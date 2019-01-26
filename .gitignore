@@ -1,6 +1,7 @@
 __pycache__
 cache
 data
+results
 /config*.json
 *.db
 *.sublime-project
