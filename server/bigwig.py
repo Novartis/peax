@@ -240,30 +240,35 @@ def tileset_info(bwpath):
 
 
 def chunk(
-    bigwig, window_size, resolution, step_size, chroms, normalize=True, verbose=False
+    bigwig: str,
+    window_size: int,
+    resolution: int,
+    step_size: int,
+    chroms: list,
+    normalize: bool = True,
+    percentile: float = 99.9,
+    verbose: bool = False,
+    print_per_chrom: callable = None,
 ):
+    chrom_sizes = bbi.chromsizes(bigwig)
     base_bins = np.ceil(window_size / resolution).astype(int)
 
     num_total_windows = 0
     bins = np.ceil(window_size / resolution).astype(int)
 
     for chrom in chroms:
-        chrom_size = bbi.chromsizes(bigwig)[chrom]
+        chrom_size = chrom_sizes[chrom]
         num_total_windows += np.ceil((chrom_size - step_size) / step_size).astype(int)
 
     values = np.zeros((num_total_windows, base_bins))
 
     start = 0
     for chrom in chroms:
-        if chrom not in bbi.chromsizes(bigwig):
-            print(
-                "Skipping chrom (not in bigWig file):",
-                chrom,
-                bbi.chromsizes(bigwig)[chrom],
-            )
+        if chrom not in chrom_sizes:
+            print("Skipping chrom (not in bigWig file):", chrom, chrom_sizes[chrom])
             continue
 
-        chrom_size = bbi.chromsizes(bigwig)[chrom]
+        chrom_size = chrom_sizes[chrom]
         num_windows = np.ceil((chrom_size - step_size) / step_size).astype(int)
 
         start_bps = np.arange(0, chrom_size - step_size, step_size)
@@ -289,15 +294,22 @@ def chunk(
         )
 
         if normalize:
-            values[start:end] = utils.normalize(values[start:end])
+            values[start:end] = utils.normalize(
+                values[start:end], percentile=percentile
+            )
 
         if verbose:
             print(
-                "LOADING ::",
-                "Chrom: {}".format(chrom),
-                "| Num windows: {}".format(num_windows),
-                "| Max value: {}".format(np.max(values[start:end])),
+                "Extracted",
+                "{} windows".format(num_windows),
+                "from {}".format(chrom),
+                "with a max value of {}.".format(np.max(values[start:end])),
             )
+
+        if print_per_chrom:
+            print_per_chrom()
+
+        start = end
 
     return values
 
