@@ -298,7 +298,7 @@ def chunk(
                 values[start:end], percentile=percentile
             )
 
-        if verbose:
+        if verbose and not print_per_chrom:
             print(
                 "Extracted",
                 "{} windows".format(num_windows),
