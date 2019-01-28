@@ -8,11 +8,13 @@ import requests
 import tqdm
 
 
-def download_file(url, filename):
+def download_file(filename):
     """
     Helper method handling downloading large files from `url` to `filename`. Returns a pointer to `filename`.
     """
     chunkSize = 1024
+    name, _ = os.path.splitext(filename)
+    url = "https://www.encodeproject.org/files/{}/@@download/{}".format(name, filename)
     r = requests.get(url, stream=True)
     with open(filename, "wb") as f:
         pbar = tqdm.tqdm(
@@ -38,7 +40,7 @@ args = parser.parse_args()
 
 try:
     with open(args.settings, "r") as f:
-        data_files = json.load(f)["data"]
+        datasets = json.load(f)["datasets"]
 except FileNotFoundError:
     print("You need to provide a settings file via `--settings`")
     raise
@@ -46,12 +48,22 @@ except FileNotFoundError:
 # Create data directory
 pathlib.Path("data").mkdir(parents=True, exist_ok=True)
 
-for data_file in data_files:
-    filename = os.path.basename(data_file)
-    filepath = os.path.join("data", filename)
+supported_data_types = ["signal", "narrow_peaks", "broad_peaks"]
 
-    if not pathlib.Path(filepath).is_file() or args.clear:
-        print("Downloading {}".format(filename))
-        download_file(data_file, filepath)
-    else:
-        print("Already downloaded {}".format(filename))
+for dataset_name in datasets:
+    dataset = datasets[dataset_name]
+    has_all_data_types = set(supported_data_types).issubset(dataset.keys())
+
+    assert has_all_data_types, "Dataset should contain all data types"
+
+    print("Downloading dataset: {}".format(dataset_name))
+
+    for data_type in supported_data_types:
+        filename = os.path.basename(dataset[data_type])
+        filepath = os.path.join("data", filename)
+
+        if not pathlib.Path(filepath).is_file() or args.clear:
+            print("Downloading {}".format(filename))
+            download_file(filepath)
+        else:
+            print("Already downloaded {}".format(filename))

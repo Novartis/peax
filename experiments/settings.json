@@ -1,24 +1,48 @@
 {
-  "data": [
-    "https://www.encodeproject.org/files/ENCFF158GBQ/@@download/ENCFF158GBQ.bigWig",
-    "https://www.encodeproject.org/files/ENCFF258KTL/@@download/ENCFF258KTL.bigWig"
-  ],
+  "datasets": {
+    "ENCSR000EJD": {
+      "signal": "ENCFF158GBQ.bigWig",
+      "narrow_peaks": "ENCFF246MAX.bigBed",
+      "broad_peaks": "ENCFF541CUW.bigBed"
+    }
+  },
   "assembly": "hg19",
-  "window_size": 2400,
+  "window_size": 12000,
   "step_frequency": 2,
   "resolution": 100,
-  "training1": [
-    "chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10",
-    "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18"
+  "chromosomes": [
+    "chr1",
+    "chr2",
+    "chr3",
+    "chr4",
+    "chr5",
+    "chr6",
+    "chr7",
+    "chr8",
+    "chr9",
+    "chr10",
+    "chr11",
+    "chr12",
+    "chr13",
+    "chr14",
+    "chr15",
+    "chr16",
+    "chr17",
+    "chr18",
+    "chr19",
+    "chr20",
+    "chr21",
+    "chr22",
+    "chrX",
+    "chrY"
   ],
-  "testing1": [
-    "chr19", "chr20", "chr21", "chr22", "chrX", "chrY"
-  ],
-  "training": [
-    "chr21"
-  ],
-  "testing": [
-    "chr22"
-  ],
-  "percentile_cutoff": [0, 99.9]
+  "dev_set_size": 0.075,
+  "test_set_size": 0.075,
+  "percentile_cutoff": [0, 99.9],
+  "cnns": [{}],
+  "epochs": 25,
+  "batch_size": 256,
+  "rnd_seed": 123,
+  "incl_pctl_total_signal": 25,
+  "incl_pct_no_signal": 5
 }
