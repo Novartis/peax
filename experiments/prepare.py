@@ -3,12 +3,11 @@
 import argparse
 import h5py
 import json
-import numpy as np
 import os
 import pathlib
 
-from ae import bigwig
-from sklearn.preprocessing import MinMaxScaler
+from ae import utils
+from server import bigwig
 
 
 parser = argparse.ArgumentParser(description="Peax Preparer")
@@ -32,21 +31,41 @@ except FileNotFoundError:
 # Create data directory
 pathlib.Path("data").mkdir(parents=True, exist_ok=True)
 
-step_size = settings["window_size"] // settings["step_frequency"]
-bins_per_window = settings["window_size"] // settings["resolution"]
-all_chroms = settings["training"] + settings["testing"]
+window_size = settings["window_size"]
+step_size = window_size // settings["step_frequency"]
+bins_per_window = window_size // settings["resolution"]
 
 if args.verbose:
-    print("Window size: {} base pairs".format(settings["window_size"]))
-    print("Resolution: {} base pairs".format(settings["resolution"]))
+    print("Window size: {}bp".format(settings["window_size"]))
+    print("Resolution: {}bp".format(settings["resolution"]))
     print("Bins per window: {}".format(bins_per_window))
     print("Step frequency per window: {}".format(settings["step_frequency"]))
-    print("Step size: {} base pairs".format(step_size))
-    print("Training: {}".format(", ".join(settings["training"])))
-    print("Testing: {}".format(", ".join(settings["testing"])))
+    print("Step size: {}bp".format(step_size))
+    print("Chromosomes: {}".format(", ".join(settings["chromosomes"])))
+    print("Dev set size: {}%".format(settings["dev_set_size"] * 100))
+    print("Test set size: {}%".format(settings["test_set_size"] * 100))
+    print(
+        "Percentile cut off: [{}]".format(
+            ", ".join([str(x) for x in settings["percentile_cutoff"]])
+        )
+    )
 
 prep_data_filename = "prepared-data.h5"
 prep_data_filepath = os.path.join("data", prep_data_filename)
+
+chromosomes = settings["chromosomes"]
+datasets = settings["datasets"]
+data_types = ["signal", "narrow_peaks", "broad_peaks"]
+stored_data = [
+    "data_train",
+    "data_dev",
+    "data_test",
+    "peaks_train",
+    "peaks_dev",
+    "peaks_test",
+    "shuffling",
+    "settings",
+]
 
 
 def print_progress():
@@ -54,82 +73,147 @@ def print_progress():
 
 
 with h5py.File(prep_data_filepath, "a") as f:
-    for data_file in settings["data"]:
-        raw_data_filename = os.path.basename(data_file)
-        raw_data_filepath = os.path.join("data", raw_data_filename)
+    for dataset_name in datasets:
+        dataset = datasets[dataset_name]
+        has_all_data_types = set(data_types).issubset(dataset.keys())
 
-        if pathlib.Path(raw_data_filepath).is_file():
-            if raw_data_filename in f:
-                if args.clear:
-                    del f[raw_data_filename]
-                else:
-                    print("Already prepared {}".format(raw_data_filename))
-                    continue
+        assert has_all_data_types, "Dataset should contain all data types"
 
-            g = f.require_group(raw_data_filename)
+        print("\nPrepare dataset {}".format(dataset_name))
 
-            # 1. Extract the windows per chromosome
-            print("Prepare {}: chunking".format(raw_data_filename), end="", flush=True)
-            data = bigwig.chunk(
-                raw_data_filepath,
-                settings["window_size"],
-                step_size,
-                settings["resolution"],
-                settings["training"] + settings["testing"],
-                verbose=args.verbose,
-                print_per_chrom=print_progress,
-            )
+        if dataset_name in f and args.clear:
+            del f[dataset_name]
 
-            # 2. Concat training and test data (separately) into two arrays
-            print(" merging... ", end="", flush=True)
-            num_training = len(settings["training"])
-            train_num = 0
-            test_num = 0
+        ds = f.require_group(dataset_name)
 
-            for i in range(num_training):
-                train_num += data[i].shape[0]
+        filename_signal = dataset["signal"]
+        filepath_signal = os.path.join("data", filename_signal)
+        filename_narrow_peaks = dataset["narrow_peaks"]
+        filepath_narrow_peaks = os.path.join("data", filename_narrow_peaks)
+        filename_broad_peaks = dataset["broad_peaks"]
+        filepath_broad_peaks = os.path.join("data", filename_broad_peaks)
 
-            for i in range(num_training, len(data)):
-                test_num += data[i].shape[0]
+        files_are_available = [
+            pathlib.Path(filepath_signal).is_file(),
+            pathlib.Path(filepath_narrow_peaks).is_file(),
+            pathlib.Path(filepath_broad_peaks).is_file(),
+        ]
 
-            data_train = np.zeros((train_num, bins_per_window))
-            data_test = np.zeros((test_num, bins_per_window))
+        assert all(files_are_available), "All files of the data should be available"
 
-            k = 0
-            for i in range(num_training):
-                l = k + data[i].shape[0]
-                data_train[k:l,] = data[i]
-                k = l
+        [x in ds for x in stored_data]
 
-            k = 0
-            for i in range(num_training, len(data)):
-                l = k + data[i].shape[0]
-                data_test[k:l,] = data[i]
-                k = l
+        # If all datasets e
+        if all([x in ds for x in stored_data]):
+            print("Already prepared {}. Skipping".format(dataset_name))
+            continue
 
-            # 3. Normalize data
-            print("normalizing... ", end="", flush=True)
-            cutoff = np.percentile(data_train, tuple(settings["percentile_cutoff"]))
-            data_train[np.where(data_train < cutoff[0])] = cutoff[0]
-            data_train[np.where(data_train > cutoff[1])] = cutoff[1]
+        # Since we don't know if the settings have change we need to remove all existing
+        # datasets
+        if len(ds) > 0:
+            print("Remove incomplete data to avoid inconsistencies")
+            for data in ds:
+                del ds[data]
 
-            cutoff = np.percentile(data_test, tuple(settings["percentile_cutoff"]))
-            data_test[np.where(data_test < cutoff[0])] = cutoff[0]
-            data_test[np.where(data_test > cutoff[1])] = cutoff[1]
+        # 0. Sanity check
+        chrom_sizes_signal = bigwig.get_chromsizes(filepath_signal)
+        chrom_sizes_narrow_peaks = bigwig.get_chromsizes(filepath_narrow_peaks)
+        chrom_sizes_broad_peaks = bigwig.get_chromsizes(filepath_broad_peaks)
 
-            if args.verbose:
-                print(
-                    "Max: train {} | test {}".format(
-                        np.max(data_train), np.max(data_test)
-                    )
-                )
+        signal_has_all_chroms = [chrom in chrom_sizes_signal for chrom in chromosomes]
+        narrow_peaks_has_all_chroms = [
+            chrom in chrom_sizes_narrow_peaks for chrom in chromosomes
+        ]
+        broad_peaks_has_all_chroms = [
+            chrom in chrom_sizes_broad_peaks for chrom in chromosomes
+        ]
 
-            data_train = MinMaxScaler().fit_transform(data_train)
-            data_test = MinMaxScaler().fit_transform(data_test)
+        assert all(signal_has_all_chroms), "Signal should have all chromosomes"
+        assert all(
+            narrow_peaks_has_all_chroms
+        ), "Narrow peaks should have all chromosomes"
+        assert all(
+            broad_peaks_has_all_chroms
+        ), "Broad peaks should have all chromosomes"
 
-            # 4. Pickle data
-            print("saving...")
-            g.create_dataset("training", data=data_train)
-            g.create_dataset("testing", data=data_test)
-        else:
-            print("Already downloaded {}".format(raw_data_filename))
+        # 1. Extract the windows, narrow peaks, and broad peaks per chromosome
+        print("Extract windows from {}".format(filename_signal), end="", flush=True)
+        data = bigwig.chunk(
+            filepath_signal,
+            window_size,
+            settings["resolution"],
+            step_size,
+            chromosomes,
+            verbose=args.verbose,
+            print_per_chrom=print_progress,
+        )
+        print(
+            "\nExtract narrow peaks from {}".format(filename_narrow_peaks),
+            end="",
+            flush=True,
+        )
+        narrow_peaks = utils.chunk_beds_binary(
+            filepath_narrow_peaks,
+            window_size,
+            step_size,
+            chromosomes,
+            verbose=args.verbose,
+            print_per_chrom=print_progress,
+        )
+        print(
+            "\nExtract broad peaks from {}".format(filename_broad_peaks),
+            end="",
+            flush=True,
+        )
+        broad_peaks = utils.chunk_beds_binary(
+            filepath_broad_peaks,
+            window_size,
+            step_size,
+            chromosomes,
+            verbose=args.verbose,
+            print_per_chrom=print_progress,
+        )
+
+        # 4. Under-sampling: remove the majority of empty windows
+        print("\nSelect windows to balance peaky and non-peaky ratio")
+        selected_windows = utils.filter_windows_by_peaks(
+            data,
+            narrow_peaks,
+            broad_peaks,
+            incl_pctl_total_signal=settings["incl_pctl_total_signal"],
+            incl_pct_no_signal=settings["incl_pct_no_signal"],
+            verbose=args.verbose,
+        )
+        data_filtered = data[selected_windows]
+        peaks_filtered = ((narrow_peaks + broad_peaks).flatten() > 0)[selected_windows]
+
+        # 5. Shuffle and split data into a train, dev, and test set
+        (
+            data_train,
+            data_dev,
+            data_test,
+            peaks_train,
+            peaks_dev,
+            peaks_test,
+            shuffling,
+        ) = utils.split_train_dev_test(
+            data_filtered,
+            peaks_filtered,
+            settings["dev_set_size"],
+            settings["test_set_size"],
+            settings["rnd_seed"],
+            verbose=True,
+        )
+
+        # 6. Pickle data
+        print("Saving... ", end="", flush=True)
+        ds.create_dataset("data_train", data=data_train)
+        ds.create_dataset("data_dev", data=data_dev)
+        ds.create_dataset("data_test", data=data_test)
+        ds.create_dataset("peaks_train", data=peaks_train)
+        ds.create_dataset("peaks_dev", data=peaks_dev)
+        ds.create_dataset("peaks_test", data=peaks_test)
+        ds.create_dataset("shuffling", data=shuffling)
+        ds.create_dataset("settings", data=json.dumps(settings))
+
+        print("done!")

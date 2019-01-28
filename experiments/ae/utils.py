@@ -17,6 +17,7 @@ import numpy as np
 from keras import backend as K
 import matplotlib.pyplot as plt
 from matplotlib.cm import copper
+from typing import Tuple
 
 
 def train(
@@ -319,7 +320,27 @@ def chunk_beds_binary(
     chroms: list,
     verbose: bool = True,
     print_per_chrom: callable = None,
-):
+) -> np.ndarray:
+    """Chunk a bed file of binary annotations into windows
+
+    Extract a single boolean value for genomic windows representing whether a bed
+    annotation is present or now. This is for example useful to quickly determine if a
+    window contains a peak annotation or not. If you need to know about the actual value
+    of the annotation you might need a more involved method.
+
+    Arguments:
+        bigBed {str} -- path to the bigBed file
+        window_size {int} -- size of the genomic windows in base pairs
+        step_size {int} -- size of the steps in base pairs
+        chroms {list} -- list of chromosomes from which windows should be extracted
+
+    Keyword Arguments:
+        verbose {bool} -- if ``True`` print some stuff (default: {True})
+        print_per_chrom {callable} -- if ``True`` print stuff per iteration (default: {None})
+
+    Returns:
+        {np.ndarray} -- a 1D array indicating which windows contain at least one annotations
+    """
     base_bins = 1
     num_total_windows = 0
 
@@ -368,7 +389,7 @@ def chunk_beds_binary(
 
         values[start:end] = tmp[0:num_windows]
 
-        if verbose:
+        if verbose and not print_per_chrom:
             print(
                 "Extracted",
                 "{} windows".format(num_windows),
@@ -382,3 +403,172 @@ def chunk_beds_binary(
         start = end
 
     return values.astype(int)
+
+
+def filter_windows_by_peaks(
+    signal: np.ndarray,
+    narrow_peaks: np.ndarray,
+    broad_peaks: np.ndarray,
+    incl_pctl_total_signal: float = 25,
+    incl_pct_no_signal: float = 5,
+    verbose: bool = False,
+) -> np.ndarray:
+    """Filter windows by peak annotations and their total signal
+
+    This method filters windows based on whether they contain at least 1 narrow or broad
+    peak annotation or whether their total signal is equal or greater than a certain
+    percentile of the averaged total signal of windows containing a peak annotation. The
+    goal of this method is to balance the datasets such that roughly half of the windows
+    contain some signal or patterns that is worth to be learned.
+
+    Arguments:
+        signal {np.ndarray} -- 2D array with the windows' signal
+        narrow_peaks {np.ndarray} -- 1D array specifying whether a window contains a
+            narrow peak annotation
+        broad_peaks {np.ndarray} -- 1D array specifying whether a window contains a
+            broad peak annotation
+
+    Keyword Arguments:
+        incl_pctl_total_signal {float} -- percentile of the averaged total signal of
+            windows containing some peak annotation that should determine if a window
+            without a peak annotation is included or filtered out (default: {25})
+        incl_pct_no_signal {float} -- percent of empty window that should remain and not
+            be filtered out (default: {5})
+        verbose {bool} -- if ``True`` print some more stuff (default: {False})
+
+    Returns:
+        {np.ndarray} -- 1D Boolean array for selected the remaining windows
+    """
+    win_with_narrow_or_broad_peaks = (narrow_peaks + broad_peaks).flatten()
+
+    # Total signal per window
+    win_total_signal = np.sum(signal, axis=1)
+
+    has_peaks = win_with_narrow_or_broad_peaks > 0
+
+    # Select all windows where the total signal is at least 25 percentile
+    # of the windows containing at least 1 peak.
+    win_total_signal_gt_pctl = win_total_signal > np.percentile(
+        win_total_signal[has_peaks], incl_pctl_total_signal
+    )
+    win_total_signal_is_zero = win_total_signal == 0
+
+    num_total_win = signal.shape[0]
+
+    pos_win = has_peaks | win_total_signal_gt_pctl
+    pos_win_idx = np.arange(num_total_win)[pos_win]
+    neg_not_empty_win = ~pos_win & ~win_total_signal_is_zero
+    neg_not_empty_win_idx = np.arange(num_total_win)[neg_not_empty_win]
+    neg_empty_win = ~pos_win & win_total_signal_is_zero
+    neg_empty_win_idx = np.arange(num_total_win)[neg_empty_win]
+
+    print(
+        "Windows: total = {} | with peaks = {} | with signal gt {} pctl = {}".format(
+            num_total_win,
+            np.sum(has_peaks),
+            incl_pctl_total_signal,
+            np.sum(win_total_signal_gt_pctl),
+        )
+    )
+
+    pct_not_empty = 1 - (incl_pct_no_signal / 100)
+
+    to_be_sampled = np.min([2 * np.sum(has_peaks) - np.sum(pos_win), np.sum(~pos_win)])
+    to_be_sampled = np.min(
+        [
+            np.max([0, num_total_win - np.sum(pos_win)]),
+            np.max(
+                [
+                    # Ensure that at least half of the number of windows with a peak are
+                    # randomly sampled. This is only necessary when there are few windows with
+                    # annotated peaks but
+                    np.sum(has_peaks) * 0.5,
+                    np.min([2 * np.sum(has_peaks) - np.sum(pos_win), np.sum(~pos_win)]),
+                ]
+            ),
+        ]
+    ).astype(int)
+    to_be_sampled_not_empty = np.ceil(to_be_sampled * pct_not_empty).astype(int)
+    to_be_sampled_empty = to_be_sampled - to_be_sampled_not_empty
+
+    neg_not_empty_win_no_subsample = np.random.choice(
+        neg_not_empty_win_idx, to_be_sampled_not_empty, replace=False
+    )
+
+    neg_empty_win_no_subsample = np.random.choice(
+        neg_empty_win_idx, to_be_sampled_empty, replace=False
+    )
+
+    return np.sort(
+        np.concatenate(
+            (pos_win_idx, neg_not_empty_win_no_subsample, neg_empty_win_no_subsample)
+        )
+    )
+
+
+def split_train_dev_test(
+    data: np.ndarray,
+    peaks: np.ndarray,
+    dev_set_size: float,
+    test_set_size: float,
+    rnd_seed: int,
+    verbose: bool = False,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Split data into train, dev, and test set
+
+    Arguments:
+        data {np.ndarray} -- 2D array with the data to be split by rows
+        peaks {np.ndarray} -- 1D array with Boolean annotations for the rows that should
+            be split in the same manner as ``data``
+        dev_set_size {float} -- percent of the rows of ``data`` that should be used for
+            development
+        test_set_size {float} -- percent of the rows of ``data`` that should be used for
+            testing
+        rnd_seed {int} -- np.random seed. needed to ensure reproducibility
+
+    Keyword Arguments:
+        verbose {bool} -- if ``True`` print some more stuff (default: {False})
+    """
+    assert data.shape[0]
+
+    total_num_filtered_windows = data.shape[0]
+    shuffling = np.arange(total_num_filtered_windows)
+
+    # Shuffle window ids and use the shuffled ids to shuffle the window data and window peaks
+    np.random.seed(rnd_seed)
+    np.random.shuffle(shuffling)
+    data_shuffled = data[shuffling]
+    peaks_shuffled = peaks[shuffling]
+
+    # Split into train, dev, and test set
+    split_1 = int((1.0 - dev_set_size - test_set_size) * total_num_filtered_windows)
+    split_2 = int((1.0 - test_set_size) * total_num_filtered_windows)
+
+    data_train = data_shuffled[:split_1]
+    peaks_train = peaks_shuffled[:split_1]
+    data_dev = data_shuffled[split_1:split_2]
+    peaks_dev = peaks_shuffled[split_1:split_2]
+    data_test = data_shuffled[split_2:]
+    peaks_test = peaks_shuffled[split_2:]
+
+    if verbose:
+        print(
+            "Train: {} (with {:.2f}% peaks) Dev: {} (with {:.2f}% peaks) Test: {} (with {:.2f}% peaks)".format(
+                data_train.shape[0],
+                np.sum(peaks_train) / peaks_train.shape[0] * 100,
+                data_dev.shape[0],
+                np.sum(peaks_dev) / peaks_dev.shape[0] * 100,
+                data_test.shape[0],
+                np.sum(peaks_test) / peaks_test.shape[0] * 100,
+            )
+        )
+
+    return (
+        data_train,
+        peaks_train,
+        data_dev,
+        peaks_dev,
+        data_test,
+        peaks_test,
+        shuffling,
+    )
