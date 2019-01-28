@@ -50,9 +50,6 @@ if args.verbose:
         )
     )
 
-prep_data_filename = "prepared-data.h5"
-prep_data_filepath = os.path.join("data", prep_data_filename)
-
 chromosomes = settings["chromosomes"]
 datasets = settings["datasets"]
 data_types = ["signal", "narrow_peaks", "broad_peaks"]
@@ -72,15 +69,18 @@ def print_progress():
     print(".", end="", flush=True)
 
 
-with h5py.File(prep_data_filepath, "a") as f:
-    for dataset_name in datasets:
-        dataset = datasets[dataset_name]
-        has_all_data_types = set(data_types).issubset(dataset.keys())
+for dataset_name in datasets:
+    dataset = datasets[dataset_name]
+    has_all_data_types = set(data_types).issubset(dataset.keys())
 
-        assert has_all_data_types, "Dataset should contain all data types"
+    assert has_all_data_types, "Dataset should contain all data types"
 
-        print("\nPrepare dataset {}".format(dataset_name))
+    print("\nPrepare dataset {}".format(dataset_name))
 
+    prep_data_filename = "{}.h5".format(dataset_name)
+    prep_data_filepath = os.path.join("data", prep_data_filename)
+
+    with h5py.File(prep_data_filepath, "a") as f:
         if dataset_name in f and args.clear:
             del f[dataset_name]
 
