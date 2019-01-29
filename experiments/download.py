@@ -6,6 +6,7 @@ import os
 import pathlib
 import requests
 import tqdm
+import sys
 
 
 def download_file(filename):
@@ -29,12 +30,14 @@ def download_file(filename):
 
 parser = argparse.ArgumentParser(description="Peax Downloader")
 parser.add_argument(
-    "--settings", help="path to your settings file", default="settings.json"
+    "-s", "--settings", help="path to the settings file", default="settings.json"
 )
 parser.add_argument(
-    "--clear", action="store_true", help="clears previously downloadeds"
+    "-c", "--clear", action="store_true", help="clears previously downloadeds"
 )
-parser.add_argument("--verbose", action="store_true", help="turn on verbose logging")
+parser.add_argument(
+    "-v", "--verbose", action="store_true", help="turn on verbose logging"
+)
 
 args = parser.parse_args()
 
@@ -42,8 +45,8 @@ try:
     with open(args.settings, "r") as f:
         datasets = json.load(f)["datasets"]
 except FileNotFoundError:
-    print("You need to provide a settings file via `--settings`")
-    raise
+    print("Please provide a settings file via `--settings`")
+    sys.exit(2)
 
 # Create data directory
 pathlib.Path("data").mkdir(parents=True, exist_ok=True)

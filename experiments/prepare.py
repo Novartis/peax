@@ -5,6 +5,7 @@ import h5py
 import json
 import os
 import pathlib
+import sys
 
 from ae import utils
 from server import bigwig
@@ -12,12 +13,14 @@ from server import bigwig
 
 parser = argparse.ArgumentParser(description="Peax Preparer")
 parser.add_argument(
-    "--settings", help="path to your settings file", default="settings.json"
+    "-s", "--settings", help="path to the settings file", default="settings.json"
 )
 parser.add_argument(
-    "--clear", action="store_true", help="clears previously prepared data"
+    "-c", "--clear", action="store_true", help="clears previously prepared data"
 )
-parser.add_argument("--verbose", action="store_true", help="turn on verbose logging")
+parser.add_argument(
+    "-v", "--verbose", action="store_true", help="turn on verbose logging"
+)
 
 args = parser.parse_args()
 
@@ -26,7 +29,7 @@ try:
         settings = json.load(f)
 except FileNotFoundError:
     print("You need to provide a settings file via `--settings`")
-    raise
+    sys.exit(2)
 
 # Create data directory
 pathlib.Path("data").mkdir(parents=True, exist_ok=True)
