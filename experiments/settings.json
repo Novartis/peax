@@ -39,9 +39,6 @@
   "dev_set_size": 0.075,
   "test_set_size": 0.075,
   "percentile_cutoff": [0, 99.9],
-  "cnns": [{}],
-  "epochs": 25,
-  "batch_size": 256,
   "rnd_seed": 123,
   "incl_pctl_total_signal": 25,
   "incl_pct_no_signal": 5
