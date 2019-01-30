@@ -186,10 +186,10 @@ for dataset_name in datasets:
         # 5. Shuffle and split data into a train, dev, and test set
         (
             data_train,
-            data_dev,
-            data_test,
             peaks_train,
+            data_dev,
             peaks_dev,
+            data_test,
             peaks_test,
             shuffling,
         ) = utils.split_train_dev_test(
@@ -201,7 +201,12 @@ for dataset_name in datasets:
             verbose=True,
         )
 
-        # 6. Pickle data
+        # 6. Reshape to be directly usable by Keras
+        data_train = data_train.reshape(data_train.shape[0], data_train.shape[1], 1)
+        data_dev = data_dev.reshape(data_dev.shape[0], data_dev.shape[1], 1)
+        data_test = data_test.reshape(data_test.shape[0], data_test.shape[1], 1)
+
+        # 7. Pickle data
         print("Saving... ", end="", flush=True)
         f.create_dataset("data_train", data=data_train)
         f.create_dataset("data_dev", data=data_dev)
