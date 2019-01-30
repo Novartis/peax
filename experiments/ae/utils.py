@@ -473,15 +473,18 @@ def filter_windows_by_peaks(
 
     pct_not_empty = 1 - (incl_pct_no_signal / 100)
 
-    to_be_sampled = np.min([2 * np.sum(has_peaks) - np.sum(pos_win), np.sum(~pos_win)])
     to_be_sampled = np.min(
         [
-            np.max([0, num_total_win - np.sum(pos_win)]),
+            # Do not sample more than the complete number of negative but non-empty
+            # windows
+            np.max([0, np.sum(neg_not_empty_win)]),
             np.max(
                 [
-                    # Ensure that at least half of the number of windows with a peak are
-                    # randomly sampled. This is only necessary when there are few windows with
-                    # annotated peaks but
+                    # Sample at most half as many windows as windows with peak
+                    # annotations. This is only necessary when there are few windows
+                    # with annotated peaks but a lot of windows where the total signal
+                    # is larger than 25-percentile of the total signal of windows with
+                    # peaks
                     np.sum(has_peaks) * 0.5,
                     np.min([2 * np.sum(has_peaks) - np.sum(pos_win), np.sum(~pos_win)]),
                 ]
