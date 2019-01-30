@@ -84,11 +84,6 @@ for dataset_name in datasets:
     prep_data_filepath = os.path.join("data", prep_data_filename)
 
     with h5py.File(prep_data_filepath, "a") as f:
-        if dataset_name in f and args.clear:
-            del f[dataset_name]
-
-        ds = f.require_group(dataset_name)
-
         filename_signal = dataset["signal"]
         filepath_signal = os.path.join("data", filename_signal)
         filename_narrow_peaks = dataset["narrow_peaks"]
@@ -104,19 +99,17 @@ for dataset_name in datasets:
 
         assert all(files_are_available), "All files of the data should be available"
 
-        [x in ds for x in stored_data]
-
-        # If all datasets e
-        if all([x in ds for x in stored_data]):
+        # If all datasets are available
+        if all([x in f for x in stored_data]) and not args.clear:
             print("Already prepared {}. Skipping".format(dataset_name))
             continue
 
         # Since we don't know if the settings have change we need to remove all existing
         # datasets
-        if len(ds) > 0:
+        if len(f) > 0:
             print("Remove incomplete data to avoid inconsistencies")
-            for data in ds:
-                del ds[data]
+            for data in f:
+                del f[data]
 
         # 0. Sanity check
         chrom_sizes_signal = bigwig.get_chromsizes(filepath_signal)
@@ -210,13 +203,13 @@ for dataset_name in datasets:
 
         # 6. Pickle data
         print("Saving... ", end="", flush=True)
-        ds.create_dataset("data_train", data=data_train)
-        ds.create_dataset("data_dev", data=data_dev)
-        ds.create_dataset("data_test", data=data_test)
-        ds.create_dataset("peaks_train", data=peaks_train)
-        ds.create_dataset("peaks_dev", data=peaks_dev)
-        ds.create_dataset("peaks_test", data=peaks_test)
-        ds.create_dataset("shuffling", data=shuffling)
-        ds.create_dataset("settings", data=json.dumps(settings))
+        f.create_dataset("data_train", data=data_train)
+        f.create_dataset("data_dev", data=data_dev)
+        f.create_dataset("data_test", data=data_test)
+        f.create_dataset("peaks_train", data=peaks_train)
+        f.create_dataset("peaks_dev", data=peaks_dev)
+        f.create_dataset("peaks_test", data=peaks_test)
+        f.create_dataset("shuffling", data=shuffling)
+        f.create_dataset("settings", data=json.dumps(settings))
 
         print("done!")
