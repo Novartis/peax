@@ -5,32 +5,32 @@ channels:
   - defaults
 
 dependencies:
-- python=3.6
-- nodejs
-- cython
-- cytoolz
-- jupyterlab
-- scikit-learn
-- umap-learn
-- keras
-- seaborn
-- flask
-- flask-cors
-- ipython
-- pywget
-- bokeh
-- pydot
-- h5py
-# We need the next line only because of a weird bug. This can probably be
-# removed in the future: https://stackoverflow.com/a/52598942/981933
-- testpath>=0.4.2
-- tqdm
-# A bug in matplotlib: https://github.com/matplotlib/matplotlib/issues/12601
-- matplotlib>=3.0.2
-- pip
-- pip:
-  - pysam==0.13
-  - hgtiles
-  - cooler
-  - negspy
-  - pybbi
+  - python=3.6
+  - nodejs
+  - cython
+  - cytoolz
+  - jupyterlab
+  - scikit-learn
+  - umap-learn
+  - keras
+  - seaborn
+  - flask
+  - flask-cors
+  - ipython
+  - pywget
+  - bokeh
+  - pydot
+  - h5py
+  # We need the next line only because of a weird bug. This can probably be
+  # removed in the future: https://stackoverflow.com/a/52598942/981933
+  - testpath>=0.4.2
+  - tqdm
+  # A bug in matplotlib: https://github.com/matplotlib/matplotlib/issues/12601
+  - matplotlib>=3.0.2
+  - pip
+  - pip:
+      - pysam==0.13
+      - hgtiles
+      - cooler
+      - negspy
+      - pybbi
