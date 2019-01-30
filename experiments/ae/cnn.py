@@ -29,8 +29,138 @@ from keras.layers import (
     Reshape,
 )
 from keras.models import Model
+from keras import optimizers
 from keras.regularizers import l1
 from keras.utils import plot_model
+
+
+def create_model(
+    input_dim: int,
+    optimizer: str = "adam",
+    loss: str = "mse",
+    conv_filters: list = [120],
+    conv_kernels: list = [9],
+    dense_units: list = [256, 64, 16],
+    embedding: int = 10,
+    dropouts: list = [0.0, 0.0, 0.0],
+    metrics: list = [],
+    reg_lambda: float = 0.0,
+    learning_rate: float = 0.01,
+    learning_rate_decay: float = 0.0,
+    summary: bool = False,
+    plot: bool = False,
+):
+    inputs = Input(shape=(input_dim, 1), name="decoded_input")
+
+    num_cfilter = len(conv_filters)
+    num_dunits = len(dense_units)
+
+    encoded = inputs
+    for i, f in enumerate(conv_filters):
+        encoded = Conv1D(
+            f,
+            conv_kernels[i],
+            strides=2,
+            activation="relu",
+            padding="same",
+            name="conv{}".format(i),
+        )(encoded)
+        encoded = Dropout(dropouts[i], name="drop{}".format(i))(encoded)
+
+    encoded = Flatten(name="flatten")(encoded)
+
+    for i, u in enumerate(dense_units):
+        k = num_cfilter + i
+        encoded = Dense(u, activation="relu", name="fc{}".format(k))(encoded)
+        encoded = Dropout(dropouts[i], name="drop{}".format(k))(encoded)
+
+    # The bottleneck that will hold the latent representation
+    encoded = Dense(
+        embedding, activation="relu", name="embed", kernel_regularizer=l1(reg_lambda)
+    )(encoded)
+
+    decoded = encoded
+    for i, u in enumerate(reversed(dense_units)):
+        k = num_cfilter + num_dunits + i
+        decoded = Dense(u, activation="relu", name="fc{}".format(k))(decoded)
+        decoded = Dropout(dropouts[i], name="dropout{}".format(k))(decoded)
+
+    decoded = Dense(
+        int(input_dim / (2 ** len(conv_filters))) * conv_filters[-1],
+        activation="relu",
+        name="blowup",
+    )(decoded)
+    decoded = Reshape(
+        (int(input_dim / (2 ** len(conv_filters))), conv_filters[-1]), name="unflatten"
+    )(decoded)
+
+    for i, f in enumerate(reversed(conv_filters[:-1])):
+        k = num_cfilter + (num_dunits * 2) + i
+        j = num_cfilter - i - 2
+        decoded = UpSampling1D(2, name="upsample{}".format(i))(decoded)
+        decoded = Conv1D(
+            f,
+            conv_kernels[:-1][j],
+            activation="relu",
+            padding="same",
+            name="deconv{}".format(i),
+        )(decoded)
+        decoded = Dropout(dropouts[i], name="drop{}".format(k))(decoded)
+
+    decoded = UpSampling1D(2, name="upsample{}".format(len(conv_filters) - 1))(decoded)
+    decoded = Conv1D(
+        1, conv_kernels[0], activation="sigmoid", padding="same", name="out"
+    )(decoded)
+
+    autoencoder = Model(inputs, decoded)
+
+    if optimizer == "sgd":
+        opt = optimizers.SGD(lr=learning_rate, decay=learning_rate_decay)
+
+    elif optimizer == "rmsprop":
+        opt = optimizers.RMSprop(lr=learning_rate, decay=learning_rate_decay)
+
+    elif optimizer == "adadelta":
+        opt = optimizers.Adadelta(lr=learning_rate, decay=learning_rate_decay)
+
+    elif optimizer == "adam":
+        opt = optimizers.Adam(lr=learning_rate, decay=learning_rate_decay)
+
+    elif optimizer == "adamax":
+        opt = optimizers.Adamax(lr=learning_rate, decay=learning_rate_decay)
+
+    else:
+        print("Unknown optimizer: {}. Using Adam.".format(optimizer))
+        opt = optimizers.Adam(lr=learning_rate, decay=learning_rate_decay)
+
+    autoencoder.compile(optimizer=opt, loss=loss, metrics=metrics)
+
+    encoder = Model(inputs, encoded)
+
+    encoded_input = Input(shape=(embedding,), name="encoded_input")
+    decoded_input = encoded_input
+    k = num_dunits * 2 + num_cfilter * 2 + 3
+    for i in range(k, len(autoencoder.layers)):
+        decoded_input = autoencoder.layers[i](decoded_input)
+    decoder = Model(encoded_input, decoded_input)
+
+    if summary:
+        print(autoencoder.summary())
+        print(encoder.summary())
+        print(decoder.summary())
+
+    if plot:
+        plot_model(
+            autoencoder, to_file="cnn3_ae.png", show_shapes=True, show_layer_names=True
+        )
+        plot_model(
+            encoder, to_file="cnn3_de.png", show_shapes=True, show_layer_names=True
+        )
+        plot_model(
+            encoder, to_file="cnn3_en.png", show_shapes=True, show_layer_names=True
+        )
+
+    return (encoder, decoder, autoencoder)
 
 
 def cnn3(
