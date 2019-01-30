@@ -1,0 +1,85 @@
+{
+  "hyperparameters": {
+    "varying": {
+      "params": [
+        "conv_layers",
+        "conv_filter_size",
+        "conv_filter_size_reverse_order",
+        "conv_kernel_size",
+        "conv_kernel_size_reverse_order",
+        "loss"
+      ],
+      "values": [
+        [
+          [1, 2, 3],
+          [32, 128, 512],
+          [false],
+          [3, 7, 11],
+          [false],
+          ["mse", "binary_crossentropy"]
+        ],
+        [
+          [2],
+          [[32, 128], [64, 256]],
+          [false, true],
+          [3, 7],
+          [false],
+          ["mse", "binary_crossentropy"]
+        ],
+        [
+          [2],
+          [32, 128, 512],
+          [false],
+          [[3, 5], [3, 7], [3, 11]],
+          [false, true],
+          ["mse", "binary_crossentropy"]
+        ],
+        [
+          [2],
+          [[32, 128], [64, 256]],
+          [false, true],
+          [[3, 5], [3, 7], [3, 11]],
+          [false, true],
+          ["mse", "binary_crossentropy"]
+        ],
+        [
+          [3],
+          [[32, 64, 128], [32, 128, 512]],
+          [false, true],
+          [3, 7, 11],
+          [false],
+          ["mse", "binary_crossentropy"]
+        ],
+        [
+          [3],
+          [[32, 64, 128], [32, 128, 512]],
+          [false],
+          [[3, 5, 7], [3, 7, 11]],
+          [false, true],
+          ["mse", "binary_crossentropy"]
+        ],
+        [
+          [3],
+          [[32, 64, 128], [32, 128, 512]],
+          [false, true],
+          [3, 7, 11],
+          [false],
+          ["mse", "binary_crossentropy"]
+        ]
+      ]
+    },
+    "fixed": {
+      "optimizer": "adam",
+      "embedding": 10,
+      "dropout": 0,
+      "learning_rate": 0.01,
+      "learning_rate_decay": 0.0,
+      "dense_units": [512, 128],
+      "reg_lambda": 0,
+      "metrics": []
+    }
+  },
+  "epochs": 25,
+  "batch_size": 256,
+  "peak_weight": 2
+}
