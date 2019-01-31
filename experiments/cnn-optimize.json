@@ -1,0 +1,24 @@
+{
+  "hyperparameters": {
+    "vary": {
+      "embedding": [6, 10, 12],
+      "dropout": [0, 0.1, 0.2],
+      "learning_rate": [0.01, 0.005, 0.001],
+      "dense_units": [
+        [512, 128],
+        [1024, 256],
+        [1024, 512, 128, 32],
+        [1024, 512, 256, 64, 32, 16]
+      ]
+    },
+    "fixed": {
+      "conv_layers": 3,
+      "conv_filter_size": [32, 128, 512],
+      "conv_kernel_size": [3, 7, 11],
+      "loss": "binary_crossentropy"
+    }
+  },
+  "epochs": 25,
+  "batch_size": 256,
+  "peak_weight": 2
+}
