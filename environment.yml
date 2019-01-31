@@ -34,3 +34,4 @@ dependencies:
       - cooler
       - negspy
       - pybbi
+      - keras-tqdm
