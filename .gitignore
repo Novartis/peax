@@ -2,6 +2,8 @@ __pycache__
 cache
 data
 results
+logs
+slurm
 /config*.json
 *.db
 *.sublime-project
