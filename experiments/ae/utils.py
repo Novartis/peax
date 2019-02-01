@@ -575,3 +575,33 @@ def split_train_dev_test(
         peaks_test,
         shuffling,
     )
+
+
+# To make model names more concise but still meaningful
+abbr = {
+    "conv_filters": "cf",
+    "conv_kernels": "ck",
+    "dense_units": "du",
+    "dropouts": "do",
+    "embedding": "e",
+    "reg_lambda": "rl",
+    "optimizer": "o",
+    "learning_rate": "lr",
+    "learning_rate_decay": "lrd",
+    "loss": "l",
+    "metrics": "m",
+    "binary_crossentropy": "bce",
+}
+
+
+def namify(definition):
+    name = ""
+    for i, key in enumerate(definition):
+        value = definition[key]
+        key = abbr[key] if key in abbr else key
+        name += "--" + key + "-" if i > 0 else key + "-"
+        if isinstance(value, list):
+            name += "-".join([str(v) for v in value])
+        else:
+            name += str(abbr[value]) if value in abbr else str(value)
+    return name

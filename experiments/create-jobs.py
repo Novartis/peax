@@ -11,6 +11,7 @@ import pathlib
 import sys
 
 from string import Template
+from ae.utils import namify
 
 
 parser = argparse.ArgumentParser(description="Peax Job Creator")
@@ -104,7 +105,7 @@ exit 0;
 """
 )
 
-print("Create slurm files for training {} neural networks".format(len(combinations)))
+pathlib.Path("slurm").mkdir(parents=True, exist_ok=True)
 
 
 def finalize_def(prelim_def: dict) -> dict:
@@ -160,38 +161,6 @@ def finalize_def(prelim_def: dict) -> dict:
     }
 
 
-# To make model names more concise but still meaningful
-abbr = {
-    "conv_filters": "cf",
-    "conv_kernels": "ck",
-    "dense_units": "du",
-    "dropouts": "do",
-    "embedding": "e",
-    "reg_lambda": "rl",
-    "optimizer": "o",
-    "learning_rate": "lr",
-    "learning_rate_decay": "lrd",
-    "loss": "l",
-    "metrics": "m",
-    "binary_crossentropy": "bce",
-}
-
-pathlib.Path("slurm").mkdir(parents=True, exist_ok=True)
-
-
-def namify(definition):
-    name = ""
-    for i, key in enumerate(definition):
-        value = definition[key]
-        key = abbr[key] if key in abbr else key
-        name += "--" + key + "-" if i > 0 else key + "-"
-        if isinstance(value, list):
-            name += "-".join([str(v) for v in value])
-        else:
-            name += str(abbr[value]) if value in abbr else str(value)
-    return name
-
-
 for combination in combinations:
     combined_def = dict({}, **base_def)
 
@@ -200,7 +169,6 @@ for combination in combinations:
 
     final_def = finalize_def(combined_def)
     model_name = namify(final_def)
-    final_def["id"] = model_name
 
     new_slurm_body = slurm_body.substitute(
         definition="{}.json".format(model_name),
@@ -215,3 +183,5 @@ for combination in combinations:
 
     with open("slurm/{}.json".format(model_name), "w") as f:
         json.dump(final_def, f, indent=2)
+
+print("Created slurm files for training {} neural networks".format(len(combinations)))
