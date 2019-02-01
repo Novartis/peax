@@ -1,0 +1,16 @@
+{
+  "ENCSR320PGJ": {
+    "1": {
+      "rdn_signal": "ENCFF915OOI",
+      "narrow_peaks": "ENCFF734JDX",
+      "broad_peaks": "ENCFF179DPX"
+    }
+  },
+  "ENCSR354FBA": {
+    "1": {
+      "rdn_signal": "ENCFF584DSR",
+      "narrow_peaks": "ENCFF119CRD",
+      "broad_peaks": "ENCFF107BEQ"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "coord_system": "GRCh38",
+  "assay_type": "DNase-seq",
+  "data_types": {
+    "rdn_signal": "read-depth normalized signal",
+    "narrow_peaks": "peaks",
+    "broad_peaks": "hotspots"
+  },
+  "file_types": {
+    "rdn_signal": "bigWig",
+    "narrow_peaks": "bigBed",
+    "broad_peaks": "bigBed"
+  },
+  "encode_file_types": {
+    "rdn_signal": "bigWig",
+    "narrow_peaks": "bigBed+narrowPeak",
+    "broad_peaks": "bigBed+broadPeak"
+  },
+  "window_size": 12000,
+  "step_frequency": 2,
+  "resolution": 100,
+  "chromosomes": ["chr21", "chr22"],
+  "dev_set_size": 0.075,
+  "test_set_size": 0.075,
+  "percentile_cutoff": [0, 99.9],
+  "rnd_seed": 123,
+  "incl_pctl_total_signal": 25,
+  "incl_pct_no_signal": 5
+}
