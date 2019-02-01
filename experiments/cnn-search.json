@@ -80,6 +80,6 @@
     }
   },
   "epochs": 25,
-  "batch_size": 256,
+  "batch_size": 32,
   "peak_weight": 2
 }
