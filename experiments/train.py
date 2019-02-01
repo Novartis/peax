@@ -19,7 +19,14 @@ pathlib.Path("models").mkdir(parents=True, exist_ok=True)
 pathlib.Path("logs").mkdir(parents=True, exist_ok=True)
 
 
-def train(definition, settings, datasets, epochs, peak_weight: int = 1):
+def train(
+    definition,
+    settings,
+    datasets,
+    epochs: int = 25,
+    batch_size: int = 32,
+    peak_weight: int = 1,
+):
     bins_per_window = settings["window_size"] // settings["resolution"]
 
     model_name = namify(definition)
@@ -133,4 +140,4 @@ if __name__ == "__main__":
         )
     )
 
-    train(definition, settings, datasets, epochs, peak_weight)
+    train(definition, settings, datasets, epochs, batch_size, peak_weight)
