@@ -101,8 +101,8 @@ def create_dataset(f, name, data, extendable: bool = False):
 for dataset_name in datasets:
     samples = datasets[dataset_name]
 
-    for dataset_name in samples:
-        dataset = samples[dataset_name]
+    for sample_id in samples:
+        dataset = samples[sample_id]
         has_all_data_types = set(data_types).issubset(dataset.keys())
 
         if not has_all_data_types:
