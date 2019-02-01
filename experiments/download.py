@@ -72,31 +72,24 @@ pathlib.Path("data").mkdir(parents=True, exist_ok=True)
 file_types = settings["file_types"]
 data_types = list(settings["data_types"].keys())
 
-print(args.limit)
-
 num_downloads = 0
-for dataset_name in datasets:
+for dataset_name in tqdm.tqdm(datasets, desc="Dataset", ncols=20):
     samples = datasets[dataset_name]
 
     if num_downloads >= args.limit:
         break
 
-    for sample_id in samples:
+    for sample_id in tqdm.tqdm(samples, desc="Sample", ncols=20):
         dataset = samples[sample_id]
         has_all_data_types = set(data_types).issubset(dataset.keys())
 
         assert has_all_data_types, "Dataset should contain all data types"
 
-        print("Downloading dataset: {}".format(dataset_name))
-
-        for data_type in data_types:
+        for data_type in tqdm.tqdm(data_types, desc="Data type", ncols=20):
             fileext = file_types[data_type]
             filename = "{}.{}".format(os.path.basename(dataset[data_type]), fileext)
 
             if not pathlib.Path(os.path.join("data", filename)).is_file() or args.clear:
-                print("Downloading {}".format(filename))
                 download_file(filename)
-            else:
-                print("Already downloaded {}".format(filename))
 
     num_downloads += 1
