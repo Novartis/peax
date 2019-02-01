@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 import argparse
+import datetime
 import io
 import json
 import pandas as pd
 import requests
 import sys
+import time
 
 from urllib.parse import urlencode
 
@@ -169,9 +171,13 @@ if args.verbose:
         )
     )
 
+timestamp = datetime.datetime.fromtimestamp(time.time()).strftime("%Y-%m-%d")
+
 # Save to file
-filename = "datasets-{}-{}.json".format(
-    coord_system.lower(), abbr[assay_type] if assay_type in abbr else assay_type
+filename = "datasets-{}-{}-{}.json".format(
+    coord_system.lower(),
+    abbr[assay_type] if assay_type in abbr else assay_type,
+    timestamp,
 )
 with open(filename, "w") as f:
     json.dump(datasets, f, indent=2)
