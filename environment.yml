@@ -27,6 +27,7 @@ dependencies:
   - tqdm
   # A bug in matplotlib: https://github.com/matplotlib/matplotlib/issues/12601
   - matplotlib>=3.0.2
+  - requests
   - pip
   - pip:
       - pysam==0.13
