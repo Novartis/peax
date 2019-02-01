@@ -13,6 +13,9 @@ from server import bigwig
 
 parser = argparse.ArgumentParser(description="Peax Preparer")
 parser.add_argument(
+    "-d", "--datasets", help="path to the datasets file", default="datasets.json"
+)
+parser.add_argument(
     "-s", "--settings", help="path to the settings file", default="settings.json"
 )
 parser.add_argument(
@@ -23,6 +26,13 @@ parser.add_argument(
 )
 
 args = parser.parse_args()
+
+try:
+    with open(args.datasets, "r") as f:
+        datasets = json.load(f)
+except FileNotFoundError:
+    print("You need to provide a datasets file via `--datasets`")
+    sys.exit(2)
 
 try:
     with open(args.settings, "r") as f:
@@ -54,8 +64,7 @@ if args.verbose:
     )
 
 chromosomes = settings["chromosomes"]
-datasets = settings["datasets"]
-data_types = ["signal", "narrow_peaks", "broad_peaks"]
+data_types = list(settings["data_types"].keys())
 stored_data = [
     "data_train",
     "data_dev",
@@ -72,149 +81,180 @@ def print_progress():
     print(".", end="", flush=True)
 
 
+def create_dataset(f, name, data, extendable: bool = False):
+    if name in f.keys():
+        if extendable:
+            f[name].resize((f[name].shape[0] + data.shape[0]), axis=0)
+            f[name][-data.shape[0] :] = data
+        else:
+            # Overwrite existing dataset
+            del f[name]
+            f.create_dataset(name, data=data)
+    else:
+        if extendable:
+            maxshape = (None, *data.shape[1:])
+            f.create_dataset(name, data=data, maxshape=maxshape)
+        else:
+            f.create_dataset(name, data=data)
+
+
 for dataset_name in datasets:
-    dataset = datasets[dataset_name]
-    has_all_data_types = set(data_types).issubset(dataset.keys())
+    samples = datasets[dataset_name]
 
-    assert has_all_data_types, "Dataset should contain all data types"
+    for dataset_name in samples:
+        dataset = samples[dataset_name]
+        has_all_data_types = set(data_types).issubset(dataset.keys())
 
-    print("\nPrepare dataset {}".format(dataset_name))
-
-    prep_data_filename = "{}.h5".format(dataset_name)
-    prep_data_filepath = os.path.join("data", prep_data_filename)
-
-    with h5py.File(prep_data_filepath, "a") as f:
-        filename_signal = dataset["signal"]
-        filepath_signal = os.path.join("data", filename_signal)
-        filename_narrow_peaks = dataset["narrow_peaks"]
-        filepath_narrow_peaks = os.path.join("data", filename_narrow_peaks)
-        filename_broad_peaks = dataset["broad_peaks"]
-        filepath_broad_peaks = os.path.join("data", filename_broad_peaks)
-
-        files_are_available = [
-            pathlib.Path(filepath_signal).is_file(),
-            pathlib.Path(filepath_narrow_peaks).is_file(),
-            pathlib.Path(filepath_broad_peaks).is_file(),
-        ]
-
-        assert all(files_are_available), "All files of the data should be available"
-
-        # If all datasets are available
-        if all([x in f for x in stored_data]) and not args.clear:
-            print("Already prepared {}. Skipping".format(dataset_name))
+        if not has_all_data_types:
+            print(
+                "Dataset definition should specify all data types: {}".format(
+                    ", ".join(data_types)
+                )
+            )
             continue
 
-        # Since we don't know if the settings have change we need to remove all existing
-        # datasets
-        if len(f) > 0:
-            print("Remove incomplete data to avoid inconsistencies")
-            for data in f:
-                del f[data]
+        print("\nPrepare dataset {}".format(dataset_name))
 
-        # 0. Sanity check
-        chrom_sizes_signal = bigwig.get_chromsizes(filepath_signal)
-        chrom_sizes_narrow_peaks = bigwig.get_chromsizes(filepath_narrow_peaks)
-        chrom_sizes_broad_peaks = bigwig.get_chromsizes(filepath_broad_peaks)
+        prep_data_filename = "{}.h5".format(dataset_name)
+        prep_data_filepath = os.path.join("data", prep_data_filename)
 
-        signal_has_all_chroms = [chrom in chrom_sizes_signal for chrom in chromosomes]
-        narrow_peaks_has_all_chroms = [
-            chrom in chrom_sizes_narrow_peaks for chrom in chromosomes
-        ]
-        broad_peaks_has_all_chroms = [
-            chrom in chrom_sizes_broad_peaks for chrom in chromosomes
-        ]
+        with h5py.File(prep_data_filepath, "a") as f:
+            filename_signal = "{}.bigWig".format(dataset["rdn_signal"])
+            filepath_signal = os.path.join("data", filename_signal)
+            filename_narrow_peaks = "{}.bigBed".format(dataset["narrow_peaks"])
+            filepath_narrow_peaks = os.path.join("data", filename_narrow_peaks)
+            filename_broad_peaks = "{}.bigBed".format(dataset["broad_peaks"])
+            filepath_broad_peaks = os.path.join("data", filename_broad_peaks)
 
-        assert all(signal_has_all_chroms), "Signal should have all chromosomes"
-        assert all(
-            narrow_peaks_has_all_chroms
-        ), "Narrow peaks should have all chromosomes"
-        assert all(
-            broad_peaks_has_all_chroms
-        ), "Broad peaks should have all chromosomes"
+            files_are_available = [
+                pathlib.Path(filepath_signal).is_file(),
+                pathlib.Path(filepath_narrow_peaks).is_file(),
+                pathlib.Path(filepath_broad_peaks).is_file(),
+            ]
 
-        # 1. Extract the windows, narrow peaks, and broad peaks per chromosome
-        print("Extract windows from {}".format(filename_signal), end="", flush=True)
-        data = bigwig.chunk(
-            filepath_signal,
-            window_size,
-            settings["resolution"],
-            step_size,
-            chromosomes,
-            verbose=args.verbose,
-            print_per_chrom=print_progress,
-        )
-        print(
-            "\nExtract narrow peaks from {}".format(filename_narrow_peaks),
-            end="",
-            flush=True,
-        )
-        narrow_peaks = utils.chunk_beds_binary(
-            filepath_narrow_peaks,
-            window_size,
-            step_size,
-            chromosomes,
-            verbose=args.verbose,
-            print_per_chrom=print_progress,
-        )
-        print(
-            "\nExtract broad peaks from {}".format(filename_broad_peaks),
-            end="",
-            flush=True,
-        )
-        broad_peaks = utils.chunk_beds_binary(
-            filepath_broad_peaks,
-            window_size,
-            step_size,
-            chromosomes,
-            verbose=args.verbose,
-            print_per_chrom=print_progress,
-        )
+            assert all(files_are_available), "All data types should be available"
 
-        # 4. Under-sampling: remove the majority of empty windows
-        print("\nSelect windows to balance peaky and non-peaky ratio")
-        selected_windows = utils.filter_windows_by_peaks(
-            data,
-            narrow_peaks,
-            broad_peaks,
-            incl_pctl_total_signal=settings["incl_pctl_total_signal"],
-            incl_pct_no_signal=settings["incl_pct_no_signal"],
-            verbose=args.verbose,
-        )
-        data_filtered = data[selected_windows]
-        peaks_filtered = ((narrow_peaks + broad_peaks).flatten() > 0)[selected_windows]
+            # If all datasets are available
+            if all([x in f for x in stored_data]) and not args.clear:
+                print("Already prepared {}. Skipping".format(dataset_name))
+                continue
 
-        # 5. Shuffle and split data into a train, dev, and test set
-        (
-            data_train,
-            peaks_train,
-            data_dev,
-            peaks_dev,
-            data_test,
-            peaks_test,
-            shuffling,
-        ) = utils.split_train_dev_test(
-            data_filtered,
-            peaks_filtered,
-            settings["dev_set_size"],
-            settings["test_set_size"],
-            settings["rnd_seed"],
-            verbose=True,
-        )
+            # Since we don't know if the settings have change we need to remove all existing
+            # datasets
+            if len(f) > 0:
+                print("Remove incomplete data to avoid inconsistencies")
+                for data in f:
+                    del f[data]
 
-        # 6. Reshape to be directly usable by Keras
-        data_train = data_train.reshape(data_train.shape[0], data_train.shape[1], 1)
-        data_dev = data_dev.reshape(data_dev.shape[0], data_dev.shape[1], 1)
-        data_test = data_test.reshape(data_test.shape[0], data_test.shape[1], 1)
+            # 0. Sanity check
+            chrom_sizes_signal = bigwig.get_chromsizes(filepath_signal)
+            chrom_sizes_narrow_peaks = bigwig.get_chromsizes(filepath_narrow_peaks)
+            chrom_sizes_broad_peaks = bigwig.get_chromsizes(filepath_broad_peaks)
 
-        # 7. Pickle data
-        print("Saving... ", end="", flush=True)
-        f.create_dataset("data_train", data=data_train)
-        f.create_dataset("data_dev", data=data_dev)
-        f.create_dataset("data_test", data=data_test)
-        f.create_dataset("peaks_train", data=peaks_train)
-        f.create_dataset("peaks_dev", data=peaks_dev)
-        f.create_dataset("peaks_test", data=peaks_test)
-        f.create_dataset("shuffling", data=shuffling)
-        f.create_dataset("settings", data=json.dumps(settings))
+            signal_has_all_chroms = [
+                chrom in chrom_sizes_signal for chrom in chromosomes
+            ]
+            narrow_peaks_has_all_chroms = [
+                chrom in chrom_sizes_narrow_peaks for chrom in chromosomes
+            ]
+            broad_peaks_has_all_chroms = [
+                chrom in chrom_sizes_broad_peaks for chrom in chromosomes
+            ]
 
-        print("done!")
+            assert all(signal_has_all_chroms), "Signal should have all chromosomes"
+            assert all(
+                narrow_peaks_has_all_chroms
+            ), "Narrow peaks should have all chromosomes"
+            assert all(
+                broad_peaks_has_all_chroms
+            ), "Broad peaks should have all chromosomes"
+
+            # 1. Extract the windows, narrow peaks, and broad peaks per chromosome
+            print("Extract windows from {}".format(filename_signal), end="", flush=True)
+            data = bigwig.chunk(
+                filepath_signal,
+                window_size,
+                settings["resolution"],
+                step_size,
+                chromosomes,
+                verbose=args.verbose,
+                print_per_chrom=print_progress,
+            )
+            print(
+                "\nExtract narrow peaks from {}".format(filename_narrow_peaks),
+                end="",
+                flush=True,
+            )
+            narrow_peaks = utils.chunk_beds_binary(
+                filepath_narrow_peaks,
+                window_size,
+                step_size,
+                chromosomes,
+                verbose=args.verbose,
+                print_per_chrom=print_progress,
+            )
+            print(
+                "\nExtract broad peaks from {}".format(filename_broad_peaks),
+                end="",
+                flush=True,
+            )
+            broad_peaks = utils.chunk_beds_binary(
+                filepath_broad_peaks,
+                window_size,
+                step_size,
+                chromosomes,
+                verbose=args.verbose,
+                print_per_chrom=print_progress,
+            )
+
+            # 4. Under-sampling: remove the majority of empty windows
+            print("\nSelect windows to balance peaky and non-peaky ratio")
+            selected_windows = utils.filter_windows_by_peaks(
+                data,
+                narrow_peaks,
+                broad_peaks,
+                incl_pctl_total_signal=settings["incl_pctl_total_signal"],
+                incl_pct_no_signal=settings["incl_pct_no_signal"],
+                verbose=args.verbose,
+            )
+            data_filtered = data[selected_windows]
+            peaks_filtered = ((narrow_peaks + broad_peaks).flatten() > 0)[
+                selected_windows
+            ]
+
+            # 5. Shuffle and split data into a train, dev, and test set
+            (
+                data_train,
+                peaks_train,
+                data_dev,
+                peaks_dev,
+                data_test,
+                peaks_test,
+                shuffling,
+            ) = utils.split_train_dev_test(
+                data_filtered,
+                peaks_filtered,
+                settings["dev_set_size"],
+                settings["test_set_size"],
+                settings["rnd_seed"],
+                verbose=True,
+            )
+
+            # 6. Reshape to be directly usable by Keras
+            data_train = data_train.reshape(data_train.shape[0], data_train.shape[1], 1)
+            data_dev = data_dev.reshape(data_dev.shape[0], data_dev.shape[1], 1)
+            data_test = data_test.reshape(data_test.shape[0], data_test.shape[1], 1)
+
+            # 7. Pickle data
+            print("Saving... ", end="", flush=True)
+
+            create_dataset(f, "data_train", data_train, extendable=True)
+            create_dataset(f, "data_dev", data_dev, extendable=True)
+            create_dataset(f, "data_test", data_test, extendable=True)
+            create_dataset(f, "peaks_train", peaks_train, extendable=True)
+            create_dataset(f, "peaks_dev", peaks_dev, extendable=True)
+            create_dataset(f, "peaks_test", peaks_test, extendable=True)
+            create_dataset(f, "shuffling", shuffling, extendable=True)
+            create_dataset(f, "settings", json.dumps(settings))
+
+            print("done!")
