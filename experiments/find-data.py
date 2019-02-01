@@ -50,7 +50,7 @@ abbr = {
 
 coord_system = settings["coord_system"]
 assay_type = settings["assay_type"]
-file_types = list(settings["encode_file_types"].keys())
+file_types = list(settings["encode_file_types"].values())
 data_types = settings["data_types"]
 
 assay_slim = assay_slims[assay_type]
