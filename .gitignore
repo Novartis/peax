@@ -2,6 +2,7 @@ __pycache__
 cache
 data
 results
+models
 logs
 slurm
 /config*.json
