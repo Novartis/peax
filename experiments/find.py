@@ -51,7 +51,7 @@ def find(settings: dict, base: str = ".", clear: bool = False, verbose: bool = F
 
     if pathlib.Path(filename).is_file() and not clear:
         print("File already exists. Use `--clear` to overwrite it.")
-        return
+        return filename
 
     # 1. Search for experiments matching the assay type
     if verbose:
