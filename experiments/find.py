@@ -169,6 +169,8 @@ def find(settings: dict, base: str = ".", clear: bool = False, verbose: bool = F
 
     print("Saved dataset accessions to {}".format(filename))
 
+    return filename
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Peax Downloader")
