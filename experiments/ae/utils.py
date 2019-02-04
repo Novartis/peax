@@ -18,6 +18,8 @@ from keras import backend as K
 import matplotlib.pyplot as plt
 from matplotlib.cm import copper
 from typing import Tuple
+from tqdm import tqdm, tqdm_notebook
+from keras_tqdm import TQDMCallback, TQDMNotebookCallback
 
 
 def train(
@@ -618,3 +620,17 @@ def is_ipynb():
             return False  # Other type (?)
     except NameError:
         return False  # Probably standard Python interpreter
+
+
+def get_tqdm(is_keras: bool = False):
+    # Determine which tqdm to use
+    if is_ipynb():
+        if is_keras:
+            return TQDMNotebookCallback
+        else:
+            return tqdm_notebook
+    else:
+        if is_keras:
+            return TQDMCallback
+        else:
+            return tqdm

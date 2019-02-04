@@ -8,23 +8,15 @@ import os
 import pathlib
 import sys
 
-from tqdm import tqdm, tqdm_notebook
-from keras_tqdm import TQDMCallback, TQDMNotebookCallback
-
 from ae.cnn import create_model
-from ae.utils import namify, is_ipynb
+from ae.utils import namify, get_tqdm
 
 # Create data directory
 pathlib.Path("models").mkdir(parents=True, exist_ok=True)
 pathlib.Path("logs").mkdir(parents=True, exist_ok=True)
 
-# Determine which tqdm to use
-if is_ipynb():
-    tqdm_normal = tqdm_notebook
-    tqdm_keras = TQDMNotebookCallback
-else:
-    tqdm_normal = tqdm
-    tqdm_keras = TQDMCallback
+tqdm_normal = get_tqdm()
+tqdm_keras = get_tqdm(is_keras=True)
 
 
 def train(
