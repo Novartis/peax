@@ -8,15 +8,23 @@ import os
 import pathlib
 import sys
 
-from tqdm import tqdm
-from keras_tqdm import TQDMCallback
+from tqdm import tqdm, tqdm_notebook
+from keras_tqdm import TQDMCallback, TQDMNotebookCallback
 
 from ae.cnn import create_model
-from ae.utils import namify
+from ae.utils import namify, is_ipynb
 
 # Create data directory
 pathlib.Path("models").mkdir(parents=True, exist_ok=True)
 pathlib.Path("logs").mkdir(parents=True, exist_ok=True)
+
+# Determine which tqdm to use
+if is_ipynb():
+    tqdm_normal = tqdm_notebook
+    tqdm_keras = TQDMNotebookCallback
+else:
+    tqdm_normal = tqdm
+    tqdm_keras = TQDMCallback
 
 
 def train(
@@ -34,9 +42,9 @@ def train(
     encoder, decoder, autoencoder = create_model(bins_per_window, **definition)
 
     # for epoch in range(epochs):
-    for epoch in tqdm(range(epochs), desc="Epochs"):
+    for epoch in tqdm_normal(range(epochs), desc="Epochs"):
         # for dataset_name in datasets:
-        for dataset_name in tqdm(datasets, desc="Datasets"):
+        for dataset_name in tqdm_normal(datasets, desc="Datasets"):
             data_filename = "{}.h5".format(dataset_name)
             data_filepath = os.path.join("data", data_filename)
 
@@ -66,7 +74,7 @@ def train(
                     validation_data=(data_test, data_test),
                     sample_weight=sample_weight,
                     verbose=0,
-                    callbacks=[TQDMCallback(show_outer=False)],
+                    callbacks=[tqdm_keras(show_outer=False)],
                 )
 
     encoder.save(os.path.join("models", "{}---encoder.h5".format(model_name)))
