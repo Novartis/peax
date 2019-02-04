@@ -17,6 +17,7 @@ dependencies:
   - flask
   - flask-cors
   - ipython
+  - ipywidgets
   - pywget
   - bokeh
   - pydot
