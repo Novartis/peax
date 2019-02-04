@@ -303,10 +303,10 @@ def prepare(
                     if prepared_data is not None:
                         (
                             data_train,
-                            data_dev,
-                            data_test,
                             peaks_train,
+                            data_dev,
                             peaks_dev,
+                            data_test,
                             peaks_test,
                             shuffling,
                         ) = prepared_data
