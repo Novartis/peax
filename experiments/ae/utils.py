@@ -464,14 +464,15 @@ def filter_windows_by_peaks(
     neg_empty_win = ~pos_win & win_total_signal_is_zero
     neg_empty_win_idx = np.arange(num_total_win)[neg_empty_win]
 
-    print(
-        "Windows: total = {} | with peaks = {} | with signal gt {} pctl = {}".format(
-            num_total_win,
-            np.sum(has_peaks),
-            incl_pctl_total_signal,
-            np.sum(win_total_signal_gt_pctl),
+    if verbose:
+        print(
+            "Windows: total = {} | with peaks = {} | with signal gt {} pctl = {}".format(
+                num_total_win,
+                np.sum(has_peaks),
+                incl_pctl_total_signal,
+                np.sum(win_total_signal_gt_pctl),
+            )
         )
-    )
 
     pct_not_empty = 1 - (incl_pct_no_signal / 100)
 
