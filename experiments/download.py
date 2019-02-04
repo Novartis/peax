@@ -6,22 +6,23 @@ import math
 import os
 import pathlib
 import requests
-import tqdm
 import sys
 
+from ae.utils import get_tqdm
 
-def download_file(filename):
+
+def download_file(filename: str, base: str = "."):
     """
     Helper method handling downloading large files from `url` to `filename`. Returns a pointer to `filename`.
     """
+    tqdm = get_tqdm()
     chunkSize = 1024
     name, _ = os.path.splitext(filename)
     url = "https://www.encodeproject.org/files/{}/@@download/{}".format(name, filename)
     r = requests.get(url, stream=True)
-    with open(os.path.join("data", filename), "wb") as f:
-        pbar = tqdm.tqdm(
-            unit="B", unit_scale=True, total=int(r.headers["Content-Length"])
-        )
+    filepath = os.path.join(base, "data", filename)
+    with open(filepath, "wb") as f:
+        pbar = tqdm(unit="B", unit_scale=True, total=int(r.headers["Content-Length"]))
         for chunk in r.iter_content(chunk_size=chunkSize):
             if chunk:  # filter out keep-alive new chunks
                 pbar.update(len(chunk))
@@ -29,67 +30,83 @@ def download_file(filename):
     return filename
 
 
-parser = argparse.ArgumentParser(description="Peax Downloader")
-parser.add_argument(
-    "-d", "--datasets", help="path to the datasets file", default="datasets.json"
-)
-parser.add_argument(
-    "-s", "--settings", help="path to the settings file", default="settings.json"
-)
-parser.add_argument(
-    "-c", "--clear", action="store_true", help="clears previously downloadeds"
-)
-parser.add_argument(
-    "-v", "--verbose", action="store_true", help="turn on verbose logging"
-)
-parser.add_argument(
-    "-l",
-    "--limit",
-    type=int,
-    help="limit the number of datasets to be downloaded",
-    default=math.inf,
-)
+def download(
+    datasets: dict,
+    settings: dict,
+    base: str = ".",
+    clear: bool = False,
+    limit: int = math.inf,
+    verbose: bool = False,
+):
+    tqdm = get_tqdm()
 
-args = parser.parse_args()
+    # Create data directory
+    pathlib.Path("data").mkdir(parents=True, exist_ok=True)
 
-try:
-    with open(args.datasets, "r") as f:
-        datasets = json.load(f)
-except FileNotFoundError:
-    print("Please provide a datasets file via `--datasets`")
-    sys.exit(2)
+    file_types = settings["file_types"]
+    data_types = list(settings["data_types"].keys())
 
-try:
-    with open(args.settings, "r") as f:
-        settings = json.load(f)
-except FileNotFoundError:
-    print("Please provide a settings file via `--settings`")
-    sys.exit(2)
+    num_downloads = 0
+    for dataset_name in tqdm(datasets, desc="Dataset"):
+        samples = datasets[dataset_name]
 
-# Create data directory
-pathlib.Path("data").mkdir(parents=True, exist_ok=True)
+        if num_downloads >= limit:
+            break
 
-file_types = settings["file_types"]
-data_types = list(settings["data_types"].keys())
+        for sample_id in tqdm(samples, desc="Sample", leave=False):
+            dataset = samples[sample_id]
+            has_all_data_types = set(data_types).issubset(dataset.keys())
 
-num_downloads = 0
-for dataset_name in tqdm.tqdm(datasets, desc="Dataset", ncols=20):
-    samples = datasets[dataset_name]
+            assert has_all_data_types, "Dataset should contain all data types"
 
-    if num_downloads >= args.limit:
-        break
+            for data_type in tqdm(data_types, desc="Data type", leave=False):
+                fileext = file_types[data_type]
+                filename = "{}.{}".format(os.path.basename(dataset[data_type]), fileext)
 
-    for sample_id in tqdm.tqdm(samples, desc="Sample", ncols=20):
-        dataset = samples[sample_id]
-        has_all_data_types = set(data_types).issubset(dataset.keys())
+                if not pathlib.Path(os.path.join("data", filename)).is_file() or clear:
+                    download_file(filename, base)
 
-        assert has_all_data_types, "Dataset should contain all data types"
+        num_downloads += 1
 
-        for data_type in tqdm.tqdm(data_types, desc="Data type", ncols=20):
-            fileext = file_types[data_type]
-            filename = "{}.{}".format(os.path.basename(dataset[data_type]), fileext)
 
-            if not pathlib.Path(os.path.join("data", filename)).is_file() or args.clear:
-                download_file(filename)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Peax Downloader")
+    parser.add_argument(
+        "-d", "--datasets", help="path to the datasets file", default="datasets.json"
+    )
+    parser.add_argument(
+        "-s", "--settings", help="path to the settings file", default="settings.json"
+    )
+    parser.add_argument(
+        "-c", "--clear", action="store_true", help="clears previously downloadeds"
+    )
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="turn on verbose logging"
+    )
+    parser.add_argument(
+        "-l",
+        "--limit",
+        type=int,
+        help="limit the number of datasets to be downloaded",
+        default=math.inf,
+    )
 
-    num_downloads += 1
+    args = parser.parse_args()
+
+    try:
+        with open(args.datasets, "r") as f:
+            datasets = json.load(f)
+    except FileNotFoundError:
+        print("Please provide a datasets file via `--datasets`")
+        sys.exit(2)
+
+    try:
+        with open(args.settings, "r") as f:
+            settings = json.load(f)
+    except FileNotFoundError:
+        print("Please provide a settings file via `--settings`")
+        sys.exit(2)
+
+    download(
+        datasets, settings, clear=args.clear, limit=args.limit, verbose=args.verbose
+    )
