@@ -19,6 +19,8 @@ def train(
     epochs: int = 25,
     batch_size: int = 32,
     peak_weight: int = 1,
+    base: str = ".",
+    clear: bool = False,
 ):
     # Create data directory
     pathlib.Path("models").mkdir(parents=True, exist_ok=True)
@@ -29,6 +31,14 @@ def train(
     bins_per_window = settings["window_size"] // settings["resolution"]
 
     model_name = namify(definition)
+    encoder_name = os.path.join(base, "models", "{}---encoder.h5".format(model_name))
+    decoder_name = os.path.join(base, "models", "{}---decoder.h5".format(model_name))
+
+    if (
+        pathlib.Path(encoder_name).is_file() or pathlib.Path(decoder_name).is_file()
+    ) and not clear:
+        print("Encoder/decoder already exists. Use `--clear` to overwrite it.")
+        return
 
     encoder, decoder, autoencoder = create_model(bins_per_window, **definition)
 
@@ -37,7 +47,7 @@ def train(
         # for dataset_name in datasets:
         for dataset_name in tqdm_normal(datasets, desc="Datasets"):
             data_filename = "{}.h5".format(dataset_name)
-            data_filepath = os.path.join("data", data_filename)
+            data_filepath = os.path.join(base, "data", data_filename)
 
             with h5py.File(data_filepath, "r") as f:
                 data_train = f["data_train"][:]
@@ -68,8 +78,8 @@ def train(
                     callbacks=[tqdm_keras(show_outer=False)],
                 )
 
-    encoder.save(os.path.join("models", "{}---encoder.h5".format(model_name)))
-    decoder.save(os.path.join("models", "{}---decoder.h5".format(model_name)))
+    encoder.save(os.path.join(base, "models", "{}---encoder.h5".format(model_name)))
+    decoder.save(os.path.join(base, "models", "{}---decoder.h5".format(model_name)))
 
 
 if __name__ == "__main__":
