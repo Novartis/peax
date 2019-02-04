@@ -11,13 +11,6 @@ import sys
 from ae.cnn import create_model
 from ae.utils import namify, get_tqdm
 
-# Create data directory
-pathlib.Path("models").mkdir(parents=True, exist_ok=True)
-pathlib.Path("logs").mkdir(parents=True, exist_ok=True)
-
-tqdm_normal = get_tqdm()
-tqdm_keras = get_tqdm(is_keras=True)
-
 
 def train(
     definition,
@@ -27,6 +20,12 @@ def train(
     batch_size: int = 32,
     peak_weight: int = 1,
 ):
+    # Create data directory
+    pathlib.Path("models").mkdir(parents=True, exist_ok=True)
+    pathlib.Path("logs").mkdir(parents=True, exist_ok=True)
+    tqdm_normal = get_tqdm()
+    tqdm_keras = get_tqdm(is_keras=True)
+
     bins_per_window = settings["window_size"] // settings["resolution"]
 
     model_name = namify(definition)
