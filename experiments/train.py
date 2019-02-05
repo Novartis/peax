@@ -53,11 +53,11 @@ def train(
 
             with h5py.File(data_filepath, "r") as f:
                 data_train = f["data_train"][:]
-                data_test = f["data_test"][:]
+                data_dev = f["data_dev"][:]
                 data_train = data_train.reshape(
                     data_train.shape[0], data_train.shape[1], 1
                 )
-                data_test = data_test.reshape(data_test.shape[0], data_test.shape[1], 1)
+                data_dev = data_dev.reshape(data_dev.shape[0], data_dev.shape[1], 1)
                 peaks_train = f["peaks_train"][:]
 
                 no_peak_ratio = (data_train.shape[0] - np.sum(peaks_train)) / np.sum(
@@ -75,7 +75,7 @@ def train(
                     epochs=1,
                     batch_size=batch_size,
                     shuffle=True,
-                    validation_data=(data_test, data_test),
+                    validation_data=(data_dev, data_dev),
                     sample_weight=sample_weight,
                     verbose=0,
                     callbacks=[tqdm_keras(show_outer=False)],
