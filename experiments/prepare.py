@@ -6,11 +6,43 @@ import json
 import os
 import pathlib
 import sys
+from string import Template
 
 from ae import utils
 from server import bigwig
 
-from ae.utils import get_tqdm
+
+slurm_header = """#!/bin/bash
+#
+# add all other SBATCH directives here...
+#
+#SBATCH -p holyseasgpu
+#SBATCH -n 1 # Number of cores
+#SBATCH -N 1 # Ensure that all cores are on one machine
+#SBATCH --gres=gpu
+#SBATCH --mem=24000
+#SBATCH -t 7-12:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=haehn@seas.harvard.edu
+#SBATCH -o /n/pfister_lab/lekschas/peax/experiments/logs/prepare-out-$name.txt
+#SBATCH -e /n/pfister_lab/lekschas/peax/experiments/logs/prepare-err-$name.txt
+
+# add additional commands needed for Lmod and module loads here
+source new-modules.sh
+module load Anaconda/5.0.1-fasrc01
+"""
+
+slurm_body = Template(
+    """
+# add commands for analyses here
+cd /n/pfister_lab/lekschas/peax/experiments/
+source activate /n/pfister_lab/haehn/ENVS/peax
+python prepare.py --type $dtype --datasets $datasets --settings $settings --single-dataset $single_dataset
+
+# end of program
+exit 0;
+"""
+)
 
 
 def prepare_dnase(
@@ -27,7 +59,7 @@ def prepare_dnase(
     print_progress: callable = None,
     verbose: bool = False,
 ):
-    tqdm = get_tqdm()
+    tqdm = utils.get_tqdm()
 
     filename_signal = "{}.bigWig".format(dataset["rdn_signal"])
     filepath_signal = os.path.join(data_dir, filename_signal)
@@ -42,7 +74,7 @@ def prepare_dnase(
         pathlib.Path(filepath_broad_peaks).is_file(),
     ]
 
-    assert all(files_are_available), "All data types should be available"
+    assert all(files_are_available), "Not all data files are available"
 
     # If all datasets are available
     if all([x in f for x in stored_data]) and not clear:
@@ -79,7 +111,7 @@ def prepare_dnase(
         print("Extract windows from {}".format(filename_signal), end="", flush=True)
         print_per_chrom = print_progress
     else:
-        pbar = tqdm(total=len(chromosomes) * 3, leave=False, unit="chroms")
+        pbar = tqdm(total=len(chromosomes) * 3, leave=False, unit="chromosome")
 
         def update_pbar():
             pbar.update(1)
@@ -184,6 +216,7 @@ def prepare(
     dtype: str,
     datasets: dict,
     settings: dict,
+    single_dataset: str = None,
     base: str = ".",
     clear: bool = False,
     verbose: bool = False,
@@ -195,7 +228,7 @@ def prepare(
         print("Unknown data type: {}".format(dtype))
         print("Use one of {}".format(", ".join(supported_dtypes)))
 
-    tqdm = get_tqdm()
+    tqdm = utils.get_tqdm()
 
     # Create data directory
     data_dir = os.path.join(base, "data")
@@ -251,6 +284,12 @@ def prepare(
                 f.create_dataset(name, data=data, maxshape=maxshape)
             else:
                 f.create_dataset(name, data=data)
+
+    if single_dataset is not None:
+        try:
+            datasets = {single_dataset: datasets[single_dataset]}
+        except KeyError:
+            print("Dataset not found: {}".format())
 
     datasets_iter = (
         datasets if verbose else tqdm(datasets, desc="Datasets", unit="dataset")
@@ -333,14 +372,71 @@ def prepare(
                     print("done!")
 
 
+def prepare_jobs(
+    dtype: str,
+    datasets: str,
+    settings: str,
+    base: str = ".",
+    clear: bool = False,
+    verbose: bool = False,
+):
+    tqdm = utils.get_tqdm()
+
+    # Create slurm directory
+    pathlib.Path("prepare").mkdir(parents=True, exist_ok=True)
+
+    try:
+        with open(os.path.join(base, datasets), "r") as f:
+            datasets_dict = json.load(f)
+    except FileNotFoundError:
+        print("You need to provide a datasets file via `--datasets`")
+        sys.exit(2)
+
+    datasets_iter = (
+        datasets_dict
+        if verbose
+        else tqdm(datasets_dict, desc="Datasets", unit="dataset")
+    )
+
+    for dataset_name in datasets_iter:
+        new_slurm_body = slurm_body.substitute(
+            dtype=dtype,
+            datasets=datasets,
+            settings=settings,
+            single_dataset=dataset_name,
+        )
+        slurm = slurm_header.replace("$name", dataset_name) + new_slurm_body
+
+        slurm_file = os.path.join(base, "prepare", "{}.slurm".format(dataset_name))
+
+        if not pathlib.Path(slurm_file).is_file() or clear:
+            with open(slurm_file, "w") as f:
+                f.write(slurm)
+        else:
+            print("Job file already exists. Use `--clear` to overwrite it.")
+
+    print("Created slurm files for preparing {} datasets".format(len(datasets_dict)))
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Peax Preparer")
+    parser.add_argument(
+        "-t",
+        "--type",
+        help="specify the data type",
+        choices=["dnase", "chip"],
+        type=str.lower,
+    )
     parser.add_argument(
         "-d", "--datasets", help="path to the datasets file", default="datasets.json"
     )
     parser.add_argument(
         "-s", "--settings", help="path to the settings file", default="settings.json"
     )
+    parser.add_argument(
+        "-i", "--single-dataset", help="name of a specific dataset to prepare"
+    )
+    parser.add_argument("-j", "--jobs", action="store_true", help="create jobs files")
     parser.add_argument(
         "-c", "--clear", action="store_true", help="clears previously prepared data"
     )
@@ -349,6 +445,10 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+
+    if args.type is None:
+        print("You need to provide the data type via `--type`")
+        sys.exit(2)
 
     try:
         with open(args.datasets, "r") as f:
@@ -364,4 +464,20 @@ if __name__ == "__main__":
         print("You need to provide a settings file via `--settings`")
         sys.exit(2)
 
-    prepare(datasets, settings, clear=args.clear, verbose=args.verbose)
+    if args.jobs:
+        prepare_jobs(
+            args.type,
+            args.datasets,
+            args.settings,
+            clear=args.clear,
+            verbose=args.verbose,
+        )
+    else:
+        prepare(
+            args.type,
+            datasets,
+            settings,
+            single_dataset=args.single_dataset,
+            clear=args.clear,
+            verbose=args.verbose,
+        )
