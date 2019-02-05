@@ -21,7 +21,6 @@ slurm_header = """#!/bin/bash
 # add all other SBATCH directives here...
 #
 #SBATCH -p holyseasgpu
-#SBATCH --gres=gpu
 #SBATCH -n 1 # Number of cores
 #SBATCH -N 1 # Ensure that all cores are on one machine
 #SBATCH --gres=gpu
@@ -34,9 +33,7 @@ slurm_header = """#!/bin/bash
 
 # add additional commands needed for Lmod and module loads here
 source new-modules.sh
-#module load gcc/4.8.2-fasrc01 python/2.7.9-fasrc01
-module load Anaconda/2.1.0-fasrc01
-#module load cuda/7.5-fasrc01
+module load Anaconda/5.0.1-fasrc01
 
 """
 
