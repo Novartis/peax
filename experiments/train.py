@@ -42,9 +42,11 @@ def train(
 
     encoder, decoder, autoencoder = create_model(bins_per_window, **definition)
 
-    # for epoch in range(epochs):
+    loss = np.zeros(epochs * len(datasets))
+    val_loss = np.zeros(epochs * len(datasets))
+
+    i = 0
     for epoch in tqdm_normal(range(epochs), desc="Epochs"):
-        # for dataset_name in datasets:
         for dataset_name in tqdm_normal(datasets, desc="Datasets"):
             data_filename = "{}.h5".format(dataset_name)
             data_filepath = os.path.join(base, "data", data_filename)
@@ -66,9 +68,10 @@ def train(
                 # but we never downweight peak windows!
                 sample_weight = (peaks_train * np.max((0, no_peak_ratio - 1))) + 1
 
-                autoencoder.fit(
+                history = autoencoder.fit(
                     data_train,
                     data_train,
+                    initial_epoch=epoch,
                     epochs=1,
                     batch_size=batch_size,
                     shuffle=True,
@@ -78,8 +81,22 @@ def train(
                     callbacks=[tqdm_keras(show_outer=False)],
                 )
 
+                try:
+                    loss[i] = history.history["loss"][0]
+                    val_loss[i] = history.history["val_loss"][0]
+                except KeyError:
+                    pass
+
+                i += 1
+
     encoder.save(os.path.join(base, "models", "{}---encoder.h5".format(model_name)))
     decoder.save(os.path.join(base, "models", "{}---decoder.h5".format(model_name)))
+
+    with h5py.File(
+        os.path.join(base, "models", "{}---training.h5".format(model_name)), "w"
+    ) as f:
+        f.create_dataset("loss", data=loss)
+        f.create_dataset("val_loss", data=val_loss)
 
 
 if __name__ == "__main__":
