@@ -398,6 +398,7 @@ def prepare_jobs(
         else tqdm(datasets_dict, desc="Datasets", unit="dataset")
     )
 
+    skipped = 0
     for dataset_name in datasets_iter:
         new_slurm_body = slurm_body.substitute(
             dtype=dtype,
@@ -413,9 +414,25 @@ def prepare_jobs(
             with open(slurm_file, "w") as f:
                 f.write(slurm)
         else:
-            print("Job file already exists. Use `--clear` to overwrite it.")
+            skipped += 1
 
-    print("Created slurm files for preparing {} datasets".format(len(datasets_dict)))
+    num_datasets = len(datasets_dict)
+
+    if skipped > 0:
+        if skipped < num_datasets:
+            print(
+                "Created {} new slurm files for preparing {} datasets".format(
+                    num_datasets - skipped, num_datasets
+                )
+            )
+
+        print(
+            "Skipped {} jobs as their slurm files already exist. Use `--clear` to overwrite them.".format(
+                skipped
+            )
+        )
+    else:
+        print("Created slurm files for preparing {} datasets".format(num_datasets))
 
 
 if __name__ == "__main__":
