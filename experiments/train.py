@@ -21,10 +21,11 @@ def train(
     peak_weight: int = 1,
     base: str = ".",
     clear: bool = False,
+    silent: bool = False,
 ):
     # Create data directory
     pathlib.Path("models").mkdir(parents=True, exist_ok=True)
-    pathlib.Path("logs").mkdir(parents=True, exist_ok=True)
+
     tqdm_normal = get_tqdm()
     tqdm_keras = get_tqdm(is_keras=True)
 
@@ -45,11 +46,23 @@ def train(
     loss = np.zeros(epochs * len(datasets))
     val_loss = np.zeros(epochs * len(datasets))
 
+    if silent:
+        epochs_iter = range(epochs)
+    else:
+        epochs_iter = tqdm_normal(range(epochs), desc="Epochs", unit="epoch")
+
     i = 0
-    for epoch in tqdm_normal(range(epochs), desc="Epochs", unit="epoch"):
-        for dataset_name in tqdm_normal(
-            datasets, desc="Datasets", unit="dataset", leave=False
-        ):
+    for epoch in epochs_iter:
+        epochs_iter = range(epochs)
+
+        if silent:
+            datasets_iter = datasets
+        else:
+            datasets_iter = tqdm_normal(
+                datasets, desc="Datasets", unit="dataset", leave=False
+            )
+
+        for dataset_name in datasets_iter:
             data_filename = "{}.h5".format(dataset_name)
             data_filepath = os.path.join(base, "data", data_filename)
 
@@ -70,6 +83,11 @@ def train(
                 # but we never downweight peak windows!
                 sample_weight = (peaks_train * np.max((0, no_peak_ratio - 1))) + 1
 
+                if silent:
+                    callbacks = []
+                else:
+                    callbacks = [tqdm_keras(show_outer=False)]
+
                 history = autoencoder.fit(
                     data_train,
                     data_train,
@@ -79,7 +97,7 @@ def train(
                     validation_data=(data_dev, data_dev),
                     sample_weight=sample_weight,
                     verbose=0,
-                    callbacks=[tqdm_keras(show_outer=False)],
+                    callbacks=callbacks,
                 )
 
                 try:
