@@ -111,7 +111,12 @@ def prepare_dnase(
         print("Extract windows from {}".format(filename_signal), end="", flush=True)
         print_per_chrom = print_progress
     else:
-        pbar = tqdm(total=len(chromosomes) * 3, leave=False, unit="chromosome")
+        pbar = tqdm(
+            total=len(chromosomes) * 3,
+            leave=False,
+            desc="Chromosomes",
+            unit="chromosome",
+        )
 
         def update_pbar():
             pbar.update(1)
