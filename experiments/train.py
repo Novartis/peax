@@ -46,8 +46,10 @@ def train(
     val_loss = np.zeros(epochs * len(datasets))
 
     i = 0
-    for epoch in tqdm_normal(range(epochs), desc="Epochs"):
-        for dataset_name in tqdm_normal(datasets, desc="Datasets"):
+    for epoch in tqdm_normal(range(epochs), desc="Epochs", unit="epoch"):
+        for dataset_name in tqdm_normal(
+            datasets, desc="Datasets", unit="dataset", leave=False
+        ):
             data_filename = "{}.h5".format(dataset_name)
             data_filepath = os.path.join(base, "data", data_filename)
 
@@ -71,7 +73,6 @@ def train(
                 history = autoencoder.fit(
                     data_train,
                     data_train,
-                    initial_epoch=epoch,
                     epochs=1,
                     batch_size=batch_size,
                     shuffle=True,
