@@ -166,4 +166,12 @@ if __name__ == "__main__":
         )
     )
 
-    train(definition, settings, datasets, epochs, batch_size, peak_weight)
+    train(
+        definition,
+        settings,
+        datasets,
+        epochs,
+        batch_size,
+        peak_weight,
+        clear=args.clear,
+    )
