@@ -18,12 +18,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import seaborn as sns
+import sys
 
-from keras import backend as K
 from matplotlib.cm import copper
 from typing import Tuple
 from tqdm import tqdm, tqdm_notebook
+
+# Stupid Keras things is a smart way to always print. See:
+# https://github.com/keras-team/keras/issues/1406
+stderr = sys.stderr
+sys.stderr = open(os.devnull, "w")
 from keras_tqdm import TQDMCallback, TQDMNotebookCallback
+from keras import backend as K
+
+sys.stderr = stderr
 
 sns.set()
 

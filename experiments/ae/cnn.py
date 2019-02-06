@@ -13,6 +13,13 @@ limitations under the License.
 
 """Neural net Models"""
 
+import os
+import sys
+
+# Stupid Keras things is a smart way to always print. See:
+# https://github.com/keras-team/keras/issues/1406
+stderr = sys.stderr
+sys.stderr = open(os.devnull, "w")
 from keras.layers import (
     AveragePooling1D,
     Input,
@@ -32,6 +39,8 @@ from keras.models import Model
 from keras import optimizers
 from keras.regularizers import l1
 from keras.utils import plot_model
+
+sys.stderr = stderr
 
 
 def create_model(
