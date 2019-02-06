@@ -102,9 +102,66 @@ def find(settings: dict, base: str = ".", clear: bool = False, verbose: bool = F
 
     # 3. Filter data and arrange in tuples
 
+    is_not_extremely_low_read_depth = (
+        metaData["Audit ERROR"].str.contains("extremely low read depth", na=False)
+        == False
+    )
+    is_not_extremely_low_read_length = (
+        metaData["Audit ERROR"].str.contains("extremely low read length", na=False)
+        == False
+    )
+    is_not_extremely_low_spot_score = (
+        metaData["Audit ERROR"].str.contains("extremely low spot score", na=False)
+        == False
+    )
+    is_not_insufficient_low_read_depth = (
+        metaData["Audit ERROR"].str.contains("insufficient low read depth", na=False)
+        == False
+    )
+    is_not_insufficient_low_read_length = (
+        metaData["Audit ERROR"].str.contains("insufficient low read length", na=False)
+        == False
+    )
+    is_not_insufficient_low_spot_score = (
+        metaData["Audit ERROR"].str.contains("insufficient low spot score", na=False)
+        == False
+    )
+    is_not_insufficient_library_complexity = (
+        metaData["Audit ERROR"].str.contains(
+            "insufficient library complexity", na=False
+        )
+        == False
+    )
+    is_not_severe_bottlenecking = (
+        metaData["Audit ERROR"].str.contains("severe bottlenecking", na=False) == False
+    )
+    is_no_error = (
+        is_not_extremely_low_read_depth
+        & is_not_extremely_low_read_length
+        & is_not_extremely_low_spot_score
+        & is_not_insufficient_low_read_depth
+        & is_not_insufficient_low_read_length
+        & is_not_insufficient_low_spot_score
+        & is_not_insufficient_library_complexity
+        & is_not_severe_bottlenecking
+    )
+
     is_coord_system = metaData["Assembly"] == coord_system
     is_released = metaData["File Status"] == "released"
-    is_dnase_seq = metaData["Assay"] == assay_type
+    is_assay_type = metaData["Assay"] == assay_type
+
+    is_basic = is_coord_system & is_released & is_assay_type & is_no_error
+
+    if verbose:
+        print(
+            "Removed {} experiments due to auditing errors".format(
+                metaData.loc[
+                    is_coord_system & is_released & is_assay_type & ~is_no_error
+                ]["Experiment accession"]
+                .unique()
+                .shape[0]
+            )
+        )
 
     is_data_type = {}
     for data_type in data_types:
@@ -114,15 +171,8 @@ def find(settings: dict, base: str = ".", clear: bool = False, verbose: bool = F
     use_only_one_bio_replicate = True
 
     k = 0
-    for exp in metaData.loc[is_coord_system & is_released & is_dnase_seq][
-        "Experiment accession"
-    ].unique():
-        is_exp = (
-            is_coord_system
-            & is_released
-            & is_dnase_seq
-            & (metaData["Experiment accession"] == exp)
-        )
+    for exp in metaData.loc[is_basic]["Experiment accession"].unique():
+        is_exp = is_basic & (metaData["Experiment accession"] == exp)
 
         for sample in metaData.loc[is_coord_system & is_released & is_exp][
             "Biological replicate(s)"
