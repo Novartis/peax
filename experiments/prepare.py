@@ -24,7 +24,7 @@ slurm_header = """#!/bin/bash
 #SBATCH --array=0-$num_datasets
 #SBATCH -t 2-00:00
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=haehn@seas.harvard.edu
+#SBATCH --mail-user=lekschas@g.harvard.edu
 #SBATCH -o /n/pfister_lab/lekschas/peax/experiments/logs/prepare-out-%A-%a.txt
 #SBATCH -e /n/pfister_lab/lekschas/peax/experiments/logs/prepare-err-%A-%a.txt
 
@@ -109,6 +109,7 @@ def prepare_dnase(
     assert all(broad_peaks_has_all_chroms), "Broad peaks should have all chromosomes"
 
     print_per_chrom = None
+    pbar = None
 
     # 1. Extract the windows, narrow peaks, and broad peaks per chromosome
     if verbose:
