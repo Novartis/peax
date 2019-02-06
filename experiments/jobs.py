@@ -28,8 +28,8 @@ slurm_header = """#!/bin/bash
 #SBATCH -t 7-12:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=haehn@seas.harvard.edu
-#SBATCH -o /n/pfister_lab/lekschas/peax/experiments/logs/out-$name.txt
-#SBATCH -e /n/pfister_lab/lekschas/peax/experiments/logs/err-$name.txt
+#SBATCH -o /n/pfister_lab/lekschas/peax/experiments/logs/cae-out-$name.txt
+#SBATCH -e /n/pfister_lab/lekschas/peax/experiments/logs/cae-err-$name.txt
 
 # add additional commands needed for Lmod and module loads here
 source new-modules.sh
@@ -41,7 +41,7 @@ slurm_body = Template(
     """
 # add commands for analyses here
 cd /n/pfister_lab/lekschas/peax/experiments/
-python train.py --definition $definition --epochs $epochs --batch_size $batch_size --peak_weight $peak_weight
+python train.py --definition $definition --datasets $datasets --settings $settings --epochs $epochs --batch_size $batch_size --peak_weight $peak_weight
 
 # end of program
 exit 0;
@@ -51,7 +51,8 @@ exit 0;
 
 def jobs(
     search,
-    settings,
+    datasets: str,
+    settings: str,
     epochs: int = 25,
     batch_size: int = 32,
     peak_weight: float = 1,
@@ -144,7 +145,9 @@ def jobs(
         model_name = namify(final_def)
 
         new_slurm_body = slurm_body.substitute(
-            definition="{}.json".format(model_name),
+            definition=os.path.join("slurm", "{}.json".format(model_name)),
+            datasets=datasets,
+            settings=settings,
             epochs=epochs,
             batch_size=batch_size,
             peak_weight=peak_weight,
@@ -177,6 +180,9 @@ if __name__ == "__main__":
         "-n", "--neuralnets", help="path to the neural network search file", default=""
     )
     parser.add_argument(
+        "-d", "--datasets", help="path to the datasets file", default="datasets.json"
+    )
+    parser.add_argument(
         "-s", "--settings", help="path to the settings file", default="settings.json"
     )
     parser.add_argument(
@@ -199,8 +205,15 @@ if __name__ == "__main__":
         sys.exit(2)
 
     try:
+        with open(args.datasets, "r") as f:
+            json.load(f)
+    except FileNotFoundError:
+        print("Please provide a datasets file via `--datasets`")
+        sys.exit(2)
+
+    try:
         with open(args.settings, "r") as f:
-            settings = json.load(f)
+            json.load(f)
     except FileNotFoundError:
         print("Please provide a settings file via `--settings`")
         sys.exit(2)
@@ -208,4 +221,4 @@ if __name__ == "__main__":
     if args.ignore_warns:
         os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
-    jobs(search, settings, clear=args.clear, verbose=args.verbose)
+    jobs(search, args.datasets, args.settings, clear=args.clear, verbose=args.verbose)
