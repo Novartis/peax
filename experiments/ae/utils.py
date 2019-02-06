@@ -12,14 +12,20 @@ limitations under the License.
 """
 
 import bbi
+import h5py
 import math
-import numpy as np
-from keras import backend as K
 import matplotlib.pyplot as plt
+import numpy as np
+import os
+import seaborn as sns
+
+from keras import backend as K
 from matplotlib.cm import copper
 from typing import Tuple
 from tqdm import tqdm, tqdm_notebook
 from keras_tqdm import TQDMCallback, TQDMNotebookCallback
+
+sns.set()
 
 
 def train(
@@ -658,3 +664,66 @@ def get_tqdm(is_keras: bool = False):
             return TQDMCallback
         else:
             return tqdm
+
+
+def plot_total_signal(dataset: str, base: str = "."):
+    """Plot total signal of the train, dev, and test set
+
+    Arguments:
+        dataset {str} -- Name of the dataset
+
+    Keyword Arguments:
+        base {str} -- Path to the base directory (default: {"."})
+    """
+    with h5py.File(os.path.join(base, "data", "{}.h5".format(dataset)), "r") as f:
+        data_train = f["data_train"][:]
+        peaks_train = f["peaks_train"][:]
+        data_dev = f["data_dev"][:]
+        peaks_dev = f["peaks_dev"][:]
+        data_test = f["data_test"][:]
+        peaks_test = f["peaks_test"][:]
+
+        print("Train data shape: {}".format(data_train.shape))
+        print(
+            "Train peaks shape: {} num windows with peaks {} ({:.2f}%)".format(
+                peaks_train.shape,
+                np.sum(peaks_train),
+                np.sum(peaks_train) / peaks_train.shape[0] * 100,
+            )
+        )
+        print("Dev data shape: {}".format(data_dev.shape))
+        print(
+            "Dev peaks shape: {} num windows with peaks {} ({:.2f}%)".format(
+                peaks_dev.shape,
+                np.sum(peaks_dev),
+                np.sum(peaks_dev) / peaks_dev.shape[0] * 100,
+            )
+        )
+        print("Test data shape: {}".format(data_test.shape))
+        print(
+            "Test peaks shape: {} num windows with peaks {} ({:.2f}%)".format(
+                peaks_test.shape,
+                np.sum(peaks_test),
+                np.sum(peaks_test) / peaks_test.shape[0] * 100,
+            )
+        )
+
+        total_signal_train = np.sum(data_train, axis=1)
+        total_signal_dev = np.sum(data_dev, axis=1)
+        total_signal_test = np.sum(data_test, axis=1)
+
+        num_win = data_train.shape[0]
+        num_empty_win = np.sum(total_signal_train == 0)
+
+        print(
+            "{} ({:.2f}%) out of {} windows are empty".format(
+                num_empty_win, num_empty_win / num_win * 100, num_win
+            )
+        )
+
+        fig = plt.figure(figsize=(12, 4))
+        sns.distplot(total_signal_train, bins=np.arange(40), label="Train")
+        sns.distplot(total_signal_dev, bins=np.arange(40), label="Dev")
+        sns.distplot(total_signal_test, bins=np.arange(40), label="Test")
+        plt.xlabel("Total signal per window")
+        fig.legend()
