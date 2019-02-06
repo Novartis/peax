@@ -38,7 +38,7 @@ slurm_body = Template(
 # add commands for analyses here
 cd /n/pfister_lab/haehn/Projects/peax/experiments/
 source activate /n/pfister_lab/haehn/ENVS/peax
-python prepare.py --type $dtype --datasets $datasets --settings $settings --single-dataset-idx $single_dataset_idx
+python prepare.py --type $dtype --datasets $datasets --settings $settings --single-dataset-idx $single_dataset_idx --silent
 
 # end of program
 exit 0;
@@ -59,6 +59,7 @@ def prepare_dnase(
     clear: bool = False,
     print_progress: callable = None,
     verbose: bool = False,
+    silent: bool = False,
 ):
     tqdm = utils.get_tqdm()
 
@@ -111,7 +112,7 @@ def prepare_dnase(
     if verbose:
         print("Extract windows from {}".format(filename_signal), end="", flush=True)
         print_per_chrom = print_progress
-    else:
+    elif not silent:
         pbar = tqdm(
             total=len(chromosomes) * 3,
             leave=False,
@@ -227,6 +228,7 @@ def prepare(
     base: str = ".",
     clear: bool = False,
     verbose: bool = False,
+    silent: bool = False,
 ):
     dtype = dtype.lower()
     supported_dtypes = ["DNase"]
@@ -311,7 +313,9 @@ def prepare(
             return
 
     datasets_iter = (
-        datasets if verbose else tqdm(datasets, desc="Datasets", unit="dataset")
+        datasets
+        if verbose or silent
+        else tqdm(datasets, desc="Datasets", unit="dataset")
     )
 
     for dataset_name in datasets_iter:
@@ -319,7 +323,7 @@ def prepare(
 
         samples_iter = (
             samples
-            if verbose
+            if verbose or silent
             else tqdm(samples, desc="Samples", leave=False, unit="sample")
         )
 
@@ -356,6 +360,7 @@ def prepare(
                         clear=clear,
                         print_progress=print_progress,
                         verbose=verbose,
+                        silent=silent,
                     )
 
                     if prepared_data is not None:
@@ -399,9 +404,6 @@ def prepare_jobs(
     clear: bool = False,
     verbose: bool = False,
 ):
-    # Create slurm directory
-    pathlib.Path(os.path.join(base, "prepare")).mkdir(parents=True, exist_ok=True)
-
     try:
         with open(os.path.join(base, datasets), "r") as f:
             datasets_dict = json.load(f)
@@ -465,6 +467,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "-v", "--verbose", action="store_true", help="turn on verbose logging"
     )
+    parser.add_argument(
+        "-z", "--silent", action="store_true", help="disable all but error logs"
+    )
 
     args = parser.parse_args()
 
@@ -507,4 +512,5 @@ if __name__ == "__main__":
             single_dataset_idx=args.single_dataset_idx,
             clear=args.clear,
             verbose=args.verbose,
+            silent=args.silent,
         )
