@@ -2,10 +2,10 @@ __pycache__
 cache
 data
 results
-prepare
 models
 logs
 slurm
+*.slurm
 /config*.json
 *.db
 *.sublime-project

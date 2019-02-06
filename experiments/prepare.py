@@ -20,11 +20,12 @@ slurm_header = """#!/bin/bash
 #SBATCH -n 1 # Number of cores
 #SBATCH -N 1 # Ensure that all cores are on one machine
 #SBATCH --mem=8000
+#SBATCH --array=0-$num_datasets
 #SBATCH -t 2-00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=haehn@seas.harvard.edu
-#SBATCH -o /n/pfister_lab/lekschas/peax/experiments/logs/prepare-out-$name.txt
-#SBATCH -e /n/pfister_lab/lekschas/peax/experiments/logs/prepare-err-$name.txt
+#SBATCH -o /n/pfister_lab/lekschas/peax/experiments/logs/prepare-out-%A-%a.txt
+#SBATCH -e /n/pfister_lab/lekschas/peax/experiments/logs/prepare-err-%A-%a.txt
 
 # add additional commands needed for Lmod and module loads here
 source new-modules.sh
@@ -36,7 +37,7 @@ slurm_body = Template(
 # add commands for analyses here
 cd /n/pfister_lab/haehn/Projects/peax/experiments/
 source activate /n/pfister_lab/haehn/ENVS/peax
-python prepare.py --type $dtype --datasets $datasets --settings $settings --single-dataset $single_dataset
+python prepare.py --type $dtype --datasets $datasets --settings $settings --single-dataset-idx $single_dataset_idx
 
 # end of program
 exit 0;
@@ -221,6 +222,7 @@ def prepare(
     datasets: dict,
     settings: dict,
     single_dataset: str = None,
+    single_dataset_idx: int = -1,
     base: str = ".",
     clear: bool = False,
     verbose: bool = False,
@@ -294,6 +296,18 @@ def prepare(
             datasets = {single_dataset: datasets[single_dataset]}
         except KeyError:
             print("Dataset not found: {}".format())
+            return
+
+    if single_dataset_idx >= 0:
+        try:
+            # Make sure the dataset names are sorted to avoid any inconsistencies
+            datasets_idx = list(datasets.keys())
+            datasets_idx.sort()
+            single_dataset = datasets_idx[single_dataset_idx]
+            datasets = {single_dataset: datasets[single_dataset]}
+        except IndexError:
+            print("Dataset not found: #{}".format(single_dataset_idx))
+            return
 
     datasets_iter = (
         datasets if verbose else tqdm(datasets, desc="Datasets", unit="dataset")
@@ -384,8 +398,6 @@ def prepare_jobs(
     clear: bool = False,
     verbose: bool = False,
 ):
-    tqdm = utils.get_tqdm()
-
     # Create slurm directory
     pathlib.Path(os.path.join(base, "prepare")).mkdir(parents=True, exist_ok=True)
 
@@ -396,47 +408,24 @@ def prepare_jobs(
         print("Could not find datasets file: {}".format(os.path.join(base, datasets)))
         return
 
-    datasets_iter = (
-        datasets_dict
-        if verbose
-        else tqdm(datasets_dict, desc="Datasets", unit="dataset")
-    )
-
-    skipped = 0
-    for dataset_name in datasets_iter:
-        new_slurm_body = slurm_body.substitute(
-            dtype=dtype,
-            datasets=datasets,
-            settings=settings,
-            single_dataset=dataset_name,
-        )
-        slurm = slurm_header.replace("$name", dataset_name) + new_slurm_body
-
-        slurm_file = os.path.join(base, "prepare", "{}.slurm".format(dataset_name))
-
-        if not pathlib.Path(slurm_file).is_file() or clear:
-            with open(slurm_file, "w") as f:
-                f.write(slurm)
-        else:
-            skipped += 1
-
     num_datasets = len(datasets_dict)
 
-    if skipped > 0:
-        if skipped < num_datasets:
-            print(
-                "Created {} new slurm files for preparing {} datasets".format(
-                    num_datasets - skipped, num_datasets
-                )
-            )
+    new_slurm_body = slurm_body.substitute(
+        dtype=dtype,
+        datasets=datasets,
+        settings=settings,
+        single_dataset_idx="$SLURM_ARRAY_TASK_ID",
+    )
+    slurm = slurm_header.replace("$num_datasets", str(num_datasets)) + new_slurm_body
 
-        print(
-            "Skipped {} jobs as their slurm files already exist. Use `--clear` to overwrite them.".format(
-                skipped
-            )
-        )
+    slurm_file = os.path.join(base, "prepare.slurm")
+
+    if not pathlib.Path(slurm_file).is_file() or clear:
+        with open(slurm_file, "w") as f:
+            f.write(slurm)
+        print("Created slurm file for preparing {} datasets".format(num_datasets))
     else:
-        print("Created slurm files for preparing {} datasets".format(num_datasets))
+        print("Slurm file already exists. Overwrite with `--clear`")
 
 
 if __name__ == "__main__":
@@ -456,6 +445,13 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-i", "--single-dataset", help="name of a specific dataset to prepare"
+    )
+    parser.add_argument(
+        "-x",
+        "--single-dataset-idx",
+        help="index of a specific dataset to prepare",
+        type=int,
+        default=-1,
     )
     parser.add_argument("-j", "--jobs", action="store_true", help="create jobs files")
     parser.add_argument(
@@ -485,6 +481,10 @@ if __name__ == "__main__":
         print("You need to provide a settings file via `--settings`")
         sys.exit(2)
 
+    if args.single_dataset is not None and args.single_dataset_id >= 0:
+        print("Either provide a dataset name or index but not both")
+        sys.exit(2)
+
     if args.jobs:
         prepare_jobs(
             args.type,
@@ -499,6 +499,7 @@ if __name__ == "__main__":
             datasets,
             settings,
             single_dataset=args.single_dataset,
+            single_dataset_idx=args.single_dataset_idx,
             clear=args.clear,
             verbose=args.verbose,
         )
