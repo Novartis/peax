@@ -16,12 +16,11 @@ slurm_header = """#!/bin/bash
 #
 # add all other SBATCH directives here...
 #
-#SBATCH -p holyseasgpu
+#SBATCH -p cox
 #SBATCH -n 1 # Number of cores
 #SBATCH -N 1 # Ensure that all cores are on one machine
-#SBATCH --gres=gpu
-#SBATCH --mem=24000
-#SBATCH -t 7-12:00
+#SBATCH --mem=8000
+#SBATCH -t 2-00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=haehn@seas.harvard.edu
 #SBATCH -o /n/pfister_lab/lekschas/peax/experiments/logs/prepare-out-$name.txt
