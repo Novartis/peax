@@ -60,6 +60,29 @@ def predict(encoder, decoder, test, validator=None):
     return decoded, loss, encoded
 
 
+def evaluate_model(
+    encoder, decoder, data_test, numpy_metrics: list = [], keras_metrics: list = []
+):
+    decoded = decoder.predict(encoder.predict(data_test))
+
+    data_test = data_test.reshape(data_test.shape[0], data_test.shape[1])
+    decoded = decoded.reshape(decoded.shape[0], decoded.shape[1])
+
+    loss = np.zeros((data_test.shape[0], len(numpy_metrics) + len(keras_metrics)))
+
+    i = 0
+
+    for metric in numpy_metrics:
+        loss[:, i] = metric(data_test, decoded)
+        i += 1
+
+    for metric in keras_metrics:
+        loss[:, i] = K.eval(metric(K.variable(data_test), K.variable(decoded)))
+        i += 1
+
+    return loss
+
+
 def predict_2d(encoder, decoder, test, validator=None):
     encoded = encoder.predict(test)
     decoded = decoder.predict(encoded)
