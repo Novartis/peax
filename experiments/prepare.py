@@ -108,6 +108,8 @@ def prepare_dnase(
     assert all(narrow_peaks_has_all_chroms), "Narrow peaks should have all chromosomes"
     assert all(broad_peaks_has_all_chroms), "Broad peaks should have all chromosomes"
 
+    print_per_chrom = None
+
     # 1. Extract the windows, narrow peaks, and broad peaks per chromosome
     if verbose:
         print("Extract windows from {}".format(filename_signal), end="", flush=True)
