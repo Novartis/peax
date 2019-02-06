@@ -135,21 +135,23 @@ if __name__ == "__main__":
         with open(args.definition, "r") as f:
             definition = json.load(f)
     except FileNotFoundError:
-        print("Please provide a neural network definition file via `--definition`")
+        sys.stderr.write(
+            "Please provide a neural network definition file via `--definition`"
+        )
         sys.exit(2)
 
     try:
         with open(args.settings, "r") as f:
             settings = json.load(f)
     except FileNotFoundError:
-        print("Please provide a settings file via `--settings`")
+        sys.stderr.write("Please provide a settings file via `--settings`")
         sys.exit(2)
 
     try:
         with open(args.datasets, "r") as f:
             datasets = json.load(f)
     except FileNotFoundError:
-        print("Please provide a datasets file via `--datasets`")
+        sys.stderr.write("Please provide a datasets file via `--datasets`")
         sys.exit(2)
 
     if args.ignore_warns:
@@ -161,11 +163,12 @@ if __name__ == "__main__":
 
     datasets = list(datasets.keys())
 
-    print(
-        "Train neural networks for {} epochs on {} datasets".format(
-            epochs, len(datasets)
+    if args.verbose:
+        print(
+            "Train neural networks for {} epochs on {} datasets".format(
+                epochs, len(datasets)
+            )
         )
-    )
 
     train(
         definition,

@@ -6,6 +6,7 @@ import json
 import os
 import pathlib
 import sys
+
 from string import Template
 
 from ae import utils
@@ -295,7 +296,7 @@ def prepare(
         try:
             datasets = {single_dataset: datasets[single_dataset]}
         except KeyError:
-            print("Dataset not found: {}".format())
+            sys.stderr.write("Dataset not found: {}".format())
             return
 
     if single_dataset_idx >= 0:
@@ -306,7 +307,7 @@ def prepare(
             single_dataset = datasets_idx[single_dataset_idx]
             datasets = {single_dataset: datasets[single_dataset]}
         except IndexError:
-            print("Dataset not found: #{}".format(single_dataset_idx))
+            sys.stderr.write("Dataset not found: #{}".format(single_dataset_idx))
             return
 
     datasets_iter = (
@@ -327,7 +328,7 @@ def prepare(
             has_all_data_types = set(data_types).issubset(dataset.keys())
 
             if not has_all_data_types:
-                print(
+                sys.stderr.write(
                     "Dataset definition should specify all data types: {}".format(
                         ", ".join(data_types)
                     )
@@ -405,7 +406,9 @@ def prepare_jobs(
         with open(os.path.join(base, datasets), "r") as f:
             datasets_dict = json.load(f)
     except FileNotFoundError:
-        print("Could not find datasets file: {}".format(os.path.join(base, datasets)))
+        sys.stderr.write(
+            "Could not find datasets file: {}".format(os.path.join(base, datasets))
+        )
         return
 
     num_datasets = len(datasets_dict)
@@ -416,7 +419,9 @@ def prepare_jobs(
         settings=settings,
         single_dataset_idx="$SLURM_ARRAY_TASK_ID",
     )
-    slurm = slurm_header.replace("$num_datasets", str(num_datasets)) + new_slurm_body
+    slurm = (
+        slurm_header.replace("$num_datasets", str(num_datasets - 1)) + new_slurm_body
+    )
 
     slurm_file = os.path.join(base, "prepare.slurm")
 
@@ -464,25 +469,25 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.type is None:
-        print("You need to provide the data type via `--type`")
+        sys.stderr.write("You need to provide the data type via `--type`")
         sys.exit(2)
 
     try:
         with open(args.datasets, "r") as f:
             datasets = json.load(f)
     except FileNotFoundError:
-        print("You need to provide a datasets file via `--datasets`")
+        sys.stderr.write("You need to provide a datasets file via `--datasets`")
         sys.exit(2)
 
     try:
         with open(args.settings, "r") as f:
             settings = json.load(f)
     except FileNotFoundError:
-        print("You need to provide a settings file via `--settings`")
+        sys.stderr.write("You need to provide a settings file via `--settings`")
         sys.exit(2)
 
     if args.single_dataset is not None and args.single_dataset_id >= 0:
-        print("Either provide a dataset name or index but not both")
+        sys.stderr.write("Either provide a dataset name or index but not both")
         sys.exit(2)
 
     if args.jobs:
