@@ -35,7 +35,7 @@ module load Anaconda/5.0.1-fasrc01
 slurm_body = Template(
     """
 # add commands for analyses here
-cd /n/pfister_lab/lekschas/peax/experiments/
+cd /n/pfister_lab/haehn/Projects/peax/experiments/
 source activate /n/pfister_lab/haehn/ENVS/peax
 python prepare.py --type $dtype --datasets $datasets --settings $settings --single-dataset $single_dataset
 
@@ -383,14 +383,14 @@ def prepare_jobs(
     tqdm = utils.get_tqdm()
 
     # Create slurm directory
-    pathlib.Path("prepare").mkdir(parents=True, exist_ok=True)
+    pathlib.Path(os.path.join(base, "prepare")).mkdir(parents=True, exist_ok=True)
 
     try:
         with open(os.path.join(base, datasets), "r") as f:
             datasets_dict = json.load(f)
     except FileNotFoundError:
-        print("You need to provide a datasets file via `--datasets`")
-        sys.exit(2)
+        print("Could not find datasets file: {}".format(os.path.join(base, datasets)))
+        return
 
     datasets_iter = (
         datasets_dict
