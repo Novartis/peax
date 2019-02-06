@@ -42,8 +42,7 @@
     "chr20",
     "chr21",
     "chr22",
-    "chrX",
-    "chrY"
+    "chrX"
   ],
   "dev_set_size": 0.075,
   "test_set_size": 0.075,
