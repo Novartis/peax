@@ -737,7 +737,7 @@ def plot_total_signal(dataset: str, base: str = "."):
         fig.legend()
 
 
-def create_hdf5_dset(f, name, data, extendable: bool = False):
+def create_hdf5_dset(f, name, data, extendable: bool = False, dtype: str = None):
     if name in f.keys():
         if extendable:
             f[name].resize((f[name].shape[0] + data.shape[0]), axis=0)
@@ -745,10 +745,10 @@ def create_hdf5_dset(f, name, data, extendable: bool = False):
         else:
             # Overwrite existing dataset
             del f[name]
-            f.create_dataset(name, data=data)
+            f.create_dataset(name, data=data, dtype=data.dtype)
     else:
         if extendable:
             maxshape = (None, *data.shape[1:])
-            f.create_dataset(name, data=data, maxshape=maxshape)
+            f.create_dataset(name, data=data, maxshape=maxshape, dtype=data.dtype)
         else:
-            f.create_dataset(name, data=data)
+            f.create_dataset(name, data=data, dtype=data.dtype)
