@@ -101,51 +101,7 @@ def find(settings: dict, base: str = ".", clear: bool = False, verbose: bool = F
         print("done!")
 
     # 3. Filter data and arrange in tuples
-
-    is_not_extremely_low_read_depth = (
-        metaData["Audit ERROR"].str.contains("extremely low read depth", na=False)
-        == False
-    )
-    is_not_extremely_low_read_length = (
-        metaData["Audit ERROR"].str.contains("extremely low read length", na=False)
-        == False
-    )
-    is_not_extremely_low_spot_score = (
-        metaData["Audit ERROR"].str.contains("extremely low spot score", na=False)
-        == False
-    )
-    is_not_insufficient_low_read_depth = (
-        metaData["Audit ERROR"].str.contains("insufficient low read depth", na=False)
-        == False
-    )
-    is_not_insufficient_low_read_length = (
-        metaData["Audit ERROR"].str.contains("insufficient low read length", na=False)
-        == False
-    )
-    is_not_insufficient_low_spot_score = (
-        metaData["Audit ERROR"].str.contains("insufficient low spot score", na=False)
-        == False
-    )
-    is_not_insufficient_library_complexity = (
-        metaData["Audit ERROR"].str.contains(
-            "insufficient library complexity", na=False
-        )
-        == False
-    )
-    is_not_severe_bottlenecking = (
-        metaData["Audit ERROR"].str.contains("severe bottlenecking", na=False) == False
-    )
-    is_no_error = (
-        is_not_extremely_low_read_depth
-        & is_not_extremely_low_read_length
-        & is_not_extremely_low_spot_score
-        & is_not_insufficient_low_read_depth
-        & is_not_insufficient_low_read_length
-        & is_not_insufficient_low_spot_score
-        & is_not_insufficient_library_complexity
-        & is_not_severe_bottlenecking
-    )
-
+    is_no_error = metaData["Audit ERROR"].isnull()
     is_coord_system = metaData["Assembly"] == coord_system
     is_released = metaData["File Status"] == "released"
     is_assay_type = metaData["Assay"] == assay_type
