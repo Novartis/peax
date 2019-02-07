@@ -1,16 +1,30 @@
 {
-  "ENCSR320PGJ": {
+  "ENCSR962EAP": {
     "1": {
-      "rdn_signal": "ENCFF915OOI",
-      "narrow_peaks": "ENCFF734JDX",
-      "broad_peaks": "ENCFF179DPX"
+      "rdn_signal": "ENCFF689ZKP",
+      "narrow_peaks": "ENCFF751RSW",
+      "broad_peaks": "ENCFF767QIX"
     }
   },
-  "ENCSR354FBA": {
+  "ENCSR502NDK": {
     "1": {
-      "rdn_signal": "ENCFF584DSR",
-      "narrow_peaks": "ENCFF119CRD",
-      "broad_peaks": "ENCFF107BEQ"
+      "rdn_signal": "ENCFF966IYT",
+      "narrow_peaks": "ENCFF522AHF",
+      "broad_peaks": "ENCFF492CKF"
+    }
+  },
+  "ENCSR000EQE": {
+    "1": {
+      "rdn_signal": "ENCFF795TGF",
+      "narrow_peaks": "ENCFF501VQR",
+      "broad_peaks": "ENCFF726NUU"
+    }
+  },
+  "ENCSR000EJI": {
+    "1": {
+      "rdn_signal": "ENCFF714ZSE",
+      "narrow_peaks": "ENCFF573MKX",
+      "broad_peaks": "ENCFF128ASA"
     }
   }
 }
