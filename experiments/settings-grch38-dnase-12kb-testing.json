@@ -24,6 +24,7 @@
   "test_set_size": 0.075,
   "percentile_cutoff": [0, 99.9],
   "rnd_seed": 123,
-  "incl_pctl_total_signal": 25,
-  "incl_pct_no_signal": 5
+  "incl_pctl_total_signal": 50,
+  "incl_pct_no_signal": 5,
+  "peak_ratio": 2
 }
