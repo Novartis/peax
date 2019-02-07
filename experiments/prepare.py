@@ -285,7 +285,7 @@ def prepare(
         try:
             datasets = {single_dataset: datasets[single_dataset]}
         except KeyError:
-            sys.stderr.write("Dataset not found: {}".format())
+            sys.stderr.write("Dataset not found: {}".format(single_dataset))
             return
 
     if single_dataset_idx >= 0:
