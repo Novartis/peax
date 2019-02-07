@@ -183,6 +183,7 @@ def prepare_dnase(
         broad_peaks,
         incl_pctl_total_signal=settings["incl_pctl_total_signal"],
         incl_pct_no_signal=settings["incl_pct_no_signal"],
+        peak_ratio=settings["peak_ratio"],
         verbose=verbose,
     )
     data_filtered = data[selected_windows]

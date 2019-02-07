@@ -450,6 +450,7 @@ def filter_windows_by_peaks(
     broad_peaks: np.ndarray,
     incl_pctl_total_signal: float = 25,
     incl_pct_no_signal: float = 5,
+    peak_ratio: float = 1.0,
     verbose: bool = False,
 ) -> np.ndarray:
     """Filter windows by peak annotations and their total signal
@@ -473,6 +474,8 @@ def filter_windows_by_peaks(
             without a peak annotation is included or filtered out (default: {25})
         incl_pct_no_signal {float} -- percent of empty window that should remain and not
             be filtered out (default: {5})
+        peak_ratio {float} -- ratio of windows having a peak annotation vs windows
+            having no peak annotation (default: {1})
         verbose {bool} -- if ``True`` print some more stuff (default: {False})
 
     Returns:
@@ -513,6 +516,10 @@ def filter_windows_by_peaks(
 
     pct_not_empty = 1 - (incl_pct_no_signal / 100)
 
+    # The total number of windows as a factor of the number of windows with peaks.
+    # number of total windows = number of windows with peaks * total_win_by_peaks
+    total_win_by_peaks = (1 / peak_ratio) + 1
+
     to_be_sampled = np.min(
         [
             # Do not sample more than the complete number of negative but non-empty
@@ -526,7 +533,12 @@ def filter_windows_by_peaks(
                     # is larger than 25-percentile of the total signal of windows with
                     # peaks
                     np.sum(has_peaks) * 0.5,
-                    np.min([2 * np.sum(has_peaks) - np.sum(pos_win), np.sum(~pos_win)]),
+                    np.min(
+                        [
+                            total_win_by_peaks * np.sum(has_peaks) - np.sum(pos_win),
+                            np.sum(~pos_win),
+                        ]
+                    ),
                 ]
             ),
         ]
