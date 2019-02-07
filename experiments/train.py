@@ -11,6 +11,111 @@ import sys
 from ae.cnn import create_model
 from ae.utils import namify, get_tqdm
 
+from keras.utils.io_utils import HDF5Matrix
+
+
+def train_on_merged(
+    definition,
+    settings,
+    epochs: int = 25,
+    batch_size: int = 32,
+    peak_weight: int = 1,
+    base: str = ".",
+    clear: bool = False,
+    silent: bool = False,
+    train_on_hdf5: bool = False,
+):
+    # Create data directory
+    pathlib.Path("models").mkdir(parents=True, exist_ok=True)
+
+    tqdm_keras = get_tqdm(is_keras=True)
+
+    bins_per_window = settings["window_size"] // settings["resolution"]
+
+    model_name = namify(definition)
+    encoder_name = os.path.join(
+        base, "models", "{}---encoder-merged.h5".format(model_name)
+    )
+    decoder_name = os.path.join(
+        base, "models", "{}---decoder-merged.h5".format(model_name)
+    )
+
+    if (
+        pathlib.Path(encoder_name).is_file() or pathlib.Path(decoder_name).is_file()
+    ) and not clear:
+        print("Encoder/decoder already exists. Use `--clear` to overwrite it.")
+        return
+
+    encoder, decoder, autoencoder = create_model(bins_per_window, **definition)
+
+    loss = None
+    val_loss = None
+
+    data_filename = "merged.h5"
+    data_filepath = os.path.join(base, "data", data_filename)
+
+    if not pathlib.Path(data_filepath).is_file():
+        sys.stderr.write("Dataset not found: {}\n".format(data_filepath))
+        sys.exit(2)
+
+    if train_on_hdf5:
+        data_train = HDF5Matrix(data_filepath, "data_train")
+        data_dev = HDF5Matrix(data_filepath, "data_dev")
+        peaks_train = HDF5Matrix(data_filepath, "peaks_train")
+        shuffle = "batch"
+        print(data_train.shape)
+    else:
+        with h5py.File(data_filepath, "r") as f:
+            data_train = f["data_train"][:]
+            data_dev = f["data_dev"][:]
+            peaks_train = f["peaks_train"][:]
+        shuffle = True
+
+    # data_train = data_train.reshape(data_train.shape[0], data_train.shape[1], 1)
+    # data_dev = data_dev.reshape(data_dev.shape[0], data_dev.shape[1], 1)
+
+    no_peak_ratio = (data_train.shape[0] - np.sum(peaks_train)) / np.sum(peaks_train)
+    # There are `no_peak_ratio` times more no peak samples. To equalize the
+    # importance of samples we give samples that contain a peak more weight
+    # but we never downweight peak windows!
+    sample_weight = (peaks_train * np.max((0, no_peak_ratio - 1))) + 1
+
+    if silent:
+        callbacks = []
+    else:
+        callbacks = [tqdm_keras(show_outer=False)]
+
+    history = autoencoder.fit(
+        data_train,
+        data_train,
+        epochs=epochs,
+        batch_size=batch_size,
+        shuffle=shuffle,
+        validation_data=(data_dev, data_dev),
+        sample_weight=sample_weight,
+        verbose=0,
+        callbacks=callbacks,
+    )
+
+    try:
+        loss = history.history["loss"][0]
+        val_loss = history.history["val_loss"][0]
+    except KeyError:
+        pass
+
+    encoder.save(
+        os.path.join(base, "models", "{}---encoder-merged.h5".format(model_name))
+    )
+    decoder.save(
+        os.path.join(base, "models", "{}---decoder-merged.h5".format(model_name))
+    )
+
+    with h5py.File(
+        os.path.join(base, "models", "{}---training-merged.h5".format(model_name)), "w"
+    ) as f:
+        f.create_dataset("loss", data=loss)
+        f.create_dataset("val_loss", data=val_loss)
+
 
 def train(
     settings,
