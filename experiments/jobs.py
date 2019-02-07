@@ -40,7 +40,8 @@ module load Anaconda/5.0.1-fasrc01
 slurm_body = Template(
     """
 # add commands for analyses here
-cd /n/pfister_lab/lekschas/peax/experiments/
+cd /n/pfister_lab/haehn/Projects/peax/experiments/
+source activate /n/pfister_lab/haehn/ENVS/peax
 python train.py \\
   --definitions $definitions \\
   --definition-idx $definition_idx \\
