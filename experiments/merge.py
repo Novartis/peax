@@ -6,7 +6,6 @@ import json
 import numpy as np
 import os
 import pathlib
-import random
 import sys
 
 from ae.utils import create_hdf5_dset
@@ -17,8 +16,8 @@ ds_types = [
     "data_dev",
     "data_test",
     "peaks_train",
-    "data_dev",
-    "data_test",
+    "peaks_dev",
+    "peaks_test",
 ]
 
 
@@ -42,13 +41,26 @@ def merge(
 
             with h5py.File(filepath, "r") as f:
                 for ds_type in ds_types:
-                    data = f[ds_type][:]
-                    create_hdf5_dset(m, ds_type, data, extendable=True, dtype=dtype)
+                    if ds_type in data:
+                        data[ds_type] = np.concatenate(
+                            (data[ds_type], f[ds_type][:]), axis=0
+                        )
+                    else:
+                        data[ds_type] = f[ds_type][:]
 
         for ds_type in ds_types:
+            num_windows = data[ds_type].shape[0]
+            new_shuffling = np.arange(num_windows)
+
             # Shuffle window ids and use the shuffled ids to shuffle the window data and window peaks
-            random.seed(settings["rnd_seed"])
-            random.shuffle(m[ds_type])
+            np.random.seed(settings["rnd_seed"])
+            np.random.shuffle(new_shuffling)
+
+            data[ds_type] = data[ds_type][new_shuffling]
+            create_hdf5_dset(m, ds_type, data[ds_type], dtype=dtype)
+            create_hdf5_dset(
+                m, "{}_shuffling".format(ds_type), new_shuffling, dtype=dtype
+            )
 
         no_peak_ratio = (m["data_train"].shape[0] - np.sum(m["peaks_train"])) / np.sum(
             m["peaks_train"]
