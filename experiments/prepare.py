@@ -281,22 +281,6 @@ def prepare(
     def print_progress():
         print(".", end="", flush=True)
 
-    def create_dataset(f, name, data, extendable: bool = False):
-        if name in f.keys():
-            if extendable:
-                f[name].resize((f[name].shape[0] + data.shape[0]), axis=0)
-                f[name][-data.shape[0] :] = data
-            else:
-                # Overwrite existing dataset
-                del f[name]
-                f.create_dataset(name, data=data)
-        else:
-            if extendable:
-                maxshape = (None, *data.shape[1:])
-                f.create_dataset(name, data=data, maxshape=maxshape)
-            else:
-                f.create_dataset(name, data=data)
-
     if single_dataset is not None:
         try:
             datasets = {single_dataset: datasets[single_dataset]}
@@ -386,14 +370,14 @@ def prepare(
                 if verbose:
                     print("Saving... ", end="", flush=True)
 
-                create_dataset(f, "data_train", data_train, extendable=True)
-                create_dataset(f, "data_dev", data_dev, extendable=True)
-                create_dataset(f, "data_test", data_test, extendable=True)
-                create_dataset(f, "peaks_train", peaks_train, extendable=True)
-                create_dataset(f, "peaks_dev", peaks_dev, extendable=True)
-                create_dataset(f, "peaks_test", peaks_test, extendable=True)
-                create_dataset(f, "shuffling", shuffling, extendable=True)
-                create_dataset(f, "settings", json.dumps(settings))
+                utils.create_hdf5_dset(f, "data_train", data_train, extendable=True)
+                utils.create_hdf5_dset(f, "data_dev", data_dev, extendable=True)
+                utils.create_hdf5_dset(f, "data_test", data_test, extendable=True)
+                utils.create_hdf5_dset(f, "peaks_train", peaks_train, extendable=True)
+                utils.create_hdf5_dset(f, "peaks_dev", peaks_dev, extendable=True)
+                utils.create_hdf5_dset(f, "peaks_test", peaks_test, extendable=True)
+                utils.create_hdf5_dset(f, "shuffling", shuffling, extendable=True)
+                utils.create_hdf5_dset(f, "settings", json.dumps(settings))
 
                 if verbose:
                     print("done!")

@@ -735,3 +735,20 @@ def plot_total_signal(dataset: str, base: str = "."):
         sns.distplot(total_signal_test, bins=np.arange(40), label="Test")
         plt.xlabel("Total signal per window")
         fig.legend()
+
+
+def create_hdf5_dset(f, name, data, extendable: bool = False):
+    if name in f.keys():
+        if extendable:
+            f[name].resize((f[name].shape[0] + data.shape[0]), axis=0)
+            f[name][-data.shape[0] :] = data
+        else:
+            # Overwrite existing dataset
+            del f[name]
+            f.create_dataset(name, data=data)
+    else:
+        if extendable:
+            maxshape = (None, *data.shape[1:])
+            f.create_dataset(name, data=data, maxshape=maxshape)
+        else:
+            f.create_dataset(name, data=data)
