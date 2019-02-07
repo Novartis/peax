@@ -20,28 +20,36 @@ slurm_header = """#!/bin/bash
 #
 # add all other SBATCH directives here...
 #
-#SBATCH -p holyseasgpu
+#SBATCH -p cox
 #SBATCH -n 1 # Number of cores
 #SBATCH -N 1 # Ensure that all cores are on one machine
 #SBATCH --gres=gpu
 #SBATCH --mem=24000
+#SBATCH --array=0-$num_definitions
 #SBATCH -t 7-12:00
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=haehn@seas.harvard.edu
-#SBATCH -o /n/pfister_lab/lekschas/peax/experiments/logs/cae-out-$name.txt
-#SBATCH -e /n/pfister_lab/lekschas/peax/experiments/logs/cae-err-$name.txt
+#SBATCH --mail-user=lekschas@g.harvard.edu
+#SBATCH -o /n/pfister_lab/lekschas/peax/experiments/logs/cae-out-%A-%a.txt
+#SBATCH -e /n/pfister_lab/lekschas/peax/experiments/logs/cae-err-%A-%a.txt
 
 # add additional commands needed for Lmod and module loads here
 source new-modules.sh
 module load Anaconda/5.0.1-fasrc01
-
 """
 
 slurm_body = Template(
     """
 # add commands for analyses here
 cd /n/pfister_lab/lekschas/peax/experiments/
-python train.py --definition $definition --datasets $datasets --settings $settings --epochs $epochs --batch_size $batch_size --peak_weight $peak_weight
+python train.py \\
+  --definitions $definitions \\
+  --definition-idx $definition_idx \\
+  --datasets $datasets \\
+  --settings $settings \\
+  --epochs $epochs \\
+  --batch_size $batch_size \\
+  --peak_weight $peak_weight \\
+  --silent
 
 # end of program
 exit 0;
@@ -64,7 +72,6 @@ def jobs(
 
     # Create models and slurm directory
     pathlib.Path("models").mkdir(parents=True, exist_ok=True)
-    pathlib.Path("slurm").mkdir(parents=True, exist_ok=True)
 
     varying = search["hyperparameters"]["varying"]
     fixed = search["hyperparameters"]["fixed"]
@@ -135,6 +142,8 @@ def jobs(
             "metrics": prelim_def["metrics"],
         }
 
+    model_names = []
+
     for combination in tqdm(combinations, desc="Jobs", unit="job"):
         combined_def = dict({}, **base_def)
 
@@ -143,25 +152,7 @@ def jobs(
 
         final_def = finalize_def(combined_def)
         model_name = namify(final_def)
-
-        new_slurm_body = slurm_body.substitute(
-            definition=os.path.join("slurm", "{}.json".format(model_name)),
-            datasets=datasets,
-            settings=settings,
-            epochs=epochs,
-            batch_size=batch_size,
-            peak_weight=peak_weight,
-        )
-        slurm = slurm_header.replace("$name", model_name) + new_slurm_body
-
-        slurm_file = os.path.join(base, "slurm", "{}.slurm".format(model_name))
-        def_file = os.path.join(base, "slurm", "{}.json".format(model_name))
-
-        if not pathlib.Path(slurm_file).is_file() or clear:
-            with open(slurm_file, "w") as f:
-                f.write(slurm)
-        else:
-            print("Job file already exists. Use `--clear` to overwrite it.")
+        def_file = os.path.join(base, "models", "{}.json".format(model_name))
 
         if not pathlib.Path(def_file).is_file() or clear:
             with open(def_file, "w") as f:
@@ -169,8 +160,33 @@ def jobs(
         else:
             print("Job file already exists. Use `--clear` to overwrite it.")
 
+        model_names.append(model_name)
+
+    definitions_file = os.path.join(base, "definitions.json")
+    with open(definitions_file, "w") as f:
+        json.dump(model_names, f, indent=2)
+
+    new_slurm_body = slurm_body.substitute(
+        datasets=datasets,
+        settings=settings,
+        definitions="definitions.json",
+        definition_idx="$SLURM_ARRAY_TASK_ID",
+        epochs=epochs,
+        batch_size=batch_size,
+        peak_weight=peak_weight,
+    )
+    slurm = (
+        slurm_header.replace("$num_definitions", str(len(model_names) - 1))
+        + new_slurm_body
+    )
+
+    slurm_file = os.path.join(base, "train.slurm")
+
+    with open(slurm_file, "w") as f:
+        f.write(slurm)
+
     print(
-        "Created slurm files for training {} neural networks".format(len(combinations))
+        "Created slurm file for training {} neural networks".format(len(combinations))
     )
 
 

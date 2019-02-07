@@ -4,8 +4,8 @@ data
 results
 models
 logs
-slurm
 *.slurm
+definitions.json
 /config*.json
 *.db
 *.sublime-project
