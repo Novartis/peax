@@ -72,7 +72,7 @@ def jobs(
     tqdm = get_tqdm()
 
     # Create models and slurm directory
-    pathlib.Path("models").mkdir(parents=True, exist_ok=True)
+    pathlib.Path(os.path.join(base, "models")).mkdir(parents=True, exist_ok=True)
 
     varying = search["hyperparameters"]["varying"]
     fixed = search["hyperparameters"]["fixed"]
