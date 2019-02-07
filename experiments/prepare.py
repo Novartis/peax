@@ -38,7 +38,7 @@ slurm_body = Template(
 # add commands for analyses here
 cd /n/pfister_lab/haehn/Projects/peax/experiments/
 source activate /n/pfister_lab/haehn/ENVS/peax
-python prepare.py --type $dtype --datasets $datasets --settings $settings --single-dataset-idx $single_dataset_idx --silent
+python prepare.py --type $dtype --datasets $datasets --settings $settings --single-dataset-idx $single_dataset_idx --silent $clear
 
 # end of program
 exit 0;
@@ -408,6 +408,7 @@ def prepare_jobs(
         datasets=datasets,
         settings=settings,
         single_dataset_idx="$SLURM_ARRAY_TASK_ID",
+        clear="--clear" if clear else "",
     )
     slurm = (
         slurm_header.replace("$num_datasets", str(num_datasets - 1)) + new_slurm_body
@@ -415,12 +416,10 @@ def prepare_jobs(
 
     slurm_file = os.path.join(base, "prepare.slurm")
 
-    if not pathlib.Path(slurm_file).is_file() or clear:
-        with open(slurm_file, "w") as f:
-            f.write(slurm)
-        print("Created slurm file for preparing {} datasets".format(num_datasets))
-    else:
-        print("Slurm file already exists. Overwrite with `--clear`")
+    with open(slurm_file, "w") as f:
+        f.write(slurm)
+
+    print("Created a slurm file for preparing {} datasets".format(num_datasets))
 
 
 if __name__ == "__main__":
