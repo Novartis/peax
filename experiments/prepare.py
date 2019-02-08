@@ -286,7 +286,7 @@ def prepare(
         try:
             datasets = {single_dataset: datasets[single_dataset]}
         except KeyError:
-            sys.stderr.write("Dataset not found: {}".format(single_dataset))
+            sys.stderr.write("Dataset not found: {}\n".format(single_dataset))
             return
 
     if single_dataset_idx >= 0:
@@ -297,7 +297,7 @@ def prepare(
             single_dataset = datasets_idx[single_dataset_idx]
             datasets = {single_dataset: datasets[single_dataset]}
         except IndexError:
-            sys.stderr.write("Dataset not found: #{}".format(single_dataset_idx))
+            sys.stderr.write("Dataset not found: #{}\n".format(single_dataset_idx))
             return
 
     datasets_iter = (
@@ -321,7 +321,7 @@ def prepare(
 
             if not has_all_data_types:
                 sys.stderr.write(
-                    "Dataset definition should specify all data types: {}".format(
+                    "Dataset definition should specify all data types: {}\n".format(
                         ", ".join(data_types)
                     )
                 )
@@ -397,7 +397,7 @@ def prepare_jobs(
             datasets_dict = json.load(f)
     except FileNotFoundError:
         sys.stderr.write(
-            "Could not find datasets file: {}".format(os.path.join(base, datasets))
+            "Could not find datasets file: {}\n".format(os.path.join(base, datasets))
         )
         return
 
@@ -461,25 +461,25 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.type is None:
-        sys.stderr.write("You need to provide the data type via `--type`")
+        sys.stderr.write("You need to provide the data type via `--type`\n")
         sys.exit(2)
 
     try:
         with open(args.datasets, "r") as f:
             datasets = json.load(f)
     except FileNotFoundError:
-        sys.stderr.write("You need to provide a datasets file via `--datasets`")
+        sys.stderr.write("You need to provide a datasets file via `--datasets`\n")
         sys.exit(2)
 
     try:
         with open(args.settings, "r") as f:
             settings = json.load(f)
     except FileNotFoundError:
-        sys.stderr.write("You need to provide a settings file via `--settings`")
+        sys.stderr.write("You need to provide a settings file via `--settings`\n")
         sys.exit(2)
 
     if args.single_dataset is not None and args.single_dataset_idx >= 0:
-        sys.stderr.write("Either provide a dataset name or index but not both")
+        sys.stderr.write("Either provide a dataset name or index but not both\n")
         sys.exit(2)
 
     if args.jobs:
