@@ -25,13 +25,14 @@ def merge(
     datasets: dict,
     settings: dict,
     base: str = ".",
+    name: str = "merged",
     dtype: str = None,
     clear: bool = False,
     verbose: bool = False,
     silent: bool = False,
 ):
     data = {}
-    with h5py.File(os.path.join(base, "data", "merged.h5"), "w") as m:
+    with h5py.File(os.path.join(base, "data", "{}.h5".format(name)), "w") as m:
         for dataset in datasets:
             filepath = os.path.join(base, "data", "{}.h5".format(dataset))
 
