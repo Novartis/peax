@@ -13,6 +13,16 @@ from ae.utils import namify, get_tqdm
 
 from keras.utils.io_utils import HDF5Matrix
 
+# zp = zero point
+# This is the point (total signal) at which we're going to increase the weights for
+# windows. The weight of windows with less signal will simply not be increased
+signal_weightings = {
+    "linear": lambda x, zp: np.max((np.zeros(x.shape), x - zp), axis=0),
+    "log2": lambda x, zp: np.max((np.zeros(x.shape), np.log2(x - zp)), axis=0),
+    "logn": lambda x, zp: np.max((np.zeros(x.shape), np.log(x - zp)), axis=0),
+    "log10": lambda x, zp: np.max((np.zeros(x.shape), np.log10(x - zp)), axis=0),
+}
+
 
 def train_on_merged(
     definition,
@@ -20,7 +30,9 @@ def train_on_merged(
     dataset_name: str = "merged",
     epochs: int = 25,
     batch_size: int = 32,
-    peak_weight: int = 1,
+    peak_weight: float = 1,
+    signal_weighting: str = None,
+    signal_weighting_zero_point_percentage: float = 0.02,
     base: str = ".",
     clear: bool = False,
     silent: bool = False,
@@ -71,14 +83,25 @@ def train_on_merged(
             peaks_train = f["peaks_train"][:]
         shuffle = True
 
-    # data_train = data_train.reshape(data_train.shape[0], data_train.shape[1], 1)
-    # data_dev = data_dev.reshape(data_dev.shape[0], data_dev.shape[1], 1)
+    if signal_weighting in signal_weightings and not train_on_hdf5:
+        zero_point = data_train.shape[1] * signal_weighting_zero_point_percentage - 1
+        signal_weight = signal_weightings[signal_weighting](data_train, zero_point)
 
     no_peak_ratio = (data_train.shape[0] - np.sum(peaks_train)) / np.sum(peaks_train)
     # There are `no_peak_ratio` times more no peak samples. To equalize the
     # importance of samples we give samples that contain a peak more weight
     # but we never downweight peak windows!
-    sample_weight = (peaks_train * np.max((0, no_peak_ratio - 1))) + 1
+    sample_weight = (
+        # Equal weights if there are more windows without peaks (i.e., increase weight
+        # of windows with peaks)
+        (peaks_train * np.max((0, no_peak_ratio - 1)))
+        # Ensure that all windows have a base weight of 1
+        + 1
+        # Additionally adjust the weight of windows with a peak
+        + (peaks_train * peak_weight - peaks_train)
+        # Finally, add signal-dependent weights
+        + signal_weight
+    )
 
     if silent:
         callbacks = []
@@ -285,7 +308,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "-b", "--batch_size", type=int, help="size of a batch", default=32
     )
-    parser.add_argument("-w", "--peak_weight", type=int, help="peak weight", default=1)
+    parser.add_argument("-w", "--peak-weight", type=int, help="peak weight", default=1)
+    parser.add_argument("--signal-weighting", type=str, help="signal weighting")
+    parser.add_argument(
+        "--signal-weighting-zero-point-percentage",
+        type=float,
+        help="signal weighting zero-point percentage",
+        default=0.02,
+    )
     parser.add_argument(
         "-c", "--clear", action="store_true", help="clears previously downloads"
     )
@@ -354,6 +384,8 @@ if __name__ == "__main__":
     batch_size = args.batch_size
     epochs = args.epochs
     peak_weight = args.peak_weight
+    signal_weighting = args.signal_weighting
+    signal_weighting_zero_point_percentage = args.signal_weighting_zero_point_percentage
 
     datasets = list(datasets.keys())
 
@@ -373,6 +405,8 @@ if __name__ == "__main__":
         epochs=epochs,
         batch_size=batch_size,
         peak_weight=peak_weight,
+        signal_weighting=signal_weighting,
+        signal_weighting_zero_point_percentage=signal_weighting_zero_point_percentage,
         clear=args.clear,
         silent=args.silent,
     )
