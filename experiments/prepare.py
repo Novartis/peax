@@ -478,7 +478,7 @@ if __name__ == "__main__":
         sys.stderr.write("You need to provide a settings file via `--settings`")
         sys.exit(2)
 
-    if args.single_dataset is not None and args.single_dataset_id >= 0:
+    if args.single_dataset is not None and args.single_dataset_idx >= 0:
         sys.stderr.write("Either provide a dataset name or index but not both")
         sys.exit(2)
 
