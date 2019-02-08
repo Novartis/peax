@@ -1,6 +1,7 @@
 import numpy as np
 from fastdtw import fastdtw
 from scipy.spatial.distance import euclidean
+from keras import backend as K
 
 
 def dtw_metric(dist: callable = euclidean, radius: int = 1):
@@ -13,3 +14,13 @@ def dtw_metric(dist: callable = euclidean, radius: int = 1):
         return d
 
     return dtw
+
+
+def r2(y_true, y_pred):
+    """R Squared
+
+    R Sqaured lies between negative infinity and 1. 1 is best!
+    """
+    SS_res = K.sum(K.square(y_true - y_pred))
+    SS_tot = K.sum(K.square(y_true - K.mean(y_true)))
+    return 1 - SS_res / (SS_tot + K.epsilon())
