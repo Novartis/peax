@@ -62,9 +62,9 @@ def jobs(
     search,
     datasets: str,
     settings: str,
-    epochs: int = 25,
-    batch_size: int = 32,
-    peak_weight: float = 1,
+    epochs: int = None,
+    batch_size: int = None,
+    peak_weight: float = None,
     base: str = ".",
     clear: bool = False,
     verbose: bool = False,
@@ -76,9 +76,9 @@ def jobs(
 
     varying = search["hyperparameters"]["varying"]
     fixed = search["hyperparameters"]["fixed"]
-    epochs = search["epochs"]
-    batch_size = search["batch_size"]
-    peak_weight = search["peak_weight"]
+    epochs = epochs if epochs is not None else search["epochs"]
+    batch_size = batch_size if batch_size is not None else search["batch_size"]
+    peak_weight = peak_weight if peak_weight is not None else search["peak_weight"]
 
     base_def = dict({}, **fixed)
 
