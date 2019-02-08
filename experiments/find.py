@@ -14,7 +14,13 @@ import time
 from urllib.parse import urlencode
 
 
-def find(settings: dict, base: str = ".", clear: bool = False, verbose: bool = False):
+def find(
+    settings: dict,
+    strict: bool = False,
+    base: str = ".",
+    clear: bool = False,
+    verbose: bool = False,
+):
     timestamp = datetime.datetime.fromtimestamp(time.time()).strftime("%Y-%m-%d")
 
     assay_slims = {
@@ -42,10 +48,11 @@ def find(settings: dict, base: str = ".", clear: bool = False, verbose: bool = F
 
     filename = os.path.join(
         base,
-        "datasets-{}-{}-{}.json".format(
+        "datasets-{}-{}-{}{}.json".format(
             coord_system.lower(),
             abbr[assay_type] if assay_type in abbr else assay_type,
             timestamp,
+            "-strict" if strict else "",
         ),
     )
 
@@ -66,6 +73,32 @@ def find(settings: dict, base: str = ".", clear: bool = False, verbose: bool = F
         "limit": "all",
         "format": "json",
     }
+    biosample_term_names = [
+        # cell lines
+        "K562",
+        "MCF-7",
+        "H9",
+        "GM03348",
+        # primary cell
+        "T-helper 1 cell",
+        "dermis blood vessel endothelial cell",
+        "trophoblast cell",
+        # tissue
+        "heart",
+        "lung",
+        "retina",
+        "kidney",
+        "thyroid gland",
+    ]
+    params_strict = {
+        "award.project": "ENCODE",
+        "biosample_ontology.classification": ["cell+line", "tissue", "primary+cell"],
+        "biosample_ontology.term_name": [
+            term.replace(" ", "+") for term in biosample_term_names
+        ],
+    }
+    if strict:
+        params.update(params_strict)
     param_str = urlencode(params, doseq=True).replace("%2B", "+")
     url = "https://www.encodeproject.org/search/"
     headers = {"Accept": "application/json"}
@@ -102,17 +135,29 @@ def find(settings: dict, base: str = ".", clear: bool = False, verbose: bool = F
 
     # 3. Filter data and arrange in tuples
     is_no_error = metaData["Audit ERROR"].isnull()
+    is_no_warning = metaData["Audit WARNING"].isnull()
+    is_compliant = metaData["Audit NOT_COMPLIANT"].isnull()
     is_coord_system = metaData["Assembly"] == coord_system
     is_released = metaData["File Status"] == "released"
     is_assay_type = metaData["Assay"] == assay_type
 
-    is_basic = is_coord_system & is_released & is_assay_type & is_no_error
+    is_basic = (
+        is_coord_system
+        & is_released
+        & is_assay_type
+        & is_no_error
+        & is_no_warning
+        & is_compliant
+    )
 
     if verbose:
         print(
             "Removed {} experiments due to auditing errors".format(
                 metaData.loc[
-                    is_coord_system & is_released & is_assay_type & ~is_no_error
+                    is_coord_system
+                    & is_released
+                    & is_assay_type
+                    & (~is_no_error | ~is_no_warning | ~is_compliant)
                 ]["Experiment accession"]
                 .unique()
                 .shape[0]
@@ -126,9 +171,20 @@ def find(settings: dict, base: str = ".", clear: bool = False, verbose: bool = F
     datasets = {}
     use_only_one_bio_replicate = True
 
+    if strict:
+        one_of_type = {}
+        for term in biosample_term_names:
+            one_of_type[term] = 0
+        print
+
     k = 0
     for exp in metaData.loc[is_basic]["Experiment accession"].unique():
         is_exp = is_basic & (metaData["Experiment accession"] == exp)
+
+        if strict:
+            biosample_term_name = metaData.loc[is_exp].iloc[0]["Biosample term name"]
+            if one_of_type[biosample_term_name] > 0:
+                continue
 
         for sample in metaData.loc[is_coord_system & is_released & is_exp][
             "Biological replicate(s)"
@@ -151,15 +207,20 @@ def find(settings: dict, base: str = ".", clear: bool = False, verbose: bool = F
                 datasets[exp][sample] = {}
 
                 for data_type in data_types:
-                    datasets[exp][sample][data_type] = data_by_type[data_type].iloc[0][
-                        "File accession"
-                    ]
+                    entry = data_by_type[data_type].iloc[0]
+                    datasets[exp][sample][data_type] = entry["File accession"]
+                    biosample_term_name = entry["Biosample term name"]
 
             except IndexError:
                 k += 1
                 if exp in datasets:
                     # Remove the key in case there exist another replicate which has all data types
                     del datasets[exp]
+
+            if strict:
+                one_of_type[biosample_term_name] += 1
+
+    print(one_of_type)
 
     if verbose:
         dnum = [ds for exp in datasets for ds in datasets[exp]]
@@ -184,10 +245,10 @@ if __name__ == "__main__":
         "-s", "--settings", help="path to the settings file", default="settings.json"
     )
     parser.add_argument(
-        "-c",
-        "--clear",
-        action="store_true",
-        help="clears previously collected datasets",
+        "-x", "--strict", action="store_true", help="search for CNN search data only"
+    )
+    parser.add_argument(
+        "-c", "--clear", action="store_true", help="clear previously found datasets"
     )
     parser.add_argument(
         "-v", "--verbose", action="store_true", help="turn on verbose logging"
@@ -202,4 +263,4 @@ if __name__ == "__main__":
         print("Please provide a settings file via `--settings`")
         sys.exit(2)
 
-    find(settings, clear=args.clear, verbose=args.verbose)
+    find(settings, strict=args.strict, clear=args.clear, verbose=args.verbose)
