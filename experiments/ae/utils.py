@@ -76,24 +76,24 @@ def predict(encoder, decoder, test, validator=None):
 def evaluate_model(
     encoder, decoder, data_test, numpy_metrics: list = [], keras_metrics: list = []
 ):
-    decoded = decoder.predict(encoder.predict(data_test))
+    prediction = decoder.predict(encoder.predict(data_test))
 
     data_test = data_test.reshape(data_test.shape[0], data_test.shape[1])
-    decoded = decoded.reshape(decoded.shape[0], decoded.shape[1])
+    prediction = prediction.reshape(prediction.shape[0], prediction.shape[1])
 
     loss = np.zeros((data_test.shape[0], len(numpy_metrics) + len(keras_metrics)))
 
     i = 0
 
     for metric in numpy_metrics:
-        loss[:, i] = metric(data_test, decoded)
+        loss[:, i] = metric(data_test, prediction)
         i += 1
 
     for metric in keras_metrics:
-        loss[:, i] = K.eval(metric(K.variable(data_test), K.variable(decoded)))
+        loss[:, i] = K.eval(metric(K.variable(data_test), K.variable(prediction)))
         i += 1
 
-    return loss
+    return loss, prediction
 
 
 def predict_2d(encoder, decoder, test, validator=None):
@@ -806,6 +806,9 @@ def plot_windows(
         i = 0
         for c in np.arange(cols):
             for r in np.arange(rows):
+                if i >= num:
+                    break
+
                 primary_color = "green" if sampled_peaks[i] == 1 else "mediumblue"
                 secondary_color = "gray"
                 ground_truth_color = secondary_color if model_name else primary_color
@@ -829,13 +832,18 @@ def plot_windows(
                 axes[r, c].spines["left"].set_color("silver")
                 axes[r, c].tick_params(axis="x", colors=secondary_color)
                 axes[r, c].tick_params(axis="y", colors=secondary_color)
+                axes[r, c].set_ylim(0, 1)
 
                 i += 1
 
         if save_as is not None:
             fig.savefig(os.path.join(base, save_as), bbox_inches="tight")
 
-        return np.arange(data.shape[0])[gt_min_signal & st_max_signal][choices]
+        return (
+            np.arange(data.shape[0])[gt_min_signal & st_max_signal][choices],
+            total_signal[gt_min_signal & st_max_signal][choices],
+            np.max(data, axis=1)[gt_min_signal & st_max_signal][choices],
+        )
 
 
 def create_hdf5_dset(f, name, data, extendable: bool = False, dtype: str = None):
