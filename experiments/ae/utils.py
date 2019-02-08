@@ -30,10 +30,9 @@ stderr = sys.stderr
 sys.stderr = open(os.devnull, "w")
 from keras_tqdm import TQDMCallback, TQDMNotebookCallback
 from keras import backend as K
+from keras.models import load_model
 
 sys.stderr = stderr
-
-sns.set()
 
 
 def train(
@@ -747,6 +746,96 @@ def plot_total_signal(dataset: str, base: str = "."):
         sns.distplot(total_signal_test, bins=np.arange(40), label="Test")
         plt.xlabel("Total signal per window")
         fig.legend()
+
+
+def plot_windows(
+    dataset: str,
+    model_name: str = None,
+    ds_type: str = "train",
+    with_peaks: bool = True,
+    num: int = 10,
+    min_signal: float = 0,
+    max_signal: float = math.inf,
+    base: str = ".",
+    save_as: str = None,
+):
+    with h5py.File(os.path.join(base, "data", "{}.h5".format(dataset)), "r") as f:
+        data_type = "data_{}".format(ds_type)
+        peaks_type = "peaks_{}".format(ds_type)
+
+        if data_type not in f or peaks_type not in f:
+            sys.stderr.write("Dataset type not available: {}\n".format(ds_type))
+            return
+
+        data = np.squeeze(f[data_type][:], axis=2)
+        peaks = f[peaks_type][:]
+
+        total_signal = np.sum(data, axis=1)
+
+        gt_min_signal = total_signal > min_signal
+        st_max_signal = total_signal < max_signal
+
+        num_windows_to_be_sampled = np.sum(gt_min_signal & st_max_signal)
+
+        choices = np.random.choice(num_windows_to_be_sampled, num, replace=False)
+
+        sampled_wins = data[gt_min_signal & st_max_signal][choices]
+        sampled_peaks = peaks[gt_min_signal & st_max_signal][choices]
+
+        if model_name:
+            encoder_filepath = os.path.join(
+                base, "models", "{}---encoder.h5".format(model_name)
+            )
+            decoder_filepath = os.path.join(
+                base, "models", "{}---decoder.h5".format(model_name)
+            )
+            encoder = load_model(encoder_filepath)
+            decoder = load_model(decoder_filepath)
+            sampled_encodings, _, _ = predict(encoder, decoder, sampled_wins)
+
+        cols = max(math.floor(math.sqrt(num) * 3 / 4), 1)
+        rows = math.ceil(num / cols)
+
+        x = np.arange(data.shape[1])
+
+        fig, axes = plt.subplots(
+            rows, cols, figsize=(8 * cols, 1.25 * rows), sharex=True
+        )
+        fig.patch.set_facecolor("white")
+
+        i = 0
+        for c in np.arange(cols):
+            for r in np.arange(rows):
+                primary_color = "green" if sampled_peaks[i] == 1 else "mediumblue"
+                secondary_color = "gray"
+                ground_truth_color = secondary_color if model_name else primary_color
+                prediction_color = primary_color
+
+                axes[r, c].bar(x, sampled_wins[i], width=1.0, color=ground_truth_color)
+                if model_name:
+                    axes[r, c].bar(
+                        x,
+                        sampled_encodings[i],
+                        width=1.0,
+                        color=prediction_color,
+                        alpha=0.5,
+                    )
+                axes[r, c].set_xticks(x[5::10])
+                axes[r, c].set_xticklabels(x[5::10])
+
+                axes[r, c].spines["top"].set_color("silver")
+                axes[r, c].spines["right"].set_color("silver")
+                axes[r, c].spines["bottom"].set_color("silver")
+                axes[r, c].spines["left"].set_color("silver")
+                axes[r, c].tick_params(axis="x", colors=secondary_color)
+                axes[r, c].tick_params(axis="y", colors=secondary_color)
+
+                i += 1
+
+        if save_as is not None:
+            fig.savefig(os.path.join(base, save_as), bbox_inches="tight")
+
+        return np.arange(data.shape[0])[gt_min_signal & st_max_signal][choices]
 
 
 def create_hdf5_dset(f, name, data, extendable: bool = False, dtype: str = None):
