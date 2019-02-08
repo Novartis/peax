@@ -10,7 +10,7 @@ import pathlib
 from keras.metrics import mse, binary_crossentropy
 from keras.models import load_model
 
-from ae.metrics import dtw_metric
+from ae.metrics import dtw_metric, r2
 from ae.utils import get_tqdm, evaluate_model
 
 
@@ -60,7 +60,7 @@ def evaluate(model_name, datasets: dict, base: str = ".", clear: bool = False):
                 encoder,
                 decoder,
                 data_test,
-                numpy_metrics=[dtw],
+                numpy_metrics=[dtw, r2],
                 keras_metrics=[mse, binary_crossentropy],
             )
             total_loss = np.vstack((total_loss, loss))
