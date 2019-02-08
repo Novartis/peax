@@ -73,5 +73,7 @@
   },
   "epochs": 25,
   "batch_size": 1024,
-  "peak_weight": 2
+  "peak_weight": 2,
+  "signal_weighting": "logn",
+  "signal_weighting_zero_point_percentage": 0.02
 }

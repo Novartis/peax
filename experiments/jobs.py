@@ -49,7 +49,9 @@ python train.py \\
   --settings $settings \\
   --epochs $epochs \\
   --batch_size $batch_size \\
-  --peak_weight $peak_weight \\
+  --peak-weight $peak_weight \\
+  --signal-weighting $signal_weighting \\
+  --signal-weighting-zero-point-percentage $signal_weighting_zero_point_percentage \\
   --silent
 
 # end of program
@@ -65,6 +67,8 @@ def jobs(
     epochs: int = None,
     batch_size: int = None,
     peak_weight: float = None,
+    signal_weighting: str = None,
+    signal_weighting_zero_point_percentage: float = None,
     base: str = ".",
     clear: bool = False,
     verbose: bool = False,
@@ -79,6 +83,14 @@ def jobs(
     epochs = epochs if epochs is not None else search["epochs"]
     batch_size = batch_size if batch_size is not None else search["batch_size"]
     peak_weight = peak_weight if peak_weight is not None else search["peak_weight"]
+    signal_weighting = (
+        signal_weighting if signal_weighting is not None else search["signal_weighting"]
+    )
+    signal_weighting_zero_point_percentage = (
+        signal_weighting_zero_point_percentage
+        if signal_weighting_zero_point_percentage is not None
+        else search["signal_weighting_zero_point_percentage"]
+    )
 
     base_def = dict({}, **fixed)
 
@@ -175,6 +187,8 @@ def jobs(
         epochs=epochs,
         batch_size=batch_size,
         peak_weight=peak_weight,
+        signal_weighting=signal_weighting,
+        signal_weighting_zero_point_percentage=signal_weighting_zero_point_percentage,
     )
     slurm = (
         slurm_header.replace("$num_definitions", str(len(model_names) - 1))
