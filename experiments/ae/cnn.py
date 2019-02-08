@@ -42,6 +42,13 @@ from keras.utils import plot_model
 
 sys.stderr = stderr
 
+from ae.loss import (
+    scaled_mean_squared_error,
+    scaled_logcosh,
+    scaled_mean_absolute_error,
+    scaled_huber,
+)
+
 
 def create_model(
     input_dim: int,
@@ -141,6 +148,20 @@ def create_model(
     else:
         print("Unknown optimizer: {}. Using Adam.".format(optimizer))
         opt = optimizers.Adam(lr=learning_rate, decay=learning_rate_decay)
+
+    loss_parts = loss.split("-")
+
+    if loss.startswith("smse") and len(loss_parts) > 1:
+        loss = scaled_mean_squared_error(loss_parts[1])
+
+    if loss.startswith("smae") and len(loss_parts) > 1:
+        loss = scaled_mean_absolute_error(loss_parts[1])
+
+    if loss.startswith("shuber") and len(loss_parts) > 2:
+        loss = scaled_huber(loss_parts[1], loss_parts[2])
+
+    if loss.startswith("slogcosh") and len(loss_parts) > 1:
+        loss = scaled_logcosh(loss_parts[1])
 
     autoencoder.compile(optimizer=opt, loss=loss, metrics=metrics)
 
