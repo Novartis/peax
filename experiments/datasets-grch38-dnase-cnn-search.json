@@ -1,0 +1,86 @@
+{
+  "ENCSR000ENZ": {
+    "1": {
+      "rdn_signal": "ENCFF189TQN",
+      "narrow_peaks": "ENCFF767URD",
+      "broad_peaks": "ENCFF812ZZB"
+    }
+  },
+  "ENCSR121ZSL": {
+    "1": {
+      "rdn_signal": "ENCFF248OBP",
+      "narrow_peaks": "ENCFF855ZAJ",
+      "broad_peaks": "ENCFF150JFJ"
+    }
+  },
+  "ENCSR000EQD": {
+    "1": {
+      "rdn_signal": "ENCFF204BQM",
+      "narrow_peaks": "ENCFF503NRW",
+      "broad_peaks": "ENCFF872BMQ"
+    }
+  },
+  "ENCSR158VAT": {
+    "1": {
+      "rdn_signal": "ENCFF677VKI",
+      "narrow_peaks": "ENCFF096LRV",
+      "broad_peaks": "ENCFF381CAH"
+    }
+  },
+  "ENCSR792ZXA": {
+    "1": {
+      "rdn_signal": "ENCFF419BLQ",
+      "narrow_peaks": "ENCFF859VZX",
+      "broad_peaks": "ENCFF258IDM"
+    }
+  },
+  "ENCSR582IPV": {
+    "2": {
+      "rdn_signal": "ENCFF629AAK",
+      "narrow_peaks": "ENCFF610SBT",
+      "broad_peaks": "ENCFF678DDL"
+    }
+  },
+  "ENCSR621ENC": {
+    "1": {
+      "rdn_signal": "ENCFF113RRS",
+      "narrow_peaks": "ENCFF387JML",
+      "broad_peaks": "ENCFF011TNH"
+    }
+  },
+  "ENCSR921NMD": {
+    "1": {
+      "rdn_signal": "ENCFF971AHO",
+      "narrow_peaks": "ENCFF883JAX",
+      "broad_peaks": "ENCFF523LBZ"
+    }
+  },
+  "ENCSR000EIS": {
+    "1": {
+      "rdn_signal": "ENCFF890OGQ",
+      "narrow_peaks": "ENCFF896VVT",
+      "broad_peaks": "ENCFF713FDC"
+    }
+  },
+  "ENCSR000EPI": {
+    "1": {
+      "rdn_signal": "ENCFF606KFN",
+      "narrow_peaks": "ENCFF418HPA",
+      "broad_peaks": "ENCFF515DLM"
+    }
+  },
+  "ENCSR000EJQ": {
+    "1": {
+      "rdn_signal": "ENCFF082SFS",
+      "narrow_peaks": "ENCFF888RUB",
+      "broad_peaks": "ENCFF465ZOS"
+    }
+  },
+  "ENCSR275ICP": {
+    "1": {
+      "rdn_signal": "ENCFF334GMP",
+      "narrow_peaks": "ENCFF306CKD",
+      "broad_peaks": "ENCFF412AMQ"
+    }
+  }
+}
