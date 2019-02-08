@@ -17,6 +17,7 @@ from keras.utils.io_utils import HDF5Matrix
 def train_on_merged(
     definition,
     settings,
+    dataset_name: str = "merged",
     epochs: int = 25,
     batch_size: int = 32,
     peak_weight: int = 1,
@@ -34,10 +35,10 @@ def train_on_merged(
 
     model_name = namify(definition)
     encoder_name = os.path.join(
-        base, "models", "{}---encoder-merged.h5".format(model_name)
+        base, "models", "{}---encoder-{}.h5".format(model_name, dataset_name)
     )
     decoder_name = os.path.join(
-        base, "models", "{}---decoder-merged.h5".format(model_name)
+        base, "models", "{}---decoder-{}.h5".format(model_name, dataset_name)
     )
 
     if (
@@ -51,7 +52,7 @@ def train_on_merged(
     loss = None
     val_loss = None
 
-    data_filename = "merged.h5"
+    data_filename = "{}.h5".format(dataset_name)
     data_filepath = os.path.join(base, "data", data_filename)
 
     if not pathlib.Path(data_filepath).is_file():
@@ -63,7 +64,6 @@ def train_on_merged(
         data_dev = HDF5Matrix(data_filepath, "data_dev")
         peaks_train = HDF5Matrix(data_filepath, "peaks_train")
         shuffle = "batch"
-        print(data_train.shape)
     else:
         with h5py.File(data_filepath, "r") as f:
             data_train = f["data_train"][:]
@@ -104,14 +104,21 @@ def train_on_merged(
         pass
 
     encoder.save(
-        os.path.join(base, "models", "{}---encoder-merged.h5".format(model_name))
+        os.path.join(
+            base, "models", "{}---encoder-{}.h5".format(model_name, dataset_name)
+        )
     )
     decoder.save(
-        os.path.join(base, "models", "{}---decoder-merged.h5".format(model_name))
+        os.path.join(
+            base, "models", "{}---decoder-{}.h5".format(model_name, dataset_name)
+        )
     )
 
     with h5py.File(
-        os.path.join(base, "models", "{}---training-merged.h5".format(model_name)), "w"
+        os.path.join(
+            base, "models", "{}---training-{}.h5".format(model_name, dataset_name)
+        ),
+        "w",
     ) as f:
         f.create_dataset("loss", data=loss)
         f.create_dataset("val_loss", data=val_loss)
