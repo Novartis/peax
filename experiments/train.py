@@ -390,15 +390,6 @@ if __name__ == "__main__":
         sys.exit(2)
 
     try:
-        with open(args.definitions, "r") as f:
-            definitions = json.load(f)
-    except FileNotFoundError:
-        sys.stderr.write(
-            "Please provide a neural network definitions file via `--definitions`\n"
-        )
-        sys.exit(2)
-
-    try:
         with open(args.settings, "r") as f:
             settings = json.load(f)
     except FileNotFoundError:
@@ -422,15 +413,6 @@ if __name__ == "__main__":
     signal_weighting = args.signal_weighting
     signal_weighting_zero_point_percentage = args.signal_weighting_zero_point_percentage
 
-    datasets = list(datasets.keys())
-
-    if args.verbose:
-        print(
-            "Train neural networks for {} epochs on {} datasets".format(
-                epochs, len(datasets)
-            )
-        )
-
     if args.dataset:
         train_on_single_dataset(
             settings,
@@ -447,6 +429,15 @@ if __name__ == "__main__":
             silent=args.silent,
         )
     else:
+        datasets = list(datasets.keys())
+
+        if args.verbose:
+            print(
+                "Train neural networks for {} epochs on {} datasets".format(
+                    epochs, len(datasets)
+                )
+            )
+
         train(
             settings,
             datasets,
