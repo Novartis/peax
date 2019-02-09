@@ -154,13 +154,13 @@ def create_model(
     if loss.startswith("smse") and len(loss_parts) > 1:
         loss = scaled_mean_squared_error(float(loss_parts[1]))
 
-    if loss.startswith("smae") and len(loss_parts) > 1:
+    elif loss.startswith("smae") and len(loss_parts) > 1:
         loss = scaled_mean_absolute_error(float(loss_parts[1]))
 
-    if loss.startswith("shuber") and len(loss_parts) > 2:
+    elif loss.startswith("shuber") and len(loss_parts) > 2:
         loss = scaled_huber(float(loss_parts[1]), float(loss_parts[2]))
 
-    if loss.startswith("slogcosh") and len(loss_parts) > 1:
+    elif loss.startswith("slogcosh") and len(loss_parts) > 1:
         loss = scaled_logcosh(float(loss_parts[1]))
 
     autoencoder.compile(optimizer=opt, loss=loss, metrics=metrics)
