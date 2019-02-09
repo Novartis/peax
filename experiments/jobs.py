@@ -191,8 +191,6 @@ def jobs(
         )
         sys.exit(2)
 
-    print(datasets_arg)
-
     new_slurm_body = slurm_body.substitute(
         datasets=datasets_arg,
         settings=settings,
