@@ -220,8 +220,6 @@ def find(
             if strict:
                 one_of_type[biosample_term_name] += 1
 
-    print(one_of_type)
-
     if verbose:
         dnum = [ds for exp in datasets for ds in datasets[exp]]
         print(
