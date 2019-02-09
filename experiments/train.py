@@ -24,10 +24,45 @@ signal_weightings = {
 }
 
 
-def train_on_merged(
-    definition,
-    settings,
-    dataset_name: str = "merged",
+def get_definition(
+    definition: dict = None,
+    definitions: list = None,
+    definition_idx: int = -1,
+    base: str = ".",
+) -> dict:
+    if definition is not None:
+        pass
+    elif definitions is not None and definition_idx >= 0:
+        try:
+            definition_name = definitions[definition_idx]
+        except IndexError:
+            sys.stderr.write("Definition not available: #{}\n".format(definition_idx))
+            sys.exit(2)
+
+        try:
+            definition_filepath = os.path.join(
+                base, "models", "{}.json".format(definition_name)
+            )
+            with open(definition_filepath, "r") as f:
+                definition = json.load(f)
+        except FileNotFoundError:
+            sys.stderr.write("Definition not found: {}\n".format(definition_filepath))
+            sys.exit(2)
+    else:
+        sys.stderr.write(
+            "Either provide a definition or a list of definitions together with a definition index\n"
+        )
+        sys.exit(2)
+
+    return definition
+
+
+def train_on_single_dataset(
+    settings: dict,
+    dataset: str,
+    definition: dict = None,
+    definitions: list = None,
+    definition_idx: int = -1,
     epochs: int = 25,
     batch_size: int = 32,
     peak_weight: float = 1,
@@ -45,12 +80,14 @@ def train_on_merged(
 
     bins_per_window = settings["window_size"] // settings["resolution"]
 
+    definition = get_definition(definition, definitions, definition_idx, base)
+
     model_name = namify(definition)
     encoder_name = os.path.join(
-        base, "models", "{}---encoder-{}.h5".format(model_name, dataset_name)
+        base, "models", "{}---encoder-{}.h5".format(model_name, dataset)
     )
     decoder_name = os.path.join(
-        base, "models", "{}---decoder-{}.h5".format(model_name, dataset_name)
+        base, "models", "{}---decoder-{}.h5".format(model_name, dataset)
     )
 
     if (
@@ -64,7 +101,7 @@ def train_on_merged(
     loss = None
     val_loss = None
 
-    data_filename = "{}.h5".format(dataset_name)
+    data_filename = "{}.h5".format(dataset)
     data_filepath = os.path.join(base, "data", data_filename)
 
     if not pathlib.Path(data_filepath).is_file():
@@ -128,20 +165,14 @@ def train_on_merged(
         pass
 
     encoder.save(
-        os.path.join(
-            base, "models", "{}---encoder-{}.h5".format(model_name, dataset_name)
-        )
+        os.path.join(base, "models", "{}---encoder-{}.h5".format(model_name, dataset))
     )
     decoder.save(
-        os.path.join(
-            base, "models", "{}---decoder-{}.h5".format(model_name, dataset_name)
-        )
+        os.path.join(base, "models", "{}---decoder-{}.h5".format(model_name, dataset))
     )
 
     with h5py.File(
-        os.path.join(
-            base, "models", "{}---training-{}.h5".format(model_name, dataset_name)
-        ),
+        os.path.join(base, "models", "{}---training-{}.h5".format(model_name, dataset)),
         "w",
     ) as f:
         f.create_dataset("loss", data=loss)
@@ -149,8 +180,8 @@ def train_on_merged(
 
 
 def train(
-    settings,
-    datasets,
+    settings: dict,
+    datasets: dict,
     definition: dict = None,
     definitions: list = None,
     definition_idx: int = -1,
@@ -171,29 +202,7 @@ def train(
 
     bins_per_window = settings["window_size"] // settings["resolution"]
 
-    if definition is not None:
-        pass
-    elif definitions is not None and definition_idx >= 0:
-        try:
-            definition_name = definitions[definition_idx]
-        except IndexError:
-            sys.stderr.write("Definition not available: #{}\n".format(definition_idx))
-            sys.exit(2)
-
-        try:
-            definition_filepath = os.path.join(
-                base, "models", "{}.json".format(definition_name)
-            )
-            with open(definition_filepath, "r") as f:
-                definition = json.load(f)
-        except FileNotFoundError:
-            sys.stderr.write("Definition not found: {}\n".format(definition_filepath))
-            sys.exit(2)
-    else:
-        sys.stderr.write(
-            "Either provide a definition or a list of definitions together with a definition index\n"
-        )
-        sys.exit(2)
+    definition = get_definition(definition, definitions, definition_idx, base)
 
     model_name = namify(definition)
     encoder_name = os.path.join(base, "models", "{}---encoder.h5".format(model_name))
@@ -314,7 +323,7 @@ if __name__ == "__main__":
         "-d", "--datasets", help="path to datasets file", default="datasets.json"
     )
     parser.add_argument(
-        "-o", "--datasets", help="path to datasets file", default="datasets.json"
+        "-o", "--dataset", help="path to a single dataset file", type=str
     )
     parser.add_argument(
         "-s", "--settings", help="path to settings file", default="settings.json"
@@ -396,12 +405,13 @@ if __name__ == "__main__":
         sys.stderr.write("Please provide a settings file via `--settings`\n")
         sys.exit(2)
 
-    try:
-        with open(args.datasets, "r") as f:
-            datasets = json.load(f)
-    except FileNotFoundError:
-        sys.stderr.write("Please provide a datasets file via `--datasets`\n")
-        sys.exit(2)
+    if args.dataset is None:
+        try:
+            with open(args.datasets, "r") as f:
+                datasets = json.load(f)
+        except FileNotFoundError:
+            sys.stderr.write("Please provide a datasets file via `--datasets`\n")
+            sys.exit(2)
 
     if args.silent:
         os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -421,17 +431,33 @@ if __name__ == "__main__":
             )
         )
 
-    train(
-        settings,
-        datasets,
-        definition=definition,
-        definitions=definitions,
-        definition_idx=args.definition_idx,
-        epochs=epochs,
-        batch_size=batch_size,
-        peak_weight=peak_weight,
-        signal_weighting=signal_weighting,
-        signal_weighting_zero_point_percentage=signal_weighting_zero_point_percentage,
-        clear=args.clear,
-        silent=args.silent,
-    )
+    if args.dataset:
+        train_on_single_dataset(
+            settings,
+            args.dataset,
+            definition=definition,
+            definitions=definitions,
+            definition_idx=args.definition_idx,
+            epochs=epochs,
+            batch_size=batch_size,
+            peak_weight=peak_weight,
+            signal_weighting=signal_weighting,
+            signal_weighting_zero_point_percentage=signal_weighting_zero_point_percentage,
+            clear=args.clear,
+            silent=args.silent,
+        )
+    else:
+        train(
+            settings,
+            datasets,
+            definition=definition,
+            definitions=definitions,
+            definition_idx=args.definition_idx,
+            epochs=epochs,
+            batch_size=batch_size,
+            peak_weight=peak_weight,
+            signal_weighting=signal_weighting,
+            signal_weighting_zero_point_percentage=signal_weighting_zero_point_percentage,
+            clear=args.clear,
+            silent=args.silent,
+        )
