@@ -17,10 +17,10 @@ from keras.utils.io_utils import HDF5Matrix
 # This is the point (total signal) at which we're going to increase the weights for
 # windows. The weight of windows with less signal will simply not be increased
 signal_weightings = {
-    "linear": lambda x, zp: np.max((np.zeros(x.shape), x - zp), axis=0),
-    "log2": lambda x, zp: np.max((np.zeros(x.shape), np.log2(x - zp)), axis=0),
-    "logn": lambda x, zp: np.max((np.zeros(x.shape), np.log(x - zp)), axis=0),
-    "log10": lambda x, zp: np.max((np.zeros(x.shape), np.log10(x - zp)), axis=0),
+    "linear": lambda x, zp: (x - zp).clip(min=0),
+    "log2": lambda x, zp: np.log2((x - zp).clip(min=1)),
+    "logn": lambda x, zp: np.log((x - zp).clip(min=1)),
+    "log10": lambda x, zp: np.log10((x - zp).clip(min=1)),
 }
 
 
@@ -85,7 +85,8 @@ def train_on_merged(
 
     if signal_weighting in signal_weightings and not train_on_hdf5:
         zero_point = data_train.shape[1] * signal_weighting_zero_point_percentage - 1
-        signal_weight = signal_weightings[signal_weighting](data_train, zero_point)
+        total_signal = np.sum(data_train, axis=1).squeeze()
+        signal_weight = signal_weightings[signal_weighting](total_signal, zero_point)
 
     no_peak_ratio = (data_train.shape[0] - np.sum(peaks_train)) / np.sum(peaks_train)
     # There are `no_peak_ratio` times more no peak samples. To equalize the
