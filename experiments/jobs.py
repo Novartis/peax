@@ -45,7 +45,7 @@ source activate /n/pfister_lab/haehn/ENVS/peax
 python train.py \\
   --definitions $definitions \\
   --definition-idx $definition_idx \\
-  --datasets $datasets \\
+  $datasets \\
   --settings $settings \\
   --epochs $epochs \\
   --batch_size $batch_size \\
@@ -62,8 +62,9 @@ exit 0;
 
 def jobs(
     search,
-    datasets: str,
     settings: str,
+    datasets: str = None,
+    dataset: str = None,
     epochs: int = None,
     batch_size: int = None,
     peak_weight: float = None,
@@ -179,8 +180,21 @@ def jobs(
     with open(definitions_file, "w") as f:
         json.dump(model_names, f, indent=2)
 
+    datasets_arg = ""
+    if datasets is not None:
+        datasets_arg = "--datasets {}".format(datasets)
+    elif dataset is not None:
+        datasets_arg = "--dataset {}".format(dataset)
+    else:
+        sys.stderr.write(
+            "Provide either a path to multiple datasets or to a single dataset\n"
+        )
+        sys.exit(2)
+
+    print(datasets_arg)
+
     new_slurm_body = slurm_body.substitute(
-        datasets=datasets,
+        datasets=datasets_arg,
         settings=settings,
         definitions="definitions.json",
         definition_idx="$SLURM_ARRAY_TASK_ID",
@@ -232,21 +246,23 @@ if __name__ == "__main__":
         with open(args.neuralnets, "r") as f:
             search = json.load(f)
     except FileNotFoundError:
-        print("Please provide a neural network search file via `--neuralnets`")
+        sys.stderr.write(
+            "Please provide a neural network search file via `--neuralnets`\n"
+        )
         sys.exit(2)
 
     try:
         with open(args.datasets, "r") as f:
             json.load(f)
     except FileNotFoundError:
-        print("Please provide a datasets file via `--datasets`")
+        sys.stderr.write("Please provide a datasets file via `--datasets`\n")
         sys.exit(2)
 
     try:
         with open(args.settings, "r") as f:
             json.load(f)
     except FileNotFoundError:
-        print("Please provide a settings file via `--settings`")
+        sys.stderr.write("Please provide a settings file via `--settings`\n")
         sys.exit(2)
 
     if args.ignore_warns:
