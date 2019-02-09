@@ -155,8 +155,10 @@ def train(
     definitions: list = None,
     definition_idx: int = -1,
     epochs: int = 25,
-    batch_size: int = 32,
-    peak_weight: int = 1,
+    batch_size: int = 512,
+    peak_weight: float = 1,
+    signal_weighting: str = None,
+    signal_weighting_zero_point_percentage: float = 0.02,
     base: str = ".",
     clear: bool = False,
     silent: bool = False,
@@ -241,13 +243,32 @@ def train(
                 data_dev = data_dev.reshape(data_dev.shape[0], data_dev.shape[1], 1)
                 peaks_train = f["peaks_train"][:]
 
+                if signal_weighting in signal_weightings:
+                    zero_point = (
+                        data_train.shape[1] * signal_weighting_zero_point_percentage - 1
+                    )
+                    total_signal = np.sum(data_train, axis=1).squeeze()
+                    signal_weight = signal_weightings[signal_weighting](
+                        total_signal, zero_point
+                    )
+
                 no_peak_ratio = (data_train.shape[0] - np.sum(peaks_train)) / np.sum(
                     peaks_train
                 )
                 # There are `no_peak_ratio` times more no peak samples. To equalize the
                 # importance of samples we give samples that contain a peak more weight
                 # but we never downweight peak windows!
-                sample_weight = (peaks_train * np.max((0, no_peak_ratio - 1))) + 1
+                sample_weight = (
+                    # Equal weights if there are more windows without peaks (i.e., increase weight
+                    # of windows with peaks)
+                    (peaks_train * np.max((0, no_peak_ratio - 1)))
+                    # Ensure that all windows have a base weight of 1
+                    + 1
+                    # Additionally adjust the weight of windows with a peak
+                    + (peaks_train * peak_weight - peaks_train)
+                    # Finally, add signal-dependent weights
+                    + signal_weight
+                )
 
                 if silent:
                     callbacks = []
@@ -291,6 +312,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-d", "--datasets", help="path to datasets file", default="datasets.json"
+    )
+    parser.add_argument(
+        "-o", "--datasets", help="path to datasets file", default="datasets.json"
     )
     parser.add_argument(
         "-s", "--settings", help="path to settings file", default="settings.json"
