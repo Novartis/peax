@@ -11,12 +11,24 @@ import pathlib
 import seaborn as sns
 import sys
 
+import tensorflow as tf
+
 # Stupid Keras things is a smart way to always print. See:
 # https://github.com/keras-team/keras/issues/1406
 stderr = sys.stderr
 sys.stderr = open(os.devnull, "w")
 from keras.metrics import mse, mae, binary_crossentropy
 from keras.models import load_model
+from keras.backend.tensorflow_backend import set_session
+
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
+config.log_device_placement = (
+    True
+)  # to log device placement (on which device the operation ran)
+# (nothing gets printed in Jupyter, only if you run it standalone)
+sess = tf.Session(config=config)
+set_session(sess)  # set this TensorFlow session as the default session for Keras
 
 sys.stderr = stderr
 
