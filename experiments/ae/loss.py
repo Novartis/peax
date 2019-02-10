@@ -11,7 +11,7 @@ from tensorflow.losses import huber_loss
 sys.stderr = stderr
 
 
-def scaled_mean_squared_error(scale: float = 1):
+def scaled_mean_squared_error(scale: float = 1.0):
     """Scaled mean squared error
 
     Scaling is applied to the absolute error before squaring the data
@@ -29,7 +29,7 @@ def scaled_mean_squared_error(scale: float = 1):
     return mean_squared_error
 
 
-def scaled_mean_absolute_error(scale: float = 1):
+def scaled_mean_absolute_error(scale: float = 1.0):
     """Scaled mean absolute error
 
     Scaling is applied to the absolute error before taking the absolute the data
@@ -47,7 +47,7 @@ def scaled_mean_absolute_error(scale: float = 1):
     return mean_absolute_error
 
 
-def scaled_logcosh(scale: float = 1):
+def scaled_logcosh(scale: float = 1.0):
     """Scale logcosh loss
 
     Scaling is applied to the absolute error before logcoshing the data
@@ -68,7 +68,7 @@ def scaled_logcosh(scale: float = 1):
     return logcosh
 
 
-def scaled_huber(scale: float = 1, delta: float = 1):
+def scaled_huber(scale: float = 1.0, delta: float = 1.0):
     """Scaled Huber loss
 
     Scaling is applied to the absolute error before hubering the data
@@ -82,6 +82,6 @@ def scaled_huber(scale: float = 1, delta: float = 1):
     """
 
     def huber(y_true, y_pred):
-        return K.mean(huber_loss((y_pred - y_true) * scale, delta=delta), axis=-1)
+        return K.mean(huber_loss(y_true * scale, y_pred * scale, delta=delta), axis=-1)
 
     return huber
