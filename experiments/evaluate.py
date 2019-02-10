@@ -3,6 +3,7 @@
 import argparse
 import h5py
 import json
+import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pandas as pd
@@ -80,10 +81,12 @@ def evaluate(
     keras_metrics = {
         "mse": mse,
         "smse-2": scaled_mean_squared_error(2.0),
-        "smse-3": scaled_mean_squared_error(2.0),
+        "smse-3": scaled_mean_squared_error(3.0),
+        "smse-5": scaled_mean_squared_error(5.0),
+        "smse-10": scaled_mean_squared_error(10.0),
         "r2": r2,
-        "shuber-5-5": scaled_huber(5.0, 5.0),
-        "slogcosh-5": scaled_logcosh(5.0),
+        "shuber-10-5": scaled_huber(10.0, 5.0),
+        "slogcosh-10": scaled_logcosh(10.0),
         "mae": mae,
         "bce": binary_crossentropy,
     }
@@ -92,7 +95,7 @@ def evaluate(
     if incl_dtw:
         numpy_metrics["dtw"] = dtw
 
-    total_loss = np.zeros((num_datasets, len(keras_metrics) + len(numpy_metrics)))
+    total_loss = None
 
     datasets_iter = (
         datasets if silent else tqdm(datasets, desc="Datasets", unit="dataset")
@@ -109,7 +112,6 @@ def evaluate(
 
         with h5py.File(data_filepath, "r") as f:
             data_test = f["data_test"][:]
-            data_test = data_test.reshape(data_test.shape[0], data_test.shape[1], 1)
 
             loss, _ = evaluate_model(
                 encoder,
@@ -118,9 +120,10 @@ def evaluate(
                 keras_metrics=list(keras_metrics.values()),
                 numpy_metrics=list(numpy_metrics.values()),
             )
-            total_loss = np.vstack((total_loss, loss))
-
-            total_loss
+            if total_loss is None:
+                total_loss = loss
+            else:
+                total_loss = np.vstack((total_loss, loss))
 
     # Only plot windows for the first dataset
     window_idx, total_signal, max_signal = plot_windows(
@@ -137,12 +140,12 @@ def evaluate(
     # Plot and save an overview of the total losses
     sns.set(style="whitegrid")
 
-    df = pd.DataFrame(total_loss)
+    df = pd.DataFrame(np.mean(total_loss, axis=0).reshape(1, total_loss.shape[1]))
     df.columns = list(keras_metrics.keys()) + list(numpy_metrics.keys())
 
+    fig, _ = plt.subplots(figsize=(1.25 * total_loss.shape[1], 8))
     plot = sns.barplot(data=df)
     plot.set(xlabel="Metrics", ylabel="Total loss")
-    fig = plot.get_figure()
     fig.savefig(total_loss_plot_filepath, bbox_inches="tight")
 
     with h5py.File(evaluation_filepath, "w") as f:
@@ -150,6 +153,8 @@ def evaluate(
         f.create_dataset("plotted_window_indices", data=window_idx)
         f.create_dataset("plotted_window_total_signal", data=total_signal)
         f.create_dataset("plotted_window_max_signal", data=max_signal)
+
+    return total_loss
 
 
 if __name__ == "__main__":
