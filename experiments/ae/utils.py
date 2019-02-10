@@ -759,7 +759,7 @@ def plot_windows(
     base: str = ".",
     save_as: str = None,
     trained_on_single_dataset: bool = False,
-):
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     with h5py.File(os.path.join(base, "data", "{}.h5".format(dataset)), "r") as f:
         data_type = "data_{}".format(ds_type)
         peaks_type = "peaks_{}".format(ds_type)
@@ -853,8 +853,11 @@ def plot_windows(
             fig.savefig(os.path.join(base, save_as), bbox_inches="tight")
 
         return (
+            # Window indices
             np.arange(data.shape[0])[gt_min_signal & st_max_signal][choices],
+            # Total signal of the windows
             total_signal[gt_min_signal & st_max_signal][choices],
+            # Max signal in the window
             np.max(data, axis=1)[gt_min_signal & st_max_signal][choices],
         )
 
