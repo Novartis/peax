@@ -58,7 +58,7 @@ def train(
 
 
 def predict(encoder, decoder, test, validator=None):
-    encoded = encoder.predict(test)
+    encoded = encoder.predict(test.reshape(test.shape[0], test.shape[1], 1))
     decoded = decoder.predict(encoded)
 
     loss = None
@@ -758,6 +758,7 @@ def plot_windows(
     max_signal: float = math.inf,
     base: str = ".",
     save_as: str = None,
+    trained_on_single_dataset: bool = False,
 ):
     with h5py.File(os.path.join(base, "data", "{}.h5".format(dataset)), "r") as f:
         data_type = "data_{}".format(ds_type)
@@ -783,15 +784,17 @@ def plot_windows(
         sampled_peaks = peaks[gt_min_signal & st_max_signal][choices]
 
         if model_name:
+            postfix = "-{}".format(dataset) if trained_on_single_dataset else ""
             encoder_filepath = os.path.join(
-                base, "models", "{}---encoder.h5".format(model_name)
+                base, "models", "{}---encoder{}.h5".format(model_name, postfix)
             )
             decoder_filepath = os.path.join(
-                base, "models", "{}---decoder.h5".format(model_name)
+                base, "models", "{}---decoder{}.h5".format(model_name, postfix)
             )
             encoder = load_model(encoder_filepath)
             decoder = load_model(decoder_filepath)
             sampled_encodings, _, _ = predict(encoder, decoder, sampled_wins)
+            sampled_encodings = sampled_encodings.squeeze(axis=2)
 
         cols = max(math.floor(math.sqrt(num) * 3 / 4), 1)
         rows = math.ceil(num / cols)
@@ -802,6 +805,14 @@ def plot_windows(
             rows, cols, figsize=(8 * cols, 1.25 * rows), sharex=True
         )
         fig.patch.set_facecolor("white")
+
+        from matplotlib.patches import Patch
+
+        legend_elements = [
+            Patch(facecolor="gray", label="Ground truth"),
+            Patch(facecolor="mediumblue", label="Prediction"),
+            Patch(facecolor="green", label="Prediction (w/ peak annotation)"),
+        ]
 
         i = 0
         for c in np.arange(cols):
@@ -829,12 +840,14 @@ def plot_windows(
                 axes[r, c].spines["top"].set_color("silver")
                 axes[r, c].spines["right"].set_color("silver")
                 axes[r, c].spines["bottom"].set_color("silver")
-                axes[r, c].spines["left"].set_color("silver")
+                axes[r, c].spines["left"].set_color(primary_color)
+                axes[r, c].spines["left"].set_linewidth(4)
                 axes[r, c].tick_params(axis="x", colors=secondary_color)
                 axes[r, c].tick_params(axis="y", colors=secondary_color)
                 axes[r, c].set_ylim(0, 1)
-
                 i += 1
+
+        fig.legend(handles=legend_elements)
 
         if save_as is not None:
             fig.savefig(os.path.join(base, save_as), bbox_inches="tight")
