@@ -159,8 +159,8 @@ def train_on_single_dataset(
     )
 
     try:
-        loss = history.history["loss"][0]
-        val_loss = history.history["val_loss"][0]
+        loss = history.history["loss"]
+        val_loss = history.history["val_loss"]
     except KeyError:
         pass
 
