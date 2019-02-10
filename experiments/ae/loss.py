@@ -82,6 +82,6 @@ def scaled_huber(scale: float = 1.0, delta: float = 1.0):
     """
 
     def huber(y_true, y_pred):
-        return K.mean(huber_loss(y_true * scale, y_pred * scale, delta=delta), axis=-1)
+        return huber_loss(y_true * scale, y_pred * scale, delta=delta)
 
     return huber
