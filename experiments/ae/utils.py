@@ -74,7 +74,7 @@ def predict(encoder, decoder, test, validator=None):
 
 
 def evaluate_model(
-    encoder, decoder, data_test, numpy_metrics: list = [], keras_metrics: list = []
+    encoder, decoder, data_test, keras_metrics: list = [], numpy_metrics: list = []
 ):
     prediction = decoder.predict(encoder.predict(data_test))
 
@@ -85,12 +85,12 @@ def evaluate_model(
 
     i = 0
 
-    for metric in numpy_metrics:
-        loss[:, i] = metric(data_test, prediction)
-        i += 1
-
     for metric in keras_metrics:
         loss[:, i] = K.eval(metric(K.variable(data_test), K.variable(prediction)))
+        i += 1
+
+    for metric in numpy_metrics:
+        loss[:, i] = metric(data_test, prediction)
         i += 1
 
     return loss, prediction
@@ -796,7 +796,7 @@ def plot_windows(
             sampled_encodings, _, _ = predict(encoder, decoder, sampled_wins)
             sampled_encodings = sampled_encodings.squeeze(axis=2)
 
-        cols = max(math.floor(math.sqrt(num) * 3 / 4), 1)
+        cols = max(math.floor(math.sqrt(num) * 3 / 5), 1)
         rows = math.ceil(num / cols)
 
         x = np.arange(data.shape[1])
@@ -847,7 +847,7 @@ def plot_windows(
                 axes[r, c].set_ylim(0, 1)
                 i += 1
 
-        fig.legend(handles=legend_elements)
+        fig.legend(handles=legend_elements, loc="lower center")
 
         if save_as is not None:
             fig.savefig(os.path.join(base, save_as), bbox_inches="tight")
