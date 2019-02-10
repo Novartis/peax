@@ -76,10 +76,12 @@ def predict(encoder, decoder, test, validator=None):
 def evaluate_model(
     encoder, decoder, data_test, keras_metrics: list = [], numpy_metrics: list = []
 ):
-    prediction = decoder.predict(encoder.predict(data_test))
+    prediction = decoder.predict(
+        encoder.predict(data_test.reshape(data_test.shape[0], data_test.shape[1], 1))
+    )
 
-    data_test = data_test.reshape(data_test.shape[0], data_test.shape[1])
-    prediction = prediction.reshape(prediction.shape[0], prediction.shape[1])
+    data_test = data_test.squeeze(axis=2)
+    prediction = prediction.squeeze(axis=2)
 
     loss = np.zeros((data_test.shape[0], len(numpy_metrics) + len(keras_metrics)))
 
@@ -814,6 +816,10 @@ def plot_windows(
             Patch(facecolor="green", label="Prediction (w/ peak annotation)"),
         ]
 
+        sampled_window_idx = np.arange(data.shape[0])[gt_min_signal & st_max_signal][
+            choices
+        ]
+
         i = 0
         for c in np.arange(cols):
             for r in np.arange(rows):
@@ -845,6 +851,7 @@ def plot_windows(
                 axes[r, c].tick_params(axis="x", colors=secondary_color)
                 axes[r, c].tick_params(axis="y", colors=secondary_color)
                 axes[r, c].set_ylim(0, 1)
+                axes[r, c].set_title(sampled_window_idx[i])
                 i += 1
 
         fig.legend(handles=legend_elements, loc="lower center")
@@ -854,7 +861,7 @@ def plot_windows(
 
         return (
             # Window indices
-            np.arange(data.shape[0])[gt_min_signal & st_max_signal][choices],
+            sampled_window_idx,
             # Total signal of the windows
             total_signal[gt_min_signal & st_max_signal][choices],
             # Max signal in the window
