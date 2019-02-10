@@ -4,8 +4,10 @@ import argparse
 import h5py
 import json
 import numpy as np
+import pandas as pd
 import os
 import pathlib
+import seaborn as sns
 import sys
 
 from ae.cnn import create_model
@@ -86,6 +88,33 @@ def get_sample_weights(
         # Finally, add signal-dependent weights
         + signal_weight
     )
+
+
+def plot_loss_to_file(
+    loss,
+    val_loss,
+    epochs: int,
+    model_name: str,
+    dataset_name: str = None,
+    base: str = ".",
+):
+    prefix = "-{}".format(dataset_name) if dataset_name is not None else ""
+    filepath = os.path.join(
+        base, "models", "{}---train-loss{}.png".format(model_name, prefix)
+    )
+
+    # Print loss for fast evaluation
+    data = np.zeros((epochs, 2))
+    data[:, 0] = loss
+    data[:, 1] = val_loss
+
+    df = pd.DataFrame(data)
+    df.columns = ["loss", "val_loss"]
+
+    ax = sns.lineplot(data=df)
+    ax.set_xticks(np.arange(epochs))
+    ax.set(xlabel="epochs", ylabel="loss")
+    ax.get_figure().savefig(filepath, bbox_inches="tight")
 
 
 def train_on_single_dataset(
@@ -205,6 +234,10 @@ def train_on_single_dataset(
     ) as f:
         f.create_dataset("loss", data=loss)
         f.create_dataset("val_loss", data=val_loss)
+
+    plot_loss_to_file(
+        loss, val_loss, epochs, model_name, dataset_name=dataset, base=base
+    )
 
 
 def train(
@@ -329,6 +362,8 @@ def train(
     ) as f:
         f.create_dataset("loss", data=loss)
         f.create_dataset("val_loss", data=val_loss)
+
+    plot_loss_to_file(loss, val_loss, epochs, model_name, base=base)
 
 
 if __name__ == "__main__":
