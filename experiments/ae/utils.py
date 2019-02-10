@@ -24,8 +24,6 @@ from matplotlib.cm import copper
 from typing import Tuple
 from tqdm import tqdm, tqdm_notebook
 
-import tensorflow as tf
-
 # Stupid Keras things is a smart way to always print. See:
 # https://github.com/keras-team/keras/issues/1406
 stderr = sys.stderr
@@ -33,12 +31,6 @@ sys.stderr = open(os.devnull, "w")
 from keras_tqdm import TQDMCallback, TQDMNotebookCallback
 from keras import backend as K
 from keras.models import load_model
-from keras.backend.tensorflow_backend import set_session
-
-config = tf.ConfigProto()
-config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
-sess = tf.Session(config=config)
-set_session(sess)  # set this TensorFlow session as the default session for Keras
 
 sys.stderr = stderr
 
@@ -82,7 +74,12 @@ def predict(encoder, decoder, test, validator=None):
 
 
 def evaluate_model(
-    encoder, decoder, data_test, keras_metrics: list = [], numpy_metrics: list = []
+    encoder,
+    decoder,
+    data_test,
+    keras_metrics: list = [],
+    numpy_metrics: list = [],
+    verbose: bool = False,
 ):
     prediction = decoder.predict(
         encoder.predict(data_test.reshape(data_test.shape[0], data_test.shape[1], 1))
@@ -99,12 +96,20 @@ def evaluate_model(
     i = 0
 
     for metric in keras_metrics:
+        if verbose:
+            print("Compute {} (keras) metric... ".format(i), end="", flush=True)
         loss[:, i] = K.eval(metric(K.variable(data_test), K.variable(prediction)))
         i += 1
+        if verbose:
+            print("done!")
 
     for metric in numpy_metrics:
+        if verbose:
+            print("Compute {} (numpy) metric... ".format(i), end="", flush=True)
         loss[:, i] = metric(data_test, prediction)
         i += 1
+        if verbose:
+            print("done!")
 
     return loss, prediction
 
