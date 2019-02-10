@@ -57,6 +57,37 @@ def get_definition(
     return definition
 
 
+def get_sample_weights(
+    data: np.ndarray,
+    peaks: np.ndarray,
+    signal_weighting: str,
+    signal_weighting_zero_point_percentage: float = 0.02,
+    peak_weight: float = 1,
+    train_on_hdf5: bool = False,
+) -> np.ndarray:
+    if signal_weighting in signal_weightings and not train_on_hdf5:
+        zero_point = data.shape[1] * signal_weighting_zero_point_percentage - 1
+        total_signal = np.sum(data, axis=1).squeeze()
+        signal_weight = signal_weightings[signal_weighting](total_signal, zero_point)
+
+    no_peak_ratio = (data.shape[0] - np.sum(peaks)) / np.sum(peaks)
+
+    # There are `no_peak_ratio` times more no peak samples. To equalize the
+    # importance of samples we give samples that contain a peak more weight
+    # but we never downweight peak windows!
+    return (
+        # Equal weights if there are more windows without peaks (i.e., increase weight
+        # of windows with peaks)
+        (peaks * np.max((0, no_peak_ratio - 1)))
+        # Ensure that all windows have a base weight of 1
+        + 1
+        # Additionally adjust the weight of windows with a peak
+        + (peaks * peak_weight - peaks)
+        # Finally, add signal-dependent weights
+        + signal_weight
+    )
+
+
 def train_on_single_dataset(
     settings: dict,
     dataset: str,
@@ -116,35 +147,32 @@ def train_on_single_dataset(
     else:
         with h5py.File(data_filepath, "r") as f:
             data_train = f["data_train"][:]
-            data_dev = f["data_dev"][:]
             peaks_train = f["peaks_train"][:]
+            data_dev = f["data_dev"][:]
+            peaks_dev = f["peaks_dev"][:]
         shuffle = True
 
-    if signal_weighting in signal_weightings and not train_on_hdf5:
-        zero_point = data_train.shape[1] * signal_weighting_zero_point_percentage - 1
-        total_signal = np.sum(data_train, axis=1).squeeze()
-        signal_weight = signal_weightings[signal_weighting](total_signal, zero_point)
-
-    no_peak_ratio = (data_train.shape[0] - np.sum(peaks_train)) / np.sum(peaks_train)
-    # There are `no_peak_ratio` times more no peak samples. To equalize the
-    # importance of samples we give samples that contain a peak more weight
-    # but we never downweight peak windows!
-    sample_weight = (
-        # Equal weights if there are more windows without peaks (i.e., increase weight
-        # of windows with peaks)
-        (peaks_train * np.max((0, no_peak_ratio - 1)))
-        # Ensure that all windows have a base weight of 1
-        + 1
-        # Additionally adjust the weight of windows with a peak
-        + (peaks_train * peak_weight - peaks_train)
-        # Finally, add signal-dependent weights
-        + signal_weight
+    sample_weight_train = get_sample_weights(
+        data_train,
+        peaks_train,
+        signal_weighting,
+        signal_weighting_zero_point_percentage,
+        peak_weight,
+        train_on_hdf5,
+    )
+    sample_weight_dev = get_sample_weights(
+        data_dev,
+        peaks_dev,
+        signal_weighting,
+        signal_weighting_zero_point_percentage,
+        peak_weight,
+        train_on_hdf5,
     )
 
     if silent:
         callbacks = []
     else:
-        callbacks = [tqdm_keras(show_outer=False)]
+        callbacks = [tqdm_keras(leave_inner=True)]
 
     history = autoencoder.fit(
         data_train,
@@ -152,8 +180,8 @@ def train_on_single_dataset(
         epochs=epochs,
         batch_size=batch_size,
         shuffle=shuffle,
-        validation_data=(data_dev, data_dev),
-        sample_weight=sample_weight,
+        validation_data=(data_dev, data_dev, sample_weight_dev),
+        sample_weight=sample_weight_train,
         verbose=0,
         callbacks=callbacks,
     )
@@ -251,38 +279,27 @@ def train(
                 )
                 data_dev = data_dev.reshape(data_dev.shape[0], data_dev.shape[1], 1)
                 peaks_train = f["peaks_train"][:]
+                peaks_dev = f["peaks_dev"][:]
 
-                if signal_weighting in signal_weightings:
-                    zero_point = (
-                        data_train.shape[1] * signal_weighting_zero_point_percentage - 1
-                    )
-                    total_signal = np.sum(data_train, axis=1).squeeze()
-                    signal_weight = signal_weightings[signal_weighting](
-                        total_signal, zero_point
-                    )
-
-                no_peak_ratio = (data_train.shape[0] - np.sum(peaks_train)) / np.sum(
-                    peaks_train
+                sample_weight_train = get_sample_weights(
+                    data_train,
+                    peaks_train,
+                    signal_weighting,
+                    signal_weighting_zero_point_percentage,
+                    peak_weight,
                 )
-                # There are `no_peak_ratio` times more no peak samples. To equalize the
-                # importance of samples we give samples that contain a peak more weight
-                # but we never downweight peak windows!
-                sample_weight = (
-                    # Equal weights if there are more windows without peaks (i.e., increase weight
-                    # of windows with peaks)
-                    (peaks_train * np.max((0, no_peak_ratio - 1)))
-                    # Ensure that all windows have a base weight of 1
-                    + 1
-                    # Additionally adjust the weight of windows with a peak
-                    + (peaks_train * peak_weight - peaks_train)
-                    # Finally, add signal-dependent weights
-                    + signal_weight
+                sample_weight_dev = get_sample_weights(
+                    data_dev,
+                    peaks_dev,
+                    signal_weighting,
+                    signal_weighting_zero_point_percentage,
+                    peak_weight,
                 )
 
                 if silent:
                     callbacks = []
                 else:
-                    callbacks = [tqdm_keras(show_outer=False)]
+                    callbacks = [tqdm_keras(leave_inner=True)]
 
                 history = autoencoder.fit(
                     data_train,
@@ -290,8 +307,8 @@ def train(
                     epochs=1,
                     batch_size=batch_size,
                     shuffle=True,
-                    validation_data=(data_dev, data_dev),
-                    sample_weight=sample_weight,
+                    validation_data=(data_dev, data_dev, sample_weight_dev),
+                    sample_weight=sample_weight_train,
                     verbose=0,
                     callbacks=callbacks,
                 )
