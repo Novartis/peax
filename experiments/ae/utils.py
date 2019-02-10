@@ -88,8 +88,11 @@ def evaluate_model(
         encoder.predict(data_test.reshape(data_test.shape[0], data_test.shape[1], 1))
     )
 
-    data_test = data_test.squeeze(axis=2)
-    prediction = prediction.squeeze(axis=2)
+    if data_test.ndim == 3:
+        data_test = data_test.squeeze(axis=2)
+
+    if prediction.ndim == 3:
+        prediction = prediction.squeeze(axis=2)
 
     loss = np.zeros((data_test.shape[0], len(numpy_metrics) + len(keras_metrics)))
 
