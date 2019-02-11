@@ -61,12 +61,12 @@
       ]
     },
     "fixed": {
-      "optimizer": "adam",
+      "optimizer": "adadelta",
       "embedding": 10,
       "dropout": 0,
-      "learning_rate": 0.01,
-      "learning_rate_decay": 0.0,
-      "dense_units": [512, 256, 128],
+      "learning_rate": 1.0,
+      "learning_rate_decay": 0.001,
+      "dense_units": [],
       "reg_lambda": 0,
       "metrics": [],
       "batch_norm": [false, false, false],
