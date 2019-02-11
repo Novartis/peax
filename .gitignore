@@ -5,7 +5,7 @@ results
 models
 logs
 *.slurm
-definitions.json
+definitions*.json
 /config*.json
 *.db
 *.sublime-project
