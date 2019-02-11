@@ -1,24 +1,44 @@
 {
   "hyperparameters": {
-    "vary": {
-      "embedding": [6, 10, 12],
-      "dropout": [0, 0.1, 0.2],
-      "learning_rate": [0.01, 0.005, 0.001],
-      "dense_units": [
-        [512, 128],
-        [1024, 256],
-        [1024, 512, 128, 32],
-        [1024, 512, 256, 64, 32, 16]
+    "varying": {
+      "params": [
+        "embedding",
+        "dropout",
+        "dense_units",
+        "reg_lambda"
+      ],
+      "values": [
+        [
+          [6, 8, 10, 12],
+          [0, 0.1, 0.2],
+          [
+            [512, 128],
+            [1024, 256],
+            [1024, 512, 128, 32],
+            [1024, 512, 256, 64, 32]
+          ],
+          [0, 0.00001, 0.001]
+        ]
       ]
     },
     "fixed": {
+      "optimizer": "adadelta",
+      "learning_rate": 1.0,
+      "learning_rate_decay": 0.001,
       "conv_layers": 3,
-      "conv_filter_size": [32, 128, 512],
-      "conv_kernel_size": [3, 7, 11],
-      "loss": "binary_crossentropy"
+      "conv_filter_size": [32, 64, 128],
+      "conv_filter_size_reverse_order": false,
+      "conv_kernel_size": [3, 5, 7],
+      "conv_kernel_size_reverse_order": true,
+      "loss": "smse-10",
+      "metrics": [],
+      "batch_norm": [false, false, false],
+      "batch_norm_input": false
     }
   },
   "epochs": 25,
-  "batch_size": 256,
-  "peak_weight": 2
+  "batch_size": 1024,
+  "peak_weight": 2,
+  "signal_weighting": "logn",
+  "signal_weighting_zero_point_percentage": 0.02
 }
