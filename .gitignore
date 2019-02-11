@@ -6,6 +6,7 @@ models
 logs
 *.slurm
 definitions*.json
+comparison*.png
 /config*.json
 *.db
 *.sublime-project
