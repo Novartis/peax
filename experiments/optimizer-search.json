@@ -4,7 +4,7 @@
       "params": [
         "optimizer",
         "learning_rate",
-        "learning_rate_decay",
+        "learning_rate_decay"
       ],
       "values": [
         [
@@ -20,13 +20,16 @@
             "nadam"
           ],
           [1.0, 0.1, 0.01, 0.001],
-          [0.0, 0.001, 0.01],
-        ],
+          [0.0, 0.001]
+        ]
       ]
     },
     "fixed": {
+      "conv_layers": 3,
       "conv_filter_size": [32, 64, 128],
-      "conv_kernel_size": [7, 5, 3],
+      "conv_filter_size_reverse_order": false,
+      "conv_kernel_size": [3, 5, 7],
+      "conv_kernel_size_reverse_order": true,
       "loss": "smse-10",
       "embedding": 10,
       "dropout": 0,
@@ -34,7 +37,7 @@
       "reg_lambda": 0,
       "metrics": [],
       "batch_norm": [false, false, false],
-      "batch_norm_input": false,
+      "batch_norm_input": false
     }
   },
   "epochs": 10,
