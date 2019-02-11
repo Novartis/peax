@@ -20,7 +20,7 @@ from keras.models import load_model
 
 sys.stderr = stderr
 
-from ae.metrics import dtw_metric, r2
+from ae.metrics import dtw_metric, r2_min
 from ae.utils import get_tqdm, evaluate_model, plot_windows
 from ae.loss import scaled_mean_squared_error, scaled_logcosh, scaled_huber
 
@@ -82,10 +82,9 @@ def evaluate(
     keras_metrics = {
         "mse": mse,
         "smse-2": scaled_mean_squared_error(2.0),
-        "smse-3": scaled_mean_squared_error(3.0),
         "smse-5": scaled_mean_squared_error(5.0),
         "smse-10": scaled_mean_squared_error(10.0),
-        "r2": r2,
+        "r2": r2_min,
         "shuber-10-5": scaled_huber(10.0, 5.0),
         "slogcosh-10": scaled_logcosh(10.0),
         "mae": mae,
@@ -152,6 +151,7 @@ def evaluate(
 
     with h5py.File(evaluation_filepath, "w") as f:
         f.create_dataset("total_loss", data=total_loss)
+        f.create_dataset("total_loss_metrics", data=",".join(df.columns))
         f.create_dataset("plotted_window_indices", data=window_idx)
         f.create_dataset("plotted_window_total_signal", data=total_signal)
         f.create_dataset("plotted_window_max_signal", data=max_signal)

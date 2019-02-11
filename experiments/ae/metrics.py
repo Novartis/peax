@@ -16,11 +16,19 @@ def dtw_metric(dist: callable = euclidean, radius: int = 1):
     return dtw
 
 
+def r2_min(y_true, y_pred):
+    """R Squared (minimum)
+
+    R Sqaured (minimum) lies between 0 and infinity where 0 is best!
+    """
+    SS_res = K.sum(K.square(y_true - y_pred))
+    SS_tot = K.sum(K.square(y_true - K.mean(y_true)))
+    return SS_res / (SS_tot + K.epsilon())
+
+
 def r2(y_true, y_pred):
     """R Squared
 
     R Sqaured lies between negative infinity and 1. 1 is best!
     """
-    SS_res = K.sum(K.square(y_true - y_pred))
-    SS_tot = K.sum(K.square(y_true - K.mean(y_true)))
-    return 1 - SS_res / (SS_tot + K.epsilon())
+    return 1 - r2_min(y_true, y_pred)
