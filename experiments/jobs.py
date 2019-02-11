@@ -61,7 +61,7 @@ exit 0;
 
 
 def jobs(
-    search,
+    search_filepath: str,
     settings: str,
     datasets: str = None,
     dataset: str = None,
@@ -74,6 +74,14 @@ def jobs(
     clear: bool = False,
     verbose: bool = False,
 ):
+    search_filename = os.path.splitext(search_filepath)[0]
+    try:
+        with open(os.path.join(base, search_filepath), "r") as f:
+            search = json.load(f)
+    except FileNotFoundError:
+        sys.stderr.write("Please provide a neural network search file\n")
+        sys.exit(2)
+
     tqdm = get_tqdm()
 
     # Create models and slurm directory
@@ -176,7 +184,7 @@ def jobs(
 
         model_names.append(model_name)
 
-    definitions_file = os.path.join(base, "definitions.json")
+    definitions_file = os.path.join(base, "definitions-{}.json".format(search_filename))
     with open(definitions_file, "w") as f:
         json.dump(model_names, f, indent=2)
 
@@ -241,15 +249,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     try:
-        with open(args.neuralnets, "r") as f:
-            search = json.load(f)
-    except FileNotFoundError:
-        sys.stderr.write(
-            "Please provide a neural network search file via `--neuralnets`\n"
-        )
-        sys.exit(2)
-
-    try:
         with open(args.datasets, "r") as f:
             json.load(f)
     except FileNotFoundError:
@@ -266,4 +265,10 @@ if __name__ == "__main__":
     if args.ignore_warns:
         os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
-    jobs(search, args.datasets, args.settings, clear=args.clear, verbose=args.verbose)
+    jobs(
+        args.neuralnets,
+        args.datasets,
+        args.settings,
+        clear=args.clear,
+        verbose=args.verbose,
+    )
