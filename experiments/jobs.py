@@ -166,6 +166,7 @@ def jobs(
 
     model_names = []
 
+    skipped = 0
     for combination in tqdm(combinations, desc="Jobs", unit="job"):
         combined_def = dict({}, **base_def)
 
@@ -180,9 +181,16 @@ def jobs(
             with open(def_file, "w") as f:
                 json.dump(final_def, f, indent=2)
         else:
-            print("Job file already exists. Use `--clear` to overwrite it.")
+            skipped += 1
 
         model_names.append(model_name)
+
+    if skipped > 0:
+        print(
+            "Skipped creating {} definition files as they already exists".format(
+                skipped
+            )
+        )
 
     definitions_file = os.path.join(base, "definitions-{}.json".format(search_filename))
     with open(definitions_file, "w") as f:
