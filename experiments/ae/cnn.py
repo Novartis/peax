@@ -151,17 +151,29 @@ def create_model(
     if optimizer == "sgd":
         opt = optimizers.SGD(lr=learning_rate, decay=learning_rate_decay)
 
+    elif optimizer == "nesterov":
+        opt = optimizers.SGD(lr=learning_rate, decay=learning_rate_decay, nesterov=True)
+
     elif optimizer == "rmsprop":
         opt = optimizers.RMSprop(lr=learning_rate, decay=learning_rate_decay)
 
     elif optimizer == "adadelta":
-        opt = optimizers.Adadelta()
+        opt = optimizers.Adadelta(lr=learning_rate, decay=learning_rate_decay)
+
+    elif optimizer == "adagrad":
+        opt = optimizers.Adagrad(lr=learning_rate, decay=learning_rate_decay)
 
     elif optimizer == "adam":
         opt = optimizers.Adam(lr=learning_rate, decay=learning_rate_decay)
 
+    elif optimizer == "amsgrad":
+        opt = optimizers.Adam(lr=learning_rate, decay=learning_rate_decay, amsgrad=True)
+
     elif optimizer == "adamax":
         opt = optimizers.Adamax(lr=learning_rate, decay=learning_rate_decay)
+
+    elif optimizer == "nadam":
+        opt = optimizers.Adamax(lr=learning_rate)
 
     else:
         print("Unknown optimizer: {}. Using Adam.".format(optimizer))
