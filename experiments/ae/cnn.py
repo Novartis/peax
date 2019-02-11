@@ -81,14 +81,16 @@ def create_model(
             padding="same",
             name="conv{}".format(i),
         )(encoded)
-        encoded = Dropout(dropouts[i], name="drop{}".format(i))(encoded)
+        if dropouts[i] > 0:
+            encoded = Dropout(dropouts[i], name="drop{}".format(i))(encoded)
 
     encoded = Flatten(name="flatten")(encoded)
 
     for i, u in enumerate(dense_units):
         k = num_cfilter + i
         encoded = Dense(u, activation="relu", name="fc{}".format(k))(encoded)
-        encoded = Dropout(dropouts[i], name="drop{}".format(k))(encoded)
+        if dropouts[i] > 0:
+            encoded = Dropout(dropouts[i], name="drop{}".format(k))(encoded)
 
     # The bottleneck that will hold the latent representation
     encoded = Dense(
@@ -99,7 +101,8 @@ def create_model(
     for i, u in enumerate(reversed(dense_units)):
         k = num_cfilter + num_dunits + i
         decoded = Dense(u, activation="relu", name="fc{}".format(k))(decoded)
-        decoded = Dropout(dropouts[i], name="dropout{}".format(k))(decoded)
+        if dropouts[i] > 0:
+            decoded = Dropout(dropouts[i], name="dropout{}".format(k))(decoded)
 
     decoded = Dense(
         int(input_dim / (2 ** len(conv_filters))) * conv_filters[-1],
@@ -121,7 +124,8 @@ def create_model(
             padding="same",
             name="deconv{}".format(i),
         )(decoded)
-        decoded = Dropout(dropouts[i], name="drop{}".format(k))(decoded)
+        if dropouts[i] > 0:
+            decoded = Dropout(dropouts[i], name="drop{}".format(k))(decoded)
 
     decoded = UpSampling1D(2, name="upsample{}".format(len(conv_filters) - 1))(decoded)
     decoded = Conv1D(
