@@ -68,7 +68,9 @@
       "learning_rate_decay": 0.0,
       "dense_units": [512, 256, 128],
       "reg_lambda": 0,
-      "metrics": []
+      "metrics": [],
+      "batch_norm": [false, false, false],
+      "batch_norm_input": false
     }
   },
   "epochs": 25,
