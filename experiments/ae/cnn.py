@@ -34,6 +34,7 @@ from keras.layers import (
     RepeatVector,
     Flatten,
     Reshape,
+    BatchNormalization,
 )
 from keras.models import Model
 from keras import optimizers
@@ -59,6 +60,8 @@ def create_model(
     dense_units: list = [256, 64, 16],
     embedding: int = 10,
     dropouts: list = [0.0, 0.0, 0.0],
+    batch_norm: list = [False, False, False],
+    batch_norm_input: bool = False,
     metrics: list = [],
     reg_lambda: float = 0.0,
     learning_rate: float = 0.01,
@@ -70,8 +73,15 @@ def create_model(
 
     num_cfilter = len(conv_filters)
     num_dunits = len(dense_units)
+    num_batch_norm = len(batch_norm)
+
+    if len(batch_norm) < num_cfilter + num_dunits:
+        batch_norm += [False] * (num_cfilter + num_dunits - num_batch_norm)
 
     encoded = inputs
+    if batch_norm_input:
+        encoded = BatchNormalization(axis=1)(encoded)
+
     for i, f in enumerate(conv_filters):
         encoded = Conv1D(
             f,
@@ -81,6 +91,8 @@ def create_model(
             padding="same",
             name="conv{}".format(i),
         )(encoded)
+        if batch_norm[i]:
+            encoded = BatchNormalization(axis=1)(encoded)
         if dropouts[i] > 0:
             encoded = Dropout(dropouts[i], name="drop{}".format(i))(encoded)
 
@@ -89,6 +101,8 @@ def create_model(
     for i, u in enumerate(dense_units):
         k = num_cfilter + i
         encoded = Dense(u, activation="relu", name="fc{}".format(k))(encoded)
+        if batch_norm[i]:
+            encoded = BatchNormalization(axis=1)(encoded)
         if dropouts[i] > 0:
             encoded = Dropout(dropouts[i], name="drop{}".format(k))(encoded)
 
@@ -141,7 +155,7 @@ def create_model(
         opt = optimizers.RMSprop(lr=learning_rate, decay=learning_rate_decay)
 
     elif optimizer == "adadelta":
-        opt = optimizers.Adadelta(lr=learning_rate, decay=learning_rate_decay)
+        opt = optimizers.Adadelta()
 
     elif optimizer == "adam":
         opt = optimizers.Adam(lr=learning_rate, decay=learning_rate_decay)
@@ -173,7 +187,15 @@ def create_model(
 
     encoded_input = Input(shape=(embedding,), name="encoded_input")
     decoded_input = encoded_input
-    k = num_dunits * 2 + num_cfilter * 2 + 3
+    num_dropout_units = sum([1 if x > 0 else 0 for x in dropouts])
+    k = (
+        num_dunits
+        + num_cfilter
+        + num_dropout_units
+        + sum(batch_norm)
+        + int(batch_norm_input)
+        + 3
+    )
     for i in range(k, len(autoencoder.layers)):
         decoded_input = autoencoder.layers[i](decoded_input)
     decoder = Model(encoded_input, decoded_input)
