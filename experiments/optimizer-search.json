@@ -1,0 +1,45 @@
+{
+  "hyperparameters": {
+    "varying": {
+      "params": [
+        "optimizer",
+        "learning_rate",
+        "learning_rate_decay",
+      ],
+      "values": [
+        [
+          [
+            "sgd",
+            "nesterov",
+            "rmsprop",
+            "adagrad",
+            "adadelta",
+            "adam",
+            "amsgrad",
+            "adamax",
+            "nadam"
+          ],
+          [1.0, 0.1, 0.01, 0.001],
+          [0.0, 0.001, 0.01],
+        ],
+      ]
+    },
+    "fixed": {
+      "conv_filter_size": [32, 64, 128],
+      "conv_kernel_size": [7, 5, 3],
+      "loss": "smse-10",
+      "embedding": 10,
+      "dropout": 0,
+      "dense_units": [],
+      "reg_lambda": 0,
+      "metrics": [],
+      "batch_norm": [false, false, false],
+      "batch_norm_input": false,
+    }
+  },
+  "epochs": 10,
+  "batch_size": 256,
+  "peak_weight": 2,
+  "signal_weighting": "logn",
+  "signal_weighting_zero_point_percentage": 0.02
+}
