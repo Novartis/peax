@@ -55,7 +55,7 @@ def evaluate(
         base, "models", "{}---total-loss{}.png".format(model_name, postfix)
     )
     predictions_filepath = os.path.join(
-        base, "models", "{}---predictions{}.png".format(model_name, postfix)
+        "models", "{}---predictions{}.png".format(model_name, postfix)
     )
 
     if (
