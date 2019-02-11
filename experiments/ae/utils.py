@@ -78,12 +78,18 @@ def evaluate_model(
     decoder,
     data_test,
     keras_metrics: list = [],
+    keras_metric_names: list = [],
     numpy_metrics: list = [],
+    numpy_metric_names: list = [],
     verbose: bool = False,
 ):
+    if verbose:
+        print("Predict {} windows... ".format(data_test.shape[0]), end="", flush=True)
     prediction = decoder.predict(
         encoder.predict(data_test.reshape(data_test.shape[0], data_test.shape[1], 1))
     )
+    if verbose:
+        print("done!")
 
     if data_test.ndim == 3:
         data_test = data_test.squeeze(axis=2)
@@ -95,19 +101,39 @@ def evaluate_model(
 
     i = 0
 
+    if len(keras_metrics) > 0:
+        k_data = K.variable(data_test)
+        k_pred = K.variable(prediction)
+
     for metric in keras_metrics:
         if verbose:
-            print("Compute {} (keras) metric... ".format(i), end="", flush=True)
-        loss[:, i] = K.eval(metric(K.variable(data_test), K.variable(prediction)))
+            try:
+                metric_name = keras_metric_names[i]
+            except IndexError:
+                metric_name = "#{}".format(i)
+            print(
+                "Compute {} metric (keras) ... ".format(metric_name), end="", flush=True
+            )
+
+        loss[:, i] = K.eval(metric(k_data, k_pred))
         i += 1
+
         if verbose:
             print("done!")
 
     for metric in numpy_metrics:
         if verbose:
-            print("Compute {} (numpy) metric... ".format(i), end="", flush=True)
+            try:
+                metric_name = numpy_metric_names[i]
+            except IndexError:
+                metric_name = "#{}".format(i)
+            print(
+                "Compute {} metric (numpy) ... ".format(metric_name), end="", flush=True
+            )
+
         loss[:, i] = metric(data_test, prediction)
         i += 1
+
         if verbose:
             print("done!")
 
