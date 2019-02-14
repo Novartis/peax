@@ -61,7 +61,7 @@ exit 0;
 
 
 def jobs(
-    search_filepath: str,
+    search_filename: str,
     settings: str,
     datasets: str = None,
     dataset: str = None,
@@ -74,9 +74,9 @@ def jobs(
     clear: bool = False,
     verbose: bool = False,
 ):
-    search_filename = os.path.splitext(search_filepath)[0]
+    search_name = os.path.splitext(search_filename)[0]
     try:
-        with open(os.path.join(base, search_filepath), "r") as f:
+        with open(os.path.join(base, search_filename), "r") as f:
             search = json.load(f)
     except FileNotFoundError:
         sys.stderr.write("Please provide a neural network search file\n")
@@ -192,7 +192,7 @@ def jobs(
             )
         )
 
-    definitions_file = os.path.join(base, "definitions-{}.json".format(search_filename))
+    definitions_file = os.path.join(base, "definitions-{}.json".format(search_name))
     with open(definitions_file, "w") as f:
         json.dump(model_names, f, indent=2)
 
@@ -210,7 +210,7 @@ def jobs(
     new_slurm_body = slurm_body.substitute(
         datasets=datasets_arg,
         settings=settings,
-        definitions="definitions.json",
+        definitions="definitions-{}.json".format(search_name),
         definition_idx="$SLURM_ARRAY_TASK_ID",
         epochs=epochs,
         batch_size=batch_size,
