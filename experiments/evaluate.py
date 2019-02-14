@@ -52,7 +52,7 @@ def evaluate(
         base, "models", "{}---evaluation{}.h5".format(model_name, postfix)
     )
     total_loss_plot_filepath = os.path.join(
-        base, "models", "{}---total-loss{}.png".format(model_name, postfix)
+        base, "models", "{}---test-loss{}.png".format(model_name, postfix)
     )
     predictions_filepath = os.path.join(
         "models", "{}---predictions{}.png".format(model_name, postfix)
