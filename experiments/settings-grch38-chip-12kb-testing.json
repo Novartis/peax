@@ -1,0 +1,51 @@
+{
+  "coord_system": "GRCh38",
+  "assay_type": "ChIP-seq",
+  "data_types": {
+    "fc_signal": "fold change over control",
+    "peaks": "peaks"
+  },
+  "file_types": {
+    "fc_signal": "bigWig",
+    "peaks": "bigBed"
+  },
+  "encode_file_types": {
+    "fc_signal": "bigWig",
+    "peaks": "bigBed+narrowPeak"
+  },
+  "window_size": 12000,
+  "step_frequency": 2,
+  "resolution": 100,
+  "chromosomes": [
+    "chr1",
+    "chr2",
+    "chr3",
+    "chr4",
+    "chr5",
+    "chr6",
+    "chr7",
+    "chr8",
+    "chr9",
+    "chr10",
+    "chr11",
+    "chr12",
+    "chr13",
+    "chr14",
+    "chr15",
+    "chr16",
+    "chr17",
+    "chr18",
+    "chr19",
+    "chr20",
+    "chr21",
+    "chr22",
+    "chrX"
+  ],
+  "dev_set_size": 0.075,
+  "test_set_size": 0.075,
+  "percentile_cutoff": [0, 99.9],
+  "rnd_seed": 123,
+  "incl_pctl_total_signal": 50,
+  "incl_pct_no_signal": 5,
+  "peak_ratio": 2
+}

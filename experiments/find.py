@@ -37,12 +37,17 @@ def find(
         "MNase-seq": "mnase",
         "ATAC-seq": "atac",
         "FAIRE-seq": "faire",
+        "transcription factor": "tf",
     }
 
     coord_system = settings["coord_system"]
     assay_type = settings["assay_type"]
     file_types = list(settings["encode_file_types"].values())
     data_types = settings["data_types"]
+
+    target = None
+    if assay_type in abbr and abbr[assay_type] == "chip":
+        target = settings["target"]
 
     assay_slim = assay_slims[assay_type]
 
@@ -73,7 +78,14 @@ def find(
         "limit": "all",
         "format": "json",
     }
-    biosample_term_names = [
+    params_chip = {
+        "histone": {"award.project": "ENCODE", "target.investigated_as": "histone"},
+        "transcription factor": {
+            "award.project": "ENCODE",
+            "target.investigated_as": "transcription+factor",
+        },
+    }
+    biosample_term_names_dnase = [
         # cell lines
         "K562",
         "MCF-7",
@@ -90,15 +102,44 @@ def find(
         "kidney",
         "thyroid gland",
     ]
-    params_strict = {
+    params_strict_dnase = {
         "award.project": "ENCODE",
         "biosample_ontology.classification": ["cell+line", "tissue", "primary+cell"],
         "biosample_ontology.term_name": [
-            term.replace(" ", "+") for term in biosample_term_names
+            term.replace(" ", "+") for term in biosample_term_names_dnase
         ],
     }
+    params_strict_chip = {"histone": {}, "transcription factor": {}}
+
+    if assay_type in abbr and abbr[assay_type] == "chip":
+        if target in params_chip:
+            params.update(params_chip[target])
+
+        else:
+            print("Unknown ChIP-seq target: {}".format(target))
+
     if strict:
-        params.update(params_strict)
+        if assay_type in abbr:
+            if abbr[assay_type] == "dnase":
+                params.update(params_strict_dnase)
+
+            elif abbr[assay_type] == "chip":
+                if target in params_strict_chip:
+                    params.update(params_strict_chip[target])
+
+                else:
+                    print("Unknown ChIP-seq target: {}".format(target))
+
+            else:
+                print(
+                    "No strict parameters found for assay type: {}".format(assay_type)
+                )
+
+        else:
+            print(
+                "No strict parameters available for assay type: {}".format(assay_type)
+            )
+
     param_str = urlencode(params, doseq=True).replace("%2B", "+")
     url = "https://www.encodeproject.org/search/"
     headers = {"Accept": "application/json"}
@@ -173,9 +214,16 @@ def find(
 
     if strict:
         one_of_type = {}
-        for term in biosample_term_names:
-            one_of_type[term] = 0
-        print
+
+        if abbr[assay_type] == "dnase":
+            for term in biosample_term_names_dnase:
+                one_of_type[term] = 0
+
+        elif abbr[assay_type] == "chip":
+            pass
+
+        else:
+            pass
 
     k = 0
     for exp in metaData.loc[is_basic]["Experiment accession"].unique():
@@ -183,7 +231,10 @@ def find(
 
         if strict:
             biosample_term_name = metaData.loc[is_exp].iloc[0]["Biosample term name"]
-            if one_of_type[biosample_term_name] > 0:
+            try:
+                if one_of_type[biosample_term_name] > 0:
+                    continue
+            except KeyError:
                 continue
 
         for sample in metaData.loc[is_coord_system & is_released & is_exp][
