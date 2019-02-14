@@ -20,7 +20,7 @@ slurm_header = """#!/bin/bash
 #
 # add all other SBATCH directives here...
 #
-#SBATCH -p cox
+#SBATCH -p $cluster
 #SBATCH -n 1 # Number of cores
 #SBATCH -N 1 # Ensure that all cores are on one machine
 #SBATCH --gres=gpu
@@ -70,6 +70,7 @@ def jobs(
     peak_weight: float = None,
     signal_weighting: str = None,
     signal_weighting_zero_point_percentage: float = None,
+    cluster: str = "cox",
     base: str = ".",
     clear: bool = False,
     verbose: bool = False,
@@ -207,6 +208,14 @@ def jobs(
         )
         sys.exit(2)
 
+    if cluster == "cox":
+        pass
+    elif cluster == "seas":
+        cluster = "seas_dgx1"
+    else:
+        sys.stderr.write("Unknown cluster: {}\n".format(cluster))
+        sys.exit(2)
+
     new_slurm_body = slurm_body.substitute(
         datasets=datasets_arg,
         settings=settings,
@@ -219,7 +228,9 @@ def jobs(
         signal_weighting_zero_point_percentage=signal_weighting_zero_point_percentage,
     )
     slurm = (
-        slurm_header.replace("$num_definitions", str(len(model_names) - 1))
+        slurm_header.replace("$num_definitions", str(len(model_names) - 1)).replace(
+            "$cluster", cluster
+        )
         + new_slurm_body
     )
 
@@ -243,6 +254,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-s", "--settings", help="path to the settings file", default="settings.json"
+    )
+    parser.add_argument(
+        "-x", "--cluster", help="cluster", default="cox", choices=["cox", "seas"]
     )
     parser.add_argument(
         "-c", "--clear", action="store_true", help="clears previously downloads"
@@ -277,6 +291,7 @@ if __name__ == "__main__":
         args.neuralnets,
         args.datasets,
         args.settings,
+        cluster=args.cluster,
         clear=args.clear,
         verbose=args.verbose,
     )
