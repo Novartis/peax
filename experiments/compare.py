@@ -14,11 +14,12 @@ import sys
 def compare(
     model_names_file: str,
     dataset_name: str = None,
+    num_models: int = 10,
+    remove_common_prefix_from_df: bool = False,
     base: str = ".",
     clear: bool = False,
     verbose: bool = False,
     silent: bool = False,
-    remove_common_prefix_from_df: bool = False,
 ):
     postfix = "-{}".format(dataset_name) if dataset_name is not None else ""
 
@@ -76,13 +77,15 @@ def compare(
 
     sns.set(style="whitegrid")
 
-    fig, axes = plt.subplots(10, 1, figsize=(10, 30), sharex=True)
+    num_models = np.max((total_loss.shape[0], num_models))
+
+    fig, axes = plt.subplots(num_models, 1, figsize=(10, 3 * num_models), sharex=True)
     for i, ax in enumerate(axes):
         # sns.barplot(data=df.iloc(i), ax=ax)
         ax.bar(columns, total_loss[ordered_models][i])
         ax.set_xlabel("Metrics")
         ax.set_ylabel("Total loss")
-        ax.set_ylim(0, np.max(total_loss[ordered_models][0:10]) * 1.05)
+        ax.set_ylim(0, np.max(total_loss[ordered_models][0:num_models]) * 1.05)
         ax.set_title(np.array(model_names)[ordered_models][i])
 
     fig.savefig(
@@ -114,6 +117,14 @@ if __name__ == "__main__":
         type=str,
     )
     parser.add_argument(
+        "-n", "--num-models", help="number of models to print", default=10, type=int
+    )
+    parser.add_argument(
+        "--no-common-prefix",
+        action="store_true",
+        help="remove common prefix from the DataFrame",
+    )
+    parser.add_argument(
         "-c", "--clear", action="store_true", help="clear previously found datasets"
     )
     parser.add_argument(
@@ -126,6 +137,8 @@ if __name__ == "__main__":
     compare(
         args.model_names,
         dataset_name=args.dataset_name,
+        num_models=args.num_models,
+        remove_common_prefix_from_df=args.no_common_prefix,
         clear=args.clear,
         verbose=args.verbose,
         silent=args.silent,
