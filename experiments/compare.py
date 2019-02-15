@@ -77,11 +77,10 @@ def compare(
 
     sns.set(style="whitegrid")
 
-    num_models = np.max((total_loss.shape[0], num_models))
+    num_models = np.min((total_loss.shape[0], num_models))
 
     fig, axes = plt.subplots(num_models, 1, figsize=(10, 3 * num_models), sharex=True)
     for i, ax in enumerate(axes):
-        # sns.barplot(data=df.iloc(i), ax=ax)
         ax.bar(columns, total_loss[ordered_models][i])
         ax.set_xlabel("Metrics")
         ax.set_ylabel("Total loss")
