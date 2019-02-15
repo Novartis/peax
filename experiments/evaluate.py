@@ -10,6 +10,7 @@ import pandas as pd
 import pathlib
 import seaborn as sns
 import sys
+import warnings
 
 # Stupid Keras things is a smart way to always print. See:
 # https://github.com/keras-team/keras/issues/1406
@@ -71,8 +72,13 @@ def evaluate(
 
     dtw = dtw_metric()
 
-    encoder = load_model(encoder_filepath)
-    decoder = load_model(decoder_filepath)
+    if silent:
+        with warnings.catch_warnings():
+            encoder = load_model(encoder_filepath)
+            decoder = load_model(decoder_filepath)
+    else:
+        encoder = load_model(encoder_filepath)
+        decoder = load_model(decoder_filepath)
 
     if dataset_name is not None:
         datasets = {dataset_name: True}
