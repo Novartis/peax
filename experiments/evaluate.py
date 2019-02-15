@@ -12,6 +12,8 @@ import seaborn as sns
 import sys
 import warnings
 
+from string import Template
+
 # Stupid Keras things is a smart way to always print. See:
 # https://github.com/keras-team/keras/issues/1406
 stderr = sys.stderr
@@ -26,8 +28,49 @@ from ae.utils import get_tqdm, evaluate_model, plot_windows
 from ae.loss import scaled_mean_squared_error, scaled_logcosh, scaled_huber
 
 
+slurm_header = """#!/bin/bash
+#
+# add all other SBATCH directives here...
+#
+#SBATCH -p $cluster
+#SBATCH -n 1 # Number of cores
+#SBATCH -N 1 # Ensure that all cores are on one machine
+#SBATCH --gres=gpu
+#SBATCH --mem=12000
+#SBATCH --array=0-$num_definitions
+#SBATCH -t 1-00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=lekschas@g.harvard.edu
+#SBATCH -o /n/pfister_lab/lekschas/peax/experiments/logs/evaluate-out-%A-%a.txt
+#SBATCH -e /n/pfister_lab/lekschas/peax/experiments/logs/evaluate-err-%A-%a.txt
+
+# add additional commands needed for Lmod and module loads here
+source new-modules.sh
+module load Anaconda/5.0.1-fasrc01
+"""
+
+slurm_body = Template(
+    """
+# add commands for analyses here
+cd /n/pfister_lab/haehn/Projects/peax/experiments/
+source activate /n/pfister_lab/haehn/ENVS/peax
+python evaluate.py \\
+  --model-names $model_names \\
+  --model-name-idx $model_name_idx \\
+  $datasets \\
+  $incl_dtw \\
+  --silent
+
+# end of program
+exit 0;
+"""
+)
+
+
 def evaluate(
-    model_name,
+    model_name: str = None,
+    model_names: str = None,
+    model_name_idx: int = -1,
     datasets: dict = None,
     dataset_name: str = None,
     base: str = ".",
@@ -42,6 +85,31 @@ def evaluate(
     tqdm = get_tqdm()
 
     postfix = "-{}".format(dataset_name) if dataset_name else ""
+
+    if model_name is not None:
+        pass
+    elif model_names is not None and model_name_idx >= 0:
+        try:
+            with open(os.path.join(base, model_names), "r") as f:
+                model_names = json.load(f)
+        except FileNotFoundError:
+            sys.stderr.write(
+                "Model names file not found: {}\n".format(
+                    os.path.join(base, model_names)
+                )
+            )
+            sys.exit(2)
+
+        try:
+            model_name = model_names[model_name_idx]
+        except IndexError:
+            sys.stderr.write("Model name not available: #{}\n".format(model_name_idx))
+            sys.exit(2)
+    else:
+        sys.stderr.write(
+            "Either provide a model name or the name of the file with all model names and an index\n"
+        )
+        sys.exit(2)
 
     encoder_filepath = os.path.join(
         base, "models", "{}---encoder{}.h5".format(model_name, postfix)
@@ -165,9 +233,80 @@ def evaluate(
     return total_loss
 
 
+def create_jobs(
+    search_name: str,
+    datasets: str = None,
+    dataset: str = None,
+    cluster: str = "cox",
+    base: str = ".",
+    incl_dtw: bool = False,
+):
+    if cluster == "cox":
+        pass
+    elif cluster == "seas":
+        cluster = "seas_dgx1"
+    else:
+        sys.stderr.write("Unknown cluster: {}\n".format(cluster))
+        sys.exit(2)
+
+    datasets_arg = ""
+    if datasets is not None:
+        datasets_arg = "--datasets {}".format(datasets)
+    elif dataset is not None:
+        datasets_arg = "--dataset {}".format(dataset)
+    else:
+        sys.stderr.write(
+            "Provide either a path to multiple datasets or to a single dataset\n"
+        )
+        sys.exit(2)
+
+    try:
+        with open(
+            os.path.join(base, "definitions-{}.json".format(search_name)), "r"
+        ) as f:
+            model_names = json.load(f)
+    except FileNotFoundError:
+        sys.stderr.write(
+            "Model names file not found: {}\n".format(os.path.join(base, model_names))
+        )
+        sys.exit(2)
+
+    new_slurm_body = slurm_body.substitute(
+        datasets=datasets_arg,
+        model_names="definitions-{}.json".format(search_name),
+        model_name_idx="$SLURM_ARRAY_TASK_ID",
+        incl_dtw="--incl-dtw" if incl_dtw else "",
+    )
+    slurm = (
+        slurm_header.replace("$num_definitions", str(len(model_names) - 1)).replace(
+            "$cluster", cluster
+        )
+        + new_slurm_body
+    )
+
+    slurm_file = os.path.join(base, "evaluate.slurm")
+
+    with open(slurm_file, "w") as f:
+        f.write(slurm)
+
+    print(
+        "Created slurm file for evaluating {} neural networks".format(len(model_names))
+    )
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Peax Testor")
     parser.add_argument("-m", "--model-name", help="name of the model")
+    parser.add_argument(
+        "-n", "--model-names", help="path to the CAE model names file", default=""
+    )
+    parser.add_argument(
+        "-x",
+        "--model-name-idx",
+        help="index of the CAE model to be evaluated",
+        type=int,
+        default=-1,
+    )
     parser.add_argument("-d", "--datasets", help="path to the datasets file", type=str)
     parser.add_argument(
         "-o", "--dataset", help="name of a single dataset file", type=str
@@ -208,7 +347,9 @@ if __name__ == "__main__":
         os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
     evaluate(
-        args.model_name,
+        model_name=args.model_name,
+        model_names=args.model_names,
+        model_name_idx=args.model_name_idx,
         datasets=datasets,
         dataset_name=args.dataset,
         clear=args.clear,
