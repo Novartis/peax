@@ -1,12 +1,7 @@
 {
   "hyperparameters": {
     "varying": {
-      "params": [
-        "embedding",
-        "dropout",
-        "dense_units",
-        "reg_lambda"
-      ],
+      "params": ["embedding", "dropout", "dense_units", "reg_lambda"],
       "values": [
         [
           [6, 8, 10, 12],
@@ -26,7 +21,7 @@
       "learning_rate": 1.0,
       "learning_rate_decay": 0.001,
       "conv_layers": 3,
-      "conv_filter_size": [32, 64, 128],
+      "conv_filter_size": [64, 128, 256],
       "conv_filter_size_reverse_order": false,
       "conv_kernel_size": [3, 5, 7],
       "conv_kernel_size_reverse_order": true,
