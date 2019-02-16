@@ -13,6 +13,7 @@ limitations under the License.
 
 """Neural net Models"""
 
+import math
 import os
 import sys
 
@@ -30,6 +31,8 @@ from keras.layers import (
     Conv2DTranspose,
     MaxPooling1D,
     UpSampling1D,
+    Cropping1D,
+    ZeroPadding1D,
     LSTM,
     RepeatVector,
     Flatten,
@@ -82,6 +85,8 @@ def create_model(
     if batch_norm_input:
         encoded = BatchNormalization(axis=1)(encoded)
 
+    input_sizes = []
+
     for i, f in enumerate(conv_filters):
         encoded = Conv1D(
             f,
@@ -91,6 +96,7 @@ def create_model(
             padding="same",
             name="conv{}".format(i),
         )(encoded)
+        input_sizes.append(int(encoded.shape[1]))
         if batch_norm[i]:
             encoded = BatchNormalization(axis=1)(encoded)
         if dropouts[i] > 0:
@@ -119,18 +125,27 @@ def create_model(
             decoded = Dropout(dropouts[i], name="dropout{}".format(k))(decoded)
 
     decoded = Dense(
-        int(input_dim / (2 ** len(conv_filters))) * conv_filters[-1],
-        activation="relu",
-        name="blowup",
+        input_sizes[-1] * conv_filters[-1], activation="relu", name="blowup"
     )(decoded)
-    decoded = Reshape(
-        (int(input_dim / (2 ** len(conv_filters))), conv_filters[-1]), name="unflatten"
-    )(decoded)
+    decoded = Reshape((input_sizes[-1], conv_filters[-1]), name="unflatten")(decoded)
 
     for i, f in enumerate(reversed(conv_filters[:-1])):
         k = num_cfilter + (num_dunits * 2) + i
         j = num_cfilter - i - 2
         decoded = UpSampling1D(2, name="upsample{}".format(i))(decoded)
+        diff = int(decoded.shape[1]) - input_sizes[-(i + 2)]
+        if diff > 0:
+            left_cropping = math.floor(diff / 2)
+            right_cropping = math.ceil(diff / 2)
+            decoded = Cropping1D(
+                cropping=(left_cropping, right_cropping), name="cropping{}".format(i)
+            )(decoded)
+        elif diff < 0:
+            left_padding = math.floor(math.abs(diff) / 2)
+            right_padding = math.ceil(math.abs(diff) / 2)
+            decoded = ZeroPadding1D(
+                cropping=(left_padding, right_padding), name="padding{}".format(i)
+            )(decoded)
         decoded = Conv1D(
             f,
             conv_kernels[:-1][j],
