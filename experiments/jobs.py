@@ -65,6 +65,7 @@ def jobs(
     settings: str,
     datasets: str = None,
     dataset: str = None,
+    name: str = None,
     epochs: int = None,
     batch_size: int = None,
     peak_weight: float = None,
@@ -235,7 +236,8 @@ def jobs(
         + new_slurm_body
     )
 
-    slurm_file = os.path.join(base, "train.slurm")
+    slurm_name = "train-{}.slurm".format(name) if name is not None else "train.slurm"
+    slurm_file = os.path.join(base, slurm_name)
 
     with open(slurm_file, "w") as f:
         f.write(slurm)
