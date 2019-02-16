@@ -26,7 +26,7 @@ slurm_header = """#!/bin/bash
 #SBATCH --gres=gpu
 #SBATCH --mem=24000
 #SBATCH --array=0-$num_definitions
-#SBATCH -t 7-12:00
+#SBATCH -t $time
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=lekschas@g.harvard.edu
 #SBATCH -o /n/pfister_lab/lekschas/peax/experiments/logs/cae-out-%A-%a.txt
@@ -209,9 +209,10 @@ def jobs(
         sys.exit(2)
 
     if cluster == "cox":
-        pass
+        max_time = "7-12:00"
     elif cluster == "seas":
         cluster = "seas_dgx1"
+        max_time = "3-00:00"
     else:
         sys.stderr.write("Unknown cluster: {}\n".format(cluster))
         sys.exit(2)
@@ -228,9 +229,9 @@ def jobs(
         signal_weighting_zero_point_percentage=signal_weighting_zero_point_percentage,
     )
     slurm = (
-        slurm_header.replace("$num_definitions", str(len(model_names) - 1)).replace(
-            "$cluster", cluster
-        )
+        slurm_header.replace("$num_definitions", str(len(model_names) - 1))
+        .replace("$cluster", cluster)
+        .replace("$time", max_time)
         + new_slurm_body
     )
 
