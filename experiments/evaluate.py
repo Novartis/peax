@@ -142,6 +142,7 @@ def evaluate(
 
     if silent:
         with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
             encoder = load_model(encoder_filepath)
             decoder = load_model(decoder_filepath)
     else:
