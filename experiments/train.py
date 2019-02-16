@@ -9,10 +9,12 @@ import os
 import pathlib
 import seaborn as sns
 import sys
+import time
 
 from ae.cnn import create_model
 from ae.utils import namify, get_tqdm
 
+from keras.callbacks import Callback
 from keras.utils.io_utils import HDF5Matrix
 
 # zp = zero point
@@ -24,6 +26,17 @@ signal_weightings = {
     "logn": lambda x, zp: np.log((x - zp).clip(min=1)),
     "log10": lambda x, zp: np.log10((x - zp).clip(min=1)),
 }
+
+
+class TimeHistory(Callback):
+    def __init__(self):
+        self.times = []
+
+    def on_epoch_begin(self, epoch, logs={}):
+        self.epoch_time_start = time.time()
+
+    def on_epoch_end(self, epoch, logs={}):
+        self.times.append(time.time() - self.epoch_time_start)
 
 
 def get_definition(
@@ -198,10 +211,12 @@ def train_on_single_dataset(
         train_on_hdf5,
     )
 
+    times_history = TimeHistory()
+
     if silent:
-        callbacks = []
+        callbacks = [times_history]
     else:
-        callbacks = [tqdm_keras(leave_inner=True)]
+        callbacks = [times_history, tqdm_keras(leave_inner=True)]
 
     history = autoencoder.fit(
         data_train,
@@ -218,6 +233,7 @@ def train_on_single_dataset(
     try:
         loss = history.history["loss"]
         val_loss = history.history["val_loss"]
+        times = times_history.times
     except KeyError:
         pass
 
@@ -234,6 +250,7 @@ def train_on_single_dataset(
     ) as f:
         f.create_dataset("loss", data=loss)
         f.create_dataset("val_loss", data=val_loss)
+        f.create_dataset("times", data=times)
 
     plot_loss_to_file(
         loss, val_loss, epochs, model_name, dataset_name=dataset, base=base
