@@ -19,6 +19,7 @@ import numpy as np
 import os
 import seaborn as sns
 import sys
+import warnings
 
 from matplotlib.cm import copper
 from typing import Tuple
@@ -803,6 +804,7 @@ def plot_windows(
     base: str = ".",
     save_as: str = None,
     trained_on_single_dataset: bool = False,
+    silent: bool = False,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     with h5py.File(os.path.join(base, "data", "{}.h5".format(dataset)), "r") as f:
         data_type = "data_{}".format(ds_type)
@@ -835,8 +837,14 @@ def plot_windows(
             decoder_filepath = os.path.join(
                 base, "models", "{}---decoder{}.h5".format(model_name, postfix)
             )
-            encoder = load_model(encoder_filepath)
-            decoder = load_model(decoder_filepath)
+            if silent:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    encoder = load_model(encoder_filepath)
+                    decoder = load_model(decoder_filepath)
+            else:
+                encoder = load_model(encoder_filepath)
+                decoder = load_model(decoder_filepath)
             sampled_encodings, _, _ = predict(encoder, decoder, sampled_wins)
             sampled_encodings = sampled_encodings.squeeze(axis=2)
 
