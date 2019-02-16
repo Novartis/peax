@@ -117,6 +117,9 @@ def evaluate(
     decoder_filepath = os.path.join(
         base, "models", "{}---decoder{}.h5".format(model_name, postfix)
     )
+    training_filepath = os.path.join(
+        base, "models", "{}---training{}.h5".format(model_name, postfix)
+    )
     evaluation_filepath = os.path.join(
         base, "models", "{}---evaluation{}.h5".format(model_name, postfix)
     )
@@ -168,6 +171,7 @@ def evaluate(
         numpy_metrics["dtw"] = dtw
 
     total_loss = None
+    total_times = np.zeros((num_datasets, 4))
 
     datasets_iter = (
         datasets if silent else tqdm(datasets, desc="Datasets", unit="dataset")
@@ -175,9 +179,9 @@ def evaluate(
 
     first_dataset_name = None
 
+    i = 0
     for dataset_name in datasets_iter:
-        data_filename = "{}.h5".format(dataset_name)
-        data_filepath = os.path.join(base, "data", data_filename)
+        data_filepath = os.path.join(base, "data", "{}.h5".format(dataset_name))
 
         if first_dataset_name is None:
             first_dataset_name = dataset_name
@@ -198,6 +202,16 @@ def evaluate(
             else:
                 total_loss = np.vstack((total_loss, loss))
 
+        with h5py.File(training_filepath, "r") as f:
+            times = f["times"][:]
+
+            total_times[i, 0] = np.mean(times)
+            total_times[i, 1] = np.median(times)
+            total_times[i, 2] = np.min(times)
+            total_times[i, 3] = np.max(times)
+
+        i += 1
+
     # Only plot windows for the first dataset
     window_idx, total_signal, max_signal = plot_windows(
         dataset_name,
@@ -208,6 +222,7 @@ def evaluate(
         min_signal=5,
         base=base,
         save_as=predictions_filepath,
+        silent=silent,
     )
 
     # Plot and save an overview of the total losses
@@ -224,6 +239,7 @@ def evaluate(
     with h5py.File(evaluation_filepath, "w") as f:
         f.create_dataset("total_loss", data=total_loss)
         f.create_dataset("total_loss_metrics", data=",".join(df.columns))
+        f.create_dataset("total_times", data=total_times)
         f.create_dataset("plotted_window_indices", data=window_idx)
         f.create_dataset("plotted_window_total_signal", data=total_signal)
         f.create_dataset("plotted_window_max_signal", data=max_signal)

@@ -24,6 +24,7 @@ def compare(
     postfix = "-{}".format(dataset_name) if dataset_name is not None else ""
 
     total_loss = None
+    total_times = None
 
     model_names_filename = os.path.splitext(model_names_file)[0]
 
@@ -54,6 +55,14 @@ def compare(
                 total_loss = loss
             else:
                 total_loss = np.vstack((total_loss, loss))
+
+            times = f["total_times"][:]
+            times = np.mean(times, axis=0).reshape(1, times.shape[1])
+
+            if total_times is None:
+                total_times = times
+            else:
+                total_times = np.vstack((total_times, times))
 
     sorting = np.argsort(total_loss, axis=0)
 
@@ -98,7 +107,10 @@ def compare(
         for i, model_name in enumerate(model_names):
             model_names[i] = model_name[len(prefix) :]
 
-    return pd.DataFrame(total_loss, index=model_names, columns=columns)
+    total_bockwurst = np.hstack((total_loss, total_times))
+    all_columns = columns + ["t mean", "t median", "t min", "t max"]
+
+    return pd.DataFrame(total_bockwurst, index=model_names, columns=all_columns)
 
 
 if __name__ == "__main__":
