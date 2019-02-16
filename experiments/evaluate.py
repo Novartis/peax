@@ -155,9 +155,6 @@ def evaluate(
     num_datasets = len(datasets)
 
     keras_metrics = {
-        "mse": mse,
-        "smse-2": scaled_mean_squared_error(2.0),
-        "smse-5": scaled_mean_squared_error(5.0),
         "smse-10": scaled_mean_squared_error(10.0),
         "r2": r2_min,
         "shuber-10-5": scaled_huber(10.0, 5.0),
