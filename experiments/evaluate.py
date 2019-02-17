@@ -58,6 +58,7 @@ python evaluate.py \\
   --model-names $model_names \\
   --model-name-idx $model_name_idx \\
   $datasets \\
+  $clear \\
   $incl_dtw \\
   --silent
 
