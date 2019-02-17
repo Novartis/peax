@@ -254,6 +254,7 @@ def create_jobs(
     dataset: str = None,
     cluster: str = "cox",
     base: str = ".",
+    clear: bool = False,
     incl_dtw: bool = False,
 ):
     if cluster == "cox":
@@ -290,6 +291,7 @@ def create_jobs(
         datasets=datasets_arg,
         model_names="definitions-{}.json".format(search_name),
         model_name_idx="$SLURM_ARRAY_TASK_ID",
+        clear="--clear" if clear else "",
         incl_dtw="--incl-dtw" if incl_dtw else "",
     )
     slurm = (
