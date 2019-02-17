@@ -18,7 +18,7 @@ from string import Template
 # https://github.com/keras-team/keras/issues/1406
 stderr = sys.stderr
 sys.stderr = open(os.devnull, "w")
-from keras.metrics import mse, mae, binary_crossentropy
+from keras.metrics import mae, binary_crossentropy
 from keras.models import load_model
 
 sys.stderr = stderr
@@ -249,6 +249,7 @@ def evaluate(
 
 def create_jobs(
     search_name: str,
+    name: str = None,
     datasets: str = None,
     dataset: str = None,
     cluster: str = "cox",
@@ -298,7 +299,10 @@ def create_jobs(
         + new_slurm_body
     )
 
-    slurm_file = os.path.join(base, "evaluate.slurm")
+    slurm_name = (
+        "evaluate-{}.slurm".format(name) if name is not None else "evaluate.slurm"
+    )
+    slurm_file = os.path.join(base, slurm_name)
 
     with open(slurm_file, "w") as f:
         f.write(slurm)
