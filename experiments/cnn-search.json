@@ -69,7 +69,7 @@
       "dense_units": [],
       "reg_lambda": 0,
       "metrics": [],
-      "batch_norm": [false, false, false],
+      "batch_norm": false,
       "batch_norm_input": false
     }
   },

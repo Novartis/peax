@@ -27,7 +27,7 @@
       "conv_kernel_size_reverse_order": true,
       "loss": "smse-10",
       "metrics": [],
-      "batch_norm": [false, false, false],
+      "batch_norm": false,
       "batch_norm_input": false
     }
   },
