@@ -13,6 +13,7 @@ limitations under the License.
 
 import bbi
 import h5py
+import json
 import math
 import matplotlib.pyplot as plt
 import numpy as np
@@ -948,3 +949,19 @@ def create_hdf5_dset(f, name, data, extendable: bool = False, dtype: str = None)
             f.create_dataset(name, data=data, maxshape=maxshape, dtype=dtype)
         else:
             f.create_dataset(name, data=data, dtype=dtype)
+
+
+def check_training(name: str, base: str = "."):
+    with open(os.path.join(base, "definitions-{}.json".format(name)), "r") as f:
+        model_names = json.load(f)
+
+    for model_name in model_names:
+        with h5py.File(
+            os.path.join(
+                base, "models", "{}---training-{}.h5".format(model_name, "cnn-search")
+            ),
+            "r",
+        ) as f:
+            times = f["times"][:]
+
+    return True
