@@ -7,13 +7,16 @@ channels:
 dependencies:
   - python=3.6
   - nodejs
+  - bwa
+  - samtools
+  - bedtools
+  - ucsc-bedgraphtobigwig
   - cython
   - cytoolz
   - jupyterlab
   - scikit-learn
   - umap-learn
   - keras
-  - tensorflow-gpu
   - seaborn
   - flask
   - flask-cors
