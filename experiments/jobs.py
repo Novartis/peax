@@ -152,6 +152,18 @@ def jobs(
         else:
             dropouts = prelim_def["dropouts"]
 
+        if "batch_norms" not in prelim_def and "batch_norm" in prelim_def:
+            batch_norm = [prelim_def["batch_norm"]] * (conv_layers + len(dense_units))
+        elif "batch_norms" not in prelim_def and "batch_norm" not in prelim_def:
+            batch_norm = [False] * (conv_layers + len(dense_units))
+        else:
+            batch_norm = prelim_def["batch_norms"]
+
+        if "batch_norm_input" in prelim_def:
+            batch_norm_input = prelim_def["batch_norm_input"]
+        else:
+            batch_norm_input = False
+
         return {
             "conv_filters": conv_filters,
             "conv_kernels": conv_kernels,
@@ -164,6 +176,8 @@ def jobs(
             "learning_rate_decay": prelim_def["learning_rate_decay"],
             "loss": prelim_def["loss"],
             "metrics": prelim_def["metrics"],
+            "batch_norm": batch_norm,
+            "batch_norm_input": batch_norm_input,
         }
 
     model_names = []

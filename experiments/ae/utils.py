@@ -687,19 +687,27 @@ abbr = {
     "loss": "l",
     "metrics": "m",
     "binary_crossentropy": "bce",
+    "batch_norm": "bn",
+    "batch_norm_input": "bni",
 }
 
 
 def namify(definition):
+    def to_str(value):
+        if isinstance(value, bool):
+            return str(int(value))
+        else:
+            return str(value)
+
     name = ""
     for i, key in enumerate(definition):
         value = definition[key]
         key = abbr[key] if key in abbr else key
         name += "--" + key + "-" if i > 0 else key + "-"
         if isinstance(value, list):
-            name += "-".join([str(v) for v in value])
+            name += "-".join([to_str(v) for v in value])
         else:
-            name += str(abbr[value]) if value in abbr else str(value)
+            name += str(abbr[value]) if value in abbr else to_str(value)
     return name
 
 
