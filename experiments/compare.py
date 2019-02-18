@@ -56,13 +56,20 @@ def compare(
             else:
                 total_loss = np.vstack((total_loss, loss))
 
-            times = f["total_times"][:]
-            times = np.mean(times, axis=0).reshape(1, times.shape[1])
+            if "total_times" in f:
+                times = f["total_times"][:]
+                times = np.mean(times, axis=0).reshape(1, times.shape[1])
 
-            if total_times is None:
-                total_times = times
+                if total_times is None:
+                    total_times = times
+                else:
+                    total_times = np.vstack((total_times, times))
             else:
-                total_times = np.vstack((total_times, times))
+                times = np.array([np.nan, np.nan, np.nan, np.nan])
+                if total_times is None:
+                    total_times = times
+                else:
+                    total_times = np.vstack((total_times, times))
 
     sorting = np.argsort(total_loss, axis=0)
 
