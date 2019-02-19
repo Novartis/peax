@@ -10,7 +10,7 @@ dependencies:
   - bwa
   - samtools
   - bedtools
-  - ucsc-bedgraphtobigwig
+  - ucsc-bedtobigbed
   - deeptools
   - cython
   - cytoolz
