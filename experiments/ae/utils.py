@@ -951,17 +951,31 @@ def create_hdf5_dset(f, name, data, extendable: bool = False, dtype: str = None)
             f.create_dataset(name, data=data, dtype=dtype)
 
 
-def check_training(name: str, base: str = "."):
+def check_status(name: str, step: str, dataset: str, base: str = "."):
     with open(os.path.join(base, "definitions-{}.json".format(name)), "r") as f:
         model_names = json.load(f)
 
-    for model_name in model_names:
-        with h5py.File(
-            os.path.join(
-                base, "models", "{}---training-{}.h5".format(model_name, "cnn-search")
-            ),
-            "r",
-        ) as f:
-            times = f["times"][:]
+    not_found = []
+    outdated = []
 
-    return True
+    for model_name in model_names:
+        try:
+            with h5py.File(
+                os.path.join(
+                    base, "models", "{}---{}-{}.h5".format(model_name, step, dataset)
+                ),
+                "r",
+            ) as f:
+                try:
+                    times = None
+                    if step == "training":
+                        times = f["times"][:]
+                    elif step == "total_times":
+                        times = f["total_times"][:]
+                    times = times
+                except KeyError:
+                    outdated.append(model_name)
+        except OSError:
+            not_found.append(model_name)
+
+    return len(not_found) == 0, not_found, outdated
