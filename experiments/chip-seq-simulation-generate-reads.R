@@ -51,6 +51,13 @@ args = commandArgs(trailingOnly = TRUE)
 # length of the chromosome (which is the same as the length of the genome 120 Mb)
 chrLen <- c(1.2e7)
 if (length(args) >= 1) chrLen = c(as.integer(args[[1]]))
+if (length(args) >= 2) {
+  spiky = as.logical(args[[2]])
+  postFix = "-spiky-peaks"
+} else {
+  spiky = FALSE
+  postFix = ""
+}
 
 generateGenome <- function(chrLen) {
   chromosomes <- sapply(
@@ -256,7 +263,7 @@ generator <- list(Binding=bindingFeature, Background=backgroundFeature)
 ### code chunk number 20: featureDensity1
 ###################################################
 constRegion <- function(weight, length) rep(weight, length)
-# featureDensity.Binding <- function(feature, ...) constRegion(feature$weight, feature$length)
+featureDensity.Binding <- function(feature, ...) constRegion(feature$weight, feature$length)
 featureDensity.Background <- function(feature, ...) constRegion(feature$weight, feature$length)
 
 
@@ -291,10 +298,12 @@ reconcileFeatures.TFExperiment <- function(features, ...){
 ###################################################
 ### code chunk number 27: featureDensity2
 ###################################################
-featureDensity.Binding <- function(feature, ...){
-  featDens <- numeric(feature$length)
-  featDens[floor(feature$length/2)] <- feature$weight
-  featDens
+if (spiky) {
+  featureDensity.Binding <- function(feature, ...){
+    featDens <- numeric(feature$length)
+    featDens[floor(feature$length/2)] <- feature$weight
+    featDens
+  }
 }
 
 
@@ -414,7 +423,7 @@ GenerateChipSeqFastqFiles <- function(ExpNo) {
     qualityFun = randomQuality,
     errorFun = readError1,
     readLen = LengthReads,
-    file = paste(data_dir, "simulated-reads-chip", ExpNo, ".fastq", sep=""),
+    file = paste(data_dir, "simulated-reads-chip", postFix, ExpNo, ".fastq", sep=""),
     qualityType = c("Illumina")
   )
   pos2fastq1(
@@ -424,7 +433,7 @@ GenerateChipSeqFastqFiles <- function(ExpNo) {
     qualityFun = randomQuality,
     errorFun = readError1,
     readLen = LengthReads,
-    file = paste(data_dir, "simulated-reads-input", ExpNo, ".fastq", sep=""),
+    file = paste(data_dir, "simulated-reads-input", postFix, ExpNo, ".fastq", sep=""),
     qualityType = c("Illumina")
   )
 }
