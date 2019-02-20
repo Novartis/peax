@@ -690,6 +690,9 @@ abbr = {
     "binary_crossentropy": "bce",
     "batch_norm": "bn",
     "batch_norm_input": "bni",
+    "peak_weight": "pw",
+    "signal_weighting": "sw",
+    "signal_weighting_zero_point_percentage": "swz",
 }
 
 

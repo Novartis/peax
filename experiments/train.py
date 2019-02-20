@@ -80,6 +80,8 @@ def get_sample_weights(
     peak_weight: float = 1,
     train_on_hdf5: bool = False,
 ) -> np.ndarray:
+    signal_weight = np.zeros(data.shape[0])
+
     if signal_weighting in signal_weightings and not train_on_hdf5:
         zero_point = data.shape[1] * signal_weighting_zero_point_percentage - 1
         total_signal = np.sum(data, axis=1).squeeze()
@@ -169,6 +171,24 @@ def train_on_single_dataset(
         print("Encoder/decoder already exists. Use `--clear` to overwrite it.")
         return
 
+    peak_weight = (
+        definition["peak_weight"] if "peak_weight" in definition else peak_weight
+    )
+    signal_weighting = (
+        definition["signal_weighting"]
+        if "signal_weighting" in definition
+        else signal_weighting
+    )
+    signal_weighting_zero_point_percentage = (
+        definition["signal_weighting_zero_point_percentage"]
+        if "signal_weighting_zero_point_percentage" in definition
+        else signal_weighting_zero_point_percentage
+    )
+
+    definition.pop("peak_weight", None)
+    definition.pop("signal_weighting", None)
+    definition.pop("signal_weighting_zero_point_percentage", None)
+
     encoder, decoder, autoencoder = create_model(bins_per_window, **definition)
 
     loss = None
@@ -193,6 +213,8 @@ def train_on_single_dataset(
             data_dev = f["data_dev"][:]
             peaks_dev = f["peaks_dev"][:]
         shuffle = True
+
+    print(peak_weight, signal_weighting, signal_weighting_zero_point_percentage)
 
     sample_weight_train = get_sample_weights(
         data_train,

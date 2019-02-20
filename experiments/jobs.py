@@ -93,15 +93,29 @@ def jobs(
     fixed = search["hyperparameters"]["fixed"]
     epochs = epochs if epochs is not None else search["epochs"]
     batch_size = batch_size if batch_size is not None else search["batch_size"]
-    peak_weight = peak_weight if peak_weight is not None else search["peak_weight"]
-    signal_weighting = (
-        signal_weighting if signal_weighting is not None else search["signal_weighting"]
-    )
-    signal_weighting_zero_point_percentage = (
-        signal_weighting_zero_point_percentage
-        if signal_weighting_zero_point_percentage is not None
-        else search["signal_weighting_zero_point_percentage"]
-    )
+
+    try:
+        peak_weight = peak_weight if peak_weight is not None else search["peak_weight"]
+    except KeyError:
+        peak_weight = 1
+
+    try:
+        signal_weighting = (
+            signal_weighting
+            if signal_weighting is not None
+            else search["signal_weighting"]
+        )
+    except KeyError:
+        signal_weighting = "none"
+
+    try:
+        signal_weighting_zero_point_percentage = (
+            signal_weighting_zero_point_percentage
+            if signal_weighting_zero_point_percentage is not None
+            else search["signal_weighting_zero_point_percentage"]
+        )
+    except KeyError:
+        signal_weighting_zero_point_percentage = 0
 
     base_def = dict({}, **fixed)
 
@@ -178,6 +192,11 @@ def jobs(
             "metrics": prelim_def["metrics"],
             "batch_norm": batch_norm,
             "batch_norm_input": batch_norm_input,
+            "peak_weight": prelim_def["peak_weight"],
+            "signal_weighting": prelim_def["signal_weighting"],
+            "signal_weighting_zero_point_percentage": prelim_def[
+                "signal_weighting_zero_point_percentage"
+            ],
         }
 
     model_names = []
