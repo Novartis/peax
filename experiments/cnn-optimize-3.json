@@ -1,0 +1,38 @@
+{
+  "hyperparameters": {
+    "varying": {
+      "params": [
+        "peak_weight",
+        "signal_weighting",
+        "signal_weighting_zero_point_percentage"
+      ],
+      "values": [
+        [
+          [1, 2, 4, 8],
+          ["none", "linear", "log2", "logn", "log10"],
+          [0.0, 0.02, 0.05]
+        ]
+      ]
+    },
+    "fixed": {
+      "optimizer": "adadelta",
+      "learning_rate": 1.0,
+      "learning_rate_decay": 0.001,
+      "conv_layers": 4,
+      "conv_filter_size": [128, 256, 512, 1024],
+      "conv_filter_size_reverse_order": false,
+      "conv_kernel_size": [3, 7, 11, 15],
+      "conv_kernel_size_reverse_order": false,
+      "dense_units": [1024, 256],
+      "embedding": 8,
+      "dropout": 0,
+      "reg_lambda": 0,
+      "loss": "smse-10",
+      "metrics": [],
+      "batch_norm": false,
+      "batch_norm_input": false
+    }
+  },
+  "epochs": 25,
+  "batch_size": 256
+}
