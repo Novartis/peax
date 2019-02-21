@@ -178,8 +178,20 @@ def create_model(
     elif optimizer == "adagrad":
         opt = optimizers.Adagrad(lr=learning_rate, decay=learning_rate_decay)
 
-    elif optimizer == "adam":
-        opt = optimizers.Adam(lr=learning_rate, decay=learning_rate_decay)
+    elif optimizer == "adam" or optimizer[:5] == "adam-":
+        try:
+            beta_1 = float(optimizer.split("-")[1])
+        except IndexError:
+            beta_1 = 0.9
+
+        try:
+            beta_2 = float(optimizer.split("-")[2])
+        except IndexError:
+            beta_2 = 0.999
+
+        opt = optimizers.Adam(
+            lr=learning_rate, decay=learning_rate_decay, beta_1=beta_1, beta_2=beta_2
+        )
 
     elif optimizer == "amsgrad":
         opt = optimizers.Adam(lr=learning_rate, decay=learning_rate_decay, amsgrad=True)

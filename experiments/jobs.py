@@ -178,6 +178,14 @@ def jobs(
         else:
             batch_norm_input = False
 
+        optimizer = prelim_def["optimizer"]
+        if optimizer == "adam":
+            if "adam_b1" in prelim_def:
+                optimizer += "-" + str(prelim_def["adam_b1"])
+
+            if "adam_b2" in prelim_def:
+                optimizer += "-" + str(prelim_def["adam_b2"])
+
         return {
             "conv_filters": conv_filters,
             "conv_kernels": conv_kernels,
@@ -185,7 +193,7 @@ def jobs(
             "dropouts": dropouts,
             "embedding": prelim_def["embedding"],
             "reg_lambda": prelim_def["reg_lambda"],
-            "optimizer": prelim_def["optimizer"],
+            "optimizer": optimizer,
             "learning_rate": prelim_def["learning_rate"],
             "learning_rate_decay": prelim_def["learning_rate_decay"],
             "loss": prelim_def["loss"],
