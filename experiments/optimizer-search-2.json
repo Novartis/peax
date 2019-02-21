@@ -1,0 +1,37 @@
+{
+  "hyperparameters": {
+    "varying": {
+      "params": ["optimizer", "adam_b1", "adam_b2", "learning_rate"],
+      "values": [
+        [
+          ["adam"],
+          [0.9, 0.7, 0.5, 0.2],
+          [0.99, 0.9, 0.7, 0.5],
+          [1.0, 0.1, 0.01, 0.001]
+        ],
+        [["adadelta"], [0], [0], [1.0]]
+      ]
+    },
+    "fixed": {
+      "learning_rate_decay": 0.001,
+      "conv_layers": 4,
+      "conv_filter_size": [32, 64, 128, 256],
+      "conv_filter_size_reverse_order": false,
+      "conv_kernel_size": [3, 7, 11, 15],
+      "conv_kernel_size_reverse_order": false,
+      "dense_units": [512, 128],
+      "embedding": 8,
+      "dropout": 0,
+      "reg_lambda": 0,
+      "loss": "smse-10",
+      "metrics": [],
+      "batch_norm": false,
+      "batch_norm_input": false,
+      "peak_weight": 2,
+      "signal_weighting": "logn",
+      "signal_weighting_zero_point_percentage": 0.02
+    }
+  },
+  "epochs": 25,
+  "batch_size": 256
+}
