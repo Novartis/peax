@@ -56,8 +56,8 @@ from ae.loss import (
 
 def create_model(
     input_dim: int,
-    optimizer: str = "adam",
-    loss: str = "mse",
+    optimizer: str = "adadelta",
+    loss: str = "smse-10",
     conv_filters: list = [120],
     conv_kernels: list = [9],
     dense_units: list = [256, 64, 16],
@@ -67,8 +67,8 @@ def create_model(
     batch_norm_input: bool = False,
     metrics: list = [],
     reg_lambda: float = 0.0,
-    learning_rate: float = 0.01,
-    learning_rate_decay: float = 0.0,
+    learning_rate: float = 1.0,
+    learning_rate_decay: float = 0.001,
     summary: bool = False,
     plot: bool = False,
 ):
