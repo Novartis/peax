@@ -20,7 +20,7 @@ import sys
 
 parser = argparse.ArgumentParser(description="Peak Explorer CLI")
 parser.add_argument(
-    "--config", help="path to your JSON config file", default="config.json"
+    "-c", "--config", help="path to your JSON config file", default="config.json"
 )
 parser.add_argument(
     "--clear", action="store_true", help="clears the cache and database on startup"
@@ -34,10 +34,12 @@ parser.add_argument(
 parser.add_argument(
     "--clear-db", action="store_true", help="clears the database on startup"
 )
-parser.add_argument("--debug", action="store_true", help="turn on debug mode")
+parser.add_argument("-d", "--debug", action="store_true", help="turn on debug mode")
 parser.add_argument("--host", help="customize the hostname", default="localhost")
 parser.add_argument("--port", help="customize the port", default=5000)
-parser.add_argument("--verbose", action="store_true", help="turn verbose logging on")
+parser.add_argument(
+    "-v", "--verbose", action="store_true", help="turn verbose logging on"
+)
 
 try:
     args = parser.parse_args()
