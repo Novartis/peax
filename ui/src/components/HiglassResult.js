@@ -224,6 +224,7 @@ class HiglassResult extends React.Component {
         <HiGlassViewer
           api={this.onApi}
           height={this.props.viewHeight}
+          isGlobalMousePosition={true}
           isStatic={true}
           isZoomFixed={true}
           viewConfigId={this.viewId}

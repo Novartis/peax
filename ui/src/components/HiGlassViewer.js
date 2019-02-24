@@ -161,6 +161,7 @@ class HiGlassViewer extends React.Component {
                 enableAltMouseTools={this.props.enableAltMouseTools}
                 onError={this.onError.bind(this)}
                 viewConfig={this.state.viewConfigStatic}
+                isGlobalMousePosition={this.props.isGlobalMousePosition}
                 isPadded={this.props.isPadded}
                 isZoomFixed={this.props.isZoomFixed}
               />
@@ -169,6 +170,7 @@ class HiGlassViewer extends React.Component {
                 api={this.props.api}
                 enableAltMouseTools={this.props.enableAltMouseTools}
                 onError={this.onError.bind(this)}
+                isGlobalMousePosition={this.props.isGlobalMousePosition}
                 isPadded={this.props.isPadded}
                 isZoomFixed={this.props.isZoomFixed}
               />
@@ -181,6 +183,8 @@ class HiGlassViewer extends React.Component {
 
 HiGlassViewer.defaultProps = {
   api: () => {},
+  isGlobalMousePosition: false,
+  isPadded: false,
   isStatic: false,
   isZoomFixed: false
 };
@@ -192,6 +196,7 @@ HiGlassViewer.propTypes = {
   enableAltMouseTools: PropTypes.bool,
   hasSubTopBar: PropTypes.bool,
   height: PropTypes.number,
+  isGlobalMousePosition: PropTypes.bool,
   isPadded: PropTypes.bool,
   isStatic: PropTypes.bool,
   isZoomFixed: PropTypes.bool,

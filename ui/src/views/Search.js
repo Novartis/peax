@@ -429,8 +429,6 @@ class Search extends React.Component {
       (dataX - this.state.searchInfo.dataFrom) / stepSize
     );
 
-    console.log(windowId);
-
     this.props.setHover(windowId);
   }
 
@@ -866,6 +864,7 @@ class Search extends React.Component {
                   </div>
                   <HiGlassViewer
                     height={info.viewHeight}
+                    isGlobalMousePosition={true}
                     isStatic={true}
                     viewConfigId={hgViewId(info.id)}
                   />
@@ -915,6 +914,7 @@ class Search extends React.Component {
                   ? this.state.searchInfo.maxViewHeight
                   : this.state.searchInfo.viewHeight
               }
+              isGlobalMousePosition={true}
               isStatic={true}
               viewConfigId={hgViewId(this.state.searchInfo.id)}
             />

@@ -106,6 +106,8 @@ class HiGlassLauncher extends React.Component {
       options.mouseTool = this.props.mouseTool;
     }
 
+    options.globalMousePosition = this.props.isGlobalMousePosition;
+
     options.bounded = this.props.autoExpand
       ? false
       : this.props.options.bounded;
@@ -138,6 +140,7 @@ class HiGlassLauncher extends React.Component {
 }
 
 HiGlassLauncher.defaultProps = {
+  isGlobalMousePosition: false,
   isZoomFixed: false,
   options: {
     bounded: true,
@@ -150,6 +153,7 @@ HiGlassLauncher.propTypes = {
   api: PropTypes.func,
   autoExpand: PropTypes.bool,
   enableAltMouseTools: PropTypes.bool,
+  isGlobalMousePosition: PropTypes.bool,
   isPadded: PropTypes.bool,
   isZoomFixed: PropTypes.bool,
   onError: PropTypes.func.isRequired,
