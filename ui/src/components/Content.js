@@ -26,7 +26,7 @@ const styles = props => {
     return {
       marginRight: `${
         props.rightBarShow
-          ? Math.min(RIGHT_BAR_MIN_WIDTH, props.rightBarWidth)
+          ? Math.max(RIGHT_BAR_MIN_WIDTH, props.rightBarWidth)
           : RIGHT_BAR_MIN_WIDTH
       }px`
     };
