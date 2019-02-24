@@ -49,3 +49,7 @@ export const PROJECTION_VIEW = [
 ];
 
 export const PROJECTION_VIEW_INTERVAL = 500;
+
+export const SHOW_RECTICLE = true;
+
+export const RECTICLE_COLOR = [0, 0, 0, 0.1];

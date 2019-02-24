@@ -29,6 +29,7 @@ import SearchSubTopBarTabs from './SearchSubTopBarTabs';
 
 // Actions
 import {
+  setSearchHover,
   setSearchRightBarShow,
   setSearchRightBarTab,
   setSearchTab
@@ -376,18 +377,18 @@ class Search extends React.Component {
   checkHgEvents() {
     if (!this.hgApi) return;
 
-    this.hiGlassEventListeners.location = {
-      name: 'location',
-      id: this.hgApi.on('location', this.locationHandler)
-    };
+    if (!this.hiGlassEventListeners.location) {
+      this.hiGlassEventListeners.location = {
+        name: 'location',
+        id: this.hgApi.on('location', this.locationHandler)
+      };
+    }
 
-    if (!this.hiGlassEventListeners.mouseMoveZoom) {
-      // Broken right now because HG's pubSub creates a global store, hence,
-      // we get mouseMoveZoom callbacks from *all* HG instances.
-      // this.hiGlassEventListeners.mouseMoveZoom = {
-      //   name: 'mouseMoveZoom',
-      //   id: this.hgApi.on('mouseMoveZoom', this.mouseMoveZoomHandler),
-      // };
+    if (!this.hiGlassEventListeners.cursorLocation) {
+      this.hiGlassEventListeners.cursorLocation = {
+        name: 'cursorLocation',
+        id: this.hgApi.on('cursorLocation', this.cursorLocationHandler)
+      };
     }
   }
 
@@ -413,22 +414,24 @@ class Search extends React.Component {
   }
 
   @boundMethod
-  mouseMoveZoomHandler({ center: [xPos] }) {
+  cursorLocationHandler({ dataX }) {
     if (
       !this.state.searchInfo ||
-      xPos < this.state.searchInfo.dataFrom ||
-      xPos >= this.state.searchInfo.dataTo
+      dataX < this.state.searchInfo.dataFrom ||
+      dataX >= this.state.searchInfo.dataTo
     )
-      return undefined;
+      return;
 
     const stepSize =
       this.state.searchInfo.windowSize / this.state.searchInfo.config.step_freq;
 
     const windowId = Math.floor(
-      (xPos - this.state.searchInfo.dataFrom) / stepSize
+      (dataX - this.state.searchInfo.dataFrom) / stepSize
     );
 
-    return windowId;
+    console.log(windowId);
+
+    this.props.setHover(windowId);
   }
 
   removeHiGlassEventListeners() {
@@ -1028,6 +1031,7 @@ Search.propTypes = {
   rightBarTab: PropTypes.oneOfType([PropTypes.string, PropTypes.symbol])
     .isRequired,
   rightBarWidth: PropTypes.number,
+  setHover: PropTypes.func,
   setRightBarShow: PropTypes.func,
   setRightBarTab: PropTypes.func,
   setTab: PropTypes.func.isRequired,
@@ -1046,6 +1050,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  setHover: windowId => dispatch(setSearchHover(windowId)),
   setRightBarShow: rightBarShow =>
     dispatch(setSearchRightBarShow(rightBarShow)),
   setRightBarTab: searchRightBarTab =>

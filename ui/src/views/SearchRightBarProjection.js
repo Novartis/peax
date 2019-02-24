@@ -31,7 +31,9 @@ import {
   REDRAW_DELAY,
   PROJECTION_CHECK_INTERVAL,
   PROJECTION_VIEW,
-  PROJECTION_VIEW_INTERVAL
+  PROJECTION_VIEW_INTERVAL,
+  SHOW_RECTICLE,
+  RECTICLE_COLOR
 } from '../configs/projection';
 import {
   BUTTON_RADIO_PROJECTION_COLOR_ENCODING_OPTIONS,
@@ -66,7 +68,7 @@ class SearchRightBarProjection extends React.Component {
       this.onChangeState('pointSize'),
       pointSize => {
         if (this.scatterplot) {
-          this.scatterplot.style({ pointSize });
+          this.scatterplot.set({ pointSize });
         }
         return pointSize;
       },
@@ -132,7 +134,7 @@ class SearchRightBarProjection extends React.Component {
   hover() {
     if (!this.scatterplot) return;
     if (this.props.hover >= 0) {
-      this.scatterplot.hover(this.props.hover);
+      this.scatterplot.hover(this.props.hover, true);
     } else {
       this.scatterplot.hover();
     }
@@ -141,9 +143,9 @@ class SearchRightBarProjection extends React.Component {
   setColorEncoding() {
     if (!this.scatterplot) return;
     if (this.state.colorEncoding === 'probability') {
-      this.scatterplot.style({ colorBy: 'value', colors: COLORMAP_PRB });
+      this.scatterplot.set({ colorBy: 'value', colors: COLORMAP_PRB });
     } else {
-      this.scatterplot.style({ colorBy: 'category', colors: COLORMAP_CAT });
+      this.scatterplot.set({ colorBy: 'category', colors: COLORMAP_CAT });
     }
   }
 
@@ -162,6 +164,8 @@ class SearchRightBarProjection extends React.Component {
       width: bBox.width,
       height: bBox.height,
       pointSize: this.state.pointSize,
+      showRecticle: SHOW_RECTICLE,
+      recticleColor: RECTICLE_COLOR,
       view: PROJECTION_VIEW
     });
 
@@ -174,14 +178,14 @@ class SearchRightBarProjection extends React.Component {
     this.scatterplot = scatterplot;
     this.setColorEncoding();
 
-    this.setState({ canvas: scatterplot.canvas });
+    this.setState({ canvas: scatterplot.get('canvas') });
   }
 
   updateScatterplot(points = this.state.points, updateSize = false) {
     if (!points.length || !this.canvasWrapper) return;
     if (updateSize) {
       const bBox = this.canvasWrapper.getBoundingClientRect();
-      this.scatterplot.attr({
+      this.scatterplot.set({
         width: bBox.width,
         height: bBox.height
       });
@@ -369,10 +373,10 @@ class SearchRightBarProjection extends React.Component {
                   disabled={this.state.isLoading || this.state.isError}
                   id="search-projection-settings-point-size"
                   label="Point size"
-                  max={12}
-                  min={2}
+                  max={10}
+                  min={0.5}
                   onChange={this.onChangePointSize}
-                  step={1}
+                  step={0.5}
                   value={this.state.pointSize}
                 />
               </li>
