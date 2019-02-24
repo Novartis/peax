@@ -6,7 +6,7 @@ channels:
 
 dependencies:
   - python=3.6
-  - nodejs
+  - nodejs=10.*
   - bwa
   - samtools
   - bedtools
@@ -42,3 +42,4 @@ dependencies:
       - negspy
       - pybbi
       - keras-tqdm
+      - forestci
