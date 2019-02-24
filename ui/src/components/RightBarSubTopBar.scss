@@ -1,4 +1,4 @@
-@import "../styles/colors";
+@import '../styles/colors';
 
 .right-bar-sub-top-bar {
   position: absolute;
@@ -33,7 +33,6 @@
 
     &.is-active {
       color: $black;
-      font-weight: bold;
       background: $gray-lightest;
       box-shadow: 0 0 0 2px $gray-lightest-rgba;
     }
