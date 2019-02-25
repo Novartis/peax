@@ -258,7 +258,10 @@ def jobs(
 
     if cluster == "cox":
         max_time = "7-12:00"
-    elif cluster == "seas":
+    elif cluster == "holyseas":
+        cluster = "holyseasgpu"
+        max_time = "7-00:00"
+    elif cluster == "seasdgx1":
         cluster = "seas_dgx1"
         max_time = "3-00:00"
     else:
