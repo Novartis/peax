@@ -312,18 +312,36 @@ def train(
         print("Encoder/decoder already exists. Use `--clear` to overwrite it.")
         return
 
+    peak_weight = (
+        definition["peak_weight"] if "peak_weight" in definition else peak_weight
+    )
+    signal_weighting = (
+        definition["signal_weighting"]
+        if "signal_weighting" in definition
+        else signal_weighting
+    )
+    signal_weighting_zero_point_percentage = (
+        definition["signal_weighting_zero_point_percentage"]
+        if "signal_weighting_zero_point_percentage" in definition
+        else signal_weighting_zero_point_percentage
+    )
+
+    definition.pop("peak_weight", None)
+    definition.pop("signal_weighting", None)
+    definition.pop("signal_weighting_zero_point_percentage", None)
+
     encoder, decoder, autoencoder = create_model(bins_per_window, **definition)
 
-    loss = np.zeros(epochs * len(datasets))
-    val_loss = np.zeros(epochs * len(datasets))
+    loss = np.zeros((epochs, len(datasets)))
+    val_loss = np.zeros((epochs, len(datasets)))
+    times = np.zeros((epochs, len(datasets)))
 
     if silent:
         epochs_iter = range(epochs)
     else:
         epochs_iter = tqdm_normal(range(epochs), desc="Epochs", unit="epoch")
 
-    i = 0
-    for epoch in epochs_iter:
+    for e, epoch in enumerate(epochs_iter):
         epochs_iter = range(epochs)
 
         if silent:
@@ -333,7 +351,7 @@ def train(
                 datasets, desc="Datasets", unit="dataset", leave=False
             )
 
-        for dataset_name in datasets_iter:
+        for d, dataset_name in enumerate(datasets_iter):
             data_filename = "{}.h5".format(dataset_name)
             data_filepath = os.path.join(base, "data", data_filename)
 
@@ -366,10 +384,15 @@ def train(
                     peak_weight,
                 )
 
+                times_history = TimeHistory()
+
                 if silent:
-                    callbacks = []
+                    callbacks = [times_history]
                 else:
-                    callbacks = [tqdm_keras(leave_inner=True)]
+                    callbacks = [
+                        times_history,
+                        tqdm_keras(leave_inner=True, leave_outer=False),
+                    ]
 
                 history = autoencoder.fit(
                     data_train,
@@ -384,12 +407,11 @@ def train(
                 )
 
                 try:
-                    loss[i] = history.history["loss"][0]
-                    val_loss[i] = history.history["val_loss"][0]
+                    loss[e, d] = history.history["loss"][0]
+                    val_loss[e, d] = history.history["val_loss"][0]
+                    times[e, d] = times_history.times[0]
                 except KeyError:
                     pass
-
-                i += 1
 
     encoder.save(os.path.join(base, "models", "{}---encoder.h5".format(model_name)))
     decoder.save(os.path.join(base, "models", "{}---decoder.h5".format(model_name)))
@@ -397,10 +419,16 @@ def train(
     with h5py.File(
         os.path.join(base, "models", "{}---training.h5".format(model_name)), "w"
     ) as f:
-        f.create_dataset("loss", data=loss)
-        f.create_dataset("val_loss", data=val_loss)
+        f.create_dataset("loss", data=loss.mean(axis=1))
+        f.create_dataset("val_loss", data=val_loss.mean(axis=1))
+        f.create_dataset("times", data=times.mean(axis=1))
+        f.create_dataset("loss_per_dataset_per_epoch", data=loss)
+        f.create_dataset("val_loss_per_dataset_per_epoch", data=val_loss)
+        f.create_dataset("times_per_dataset_per_epoch", data=times)
 
-    plot_loss_to_file(loss, val_loss, epochs, model_name, base=base)
+    plot_loss_to_file(
+        loss.mean(axis=1), val_loss.mean(axis=1), epochs, model_name, base=base
+    )
 
 
 if __name__ == "__main__":
