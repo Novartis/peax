@@ -23,7 +23,7 @@ const Icon = props => (
   <div
     className={`icon icon-${props.iconId} ${
       props.mirrorH ? 'is-mirror-h' : ''
-    } ${props.mirrorV ? 'is-mirror-v' : ''}`}
+    } ${props.mirrorV ? 'is-mirror-v' : ''} ${props.inline ? 'is-inline' : ''}`}
     title={props.title}
   >
     <svg
@@ -38,6 +38,7 @@ const Icon = props => (
 
 Icon.propTypes = {
   iconId: PropTypes.string.isRequired,
+  inline: PropTypes.bool,
   mirrorH: PropTypes.bool,
   mirrorV: PropTypes.bool,
   title: PropTypes.string

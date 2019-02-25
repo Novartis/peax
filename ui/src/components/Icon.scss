@@ -1,4 +1,4 @@
-@import "../styles/transitions";
+@import '../styles/transitions';
 
 .icon {
   position: relative;
@@ -11,6 +11,10 @@
 
   &.is-mirror-v svg {
     transform: scale(-1, 1);
+  }
+
+  &.is-inline {
+    display: inline-block;
   }
 
   svg {
