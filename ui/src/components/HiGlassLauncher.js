@@ -13,6 +13,7 @@ import {
 
 // Configs
 import { SELECT } from '../configs/mouse-tools';
+import { DEFAULT_OPTIONS } from '../configs/higlass';
 
 // Styles
 import './HiGlassLauncher.scss';
@@ -100,7 +101,7 @@ class HiGlassLauncher extends React.Component {
   /* -------------------------------- Render -------------------------------- */
 
   render() {
-    const options = Object.assign({}, this.props.options);
+    const options = Object.assign({}, DEFAULT_OPTIONS, this.props.options);
 
     if (this.props.enableAltMouseTools) {
       options.mouseTool = this.props.mouseTool;
