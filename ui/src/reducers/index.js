@@ -16,6 +16,11 @@ const higlassMouseTool = defaultSetReducer('higlassMouseTool', 'panZoom');
 
 const searchHover = defaultSetReducer('searchHover', -1);
 
+const searchRightBarInfoHelp = defaultSetReducer(
+  'searchRightBarInfoHelp',
+  false
+);
+
 const searchRightBarInfoMetadata = defaultSetReducer(
   'searchRightBarInfoMetadata',
   true
@@ -49,6 +54,7 @@ const appReducer = combineReducers({
   viewConfig,
   higlassMouseTool,
   searchHover,
+  searchRightBarInfoHelp,
   searchRightBarInfoMetadata,
   searchRightBarProjectionSettings,
   searchRightBarShow,

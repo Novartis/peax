@@ -42,6 +42,11 @@ export const setSearchRightBarInfoMetadata = searchRightBarInfoMetadata => ({
   payload: { searchRightBarInfoMetadata }
 });
 
+export const setSearchRightBarInfoHelp = searchRightBarInfoHelp => ({
+  type: 'SET_SEARCH_RIGHT_BAR_INFO_HELP',
+  payload: { searchRightBarInfoHelp }
+});
+
 export const setSearchRightBarProjectionSettings = searchRightBarProjectionSettings => ({
   type: 'SET_SEARCH_RIGHT_BAR_PROJECTION_SETTINGS',
   payload: { searchRightBarProjectionSettings }
