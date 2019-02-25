@@ -954,7 +954,7 @@ def create_hdf5_dset(f, name, data, extendable: bool = False, dtype: str = None)
             f.create_dataset(name, data=data, dtype=dtype)
 
 
-def check_status(name: str, step: str, dataset: str, base: str = "."):
+def check_status(name: str, step: str, dataset: str = None, base: str = "."):
     with open(os.path.join(base, "definitions-{}.json".format(name)), "r") as f:
         model_names = json.load(f)
 
@@ -963,12 +963,17 @@ def check_status(name: str, step: str, dataset: str, base: str = "."):
 
     for model_name in model_names:
         try:
-            with h5py.File(
-                os.path.join(
-                    base, "models", "{}---{}-{}.h5".format(model_name, step, dataset)
-                ),
-                "r",
-            ) as f:
+            postfix = "-{}".format(dataset) if dataset is not None else ""
+            repetition = None
+            if len(model_name.split("__")) > 1:
+                parts = model_name.split("__")
+                model_name = parts[0]
+                repetition = parts[1]
+                postfix = "{}__{}".format(postfix, repetition)
+            filepath = os.path.join(
+                base, "models", "{}---{}{}.h5".format(model_name, step, postfix)
+            )
+            with h5py.File(filepath, "r") as f:
                 try:
                     times = None
                     if step == "training":

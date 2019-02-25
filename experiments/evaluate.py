@@ -112,6 +112,13 @@ def evaluate(
         )
         sys.exit(2)
 
+    repetition = None
+    if len(model_name.split("__")) > 1:
+        parts = model_name.split("__")
+        model_name = parts[0]
+        repetition = parts[1]
+        postfix = "{}__{}".format(postfix, repetition)
+
     encoder_filepath = os.path.join(
         base, "models", "{}---encoder{}.h5".format(model_name, postfix)
     )

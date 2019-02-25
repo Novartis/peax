@@ -45,6 +45,7 @@ def get_definition(
     definition_idx: int = -1,
     base: str = ".",
 ) -> dict:
+    definition_name = None
     if definition is not None:
         pass
     elif definitions is not None and definition_idx >= 0:
@@ -69,7 +70,7 @@ def get_definition(
         )
         sys.exit(2)
 
-    return definition
+    return definition, definition_name
 
 
 def get_sample_weights(
@@ -155,7 +156,13 @@ def train_on_single_dataset(
 
     bins_per_window = settings["window_size"] // settings["resolution"]
 
-    definition = get_definition(definition, definitions, definition_idx, base)
+    definition, definition_name = get_definition(
+        definition, definitions, definition_idx, base
+    )
+
+    repetition = None
+    if definition_name is not None and len(definition_name.split("__")) > 1:
+        repetition = definition_name.split("__")[1]
 
     model_name = namify(definition)
     encoder_name = os.path.join(
@@ -257,15 +264,23 @@ def train_on_single_dataset(
     except KeyError:
         pass
 
+    postfix = "__{}".format(repetition) if repetition is not None else ""
+
     encoder.save(
-        os.path.join(base, "models", "{}---encoder-{}.h5".format(model_name, dataset))
+        os.path.join(
+            base, "models", "{}---encoder-{}{}.h5".format(model_name, dataset, postfix)
+        )
     )
     decoder.save(
-        os.path.join(base, "models", "{}---decoder-{}.h5".format(model_name, dataset))
+        os.path.join(
+            base, "models", "{}---decoder-{}{}.h5".format(model_name, dataset, postfix)
+        )
     )
 
     with h5py.File(
-        os.path.join(base, "models", "{}---training-{}.h5".format(model_name, dataset)),
+        os.path.join(
+            base, "models", "{}---training-{}{}.h5".format(model_name, dataset, postfix)
+        ),
         "w",
     ) as f:
         f.create_dataset("loss", data=loss)
@@ -300,7 +315,13 @@ def train(
 
     bins_per_window = settings["window_size"] // settings["resolution"]
 
-    definition = get_definition(definition, definitions, definition_idx, base)
+    definition, definition_name = get_definition(
+        definition, definitions, definition_idx, base
+    )
+
+    repetition = None
+    if len(definition_name.split("__")) > 1:
+        repetition = definition_name.split("__")[1]
 
     model_name = namify(definition)
     encoder_name = os.path.join(base, "models", "{}---encoder.h5".format(model_name))
@@ -413,11 +434,18 @@ def train(
                 except KeyError:
                     pass
 
-    encoder.save(os.path.join(base, "models", "{}---encoder.h5".format(model_name)))
-    decoder.save(os.path.join(base, "models", "{}---decoder.h5".format(model_name)))
+    postfix = "__{}".format(repetition) if repetition is not None else ""
+
+    encoder.save(
+        os.path.join(base, "models", "{}---encoder{}.h5".format(model_name, postfix))
+    )
+    decoder.save(
+        os.path.join(base, "models", "{}---decoder{}.h5".format(model_name, postfix))
+    )
 
     with h5py.File(
-        os.path.join(base, "models", "{}---training.h5".format(model_name)), "w"
+        os.path.join(base, "models", "{}---training{}.h5".format(model_name, postfix)),
+        "w",
     ) as f:
         f.create_dataset("loss", data=loss.mean(axis=1))
         f.create_dataset("val_loss", data=val_loss.mean(axis=1))
