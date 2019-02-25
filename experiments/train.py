@@ -214,8 +214,6 @@ def train_on_single_dataset(
             peaks_dev = f["peaks_dev"][:]
         shuffle = True
 
-    print(peak_weight, signal_weighting, signal_weighting_zero_point_percentage)
-
     sample_weight_train = get_sample_weights(
         data_train,
         peaks_train,
