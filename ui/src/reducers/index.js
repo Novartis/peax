@@ -26,7 +26,7 @@ const searchRightBarProjectionSettings = defaultSetReducer(
   false
 );
 
-const searchRightBarShow = defaultSetReducer('searchRightBarShow', false);
+const searchRightBarShow = defaultSetReducer('searchRightBarShow', true);
 
 const searchRightBarTab = defaultSetReducer(
   'searchRightBarTab',
