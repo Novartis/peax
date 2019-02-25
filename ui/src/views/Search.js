@@ -819,6 +819,7 @@ class Search extends React.Component {
         <Content
           name="search"
           rel={true}
+          hasSmallerTopBar={true}
           hasSubTopBar={true}
           bottomMargin={false}
           rightBarShow={this.props.rightBarShow}
@@ -896,6 +897,7 @@ class Search extends React.Component {
           hasRightBar={true}
           hasSubTopBar={true}
           isVertFlex={true}
+          hasSmallerTopBar={true}
           bottomMargin={false}
           rightBarShow={this.props.rightBarShow}
           rightBarWidth={this.props.rightBarWidth}

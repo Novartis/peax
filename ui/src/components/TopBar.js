@@ -43,13 +43,17 @@ class TopBar extends React.Component {
   /* -------------------------------- Render -------------------------------- */
 
   render() {
+    let wrapClass = 'wrap';
+    let sizeClass = '';
+
+    if (isSearch(this.props.location.pathname)) {
+      wrapClass = 'wrap-basic';
+      sizeClass = 'smaller';
+    }
+
     return (
-      <header className="top-bar">
-        <div
-          className={`flex-c flex-jc-sb top-bar-wrapper ${
-            isSearch(this.props.location.pathname) ? 'wrap-basic' : 'wrap'
-          }`}
-        >
+      <header className={`top-bar ${sizeClass}`}>
+        <div className={`flex-c flex-jc-sb top-bar-wrapper ${wrapClass}`}>
           <div className="flex-c branding-launch">
             <NavLink to="/" className="flex-c flex-a-c branding">
               <Icon iconId="logo-two-tone" />

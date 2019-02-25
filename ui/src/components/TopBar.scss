@@ -1,6 +1,6 @@
-@import "../styles/colors";
-@import "../styles/transitions";
-@import "../styles/underline";
+@import '../styles/colors';
+@import '../styles/transitions';
+@import '../styles/underline';
 
 .top-bar {
   position: fixed;
@@ -14,9 +14,16 @@
   background: transparentize($white, 0.1);
   box-shadow: 0 2px 0 0 transparentize($black, 0.95);
   line-height: 3rem;
+  transition: height $fast-transition $easing,
+    line-height $fast-transition $easing;
 
   // Avoid odd 1px move when a NavLink is active and one hovers over another link
   transform: translateZ(0);
+
+  &.smaller {
+    height: 2rem;
+    line-height: 2rem;
+  }
 
   .top-bar-wrapper {
     transition: margin $normal-transition $easing;
@@ -109,6 +116,11 @@
     }
   }
 
+  &.smaller .branding .icon {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
   .btn {
     margin: 0.75rem 0.5rem;
     padding: 0;
@@ -151,7 +163,7 @@
     line-height: inherit;
 
     &.separated-left::before {
-      content: "";
+      content: '';
       width: 2px;
       margin: 0.25rem 0.25rem;
       background: $gray-lightest;
@@ -162,7 +174,7 @@
     button.is-primary-nav {
       margin: 0 0.125rem;
       padding: 0 0.125rem;
-      font-size: 0.85em;
+      font-size: 1rem;
 
       @include underline($black, -2px, 2px);
 

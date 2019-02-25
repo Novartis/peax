@@ -17,6 +17,7 @@ const classNames = props => {
   className += props.wrap ? ' wrap' : '';
   className += !props.bottomMargin ? ' no-bottom-margin' : '';
   className += props.isVertFlex ? ' flex-c flex-v' : '';
+  className += props.hasSmallerTopBar ? ' has-smaller-top-bar' : '';
 
   return className;
 };
@@ -51,6 +52,7 @@ Content.propTypes = {
   hasRightBar: PropTypes.bool,
   hasSubTopBar: PropTypes.bool,
   isVertFlex: PropTypes.bool,
+  hasSmallerTopBar: PropTypes.bool,
   name: PropTypes.string.isRequired,
   rel: PropTypes.bool,
   rightBarShow: PropTypes.bool,

@@ -1,8 +1,10 @@
-@import "../styles/colors";
-@import "../styles/ratio";
-@import "../styles/transitions";
+@import '../styles/colors';
+@import '../styles/ratio';
+@import '../styles/transitions';
 
 .search-right-bar {
+  top: 2rem;
+
   .search-right-bar-padding {
     padding: 0.25rem 0.125rem;
 
