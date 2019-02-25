@@ -16,22 +16,43 @@ import sqlite3
 from server.defaults import DB_PATH
 
 
-def objectify_search(search):
-    updated = max(search[5] or "", search[6] or "", search[8] or "")
+def objectify_search(search: tuple) -> dict:
+    """Turn the result from get_search() into a dictionary
+
+    The search result contains the following columns:
+    0. id
+    1. target_from
+    2. target_to
+    3. config
+    4. created
+    5. updated
+    6. name
+    7. description
+    8. updated classifications last
+    9. num classifications
+    10. updated classifier
+    11. num classifier
+
+    Arguments:
+        search {tuple} -- Return value from get_search()
+    """
+    updated = max(search[5] or "", search[8] or "", search[10] or "")
 
     return {
         "id": search[0],
         "target_from": search[1],
         "target_to": search[2],
         "config": json.loads(search[3]),
-        "classifiers": search[9] if search[9] is not None else 0,
+        "classifiers": search[11] if search[11] is not None else 0,
         "created": search[4],
         "updated": updated,
-        "classifications": search[7] if search[7] is not None else 0,
+        "classifications": search[9] if search[9] is not None else 0,
+        "name": search[6],
+        "description": search[7],
     }
 
 
-def objectify_classification(classif):
+def objectify_classification(classif: tuple) -> dict:
     return {
         "windowId": classif[1],
         "classification": classif[2],
@@ -40,7 +61,7 @@ def objectify_classification(classif):
     }
 
 
-def objectify_classifier(classifier):
+def objectify_classifier(classifier: tuple) -> dict:
     if classifier is None:
         return None
 
@@ -54,7 +75,7 @@ def objectify_classifier(classifier):
     }
 
 
-def objectify_projector(projector):
+def objectify_projector(projector: tuple) -> dict:
     if projector is None:
         return None
 
