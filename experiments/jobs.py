@@ -75,6 +75,7 @@ def jobs(
     base: str = ".",
     clear: bool = False,
     verbose: bool = False,
+    repeat: int = 1,
 ):
     search_name = os.path.splitext(search_filename)[0]
     try:
@@ -209,15 +210,20 @@ def jobs(
 
     model_names = []
 
+    if len(combinations) == 0:
+        combinations = [[]] * repeat
+
     skipped = 0
-    for combination in tqdm(combinations, desc="Jobs", unit="job"):
+    for i, combination in enumerate(tqdm(combinations, desc="Jobs", unit="job")):
         combined_def = dict({}, **base_def)
 
-        for i, value in enumerate(combination):
+        for j, value in enumerate(combination):
             combined_def[varying["params"][i]] = value
 
         final_def = finalize_def(combined_def)
         model_name = namify(final_def)
+        if repeat > 1:
+            model_name = "{}__{}".format(model_name, i)
         def_file = os.path.join(base, "models", "{}.json".format(model_name))
 
         if not pathlib.Path(def_file).is_file() or clear:
