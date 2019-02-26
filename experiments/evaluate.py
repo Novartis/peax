@@ -231,6 +231,7 @@ def evaluate(
         base=base,
         save_as=predictions_filepath,
         silent=silent,
+        repetition=repetition,
     )
 
     # Plot and save an overview of the total losses

@@ -817,6 +817,7 @@ def plot_windows(
     save_as: str = None,
     trained_on_single_dataset: bool = False,
     silent: bool = False,
+    repetition: str = None,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     with h5py.File(os.path.join(base, "data", "{}.h5".format(dataset)), "r") as f:
         data_type = "data_{}".format(ds_type)
@@ -843,6 +844,10 @@ def plot_windows(
 
         if model_name:
             postfix = "-{}".format(dataset) if trained_on_single_dataset else ""
+
+            if repetition is not None:
+                postfix = "{}__{}".format(postfix, repetition)
+
             encoder_filepath = os.path.join(
                 base, "models", "{}---encoder{}.h5".format(model_name, postfix)
             )
