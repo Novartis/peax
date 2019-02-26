@@ -1,5 +1,7 @@
 # Peax: a pattern explorer for epigenomic data
 
+**Peax is still under active development! If you like to give it a try, please choose one of the [pre-releases](https://github.com/Novartis/peax/releases). If you run into trouble please contact [@flekschas](https://twitter.com/flekschas). He's happy to help. We're trying to stabelize the development soon.**
+
 ![Peax's UI](teaser.png)
 
 > Epigenomic data expresses a rich body of diverse patterns, but
