@@ -267,7 +267,9 @@ def create_jobs(
 ):
     if cluster == "cox":
         pass
-    elif cluster == "seas":
+    elif cluster == "holyseas":
+        cluster = "holyseasgpu"
+    elif cluster == "seasdgx1":
         cluster = "seas_dgx1"
     else:
         sys.stderr.write("Unknown cluster: {}\n".format(cluster))
