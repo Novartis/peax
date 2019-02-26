@@ -41,6 +41,13 @@ def compare(
     columns = None
 
     for model_name in model_names:
+        repetition = None
+        if len(model_name.split("__")) > 1:
+            parts = model_name.split("__")
+            model_name = parts[0]
+            repetition = parts[1]
+            postfix = "{}__{}".format(postfix, repetition)
+
         filepath = os.path.join(
             base, "models", "{}---evaluation{}.h5".format(model_name, postfix)
         )
