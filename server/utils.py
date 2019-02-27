@@ -40,6 +40,23 @@ def unpredictability(p: np.ndarray) -> float:
     return np.mean(np.abs(p - np.round(p))) * 2
 
 
+def prediction_proba_change(p0: np.ndarray, p1: np.ndarray) -> float:
+    """Unpredictability score
+
+    Total amount of change in the prediction probability
+    """
+    return np.mean(np.abs(p0 - p1))
+
+
+def prediction_change(p0: np.ndarray, p1: np.ndarray, border: float = 0.5) -> float:
+    """Prediction change score
+
+    Prediction change is defined as the number of times the predicted class changes
+    based on the border probability.
+    """
+    return np.mean(np.sign(p0 - border) != np.sign(p1 - border))
+
+
 def uncertainty(model, X_train: np.ndarray, X_test: np.ndarray) -> float:
     """Unpredictability score
 
