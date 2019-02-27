@@ -52,6 +52,7 @@ python train.py \\
   --peak-weight $peak_weight \\
   --signal-weighting $signal_weighting \\
   --signal-weighting-zero-point-percentage $signal_weighting_zero_point_percentage \\
+  $early_stopping \\
   --silent
 
 # end of program
@@ -68,6 +69,7 @@ def jobs(
     name: str = None,
     epochs: int = None,
     batch_size: int = None,
+    early_stopping: bool = None,
     peak_weight: float = None,
     signal_weighting: str = None,
     signal_weighting_zero_point_percentage: float = None,
@@ -94,6 +96,9 @@ def jobs(
     fixed = search["hyperparameters"]["fixed"]
     epochs = epochs if epochs is not None else search["epochs"]
     batch_size = batch_size if batch_size is not None else search["batch_size"]
+    early_stopping = (
+        early_stopping if early_stopping is not None else search["early_stopping"]
+    )
 
     try:
         peak_weight = peak_weight if peak_weight is not None else search["peak_weight"]
@@ -210,29 +215,27 @@ def jobs(
 
     model_names = []
 
-    if len(combinations) == 0:
-        combinations = [[]] * repeat
-
     skipped = 0
-    for i, combination in enumerate(tqdm(combinations, desc="Jobs", unit="job")):
-        combined_def = dict({}, **base_def)
+    for combination in tqdm(combinations, desc="Jobs", unit="job"):
+        for r in range(repeat):
+            combined_def = dict({}, **base_def)
 
-        for j, value in enumerate(combination):
-            combined_def[varying["params"][i]] = value
+            for i, value in enumerate(combination):
+                combined_def[varying["params"][i]] = value
 
-        final_def = finalize_def(combined_def)
-        model_name = namify(final_def)
-        if repeat > 1:
-            model_name = "{}__{}".format(model_name, i)
-        def_file = os.path.join(base, "models", "{}.json".format(model_name))
+            final_def = finalize_def(combined_def)
+            model_name = namify(final_def)
+            if repeat > 1:
+                model_name = "{}__{}".format(model_name, r)
+            def_file = os.path.join(base, "models", "{}.json".format(model_name))
 
-        if not pathlib.Path(def_file).is_file() or clear:
-            with open(def_file, "w") as f:
-                json.dump(final_def, f, indent=2)
-        else:
-            skipped += 1
+            if not pathlib.Path(def_file).is_file() or clear:
+                with open(def_file, "w") as f:
+                    json.dump(final_def, f, indent=2)
+            else:
+                skipped += 1
 
-        model_names.append(model_name)
+            model_names.append(model_name)
 
     if skipped > 0:
         print(
@@ -275,6 +278,7 @@ def jobs(
         definition_idx="$SLURM_ARRAY_TASK_ID",
         epochs=epochs,
         batch_size=batch_size,
+        early_stopping="--early-stopping" if early_stopping else "",
         peak_weight=peak_weight,
         signal_weighting=signal_weighting,
         signal_weighting_zero_point_percentage=signal_weighting_zero_point_percentage,
