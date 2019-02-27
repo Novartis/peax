@@ -81,6 +81,33 @@ def normalize(data, percentile: float = 99.9):
     return MinMaxScaler().fit_transform(data_norm)
 
 
+def get_search_target_windows(
+    db, search_id, window_size, abs_offset, no_stack: bool = False
+):
+    # Get search target window
+    search = db.get_search(search_id)
+    search_target_windows = get_target_window_idx(
+        search["target_from"],
+        search["target_to"],
+        window_size,
+        search["config"]["step_freq"],
+        abs_offset,
+    )
+
+    # stwi == search target window indices
+    stwi = np.arange(*search_target_windows[1])
+
+    if no_stack:
+        return stwi
+
+    return np.hstack(
+        (
+            stwi.reshape(stwi.shape[0], 1),
+            np.ones(stwi.shape[0]).reshape(stwi.shape[0], 1),
+        )
+    ).astype(int)
+
+
 def get_search_target_classif(db, search_id, window_size, abs_offset):
     # Get search target window
     search = db.get_search(search_id)
@@ -289,6 +316,10 @@ def serialize_classif(classif):
     sorting = np.argsort(classif[:, 0])
     merged = classif[:, 0] * classif[:, 1]
     return merged[sorting].tobytes()
+
+
+def unserialize_classif(serialized_classif):
+    return np.frombuffer(serialized_classif, dtype=np.int)
 
 
 def get_target_window_idx(
