@@ -29,22 +29,113 @@ class Classifiers:
         self.classifiers.pop(search_id, None)
 
     def get(self, search_id: int, classifier_id: int = None):
-        if search_id in self.classifiers:
-            return self.classifiers[search_id]
-
         classifier_info = self.db.get_classifier(search_id, classifier_id)
+        classifier_id = classifier_info["classifier_id"]
+
+        if (
+            search_id in self.classifiers
+            and classifier_id in self.classifiers[search_id]
+        ):
+            return self.classifiers[search_id][classifier_id]
 
         if classifier_info is not None:
-            classifier = Classifier(search_id, classifier_info["classifier_id"])
+            classifier = Classifier(**classifier_info)
+
             if classifier_info["model"] is not None:
                 classifier.load(classifier_info["model"])
+
             classifier.serialized_classifications = classifier_info[
                 "serialized_classifications"
             ]
-            self.classifiers[search_id] = classifier
+
+            if search_id not in self.classifiers:
+                self.classifiers[search_id] = {classifier.classifier_id: classifier}
+            else:
+                self.classifiers[search_id][classifier.classifier_id] = classifier
+
             return classifier
 
         return None
+
+    def evaluate(self, search_id: int, classifier_id: int = None):
+        classifier_info = self.db.get_classifier(search_id, classifier_id)
+
+        if classifier_info is None:
+            return None
+
+        # Get search target classifications
+        search_target_classif = utils.get_search_target_classif(
+            self.db, search_id, self.window_size, self.abs_offset
+        )
+
+        dbres = self.db.get_classifications(search_id)
+
+        N = self.data.shape[0]
+
+        classifications = np.array(
+            list(map(lambda x: [int(x["windowId"]), int(x["classification"])], dbres))
+        )
+
+        # Combine classifications with search target
+        if np.min(search_target_classif) >= 0 and np.max(search_target_classif) < N:
+            classifications = np.vstack((search_target_classif, classifications))
+
+        classifications[:, 1][np.where(classifications[:, 1] == -1)] = 0
+
+        X = self.data
+        X_train = self.data[classifications[:, 0]]
+
+        classifier_id = classifier_info["classifier_id"]
+
+        classifier = self.get(search_id, classifier_id)
+
+        if classifier.is_evaluated:
+            return None
+
+        if classifier_info["model"] is not None:
+            classifier.load(classifier_info["model"])
+
+        prev_classifier = None
+        prev_classifier_info = None
+        prev_prev_classifier = None
+        prev_prev_classifier_info = None
+
+        if classifier_id >= 2:
+            prev_classifier_info = self.db.get_classifier(search_id, classifier_id - 1)
+
+            if prev_classifier_info["model"] is not None:
+                prev_classifier = self.get(search_id, classifier_id - 1)
+                prev_classifier.load(prev_classifier_info["model"])
+
+            prev_prev_classifier_info = self.db.get_classifier(
+                search_id, classifier_id - 2
+            )
+
+            if prev_prev_classifier_info["model"] is not None:
+                prev_prev_classifier = self.get(search_id, classifier_id - 2)
+                prev_prev_classifier.load(prev_prev_classifier_info["model"])
+
+        def callback_evaluate():
+            self.db.set_classifier(
+                search_id, classifier_id, unpredictability=classifier.unpredictability
+            )
+            self.db.set_classifier(
+                search_id, classifier_id, uncertainty=classifier.uncertainty
+            )
+            self.db.set_classifier(
+                search_id, classifier_id, convergence=classifier.convergence
+            )
+            self.db.set_classifier(
+                search_id, classifier_id, divergence=classifier.divergence
+            )
+
+        classifier.evaluate_threading(
+            X,
+            X_train,
+            prev_classifier=prev_classifier,
+            prev_prev_classifier=prev_prev_classifier,
+            callback=callback_evaluate,
+        )
 
     def new(self, search_id: int):
         # Get previous classifier
@@ -86,15 +177,18 @@ class Classifiers:
         train_X = self.data[classifications[:, 0]]
         train_y = classifications[:, 1]
 
-        classifier = Classifier(search_id, classifier_id)
+        classifier = self.get(search_id, classifier_id)
         classifier.serialized_classifications = new_classif
         self.classifiers[search_id] = classifier
 
-        def callback():
-            # Store the trained model
+        def callback_train():
+            # Dump and store the trained model
             dumped_model = classifier.dump()
-            self.db.set_classifier(search_id, classifier_id, dumped_model)
+            self.db.set_classifier(search_id, classifier_id, model=dumped_model)
 
-        classifier.train(train_X, train_y, callback=callback)
+            # Evaluate classifier
+            self.evaluate(search_id, classifier_id)
+
+        classifier.train(train_X, train_y, callback=callback_train)
 
         return classifier

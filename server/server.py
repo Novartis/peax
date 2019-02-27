@@ -309,7 +309,7 @@ def create(
 
             else:
                 # Remove empty windows (ne = no empty)
-                data_idx[np.where((datasets.windows_max[:] < 0.1))] = False
+                data_idx[np.where((dsc.windows_max[:] < 0.1))] = False
                 seeds = sampling.sample_by_dist_density(encodings, data_idx, target)
 
             assert np.unique(seeds).size == seeds.size, "Do not return duplicated seeds"
@@ -486,7 +486,7 @@ def create(
             return jsonify({"info": "Classifier{} been deleted.".format(msg)})
 
         elif request.method == "GET":
-            clf = classifiers.get(search_id)
+            clf = classifiers.get(search_id, classifier_id)
 
             if clf is None:
                 return (
@@ -500,12 +500,21 @@ def create(
                     404,
                 )
 
+            if not clf.is_evaluated:
+                classifiers.evaluate(search_id, clf.classifier_id)
+
             return jsonify(
                 {
                     "classifierId": clf.classifier_id,
                     "featureImportance": clf.model.feature_importances_.tolist(),
+                    "unpredictability": clf.unpredictability,
+                    "uncertainty": clf.uncertainty,
+                    "convergence": clf.convergence,
+                    "divergence": clf.divergence,
                     "isTrained": clf.is_trained,
                     "isTraining": clf.is_training,
+                    "isEvaluated": clf.is_evaluated,
+                    "isEvaluating": clf.is_evaluating,
                 }
             )
 
@@ -521,6 +530,8 @@ def create(
                     "classifierId": classifier.classifier_id,
                     "isTrained": classifier.is_trained,
                     "isTraining": classifier.is_training,
+                    "isEvaluated": classifier.is_evaluated,
+                    "isEvaluating": classifier.is_evaluating,
                 }
             )
 

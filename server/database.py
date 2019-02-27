@@ -62,6 +62,23 @@ def objectify_classification(classif: tuple) -> dict:
 
 
 def objectify_classifier(classifier: tuple) -> dict:
+    """Turn the result from get_classifier() into a dictionary
+
+    The search result contains the following columns:
+    0. search_id
+    1. classifier_id
+    2. serialized_classifications
+    3. model
+    4. unpredictability
+    5. uncertainty
+    6. convergence
+    7. divergence
+    8. created
+    9. updated
+
+    Arguments:
+        search {tuple} -- Return value from get_classifier()
+    """
     if classifier is None:
         return None
 
@@ -70,8 +87,12 @@ def objectify_classifier(classifier: tuple) -> dict:
         "classifier_id": classifier[1],
         "serialized_classifications": classifier[2],
         "model": classifier[3],
-        "created": classifier[4],
-        "updated": classifier[5],
+        "unpredictability": classifier[4],
+        "uncertainty": classifier[5],
+        "convergence": classifier[6],
+        "divergence": classifier[7],
+        "created": classifier[8],
+        "updated": classifier[9],
     }
 
 
@@ -177,6 +198,10 @@ class DB:
                 classifier_id INT NOT NULL,
                 serialized_classifications BLOB,
                 model BLOB,
+                unpredictability REAL,
+                uncertainty REAL,
+                convergence REAL,
+                divergence REAL,
                 created DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (search_id) REFERENCES search(id),
@@ -464,17 +489,28 @@ class DB:
                 ).fetchone()
             )
 
-    def set_classifier(self, search_id, classifier_id, dumped_model):
+    def set_classifier(self, search_id, classifier_id, **kwargs):
+        supported_keys = [
+            "model",
+            "unpredictability",
+            "uncertainty",
+            "convergence",
+            "divergence",
+        ]
         with self.connect() as conn:
-            conn.execute(
-                """
-                UPDATE classifier
-                SET model = ?
-                WHERE search_id = ? and classifier_id = ?
-                """,
-                (dumped_model, search_id, classifier_id),
-            )
-            conn.commit()
+            for key in kwargs:
+                if key in supported_keys:
+                    conn.execute(
+                        """
+                        UPDATE classifier
+                        SET {} = ?
+                        WHERE search_id = ? and classifier_id = ?
+                        """.format(
+                            key
+                        ),
+                        (kwargs[key], search_id, classifier_id),
+                    )
+                    conn.commit()
 
     def delete_classifier(self, search_id: int, classifier_id: int = None):
         with self.connect() as conn:
