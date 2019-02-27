@@ -50,26 +50,36 @@ def uncertainty(model, X_train: np.ndarray, X_test: np.ndarray) -> float:
     return random_forest_error(model, X_train, X_test).mean()
 
 
-def convergence(x0: np.ndarray, x1: np.ndarray, x2: np.ndarray) -> float:
+def convergence(
+    x0: np.ndarray, x1: np.ndarray, x2: np.ndarray, decimals: int = 3
+) -> float:
     """Convergence score
 
     Given three measurements, the convergence score is the percentage of changes that
     increase or decrease in both steps. The highest convergence score is 1 and the
     lowest is 0.
     """
-    return np.sum(np.abs(np.sign(x1 - x0) + np.sign(x2 - x1)) == 2) / x0.shape[0]
+    x0r = np.round(x0, decimals=decimals)
+    x1r = np.round(x1, decimals=decimals)
+    x2r = np.round(x2, decimals=decimals)
+    return np.mean(np.abs(np.sign(x1r - x0r) + np.sign(x2r - x1r)) == 2)
 
 
-def divergence(x0: np.ndarray, x1: np.ndarray, x2: np.ndarray) -> float:
+def divergence(
+    x0: np.ndarray, x1: np.ndarray, x2: np.ndarray, decimals: int = 3
+) -> float:
     """Divergence score
 
     Given three measurements, the divergence score is the percentage of changes that
     increase in one step and decrease in the other step or vice versa. The highest
     convergence score is 1 and the lowest is 0.
     """
-    d0 = np.sign(x1 - x0)
-    d1 = np.sign(x2 - x1)
-    return np.sum((d0 + d1 == 0) * (np.abs(d0) > 0)) / x0.shape[0]
+    x0r = np.round(x0, decimals=decimals)
+    x1r = np.round(x1, decimals=decimals)
+    x2r = np.round(x2, decimals=decimals)
+    d0 = np.sign(x1r - x0r)
+    d1 = np.sign(x2r - x1r)
+    return np.mean((d0 + d1 == 0) * (np.abs(d0) > 0))
 
 
 def normalize(data, percentile: float = 99.9):
