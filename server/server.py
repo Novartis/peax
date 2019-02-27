@@ -473,6 +473,30 @@ def create(
             }
         )
 
+    @app.route("/api/v1/progress/", methods=["GET"])
+    def view_progress():
+        search_id = request.args.get("s")
+        update = request.args.get("u")
+
+        if search_id is None:
+            return jsonify({"error": "Search id (`s`) is missing."}), 400
+
+        progress = classifiers.progress(search_id, update=update)
+
+        if "is_computing" in progress:
+            return jsonify({"search_id": search_id, "is_computing": True})
+
+        return jsonify(
+            {
+                "search_id": search_id,
+                "numLabels": progress["num_labels"],
+                "unpredictability": progress["unpredictability"],
+                "uncertainty": progress["uncertainty"],
+                "convergence": progress["convergence"],
+                "divergence": progress["divergence"],
+            }
+        )
+
     @app.route("/api/v1/classifier/", methods=["DELETE", "GET", "POST"])
     def view_classifier():
         search_id = request.args.get("s")
