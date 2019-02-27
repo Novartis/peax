@@ -32,6 +32,7 @@ from server import (
     view_config,
 )
 from server.classifiers import Classifiers
+from server.progresses import Progresses
 from server.database import DB
 from server.projectors import Projectors
 
@@ -76,6 +77,9 @@ def create(
         classifiers = Classifiers(
             db, encodings, window_size=encoders.window_size, abs_offset=abs_offset
         )
+
+        # Set up progresses
+        progresses = Progresses(db, classifiers)
 
         # Set up projectors
         projectors = Projectors(db, encodings, encoders.window_size, abs_offset)
@@ -481,21 +485,9 @@ def create(
         if search_id is None:
             return jsonify({"error": "Search id (`s`) is missing."}), 400
 
-        progress = classifiers.progress(search_id, update=update)
+        progress = progresses.get(search_id, update=update)
 
-        if "is_computing" in progress:
-            return jsonify({"search_id": search_id, "is_computing": True})
-
-        return jsonify(
-            {
-                "search_id": search_id,
-                "numLabels": progress["num_labels"],
-                "unpredictability": progress["unpredictability"],
-                "uncertainty": progress["uncertainty"],
-                "convergence": progress["convergence"],
-                "divergence": progress["divergence"],
-            }
-        )
+        return jsonify(progress.to_dict())
 
     @app.route("/api/v1/classifier/", methods=["DELETE", "GET", "POST"])
     def view_classifier():

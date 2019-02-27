@@ -72,48 +72,6 @@ class Classifiers:
 
         return classifier
 
-    def progress(self, search_id: int, update: bool = False):
-        classifier_info = self.db.get_classifier(search_id)
-
-        if classifier_info is None:
-            return
-
-        progress = self.db.get_progress(search_id)
-
-        is_computed = True
-
-        if update:
-            self.evaluate_all_threading(search_id, update=update)
-            is_computed = False
-        else:
-            for p in range(len(progress)):
-                if progress[p][1] is None:
-                    self.evaluate(search_id, progress[p][0])
-                    is_computed = False
-
-        if not is_computed:
-            return {"is_computing": True}
-
-        unpredictability = []
-        uncertainty = []
-        convergence = []
-        divergence = []
-        num_labels = []
-        for p in range(len(progress)):
-            unpredictability.append(progress[p][1])
-            uncertainty.append(progress[p][2])
-            convergence.append(progress[p][3])
-            divergence.append(progress[p][4])
-            num_labels.append(utils.unserialize_classif(progress[p][5]).shape[0])
-
-        return {
-            "unpredictability": unpredictability,
-            "uncertainty": uncertainty,
-            "convergence": convergence,
-            "divergence": divergence,
-            "num_labels": num_labels,
-        }
-
     def evaluate(
         self,
         search_id: int,
@@ -129,8 +87,8 @@ class Classifiers:
         classifier_id = classifier_info["classifier_id"]
         classifier = self.get(search_id, classifier_id)
 
-        # if classifier.is_evaluated and not update:
-        #     return None
+        if classifier.is_evaluated and not update:
+            return None
 
         if classifier_info["model"] is not None:
             classifier.load(classifier_info["model"])
