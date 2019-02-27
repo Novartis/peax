@@ -523,7 +523,7 @@ if __name__ == "__main__":
         "-z", "--silent", action="store_true", help="disable all but error logs"
     )
     parser.add_argument(
-        "-e", "--early-stopping", action="store_true", help="employ early stopping"
+        "--early-stopping", action="store_true", help="employ early stopping"
     )
 
     args = parser.parse_args()
