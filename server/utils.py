@@ -16,6 +16,7 @@ import itertools
 import operator
 
 from contextlib import contextmanager
+from forestci import random_forest_error
 from scipy.ndimage.interpolation import zoom
 from scipy.spatial.distance import cdist
 from scipy.stats import norm
@@ -27,6 +28,48 @@ def compare_lists(
     a: List, b: List, conditionator: Callable = all, comparator: Callable = operator.eq
 ):
     return conditionator(map(comparator, a, itertools.islice(a, 1, None)))
+
+
+def unpredictability(p: np.ndarray) -> float:
+    """Unpredictability score
+
+    Unpredictability is defined as the minimum deviation of the prediction probability
+    from `0.5` to `0` or `1`. For example, for a prediction probability of 0.6 the
+    unpredictability is 0.4. The highest unpredictability is 1 and the lowest is 0.
+    """
+    return np.mean(np.abs(p - np.round(p))) * 2
+
+
+def uncertainty(model, X_train: np.ndarray, X_test: np.ndarray) -> float:
+    """Unpredictability score
+
+    Unpredictability is defined as the minimum deviation of the prediction probability
+    from `0.5` to `0` or `1`. For example, for a prediction probability of 0.6 the
+    unpredictability is 0.4. The highest unpredictability is 1 and the lowest is 0.
+    """
+    return random_forest_error(model, X_train, X_test).mean()
+
+
+def convergence(x0: np.ndarray, x1: np.ndarray, x2: np.ndarray) -> float:
+    """Convergence score
+
+    Given three measurements, the convergence score is the percentage of changes that
+    increase or decrease in both steps. The highest convergence score is 1 and the
+    lowest is 0.
+    """
+    return np.sum(np.abs(np.sign(x1 - x0) + np.sign(x2 - x1)) == 2) / x0.shape[0]
+
+
+def divergence(x0: np.ndarray, x1: np.ndarray, x2: np.ndarray) -> float:
+    """Divergence score
+
+    Given three measurements, the divergence score is the percentage of changes that
+    increase in one step and decrease in the other step or vice versa. The highest
+    convergence score is 1 and the lowest is 0.
+    """
+    d0 = np.sign(x1 - x0)
+    d1 = np.sign(x2 - x1)
+    return np.sum((d0 + d1 == 0) * (np.abs(d0) > 0)) / x0.shape[0]
 
 
 def normalize(data, percentile: float = 99.9):
