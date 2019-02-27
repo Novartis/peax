@@ -463,6 +463,25 @@ class DB:
 
             return classifier_id
 
+    def get_classifier_ids(self, search_id: int):
+        with self.connect() as conn:
+            return list(
+                map(
+                    # fetchall() always returns tuples. Since we only ask for
+                    # classifier_id, we can resolve the tuple with one value
+                    lambda x: x[0],
+                    conn.execute(
+                        """
+                        SELECT classifier_id
+                        FROM classifier
+                        WHERE search_id = ?
+                        ORDER BY classifier_id DESC
+                        """,
+                        (search_id,),
+                    ).fetchall(),
+                )
+            )
+
     def get_classifier(self, search_id: int, classifier_id: int = None):
         with self.connect() as conn:
             if classifier_id is not None:
@@ -530,6 +549,23 @@ class DB:
                 """,
                 (search_id,),
             )
+
+    def get_progress(self, search_id: int):
+        with self.connect() as conn:
+            return conn.execute(
+                """
+                SELECT
+                    classifier_id,
+                    unpredictability,
+                    uncertainty,
+                    convergence,
+                    divergence,
+                    serialized_classifications
+                FROM classifier
+                WHERE search_id = ?
+                """,
+                (search_id,),
+            ).fetchall()
 
     def create_projector(
         self,
