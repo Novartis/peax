@@ -14,7 +14,7 @@ import time
 from ae.cnn import create_model
 from ae.utils import namify, get_tqdm
 
-from keras.callbacks import Callback
+from keras.callbacks import Callback, EarlyStopping
 from keras.utils.io_utils import HDF5Matrix
 
 # zp = zero point
@@ -148,6 +148,7 @@ def train_on_single_dataset(
     clear: bool = False,
     silent: bool = False,
     train_on_hdf5: bool = False,
+    early_stopping: bool = False,
 ):
     # Create data directory
     pathlib.Path("models").mkdir(parents=True, exist_ok=True)
@@ -240,10 +241,20 @@ def train_on_single_dataset(
 
     times_history = TimeHistory()
 
-    if silent:
-        callbacks = [times_history]
-    else:
-        callbacks = [times_history, tqdm_keras(leave_inner=True)]
+    callbacks = [times_history]
+
+    if early_stopping:
+        callbacks += [
+            EarlyStopping(
+                monitor="val_loss",
+                min_delta=1e-6,
+                patience=10,
+                restore_best_weights=True,
+            )
+        ]
+
+    if not silent:
+        callbacks += [tqdm_keras(leave_inner=True)]
 
     history = autoencoder.fit(
         data_train,
@@ -407,13 +418,20 @@ def train(
 
                 times_history = TimeHistory()
 
-                if silent:
-                    callbacks = [times_history]
-                else:
-                    callbacks = [
-                        times_history,
-                        tqdm_keras(leave_inner=True, leave_outer=False),
+                callbacks = [times_history]
+
+                if early_stopping:
+                    callbacks += [
+                        EarlyStopping(
+                            monitor="val_loss",
+                            min_delta=1e-6,
+                            patience=10,
+                            restore_best_weights=True,
+                        )
                     ]
+
+                if not silent:
+                    callbacks += [tqdm_keras(leave_inner=True, leave_outer=False)]
 
                 history = autoencoder.fit(
                     data_train,
@@ -504,6 +522,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "-z", "--silent", action="store_true", help="disable all but error logs"
     )
+    parser.add_argument(
+        "-e", "--early-stopping", action="store_true", help="employ early stopping"
+    )
 
     args = parser.parse_args()
 
@@ -572,6 +593,7 @@ if __name__ == "__main__":
             signal_weighting_zero_point_percentage=signal_weighting_zero_point_percentage,
             clear=args.clear,
             silent=args.silent,
+            early_stopping=args.early_stopping,
         )
     else:
         datasets = list(datasets.keys())
@@ -596,4 +618,5 @@ if __name__ == "__main__":
             signal_weighting_zero_point_percentage=signal_weighting_zero_point_percentage,
             clear=args.clear,
             silent=args.silent,
+            early_stopping=args.early_stopping,
         )
