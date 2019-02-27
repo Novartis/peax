@@ -15,7 +15,6 @@ import _thread
 from io import BytesIO
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.externals import joblib
-import forestci as fci
 
 from server.utils import unpredictability, uncertainty, convergence, divergence
 
@@ -57,7 +56,11 @@ class Classifier:
             self.unpredictability is not None and self.uncertainty is not None
         )
         self.is_evaluating = False
-        self.serialized_classifications = b""
+        self.serialized_classifications = (
+            kwargs["serialized_classifications"]
+            if "serialized_classifications" in kwargs
+            else b""
+        )
 
     def predict(self, X):
         if not self.is_trained:
@@ -90,7 +93,7 @@ class Classifier:
 
         if prev_classifier is not None and prev_prev_classifier is not None:
             prev_p_y = prev_classifier.model.predict_proba(X)
-            prev_prev_p_y = prev_classifier.model.predict_proba(X)
+            prev_prev_p_y = prev_prev_classifier.model.predict_proba(X)
 
             self.convergence = convergence(
                 prev_prev_p_y[:, 1], prev_p_y[:, 1], p_y[:, 1]
@@ -114,7 +117,6 @@ class Classifier:
     ):
         self.is_evaluated = False
         self.is_evaluating = True
-        print("YASSAS!", self.is_evaluating)
         try:
             _thread.start_new_thread(
                 evaluate_threading,
