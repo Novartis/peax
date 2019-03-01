@@ -71,7 +71,6 @@ class Progress:
 
         self.is_computed = False
         self.is_computing = True
-        print("-------------------------------------------", force)
         try:
             _thread.start_new_thread(update, (self, classifiers, force))
         except Exception:
@@ -94,40 +93,21 @@ class Progress:
     def to_dict(self, camel_case: bool = False):
         out = {}
 
-        unpredictability_all = None
-        unpredictability_labels = None
-        prediction_proba_change_all = None
-        prediction_proba_change_labels = None
-        convergence_all = None
-        convergence_labels = None
-        divergence_all = None
-        divergence_labels = None
-
-        if self.is_computed:
-            unpredictability_all = self.unpredictability_all
-            unpredictability_labels = self.unpredictability_labels
-            prediction_proba_change_all = self.prediction_proba_change_all
-            prediction_proba_change_labels = self.prediction_proba_change_labels
-            convergence_all = self.convergence_all
-            convergence_labels = self.convergence_labels
-            divergence_all = self.divergence_all
-            divergence_labels = self.divergence_labels
-
         out[case("search_id", camel_case)] = self.search_id
         out[case("is_computed", camel_case)] = self.is_computed
         out[case("is_computing", camel_case)] = self.is_computing
         out[case("num_labels", camel_case)] = self.num_labels
-        out[case("unpredictability_all", camel_case)] = unpredictability_all
-        out[case("unpredictability_labels", camel_case)] = unpredictability_labels
+        out[case("unpredictability_all", camel_case)] = self.unpredictability_all
+        out[case("unpredictability_labels", camel_case)] = self.unpredictability_labels
         out[
             case("prediction_proba_change_all", camel_case)
-        ] = prediction_proba_change_all
+        ] = self.prediction_proba_change_all
         out[
             case("prediction_proba_change_labels", camel_case)
-        ] = prediction_proba_change_labels
-        out[case("convergence_all", camel_case)] = convergence_all
-        out[case("convergence_labels", camel_case)] = convergence_labels
-        out[case("divergence_all", camel_case)] = divergence_all
-        out[case("divergence_labels", camel_case)] = divergence_labels
+        ] = self.prediction_proba_change_labels
+        out[case("convergence_all", camel_case)] = self.convergence_all
+        out[case("convergence_labels", camel_case)] = self.convergence_labels
+        out[case("divergence_all", camel_case)] = self.divergence_all
+        out[case("divergence_labels", camel_case)] = self.divergence_labels
 
         return out
