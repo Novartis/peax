@@ -33,8 +33,7 @@ const SearchRightBarInfo = props => (
         />
       </li>
       <li className="flex-c flex-v">
-        <span className="label">Unstability</span>
-        {console.log(props.progress)}
+        <span className="label">Prediction prob. change</span>
         <BarChart
           x={props.progress.numLabels}
           y={props.progress.predictionProbaChangeAll}
@@ -43,11 +42,13 @@ const SearchRightBarInfo = props => (
         />
       </li>
       <li className="flex-c flex-v">
-        <span className="label">Convergence</span>
+        <span className="label">Convergence (top) / divergence (bottom)</span>
         <BarChart
           x={props.progress.numLabels}
           y={props.progress.convergenceAll}
           y2={props.progress.convergenceLabels}
+          y3={props.progress.divergenceAll}
+          y4={props.progress.divergenceLabels}
           parentWidth={props.rightBarWidth}
         />
       </li>
