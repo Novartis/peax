@@ -14,6 +14,8 @@ export const TAB_RIGHT_BAR_PROJECTION = 'TAB_RIGHT_BAR_PROJECTION';
 
 export const TRAINING_CHECK_INTERVAL = 5000;
 
+export const PROGRESS_CHECK_INTERVAL = 2500;
+
 export const BUTTON_RADIO_CLASSIFICATION_OPTIONS = {
   positive: {
     icon: 'checkmark',

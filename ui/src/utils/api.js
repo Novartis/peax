@@ -83,6 +83,11 @@ const getClassifier = async searchId =>
     .then(mergeJsonResponse)
     .catch(mergeError);
 
+const getProgress = async searchId =>
+  fetch(`${server}/progress/?s=${searchId}`)
+    .then(mergeJsonResponse)
+    .catch(mergeError);
+
 const newProjection = async searchId =>
   fetch(`${server}/projection/?s=${searchId}`, { method: 'put' })
     .then(mergeJsonResponse)
@@ -133,6 +138,7 @@ export default {
   getClasses,
   getClassifications,
   getClassifier,
+  getProgress,
   getDataTracks,
   getInfo,
   getPredictions,

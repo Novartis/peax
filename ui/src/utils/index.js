@@ -15,12 +15,15 @@ export { default as inputToNum } from './input-to-num';
 export { default as isSame } from './is-same';
 export { default as loadViewConfig } from './load-view-config';
 export { default as Logger } from './logger';
+export { default as max } from './max';
+export { default as mean } from './mean';
 export { default as mergeError } from './merge-error';
 export { default as mergeJsonResponse } from './merge-json-response';
 export { default as numToCassif } from './num-to-classif';
 export { default as range } from './range';
 export { default as readableDate } from './readable-date';
 export { default as toVoid } from './to-void';
+export { default as sum } from './sum';
 export { default as withRaf } from './with-raf';
 export { default as zip } from './zip';
 

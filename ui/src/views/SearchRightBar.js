@@ -70,7 +70,12 @@ const SearchRightBar = props => (
           for={TAB_RIGHT_BAR_INFO}
           tabOpen={props.rightBarTab}
         >
-          <SearchRightBarInfo searchInfo={props.searchInfo} />
+          <SearchRightBarInfo
+            isComputingProgress={props.isComputingProgress}
+            isErrorProgress={props.isErrorProgress}
+            progress={props.progress}
+            searchInfo={props.searchInfo}
+          />
         </TabContent>
       </RightBarContent>
     )}
@@ -78,14 +83,18 @@ const SearchRightBar = props => (
 );
 
 SearchRightBar.propTypes = {
-  rightBarShow: PropTypes.bool,
-  rightBarTab: PropTypes.oneOfType([PropTypes.string, PropTypes.symbol]),
-  rightBarWidth: PropTypes.number,
-  searchInfo: PropTypes.object,
-  setRightBarShow: PropTypes.func,
-  setRightBarTab: PropTypes.func,
-  setRightBarWidth: PropTypes.func,
-  widthSetterFinal: PropTypes.func
+  isComputingProgress: PropTypes.bool.isRequired,
+  isErrorProgress: PropTypes.bool.isRequired,
+  progress: PropTypes.object.isRequired,
+  rightBarShow: PropTypes.bool.isRequired,
+  rightBarTab: PropTypes.oneOfType([PropTypes.string, PropTypes.symbol])
+    .isRequired,
+  rightBarWidth: PropTypes.number.isRequired,
+  searchInfo: PropTypes.object.isRequired,
+  setRightBarShow: PropTypes.func.isRequired,
+  setRightBarTab: PropTypes.func.isRequired,
+  setRightBarWidth: PropTypes.func.isRequired,
+  widthSetterFinal: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
@@ -98,10 +107,11 @@ const mapDispatchToProps = dispatch => ({
   setRightBarShow: rightBarShow =>
     dispatch(setSearchRightBarShow(rightBarShow)),
   setRightBarTab: rightBarTab => dispatch(setSearchRightBarTab(rightBarTab)),
-  setRightBarWidth: rightBarWidth =>
+  setRightBarWidth: rightBarWidth => {
     dispatch(
       setSearchRightBarWidth(Math.max(rightBarWidth, RIGHT_BAR_MIN_WIDTH))
-    )
+    );
+  }
 });
 
 export default connect(

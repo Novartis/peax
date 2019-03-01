@@ -48,6 +48,7 @@ import {
 
 // Configs
 import {
+  PROGRESS_CHECK_INTERVAL,
   TAB_CLASSIFICATIONS,
   TAB_RESULTS,
   TAB_RIGHT_BAR_INFO,
@@ -85,8 +86,10 @@ class Search extends React.Component {
       classifications: [],
       dataTracks: [],
       info: {},
+      isComputingProgress: false,
       isError: false,
       isErrorClassifications: false,
+      isErrorProgress: false,
       isErrorResults: false,
       isErrorSeeds: false,
       isInit: true,
@@ -94,6 +97,7 @@ class Search extends React.Component {
       isLoadingClassifications: false,
       isLoadingResults: false,
       isLoadingSeeds: false,
+      isLoadingProgress: false,
       isMinMaxValuesByTarget: false,
       isTraining: null,
       locationEnd: null,
@@ -106,6 +110,7 @@ class Search extends React.Component {
       pageResultsTotal: null,
       pageSeeds: 0,
       pageSeedsTotal: null,
+      progress: {},
       results: [],
       resultsProbs: [],
       searchInfo: null,
@@ -126,6 +131,7 @@ class Search extends React.Component {
 
   componentDidMount() {
     this.loadMetadata();
+    this.loadProgress();
   }
 
   componentWillUnmount() {
@@ -138,7 +144,10 @@ class Search extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.id !== prevProps.match.params.id) this.loadMetadata();
+    if (this.id !== prevProps.match.params.id) {
+      this.loadMetadata();
+      this.loadProgress();
+    }
     if (this.props.tab !== prevProps.tab) this.checkTabData();
     if (this.state.minMaxValues !== prevState.minMaxValues) {
       this.normalize();
@@ -332,6 +341,59 @@ class Search extends React.Component {
         isErrorResults,
         results: predictions.results,
         pageResultsTotal: Math.ceil(predictions.results.length / PER_PAGE_ITEMS)
+      });
+    }
+  }
+
+  async loadProgress() {
+    if (this.state.isLoadingProgress) return;
+
+    this.setState({ isLoadingProgress: true, isErrorProgress: false });
+
+    const progressInfo = await api.getProgress(this.id);
+    const isErrorProgress =
+      progressInfo.status !== 200 ? "Couldn't load seeds." : false;
+    const progress =
+      !isErrorProgress && progressInfo.body.isComputed ? progressInfo.body : {};
+    const isComputing = !isErrorProgress && progressInfo.body.isComputing;
+
+    if (isErrorProgress) {
+      this.setState({
+        isLoadingProgress: false,
+        isErrorProgress
+      });
+    }
+
+    // Check if progress is available
+    if (progress) {
+      this.setState({
+        isLoadingProgress: false,
+        isErrorProgress: false,
+        progress: {
+          unpredictabilityAll: progress.unpredictabilityAll,
+          unpredictabilityLabels: progress.unpredictabilityLabels,
+          predictionProbaChangeAll: progress.predictionProbaChangeAll,
+          predictionProbaChangeLabels: progress.predictionProbaChangeLabels,
+          convergenceAll: progress.convergenceAll,
+          convergenceLabels: progress.convergenceLabels,
+          divergenceAll: progress.divergenceAll,
+          divergenceLabels: progress.divergenceLabels,
+          numLabels: progress.numLabels
+        }
+      });
+    }
+
+    // Progress is still being computed
+    if (isComputing && !this.state.progressCheckTimerId) {
+      // Classifier is training
+      const progressCheckTimerId = setInterval(
+        this.onProgressCheck,
+        PROGRESS_CHECK_INTERVAL
+      );
+
+      this.setState({
+        isComputingProgress: true,
+        progressCheckTimerId
       });
     }
   }
@@ -654,6 +716,55 @@ class Search extends React.Component {
   }
 
   @boundMethod
+  async onProgressStart(checker = this.onProgressCheck) {
+    await api.getProgress(this.state.searchInfo.id);
+
+    this.setState({
+      isComputingProgress: true,
+      progressCheckTimerId: setInterval(checker, PROGRESS_CHECK_INTERVAL)
+    });
+  }
+
+  @boundMethod
+  async onProgressCheck() {
+    let progressInfo = await api.getProgress(this.state.searchInfo.id);
+
+    const isErrorProgress =
+      progressInfo.status !== 200
+        ? "Could't get information on the progress computation."
+        : false;
+    progressInfo = isErrorProgress ? {} : progressInfo.body;
+
+    if (progressInfo.isComputing) return;
+
+    clearInterval(this.state.progressCheckTimerId);
+
+    // Update state
+    await this.setState({
+      isErrorProgress,
+      isComputingProgress: progressInfo.isComputing,
+      progressCheckTimerId: null
+    });
+
+    if (isErrorProgress) return;
+
+    // Update the classifier counter
+    this.setState({
+      progress: {
+        unpredictabilityAll: progressInfo.unpredictabilityAll,
+        unpredictabilityLabels: progressInfo.unpredictabilityLabels,
+        predictionProbaChangeAll: progressInfo.predictionProbaChangeAll,
+        predictionProbaChangeLabels: progressInfo.predictionProbaChangeLabels,
+        convergenceAll: progressInfo.convergenceAll,
+        convergenceLabels: progressInfo.convergenceLabels,
+        divergenceAll: progressInfo.divergenceAll,
+        divergenceLabels: progressInfo.divergenceLabels,
+        numLabels: progressInfo.numLabels
+      }
+    });
+  }
+
+  @boundMethod
   async onTrainingStart(checker = this.onTrainingCheck) {
     const trainingInfo = await api.newClassifier(this.id);
 
@@ -699,6 +810,9 @@ class Search extends React.Component {
       })
     });
 
+    // Update progress
+    this.loadProgress();
+
     // Get results first
     await this.loadResults();
 
@@ -737,8 +851,11 @@ class Search extends React.Component {
       })
     });
 
+    // Update progress
+    this.loadProgress();
+
     // Get new seeds
-    await this.loadSeeds();
+    this.loadSeeds();
   }
 
   onAction(action) {
@@ -1014,6 +1131,9 @@ class Search extends React.Component {
         </Content>
         <SearchRightBar
           searchInfo={this.state.searchInfo}
+          progress={this.state.progress}
+          isComputingProgress={this.state.isComputingProgress}
+          isErrorProgress={this.state.isErrorProgress}
           widthSetterFinal={resizeTrigger}
         />
       </ContentWrapper>
