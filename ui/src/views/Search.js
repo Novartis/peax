@@ -346,7 +346,7 @@ class Search extends React.Component {
   }
 
   async loadProgress() {
-    if (this.state.isLoadingProgress) return;
+    if (!this.id || this.state.isLoadingProgress) return;
 
     this.setState({ isLoadingProgress: true, isErrorProgress: false });
 
