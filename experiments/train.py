@@ -120,9 +120,10 @@ def plot_loss_to_file(
     )
 
     # Print loss for fast evaluation
-    data = np.zeros((epochs, 2))
-    data[:, 0] = loss
-    data[:, 1] = val_loss
+    real_epochs = np.min((epochs, loss.shape[0], val_loss.shape[0]))
+    data = np.zeros((np.min(real_epochs, 2)))
+    data[:, 0][:real_epochs] = loss[:real_epochs]
+    data[:, 1][:real_epochs] = val_loss[:real_epochs]
 
     df = pd.DataFrame(data)
     df.columns = ["loss", "val_loss"]
