@@ -22,19 +22,23 @@ class TabEntry extends React.Component {
     className += this.props.className ? ` ${this.props.className}` : '';
     className +=
       this.isOpen && this.props.isHeightStretching ? ' flex-g-1' : '';
+    className += this.props.title ? ' tab-entry-has-header' : '';
+    className += this.props.isVScrollable ? ' is-v-scrollable' : '';
 
     return (
       <div className={className}>
         {this.props.title && (
           <div
-            className="tab-entry-header flex-c"
+            className="tab-entry-header flex-c flex-a-c"
             onClick={this.toggle.bind(this)}
           >
             <Icon iconId="arrow-bottom" mirrorH={!this.isOpen} />
             {this.props.title}
           </div>
         )}
-        {this.isOpen && this.props.children}
+        <div className="tab-entry-content">
+          {this.isOpen && this.props.children}
+        </div>
       </div>
     );
   }
@@ -81,6 +85,7 @@ TabEntry.propTypes = {
   isCollapsible: PropTypes.bool,
   isHeightStretching: PropTypes.bool,
   isOpen: PropTypes.bool,
+  isVScrollable: PropTypes.bool,
   title: PropTypes.string,
   toggle: PropTypes.func
 };
