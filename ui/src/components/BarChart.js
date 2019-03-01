@@ -196,6 +196,8 @@ class BarChart extends React.Component {
 
   @boundMethod
   onRef(svg) {
+    if (!svg) return;
+
     this.getDimensions(svg);
     this.svg = select(svg);
     this.renderBarChart();
