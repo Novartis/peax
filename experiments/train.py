@@ -4,6 +4,7 @@ import argparse
 import h5py
 import json
 import math
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import os
@@ -132,10 +133,12 @@ def plot_loss_to_file(
     df = pd.DataFrame(data)
     df.columns = ["loss", "val_loss"]
 
-    ax = sns.lineplot(data=df)
+    fig, ax = plt.subplots()
+    fig.set_size_inches(3 + 0.175 * real_epochs, 4)
+    sns.lineplot(data=df, ax=ax)
     ax.set_xticks(np.arange(real_epochs))
     ax.set(xlabel="epochs", ylabel="loss")
-    ax.get_figure().savefig(filepath, bbox_inches="tight")
+    fig.savefig(filepath, bbox_inches="tight")
 
 
 def train_on_single_dataset(
