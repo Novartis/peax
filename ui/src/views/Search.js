@@ -353,19 +353,28 @@ class Search extends React.Component {
     const progressInfo = await api.getProgress(this.id);
     const isErrorProgress =
       progressInfo.status !== 200 ? "Couldn't load seeds." : false;
-    const progress =
-      !isErrorProgress && progressInfo.body.isComputed ? progressInfo.body : {};
     const isComputing = !isErrorProgress && progressInfo.body.isComputing;
+    const progress =
+      !isErrorProgress && !isComputing ? progressInfo.body : null;
 
     if (isErrorProgress) {
       this.setState({
         isLoadingProgress: false,
         isErrorProgress
       });
-    }
+    } else if (isComputing) {
+      // Classifier is training
+      const progressCheckTimerId = setInterval(
+        this.onProgressCheck,
+        PROGRESS_CHECK_INTERVAL
+      );
 
-    // Check if progress is available
-    if (progress) {
+      this.setState({
+        isComputingProgress: true,
+        progressCheckTimerId
+      });
+    } else {
+      // Check if progress is available
       this.setState({
         isLoadingProgress: false,
         isErrorProgress: false,
@@ -380,20 +389,6 @@ class Search extends React.Component {
           divergenceLabels: progress.divergenceLabels,
           numLabels: progress.numLabels
         }
-      });
-    }
-
-    // Progress is still being computed
-    if (isComputing && !this.state.progressCheckTimerId) {
-      // Classifier is training
-      const progressCheckTimerId = setInterval(
-        this.onProgressCheck,
-        PROGRESS_CHECK_INTERVAL
-      );
-
-      this.setState({
-        isComputingProgress: true,
-        progressCheckTimerId
       });
     }
   }
