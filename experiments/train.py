@@ -111,13 +111,16 @@ def plot_loss_to_file(
     loss,
     val_loss,
     model_name: str,
+    repetition: int = None,
     epochs: int = math.inf,
     dataset_name: str = None,
     base: str = ".",
 ):
-    prefix = "-{}".format(dataset_name) if dataset_name is not None else ""
+    postfix = "-{}".format(dataset_name) if dataset_name is not None else ""
+    postfix = "__{}".format(repetition) if repetition is not None else ""
+
     filepath = os.path.join(
-        base, "models", "{}---train-loss{}.png".format(model_name, prefix)
+        base, "models", "{}---train-loss{}.png".format(model_name, postfix)
     )
 
     # Print loss for fast evaluation
@@ -301,7 +304,12 @@ def train_on_single_dataset(
         f.create_dataset("times", data=times)
 
     plot_loss_to_file(
-        loss, val_loss, epochs, model_name, dataset_name=dataset, base=base
+        loss,
+        val_loss,
+        model_name,
+        repetition=repetition,
+        dataset_name=dataset,
+        base=base,
     )
 
 
@@ -319,6 +327,7 @@ def train(
     base: str = ".",
     clear: bool = False,
     silent: bool = False,
+    early_stopping: bool = False,
 ):
     # Create data directory
     pathlib.Path("models").mkdir(parents=True, exist_ok=True)
@@ -475,7 +484,11 @@ def train(
         f.create_dataset("times_per_dataset_per_epoch", data=times)
 
     plot_loss_to_file(
-        loss.mean(axis=1), val_loss.mean(axis=1), epochs, model_name, base=base
+        loss.mean(axis=1),
+        val_loss.mean(axis=1),
+        model_name,
+        repetition=repetition,
+        base=base,
     )
 
 
