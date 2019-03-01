@@ -79,7 +79,7 @@ storeRehydrated
     render(
       undefined,
       undefined,
-      'Failed to initialize! This is bad, please contact an admin.'
+      'Failed to initialize! Did you start the server? Otherwise, please contact an admin.'
     );
   });
 
