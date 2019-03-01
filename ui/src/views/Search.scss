@@ -33,7 +33,7 @@
   }
 
   .bar-chart {
-    height: 6rem;
+    height: 5rem;
 
     .primary-bars,
     .primary-bars-bottom {
@@ -205,6 +205,7 @@
 .search-projection-wrapper {
   @include ratio(1);
 
+  max-height: 20rem;
   border-radius: 0.25rem;
   box-shadow: 0 0 0 1px $gray-lighter;
 
