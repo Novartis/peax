@@ -27,19 +27,25 @@ class BarChart extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
+    let render = false;
     let prepareChart = false;
     if (prevProps.x !== this.props.x) {
       this.prepareData();
       prepareChart = true;
+      render = true;
     }
     if (prevProps.parentWidth !== this.props.parentWidth) {
       this.getDimensions(this.svg.node());
       prepareChart = true;
+      render = true;
     }
     if (prepareChart) {
       this.prepareChart();
+      render = true;
     }
-    this.renderBarChart();
+    if (render) {
+      this.renderBarChart();
+    }
   }
 
   prepareData() {
