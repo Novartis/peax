@@ -177,8 +177,6 @@ class Classifiers:
                 search_id, classifier_id, divergence_labels=classifier.divergence_labels
             )
 
-        print("             !!!!!!!!!!!!! eval", classifier.classifier_id)
-
         if no_threading:
             classifier.evaluate(
                 test,
@@ -258,7 +256,11 @@ class Classifiers:
 
         classifier = self.get(search_id, classifier_id)
         classifier.serialized_classifications = new_classif
-        self.classifiers[search_id] = classifier
+
+        if search_id not in self.classifiers:
+            self.classifiers[search_id] = {classifier.classifier_id: classifier}
+        else:
+            self.classifiers[search_id][classifier.classifier_id] = classifier
 
         def callback_train():
             # Dump and store the trained model
