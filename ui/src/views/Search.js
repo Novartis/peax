@@ -51,8 +51,8 @@ import {
   PROGRESS_CHECK_INTERVAL,
   TAB_CLASSIFICATIONS,
   TAB_RESULTS,
+  TAB_RIGHT_BAR_HELP,
   TAB_RIGHT_BAR_INFO,
-  TAB_RIGHT_BAR_PROJECTION,
   TAB_SEEDS,
   TRAINING_CHECK_INTERVAL,
   PER_PAGE_ITEMS
@@ -526,11 +526,11 @@ class Search extends React.Component {
       }
     }
 
-    if (event.keyCode === 80) {
-      // P
+    if (event.keyCode === 72) {
+      // H
       event.preventDefault();
-      if (this.props.rightBarTab !== TAB_RIGHT_BAR_PROJECTION) {
-        this.props.setRightBarTab(TAB_RIGHT_BAR_PROJECTION);
+      if (this.props.rightBarTab !== TAB_RIGHT_BAR_HELP) {
+        this.props.setRightBarTab(TAB_RIGHT_BAR_HELP);
         if (!this.props.rightBarShow) {
           this.props.setRightBarShow(true);
         }

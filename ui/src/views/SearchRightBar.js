@@ -16,14 +16,14 @@ import RightBarSubTopBar from '../components/RightBarSubTopBar';
 import RightBarContent from '../components/RightBarContent';
 import TabContent from '../components/TabContent';
 import TabTrigger from '../components/TabTrigger';
+import SearchRightBarHelp from './SearchRightBarHelp';
 import SearchRightBarInfo from './SearchRightBarInfo';
-import SearchRightBarProjection from './SearchRightBarProjection';
 
 // Configs
 import {
   RIGHT_BAR_MIN_WIDTH,
-  TAB_RIGHT_BAR_PROJECTION,
-  TAB_RIGHT_BAR_INFO
+  TAB_RIGHT_BAR_INFO,
+  TAB_RIGHT_BAR_HELP
 } from '../configs/search';
 
 const rightBarWidthToggler = props => () => {
@@ -42,29 +42,22 @@ const SearchRightBar = props => (
   >
     <RightBarSubTopBar>
       <TabTrigger
-        for={TAB_RIGHT_BAR_PROJECTION}
-        tabChange={props.setRightBarTab}
-        tabOpen={props.rightBarTab}
-      >
-        <Button>Projection</Button>
-      </TabTrigger>
-      <TabTrigger
         for={TAB_RIGHT_BAR_INFO}
         tabChange={props.setRightBarTab}
         tabOpen={props.rightBarTab}
       >
         <Button>Info</Button>
       </TabTrigger>
+      <TabTrigger
+        for={TAB_RIGHT_BAR_HELP}
+        tabChange={props.setRightBarTab}
+        tabOpen={props.rightBarTab}
+      >
+        <Button>Help</Button>
+      </TabTrigger>
     </RightBarSubTopBar>
     {props.rightBarShow && (
       <RightBarContent>
-        <TabContent
-          className="full-dim flex-c flex-v"
-          for={TAB_RIGHT_BAR_PROJECTION}
-          tabOpen={props.rightBarTab}
-        >
-          <SearchRightBarProjection searchInfo={props.searchInfo} />
-        </TabContent>
         <TabContent
           className="full-dim flex-c flex-v"
           for={TAB_RIGHT_BAR_INFO}
@@ -76,6 +69,13 @@ const SearchRightBar = props => (
             progress={props.progress}
             searchInfo={props.searchInfo}
           />
+        </TabContent>
+        <TabContent
+          className="full-dim flex-c flex-v"
+          for={TAB_RIGHT_BAR_HELP}
+          tabOpen={props.rightBarTab}
+        >
+          <SearchRightBarHelp />
         </TabContent>
       </RightBarContent>
     )}

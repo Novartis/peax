@@ -37,14 +37,24 @@ export const setSearchHover = searchHover => ({
   payload: { searchHover }
 });
 
-export const setSearchRightBarInfoMetadata = searchRightBarInfoMetadata => ({
-  type: 'SET_SEARCH_RIGHT_BAR_INFO_METADATA',
-  payload: { searchRightBarInfoMetadata }
+export const setSearchRightBarMetadata = searchRightBarMetadata => ({
+  type: 'SET_SEARCH_RIGHT_BAR_METADATA',
+  payload: { searchRightBarMetadata }
 });
 
-export const setSearchRightBarInfoHelp = searchRightBarInfoHelp => ({
-  type: 'SET_SEARCH_RIGHT_BAR_INFO_HELP',
+export const setSearchRightBarProgress = searchRightBarProgress => ({
+  type: 'SET_SEARCH_RIGHT_BAR_PROGRESS',
+  payload: { searchRightBarProgress }
+});
+
+export const setSearchRightBarHelp = searchRightBarInfoHelp => ({
+  type: 'SET_SEARCH_RIGHT_BAR_HELP',
   payload: { searchRightBarInfoHelp }
+});
+
+export const setSearchRightBarProjection = searchRightBarProjection => ({
+  type: 'SET_SEARCH_RIGHT_BAR_PROJECTION',
+  payload: { searchRightBarProjection }
 });
 
 export const setSearchRightBarProjectionSettings = searchRightBarProjectionSettings => ({

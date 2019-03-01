@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 import { routerReducer as routing } from 'react-router-redux';
 
 import defaultSetReducer from '../utils/default-set-reducer';
-import { TAB_RIGHT_BAR_PROJECTION, TAB_RESULTS } from '../configs/search';
+import { TAB_RIGHT_BAR_INFO, TAB_RESULTS } from '../configs/search';
 
 const searchId = defaultSetReducer('searchId', null);
 
@@ -16,13 +16,20 @@ const higlassMouseTool = defaultSetReducer('higlassMouseTool', 'panZoom');
 
 const searchHover = defaultSetReducer('searchHover', -1);
 
-const searchRightBarInfoHelp = defaultSetReducer(
-  'searchRightBarInfoHelp',
+const searchRightBarHelp = defaultSetReducer('searchRightBarHelp', false);
+
+const searchRightBarMetadata = defaultSetReducer(
+  'searchRightBarMetadata',
   false
 );
 
-const searchRightBarInfoMetadata = defaultSetReducer(
-  'searchRightBarInfoMetadata',
+const searchRightBarProgress = defaultSetReducer(
+  'searchRightBarProgress',
+  true
+);
+
+const searchRightBarProjection = defaultSetReducer(
+  'searchRightBarProjection',
   true
 );
 
@@ -35,7 +42,7 @@ const searchRightBarShow = defaultSetReducer('searchRightBarShow', true);
 
 const searchRightBarTab = defaultSetReducer(
   'searchRightBarTab',
-  TAB_RIGHT_BAR_PROJECTION
+  TAB_RIGHT_BAR_INFO
 );
 
 const searchRightBarWidth = defaultSetReducer('searchRightBarWidth', 200);
@@ -54,8 +61,10 @@ const appReducer = combineReducers({
   viewConfig,
   higlassMouseTool,
   searchHover,
-  searchRightBarInfoHelp,
-  searchRightBarInfoMetadata,
+  searchRightBarHelp,
+  searchRightBarMetadata,
+  searchRightBarProgress,
+  searchRightBarProjection,
   searchRightBarProjectionSettings,
   searchRightBarShow,
   searchRightBarTab,
