@@ -1,6 +1,8 @@
 import { boundMethod } from 'autobind-decorator';
 import { axisLeft, axisBottom } from 'd3-axis';
+import { easeCubic } from 'd3-ease';
 import { scaleLinear } from 'd3-scale';
+import { transition } from 'd3-transition';
 import { select } from 'd3-selection';
 import { PropTypes } from 'prop-types';
 import React from 'react';
@@ -61,6 +63,8 @@ class BarChart extends React.Component {
   }
 
   prepareChart() {
+    const plotHeight = this.height - this.margin.top - this.margin.bottom;
+
     this.xScale = scaleLinear()
       .domain([0, max(this.props.x) + mean(this.xRel)])
       .range([this.margin.left, this.width - this.margin.right]);
@@ -71,11 +75,14 @@ class BarChart extends React.Component {
 
     this.yScaleTop = scaleLinear()
       .domain([this.props.yMin, this.props.yMax])
-      .range([this.height / 2, this.margin.top]);
+      .range([plotHeight / 2 + this.margin.top, this.margin.top]);
 
     this.yScaleBottom = scaleLinear()
       .domain([this.props.yMax, this.props.yMin])
-      .range([this.height - this.margin.bottom, this.height / 2]);
+      .range([
+        this.height - this.margin.bottom,
+        plotHeight / 2 + this.margin.top
+      ]);
 
     this.xAxis = g =>
       g
@@ -83,11 +90,13 @@ class BarChart extends React.Component {
         .call(axisBottom(this.xScale).tickSizeOuter(0));
 
     this.xAxisMiddle = g =>
-      g.attr('transform', `translate(0,${this.height / 2})`).call(
-        axisBottom(this.xScale)
-          .ticks(0)
-          .tickSizeOuter(0)
-      );
+      g
+        .attr('transform', `translate(0,${plotHeight / 2 + this.margin.top})`)
+        .call(
+          axisBottom(this.xScale)
+            .ticks(0)
+            .tickSizeOuter(0)
+        );
 
     this.yAxis = g =>
       g
@@ -217,14 +226,19 @@ class BarChart extends React.Component {
       this.yGridlinesG.call(this.yGridlines);
     }
 
+    const t = transition()
+      .duration(750)
+      .ease(easeCubic);
+
     this.baseBarsG
       .selectAll('rect')
       .data(this.data)
       .join('rect')
       .attr('x', d => this.xScale(d.x) - this.props.barWidth / 2)
       .attr('y', d => yScale(d.y))
-      .attr('height', d => yScale(0) - yScale(d.y))
-      .attr('width', this.props.barWidth);
+      .attr('width', this.props.barWidth)
+      .transition(t)
+      .attr('height', d => yScale(0) - yScale(d.y));
 
     if (this.isDiverging) {
       this.baseBarsBottomG
@@ -233,8 +247,9 @@ class BarChart extends React.Component {
         .join('rect')
         .attr('x', d => this.xScale(d.x) - this.props.barWidth / 2)
         .attr('y', this.yScaleBottom(0))
-        .attr('height', d => this.yScaleBottom(d.y3) - this.yScaleBottom(0))
-        .attr('width', this.props.barWidth);
+        .attr('width', this.props.barWidth)
+        .transition(t)
+        .attr('height', d => this.yScaleBottom(d.y3) - this.yScaleBottom(0));
     }
 
     if (this.hasY2) {
@@ -244,8 +259,9 @@ class BarChart extends React.Component {
         .join('rect')
         .attr('x', d => this.xScale(d.x) - this.props.barWidthSecondary / 2)
         .attr('y', d => yScale(d.y2))
-        .attr('height', d => yScale(0) - yScale(d.y2) + 1)
-        .attr('width', this.props.barWidthSecondary);
+        .attr('width', this.props.barWidthSecondary)
+        .transition(t)
+        .attr('height', d => yScale(0) - yScale(d.y2) + 1);
 
       if (this.isDiverging) {
         this.primaryBarsBottomG
@@ -254,8 +270,9 @@ class BarChart extends React.Component {
           .join('rect')
           .attr('x', d => this.xScale(d.x) - this.props.barWidthSecondary / 2)
           .attr('y', this.yScaleBottom(0))
-          .attr('height', d => this.yScaleBottom(d.y4) - this.yScaleBottom(0))
-          .attr('width', this.props.barWidthSecondary);
+          .attr('width', this.props.barWidthSecondary)
+          .transition(t)
+          .attr('height', d => this.yScaleBottom(d.y4) - this.yScaleBottom(0));
       }
     }
 
