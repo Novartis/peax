@@ -124,8 +124,8 @@ def plot_loss_to_file(
     )
 
     # Print loss for fast evaluation
-    real_epochs = np.min((epochs, loss.shape[0], val_loss.shape[0]))
-    data = np.zeros((np.min(real_epochs, 2)))
+    real_epochs = np.min((epochs, loss.shape[0], val_loss.shape[0])).astype(np.int)
+    data = np.zeros((real_epochs, 2))
     data[:, 0][:real_epochs] = loss[:real_epochs]
     data[:, 1][:real_epochs] = val_loss[:real_epochs]
 
@@ -133,7 +133,7 @@ def plot_loss_to_file(
     df.columns = ["loss", "val_loss"]
 
     ax = sns.lineplot(data=df)
-    ax.set_xticks(np.arange(epochs))
+    ax.set_xticks(np.arange(real_epochs))
     ax.set(xlabel="epochs", ylabel="loss")
     ax.get_figure().savefig(filepath, bbox_inches="tight")
 
