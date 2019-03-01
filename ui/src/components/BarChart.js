@@ -235,9 +235,10 @@ class BarChart extends React.Component {
       .data(this.data)
       .join('rect')
       .attr('x', d => this.xScale(d.x) - this.props.barWidth / 2)
-      .attr('y', d => yScale(d.y))
+      .attr('y', yScale(0))
       .attr('width', this.props.barWidth)
       .transition(t)
+      .attr('y', d => yScale(d.y))
       .attr('height', d => yScale(0) - yScale(d.y));
 
     if (this.isDiverging) {
@@ -258,9 +259,10 @@ class BarChart extends React.Component {
         .data(this.data)
         .join('rect')
         .attr('x', d => this.xScale(d.x) - this.props.barWidthSecondary / 2)
-        .attr('y', d => yScale(d.y2))
+        .attr('y', yScale(0))
         .attr('width', this.props.barWidthSecondary)
         .transition(t)
+        .attr('y', d => yScale(d.y2))
         .attr('height', d => yScale(0) - yScale(d.y2) + 1);
 
       if (this.isDiverging) {
