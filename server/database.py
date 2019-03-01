@@ -69,12 +69,16 @@ def objectify_classifier(classifier: tuple) -> dict:
     1. classifier_id
     2. serialized_classifications
     3. model
-    4. unpredictability
-    5. uncertainty
-    6. convergence
-    7. divergence
-    8. created
-    9. updated
+    4. unpredictability_all
+    5. unpredictability_labels
+    6. prediction_proba_change_all
+    7. prediction_proba_change_labels
+    8. convergence_all
+    9. convergence_labels
+    10. divergence_all
+    11. divergence_labels
+    12. created
+    13. updated
 
     Arguments:
         search {tuple} -- Return value from get_classifier()
@@ -87,12 +91,16 @@ def objectify_classifier(classifier: tuple) -> dict:
         "classifier_id": classifier[1],
         "serialized_classifications": classifier[2],
         "model": classifier[3],
-        "unpredictability": classifier[4],
-        "uncertainty": classifier[5],
-        "convergence": classifier[6],
-        "divergence": classifier[7],
-        "created": classifier[8],
-        "updated": classifier[9],
+        "unpredictability_all": classifier[4],
+        "unpredictability_labels": classifier[5],
+        "prediction_proba_change_all": classifier[6],
+        "prediction_proba_change_labels": classifier[7],
+        "convergence_all": classifier[8],
+        "convergence_labels": classifier[9],
+        "divergence_all": classifier[10],
+        "divergence_labels": classifier[11],
+        "created": classifier[12],
+        "updated": classifier[13],
     }
 
 
@@ -198,10 +206,14 @@ class DB:
                 classifier_id INT NOT NULL,
                 serialized_classifications BLOB,
                 model BLOB,
-                unpredictability REAL,
-                uncertainty REAL,
-                convergence REAL,
-                divergence REAL,
+                unpredictability_all REAL,
+                unpredictability_labels REAL,
+                prediction_proba_change_all REAL,
+                prediction_proba_change_labels REAL,
+                convergence_all REAL,
+                convergence_labels REAL,
+                divergence_all REAL,
+                divergence_labels REAL,
                 created DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (search_id) REFERENCES search(id),
@@ -511,10 +523,14 @@ class DB:
     def set_classifier(self, search_id, classifier_id, **kwargs):
         supported_keys = [
             "model",
-            "unpredictability",
-            "uncertainty",
-            "convergence",
-            "divergence",
+            "unpredictability_all",
+            "unpredictability_labels",
+            "prediction_proba_change_all",
+            "prediction_proba_change_labels",
+            "convergence_all",
+            "convergence_labels",
+            "divergence_all",
+            "divergence_labels",
         ]
         with self.connect() as conn:
             for key in kwargs:
@@ -556,10 +572,14 @@ class DB:
                 """
                 SELECT
                     classifier_id,
-                    unpredictability,
-                    uncertainty,
-                    convergence,
-                    divergence,
+                    unpredictability_all,
+                    unpredictability_labels,
+                    prediction_proba_change_all,
+                    prediction_proba_change_labels,
+                    convergence_all,
+                    convergence_labels,
+                    divergence_all,
+                    divergence_labels,
                     serialized_classifications
                 FROM classifier
                 WHERE search_id = ?
