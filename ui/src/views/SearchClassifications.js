@@ -152,7 +152,7 @@ class SearchClassifications extends React.Component {
             <li>
               <Button
                 isDisabled={this.props.isTraining === true}
-                onClick={this.props.onTrainingStart}
+                onClick={() => this.props.onTrainingStart()}
               >
                 Train Classifier
               </Button>

@@ -59,7 +59,7 @@ class SearchSeeds extends React.Component {
                 isDisabled={
                   !this.props.isReady || this.props.isTraining === true
                 }
-                onClick={this.props.onTrainingStart}
+                onClick={() => this.props.onTrainingStart()}
               >
                 Train Classifier
               </Button>
