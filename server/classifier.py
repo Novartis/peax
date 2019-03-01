@@ -186,9 +186,11 @@ class Classifier:
     def evaluate_threading(
         self,
         X,
-        X_train,
+        train,
         prev_classifier=None,
+        prev_train=None,
         prev_prev_classifier=None,
+        prev_prev_train=None,
         callback: callable = None,
     ):
         self.is_evaluated = False
@@ -199,9 +201,11 @@ class Classifier:
                 (
                     self.evaluate,
                     X,
-                    X_train,
+                    train,
                     prev_classifier,
+                    prev_train,
                     prev_prev_classifier,
+                    prev_prev_train,
                     done(self, "is_evaluat", callback),
                 ),
             )
