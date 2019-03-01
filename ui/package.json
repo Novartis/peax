@@ -13,6 +13,7 @@
     "autobind-decorator": "2.3.1",
     "canvas-camera-2d": "0.1.0",
     "d3-axis": "1.0.12",
+    "d3-ease": "1.0.5",
     "d3-scale": "2.2.2",
     "d3-selection": "1.4.0",
     "d3-transition": "1.2.0",
