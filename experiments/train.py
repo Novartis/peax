@@ -117,7 +117,7 @@ def plot_loss_to_file(
     base: str = ".",
 ):
     postfix = "-{}".format(dataset_name) if dataset_name is not None else ""
-    postfix = "__{}".format(repetition) if repetition is not None else ""
+    postfix = "{}__{}".format(postfix, repetition) if repetition is not None else ""
 
     filepath = os.path.join(
         base, "models", "{}---train-loss{}.png".format(model_name, postfix)
