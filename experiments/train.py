@@ -3,6 +3,7 @@
 import argparse
 import h5py
 import json
+import math
 import numpy as np
 import pandas as pd
 import os
@@ -109,8 +110,8 @@ def get_sample_weights(
 def plot_loss_to_file(
     loss,
     val_loss,
-    epochs: int,
     model_name: str,
+    epochs: int = math.inf,
     dataset_name: str = None,
     base: str = ".",
 ):
