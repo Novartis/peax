@@ -17,6 +17,14 @@ from server import utils
 from server.classifier import Classifier
 
 
+def get_labels(classifier, search_target_windows):
+    labeled_windows = np.abs(
+        utils.unserialize_classif(classifier.serialized_classifications)
+    )
+
+    return np.concatenate((labeled_windows, search_target_windows)).astype(np.int)
+
+
 class ClassifierNotFound(Exception):
     """Raised when no classifier was found"""
 
@@ -99,29 +107,29 @@ class Classifiers:
         )
 
         # Get labels used to train the classifier
-        labeled_windows = np.abs(
-            utils.unserialize_classif(classifier.serialized_classifications)
-        )
-
-        labeled_windows = np.concatenate(
-            (labeled_windows, search_target_windows)
-        ).astype(np.int)
+        labeled_windows = get_labels(classifier, search_target_windows)
 
         train = self.data[labeled_windows]
         test = self.data
 
         prev_classifier = None
         prev_classifier_info = None
+        prev_train = None
         prev_prev_classifier = None
         prev_prev_classifier_info = None
+        prev_prev_train = None
 
-        if classifier_id >= 2:
+        if classifier_id >= 1:
             prev_classifier_info = self.db.get_classifier(search_id, classifier_id - 1)
 
             if prev_classifier_info["model"] is not None:
                 prev_classifier = self.get(search_id, classifier_id - 1)
                 prev_classifier.load(prev_classifier_info["model"])
+                prev_train = self.data[
+                    get_labels(prev_classifier, search_target_windows)
+                ]
 
+        if classifier_id >= 2:
             prev_prev_classifier_info = self.db.get_classifier(
                 search_id, classifier_id - 2
             )
@@ -129,27 +137,56 @@ class Classifiers:
             if prev_prev_classifier_info["model"] is not None:
                 prev_prev_classifier = self.get(search_id, classifier_id - 2)
                 prev_prev_classifier.load(prev_prev_classifier_info["model"])
+                prev_prev_train = self.data[
+                    get_labels(prev_prev_classifier, search_target_windows)
+                ]
 
         def set_evaluate_results():
             self.db.set_classifier(
-                search_id, classifier_id, unpredictability=classifier.unpredictability
+                search_id,
+                classifier_id,
+                unpredictability_all=classifier.unpredictability_all,
             )
             self.db.set_classifier(
-                search_id, classifier_id, uncertainty=classifier.uncertainty
+                search_id,
+                classifier_id,
+                unpredictability_labels=classifier.unpredictability_labels,
             )
             self.db.set_classifier(
-                search_id, classifier_id, convergence=classifier.convergence
+                search_id,
+                classifier_id,
+                prediction_proba_change_all=classifier.prediction_proba_change_all,
             )
             self.db.set_classifier(
-                search_id, classifier_id, divergence=classifier.divergence
+                search_id,
+                classifier_id,
+                prediction_proba_change_labels=classifier.prediction_proba_change_labels,
             )
+            self.db.set_classifier(
+                search_id, classifier_id, convergence_all=classifier.convergence_all
+            )
+            self.db.set_classifier(
+                search_id,
+                classifier_id,
+                convergence_labels=classifier.convergence_labels,
+            )
+            self.db.set_classifier(
+                search_id, classifier_id, divergence_all=classifier.divergence_all
+            )
+            self.db.set_classifier(
+                search_id, classifier_id, divergence_labels=classifier.divergence_labels
+            )
+
+        print("             !!!!!!!!!!!!! eval", classifier.classifier_id)
 
         if no_threading:
             classifier.evaluate(
                 test,
                 train,
                 prev_classifier=prev_classifier,
+                prev_train=prev_train,
                 prev_prev_classifier=prev_prev_classifier,
+                prev_prev_train=prev_prev_train,
             )
             set_evaluate_results()
         else:
@@ -157,7 +194,9 @@ class Classifiers:
                 test,
                 train,
                 prev_classifier=prev_classifier,
+                prev_train=prev_train,
                 prev_prev_classifier=prev_prev_classifier,
+                prev_prev_train=prev_prev_train,
                 callback=set_evaluate_results,
             )
 
@@ -167,6 +206,7 @@ class Classifiers:
         if classifier_ids is None:
             return None
 
+        print("wurst puller")
         for classifier_id in classifier_ids:
             self.evaluate(search_id, classifier_id, update=update, no_threading=True)
 

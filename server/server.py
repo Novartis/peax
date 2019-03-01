@@ -487,7 +487,7 @@ def create(
 
         progress = progresses.get(search_id, update=update)
 
-        return jsonify(progress.to_dict())
+        return jsonify(progress.to_dict(camel_case=True))
 
     @app.route("/api/v1/classifier/", methods=["DELETE", "GET", "POST"])
     def view_classifier():

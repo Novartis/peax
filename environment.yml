@@ -43,3 +43,4 @@ dependencies:
       - pybbi
       - keras-tqdm
       - forestci
+      - stringcase

@@ -16,7 +16,12 @@ from io import BytesIO
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.externals import joblib
 
-from server.utils import unpredictability, uncertainty, convergence, divergence
+from server.utils import (
+    unpredictability,
+    prediction_proba_change,
+    convergence,
+    divergence,
+)
 
 
 def done(instance, prefix: str, callback: callable = None):
@@ -44,16 +49,47 @@ class Classifier:
         self.search_id = search_id
         self.classifier_id = classifier_id
         self.model = RandomForestClassifier(n_estimators=100, n_jobs=-1)
-        self.unpredictability = (
-            kwargs["unpredictability"] if "unpredictability" in kwargs else None
-        )
-        self.uncertainty = kwargs["uncertainty"] if "uncertainty" in kwargs else None
-        self.convergence = kwargs["convergence"] if "convergence" in kwargs else None
-        self.divergence = kwargs["divergence"] if "divergence" in kwargs else None
+
+        try:
+            self.unpredictability_all = kwargs["unpredictability_all"]
+        except KeyError:
+            self.unpredictability_all = None
+        try:
+            self.unpredictability_labels = kwargs["unpredictability_labels"]
+        except KeyError:
+            self.unpredictability_labels = None
+        try:
+            self.prediction_proba_change_all = kwargs["prediction_proba_change_all"]
+        except KeyError:
+            self.prediction_proba_change_all = None
+        try:
+            self.prediction_proba_change_labels = kwargs[
+                "prediction_proba_change_labels"
+            ]
+        except KeyError:
+            self.prediction_proba_change_labels = None
+        try:
+            self.convergence_all = kwargs["convergence_all"]
+        except KeyError:
+            self.convergence_all = None
+        try:
+            self.convergence_labels = kwargs["convergence_labels"]
+        except KeyError:
+            self.convergence_labels = None
+        try:
+            self.divergence_all = kwargs["divergence_all"]
+        except KeyError:
+            self.divergence_all = None
+        try:
+            self.divergence_labels = kwargs["divergence_labels"]
+        except KeyError:
+            self.divergence_labels = None
+
         self.is_trained = False
         self.is_training = False
         self.is_evaluated = (
-            self.unpredictability is not None and self.uncertainty is not None
+            self.unpredictability_all is not None
+            and self.unpredictability_labels is not None
         )
         self.is_evaluating = False
         self.serialized_classifications = (
@@ -85,26 +121,66 @@ class Classifier:
             self.is_trained = False
             self.is_training = False
 
-    def evaluate(self, X, X_train, prev_classifier=None, prev_prev_classifier=None):
-        fit_y, p_y = self.predict(X)
+    def evaluate(
+        self,
+        X,
+        train,
+        prev_classifier=None,
+        prev_train=None,
+        prev_prev_classifier=None,
+        prev_prev_train=None,
+    ):
+        p_y_all = self.model.predict_proba(X)[:, 1]
+        p_y_labels = self.model.predict_proba(train)[:, 1]
 
-        self.unpredictability = unpredictability(p_y[:, 1])
-        self.uncertainty = uncertainty(self.model, X_train, X)
+        self.unpredictability_all = unpredictability(p_y_all)
+        self.unpredictability_labels = unpredictability(p_y_labels)
 
-        if prev_classifier is not None and prev_prev_classifier is not None:
-            prev_p_y = prev_classifier.model.predict_proba(X)
-            prev_prev_p_y = prev_prev_classifier.model.predict_proba(X)
+        if prev_classifier is not None:
+            prev_p_y_all = prev_classifier.model.predict_proba(X)[:, 1]
+            p_y_prev_labels = self.model.predict_proba(prev_train)[:, 1]
+            prev_p_y_labels = prev_classifier.model.predict_proba(prev_train)[:, 1]
 
-            self.convergence = convergence(
-                prev_prev_p_y[:, 1], prev_p_y[:, 1], p_y[:, 1]
+            self.prediction_proba_change_all = prediction_proba_change(
+                p_y_all, prev_p_y_all
             )
-            self.divergence = divergence(prev_prev_p_y[:, 1], prev_p_y[:, 1], p_y[:, 1])
+            self.prediction_proba_change_labels = prediction_proba_change(
+                p_y_prev_labels, prev_p_y_labels
+            )
+
+            if prev_prev_classifier is not None:
+                prev_prev_p_y_all = prev_prev_classifier.model.predict_proba(X)[:, 1]
+                p_y_prev_prev_labels = self.model.predict_proba(prev_prev_train)[:, 1]
+                prev_p_y_prev_labels = prev_classifier.model.predict_proba(
+                    prev_prev_train
+                )[:, 1]
+                prev_prev_p_y_labels = prev_prev_classifier.model.predict_proba(
+                    prev_prev_train
+                )[:, 1]
+
+                self.convergence_all = convergence(
+                    prev_prev_p_y_all, prev_p_y_all, p_y_all
+                )
+                self.convergence_labels = convergence(
+                    prev_prev_p_y_labels, prev_p_y_prev_labels, p_y_prev_prev_labels
+                )
+
+                self.divergence_all = divergence(
+                    prev_prev_p_y_all, prev_p_y_all, p_y_all
+                )
+                self.divergence_labels = divergence(
+                    prev_prev_p_y_labels, prev_p_y_prev_labels, p_y_prev_prev_labels
+                )
 
         return (
-            self.unpredictability,
-            self.uncertainty,
-            self.convergence,
-            self.divergence,
+            self.unpredictability_all,
+            self.unpredictability_labels,
+            self.prediction_proba_change_all,
+            self.prediction_proba_change_labels,
+            self.convergence_all,
+            self.convergence_labels,
+            self.divergence_all,
+            self.divergence_labels,
         )
 
     def evaluate_threading(
