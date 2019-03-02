@@ -134,12 +134,12 @@ class SearchClassifications extends React.Component {
                 delayOut={500}
                 title={
                   <span className="flex-c">
-                    <span>Filter by label (excl.)</span>
+                    <span>Exclude positive or negative labels</span>
                   </span>
                 }
               >
                 <ButtonRadio
-                  label="Filter"
+                  label="Exclude"
                   name="search-filter-by-classification"
                   isDeselectable={true}
                   onClick={this.onFilterByClfBnd}
@@ -148,7 +148,6 @@ class SearchClassifications extends React.Component {
                 />
               </ToolTip>
             </li>
-            <li className="separator" />
             <li>
               <Button
                 isDisabled={this.props.isTraining === true}

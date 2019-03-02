@@ -179,9 +179,9 @@ class SearchResults extends React.Component {
                 />
               </ToolTip>
             </li>
-            <li className="flex-c flex-a-c">
-              <span className="m-r-0-25">Sort</span>
+            <li>
               <ToolTip
+                label="Sort"
                 align="center"
                 delayIn={2000}
                 delayOut={500}
@@ -192,6 +192,7 @@ class SearchResults extends React.Component {
                 }
               >
                 <ButtonRadio
+                  label="Sort"
                   name="search-filter-by-classification"
                   onClick={this.onSortOrderBnd}
                   options={BUTTON_RADIO_SORT_ORDER_OPTIONS}
@@ -199,9 +200,9 @@ class SearchResults extends React.Component {
                 />
               </ToolTip>
             </li>
-            <li className="flex-c flex-a-c">
-              <span className="m-r-0-25">Filter</span>
+            <li>
               <ToolTip
+                label="Filter"
                 align="center"
                 delayIn={2000}
                 delayOut={500}
@@ -212,6 +213,7 @@ class SearchResults extends React.Component {
                 }
               >
                 <ButtonRadio
+                  label="Include"
                   name="search-filter-by-classification"
                   isDeselectable={true}
                   isMultiple={true}
