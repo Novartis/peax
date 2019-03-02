@@ -48,6 +48,8 @@ CHROMS = [
     "chrX",
 ]
 
+COORDS = "hg19"
+
 STEP_FREQ = 2
 
 MIN_CLASSIFICATIONS = 20

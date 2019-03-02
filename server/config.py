@@ -1,9 +1,10 @@
 import pathlib
 from typing import Dict, List, TypeVar
 
+from server.chromsizes import all as all_chromsizes
 from server.dataset import Dataset
 from server.datasets import Datasets
-from server.defaults import CACHE_DIR, CACHING, CHROMS, DB_PATH, STEP_FREQ, MIN_CLASSIFICATIONS
+from server.defaults import CACHE_DIR, CACHING, CHROMS, COORDS, DB_PATH, STEP_FREQ, MIN_CLASSIFICATIONS
 from server.encoder import Autoencoder, Encoder
 from server.encoders import Encoders
 from server.exceptions import InvalidConfig
@@ -20,6 +21,7 @@ class Config:
         self.datasets = Datasets()
 
         # Set defaults
+        self.coords = COORDS
         self.chroms = CHROMS
         self.step_freq = STEP_FREQ
         self.min_classifications = MIN_CLASSIFICATIONS
@@ -107,6 +109,17 @@ class Config:
             raise InvalidConfig("Config file needs to include `encoders` and `datasets`")
 
     @property
+    def coords(self):
+        return self._coords
+
+    @coords.setter
+    def coords(self, value: str):
+        if value in all_chromsizes:
+            self._coords = value
+        else:
+            raise InvalidConfig("Unknown coordinate system")
+
+    @property
     def chroms(self):
         return self._chroms
 
@@ -166,15 +179,18 @@ class Config:
 
     @property
     def caching(self):
-        return self._db_path
+        return self._caching
 
     @caching.setter
     def caching(self, value: bool):
-        self._db_path = bool(value)
+        self._caching = bool(value)
 
     def set(self, key, value):
         if key == "chroms":
             self.chroms = value
+
+        elif key == "coords":
+            self.coords = value
 
         elif key == "step_freq":
             self.step_freq = value
