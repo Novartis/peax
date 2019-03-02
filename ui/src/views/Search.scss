@@ -57,7 +57,16 @@
       height: 1.5rem;
     }
 
+    .button-radio {
+      height: 1.5rem;
+    }
+
     .sub-top-bottom-bar-buttons {
+      .button {
+        padding-left: 0.5em;
+        padding-right: 0.5em;
+      }
+
       .button-icon {
         background: $gray-lighter;
 
