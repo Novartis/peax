@@ -1,5 +1,5 @@
-@import "../styles/colors";
-@import "../styles/transitions";
+@import '../styles/colors';
+@import '../styles/transitions';
 
 .higlass-result {
   overflow: hidden;
@@ -153,7 +153,7 @@
     .higlass-result-normalizer.is-active,
     .higlass-result-selector.is-active {
       color: $white;
-      background: $blue;
+      background: $yellow;
     }
 
     .higlass-result-selector {
@@ -183,7 +183,7 @@
         text-transform: uppercase;
 
         &:after {
-          content: ":";
+          content: ':';
         }
       }
     }
@@ -201,6 +201,6 @@
   }
 
   &.is-selected {
-    box-shadow: 0 0 0 2px $primary;
+    box-shadow: 0 0 0 2px $yellow;
   }
 }
