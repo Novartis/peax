@@ -17,7 +17,7 @@ import HiGlassLoader from '../containers/HiGlassLoader';
 import { setViewConfig } from '../actions';
 
 // Utils
-import { Deferred, getServer, Logger } from '../utils';
+import { Deferred, getServer, Logger, objectHas, objectSet } from '../utils';
 
 // Styles
 import './HiGlassViewer.scss';
@@ -50,6 +50,9 @@ class HiGlassViewer extends React.Component {
   componentDidUpdate(prevProps) {
     if (this.props.viewConfigId !== prevProps.viewConfigId) {
       this.loadViewConfig();
+    }
+    if (this.props.viewConfigAdjustments !== prevProps.viewConfigAdjustments) {
+      this.adjustViewConfig();
     }
   }
 
@@ -100,6 +103,36 @@ class HiGlassViewer extends React.Component {
       });
   }
 
+  adjustViewConfig(
+    viewConf = this.state.viewConfigStatic,
+    doNotSetState = false
+  ) {
+    if (!this.props.isStatic || !this.props.viewConfigAdjustments.length)
+      return viewConf;
+
+    if (
+      !this.props.viewConfigAdjustments.every(adjustment =>
+        objectHas(viewConf, adjustment.key)
+      )
+    ) {
+      return viewConf;
+    }
+
+    const newViewConf = Object.assign({}, viewConf);
+
+    this.props.viewConfigAdjustments.forEach(adjustment =>
+      objectSet(newViewConf, adjustment.key, adjustment.value)
+    );
+
+    if (!doNotSetState) {
+      this.setState({
+        viewConfigStatic: newViewConf
+      });
+    }
+
+    return newViewConf;
+  }
+
   onError(error) {
     this.setState({
       error,
@@ -121,7 +154,7 @@ class HiGlassViewer extends React.Component {
       this.setState({
         error: '',
         isLoading: false,
-        viewConfigStatic: viewConfig
+        viewConfigStatic: this.adjustViewConfig(viewConfig, true)
       });
     } else {
       this.props.setViewConfig(viewConfig);
@@ -186,7 +219,8 @@ HiGlassViewer.defaultProps = {
   isGlobalMousePosition: false,
   isPadded: false,
   isStatic: false,
-  isZoomFixed: false
+  isZoomFixed: false,
+  viewConfigAdjustments: []
 };
 
 HiGlassViewer.propTypes = {
@@ -203,7 +237,8 @@ HiGlassViewer.propTypes = {
   pubSub: PropTypes.object.isRequired,
   setViewConfig: PropTypes.func.isRequired,
   viewConfig: PropTypes.object,
-  viewConfigId: PropTypes.string
+  viewConfigId: PropTypes.string,
+  viewConfigAdjustments: PropTypes.array
 };
 
 const mapStateToProps = state => ({

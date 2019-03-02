@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
+import { ChromosomeInfo } from 'higlass';
 
 // Higher-order components
 import { withPubSub } from '../hocs/pub-sub';
@@ -115,7 +116,7 @@ class Search extends React.Component {
       results: [],
       resultsProbs: [],
       resultsPredictionHistogram: null,
-      resultsPredictionProbBorder: null,
+      resultsPredictionProbBorder: 0.5,
       searchInfo: null,
       searchInfosAll: null,
       seeds: {},
@@ -136,6 +137,8 @@ class Search extends React.Component {
       this.onChangeState('preditionProbBorder'),
       inputToNum
     );
+
+    this.viewConfigAdjustments = [];
   }
 
   componentDidMount() {
@@ -150,6 +153,19 @@ class Search extends React.Component {
     this.pubSubs = [];
     removeHiGlassEventListeners(this.hiGlassEventListeners, this.hgApi);
     this.hiGlassEventListeners = [];
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (
+      nextState.searchInfo !== this.state.searchInfo ||
+      nextProps.selectedRegions !== this.props.selectedRegions
+    ) {
+      this.translateSelectedRegions(
+        nextState.searchInfo,
+        nextProps.selectedRegions
+      );
+    }
+    return true;
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -227,6 +243,11 @@ class Search extends React.Component {
       isError =
         searchInfo.status !== 200 ? "Couldn't load search info." : false;
       searchInfo = isError ? null : searchInfo.body;
+      this.chromInfo = ChromosomeInfo(
+        `http://localhost:5000/api/v1/chrom-sizes/?id=${
+          searchInfo.coords
+        }&type=csv`
+      );
     } else {
       searchInfosAll = await api.getAllSearchInfos();
       isError =
@@ -406,6 +427,25 @@ class Search extends React.Component {
         }
       });
     }
+  }
+
+  translateSelectedRegions(
+    searchInfo = this.state.searchInfo,
+    selectedRegions = this.props.selectedRegions
+  ) {
+    if (!searchInfo) return;
+
+    const stepSize = searchInfo.windowSize / searchInfo.config.step_freq;
+
+    this.viewConfigAdjustments = [
+      {
+        key: 'views.0.tracks.top.0.contents.1.options.regions',
+        value: selectedRegions.map(regionId => [
+          searchInfo.dataFrom + regionId * stepSize,
+          searchInfo.dataFrom + regionId * stepSize + searchInfo.windowSize
+        ])
+      }
+    ];
   }
 
   /**
@@ -882,10 +922,13 @@ class Search extends React.Component {
 
   getHgViewId(
     showAes = this.props.showAutoencodings,
-    showProbs = this.isTrained
+    showProbs = this.isTrained,
+    showSelection = !this.state.searchInfosAll
   ) {
     return searchId =>
-      `${searchId}..${showAes ? 'e' : ''}${showProbs ? 'p' : ''}`;
+      `${searchId}..${showAes ? 'e' : ''}${showProbs ? 'p' : ''}${
+        showSelection ? 's' : ''
+      }`;
   }
 
   /* -------------------------------- Render -------------------------------- */
@@ -939,7 +982,7 @@ class Search extends React.Component {
   }
 
   renderListAllSearches() {
-    const hgViewId = this.getHgViewId(false);
+    const hgViewId = this.getHgViewId(false, false, false);
 
     return (
       <ContentWrapper name="search" isFullDimOnly={true}>
@@ -1046,6 +1089,7 @@ class Search extends React.Component {
               isGlobalMousePosition={true}
               isStatic={true}
               viewConfigId={hgViewId(this.state.searchInfo.id)}
+              viewConfigAdjustments={this.viewConfigAdjustments}
             />
           </div>
           <div className="rel flex-g-1 search-results">
@@ -1172,6 +1216,7 @@ Search.propTypes = {
   rightBarTab: PropTypes.oneOfType([PropTypes.string, PropTypes.symbol])
     .isRequired,
   rightBarWidth: PropTypes.number,
+  selectedRegions: PropTypes.array.isRequired,
   setHover: PropTypes.func,
   setRightBarShow: PropTypes.func,
   setRightBarTab: PropTypes.func,
@@ -1185,6 +1230,7 @@ const mapStateToProps = state => ({
   rightBarShow: state.present.searchRightBarShow,
   rightBarTab: state.present.searchRightBarTab,
   rightBarWidth: state.present.searchRightBarWidth,
+  selectedRegions: state.present.searchSelection,
   showAutoencodings: state.present.showAutoencodings,
   tab: state.present.searchTab,
   viewConfig: state.present.viewConfig
