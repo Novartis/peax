@@ -31,6 +31,7 @@ def build(
     domain: list = None,
     incl_predictions: bool = False,
     incl_autoencodings: bool = False,
+    incl_selections: bool = False,
     default: bool = False,
     hide_label: bool = False,
 ) -> dict:
@@ -47,6 +48,29 @@ def build(
 
     if domain is not None:
         region, viewport = pad_target(*domain)
+
+    # Add an empty annotation track for visually highlighting selections
+    if incl_selections:
+        combined_track_config = copy.deepcopy(defaults.COMBINED_TRACK)
+        combined_track_config["uid"] = "selections-combined"
+
+        anno_track_config = copy.deepcopy(defaults.ANNOTATION_TRACK)
+        anno_track_config["uid"] = "selections-annotation"
+
+        if region is not None:
+            anno_track_config["options"]["regions"].append(region)
+
+        selection_track_config = copy.deepcopy(defaults.SELECTION_TRACK)
+        uid = "selections"
+        selection_track_config["tilesetUid"] = uid
+        selection_track_config["uid"] = uid
+
+        combined_track_config["height"] = selection_track_config.get("height")
+        combined_track_config["contents"].extend(
+            [anno_track_config, selection_track_config]
+        )
+
+        view_config["views"][0]["tracks"]["top"].append(combined_track_config)
 
     # Setup defaut tracks
     for track in defaults.TOP_TRACKS:
@@ -164,7 +188,7 @@ def build(
     return view_config
 
 
-def height(datasets, config, incl_predictions: bool = False):
+def height(datasets, config):
     view_config = build(datasets, config)
     total_height = 0
 
@@ -172,5 +196,6 @@ def height(datasets, config, incl_predictions: bool = False):
         total_height += track.get("height", 0)
 
     extra_height = defaults.CLASS_PROB_TRACK.get("height", 0)
+    extra_height += defaults.SELECTION_TRACK.get("height", 0)
 
     return total_height, total_height + extra_height

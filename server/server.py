@@ -159,6 +159,7 @@ def create(
                 info["dataFrom"] = int(abs_offset)
                 info["dataTo"] = int(abs_ends)
                 info["windowSize"] = encoders.window_size
+                info["coords"] = config.coords
 
             return jsonify(info)
 
@@ -795,6 +796,7 @@ def create(
         if utils.is_int(search_id, True):
             incl_predictions = search_info["classifiers"] > 0 and options.find("p") >= 0
             incl_autoencodings = options.find("e") >= 0
+            incl_selections = options.find("s") >= 0
 
             if window_id is not None and utils.is_int(window_id, True):
                 info = db.get_search(search_id)
@@ -821,6 +823,7 @@ def create(
                             domain=target_abs,
                             incl_predictions=incl_predictions,
                             incl_autoencodings=incl_autoencodings,
+                            incl_selections=incl_selections,
                             hide_label=True,
                         )
                     )
@@ -835,6 +838,7 @@ def create(
                             search_info=info,
                             incl_predictions=incl_predictions,
                             incl_autoencodings=incl_autoencodings,
+                            incl_selections=incl_selections,
                         )
                     )
 
