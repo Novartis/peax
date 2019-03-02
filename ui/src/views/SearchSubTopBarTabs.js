@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 
 // Components
 import Button from '../components/Button';
-import ButtonIcon from '../components/ButtonIcon';
 import SubTopBar from '../components/SubTopBar';
 import TabTrigger from '../components/TabTrigger';
 
@@ -27,13 +26,7 @@ const SearchSubTopBarTabs = props => (
       tabOpen={props.tab}
       className="rel flex-g-1"
     >
-      {props.numClassifications > props.minClassifications ? (
-        <ButtonIcon className="full-wh" icon="checkmark" iconPosition="right">
-          Seeds
-        </ButtonIcon>
-      ) : (
-        <Button className="full-wh">Seeds</Button>
-      )}
+      <Button className="full-wh">New Samples</Button>
     </TabTrigger>
     <TabTrigger
       for={TAB_RESULTS}
@@ -49,7 +42,7 @@ const SearchSubTopBarTabs = props => (
       tabOpen={props.tab}
       className="rel flex-g-1"
     >
-      <Button className="full-wh">Classifications</Button>
+      <Button className="full-wh">Labels</Button>
     </TabTrigger>
   </SubTopBar>
 );
