@@ -56,6 +56,20 @@
       min-width: 1.5rem;
       height: 1.5rem;
     }
+
+    .sub-top-bottom-bar-buttons {
+      .button-icon {
+        background: $gray-lighter;
+
+        &.is-active {
+          background: $primary;
+        }
+
+        &.is-disabled {
+          background: none;
+        }
+      }
+    }
   }
 
   .search-results {

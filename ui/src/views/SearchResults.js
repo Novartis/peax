@@ -179,8 +179,8 @@ class SearchResults extends React.Component {
                 />
               </ToolTip>
             </li>
-            <li className="separator" />
-            <li>
+            <li className="flex-c flex-a-c">
+              <span className="m-r-0-25">Sort</span>
               <ToolTip
                 align="center"
                 delayIn={2000}
@@ -199,7 +199,8 @@ class SearchResults extends React.Component {
                 />
               </ToolTip>
             </li>
-            <li>
+            <li className="flex-c flex-a-c">
+              <span className="m-r-0-25">Filter</span>
               <ToolTip
                 align="center"
                 delayIn={2000}
@@ -220,7 +221,6 @@ class SearchResults extends React.Component {
                 />
               </ToolTip>
             </li>
-            <li className="separator" />
             <li>
               <Button
                 isDisabled={this.props.isTraining === true}
