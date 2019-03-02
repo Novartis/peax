@@ -165,10 +165,14 @@
 
     .tab-trigger {
       margin: 0.25rem 2px 0 2px;
+      transition: flex-grow $medium-transition $easing;
+
+      &.flex-g-0 {
+        margin: 0;
+      }
     }
 
-    .button,
-    .button-icon {
+    .button {
       border: 0;
       border-radius: 0.25rem 0.25rem 0 0;
       background: transparent;
@@ -199,6 +203,10 @@
         .icon {
           background: $black;
         }
+      }
+
+      &.no-w {
+        display: none;
       }
 
       .icon {

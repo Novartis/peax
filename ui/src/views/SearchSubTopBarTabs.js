@@ -11,7 +11,12 @@ import TabTrigger from '../components/TabTrigger';
 import { setSearchTab } from '../actions';
 
 // Configs
-import { TAB_CLASSIFICATIONS, TAB_RESULTS, TAB_SEEDS } from '../configs/search';
+import {
+  TAB_CLASSIFICATIONS,
+  TAB_RESULTS,
+  TAB_SEEDS,
+  TAB_SELECTION
+} from '../configs/search';
 
 // Utils
 import { Logger } from '../utils';
@@ -44,6 +49,20 @@ const SearchSubTopBarTabs = props => (
     >
       <Button className="full-wh">Labels</Button>
     </TabTrigger>
+    <TabTrigger
+      for={TAB_SELECTION}
+      tabChange={props.setTab}
+      tabOpen={props.tab}
+      className={`rel ${
+        props.selectedRegions.length ? 'flex-g-1' : 'flex-g-0'
+      }`}
+    >
+      <Button
+        className={`full-h ${props.selectedRegions.length ? 'full-w' : 'no-w'}`}
+      >
+        Selection
+      </Button>
+    </TabTrigger>
   </SubTopBar>
 );
 
@@ -55,11 +74,13 @@ SearchSubTopBarTabs.defaultProps = {
 SearchSubTopBarTabs.propTypes = {
   minClassifications: PropTypes.number,
   numClassifications: PropTypes.number,
+  selectedRegions: PropTypes.array.isRequired,
   setTab: PropTypes.func.isRequired,
   tab: PropTypes.oneOfType([PropTypes.string, PropTypes.symbol]).isRequired
 };
 
 const mapStateToProps = state => ({
+  selectedRegions: state.present.searchSelection,
   tab: state.present.searchTab
 });
 

@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import { connect } from 'react-redux';
 
 // Components
 import Button from '../components/Button';
@@ -9,27 +10,21 @@ import SubTopBar from '../components/SubTopBar';
 import SubTopBottomBarButtons from '../components/SubTopBottomBarButtons';
 import ToolTip from '../components/ToolTip';
 
-// Actions
-import { setSearchTab } from '../actions';
+// Services
+import { setSearchSelection } from '../actions';
 
 // Configs
 import {
-  BUTTON_RADIO_FILTER_CLASSIFICATION_OPTIONS,
-  BUTTON_RADIO_SORT_ORDER_OPTIONS,
-  TAB_SEEDS
+  BUTTON_RADIO_CLASSIFICATION_OPTIONS,
+  BUTTON_RADIO_SORT_ORDER_OPTIONS
 } from '../configs/search';
 
 // Utils
 import { Logger, numToCassif } from '../utils';
 
-const logger = Logger('SearchClassifications'); // eslint-disable-line
+const logger = Logger('SearchSelection'); // eslint-disable-line
 
-const isEmpty = (
-  <span>
-    {'Nothing classified! '}
-    <Button onClick={() => setSearchTab(TAB_SEEDS)}>Get started</Button>
-  </span>
-);
+const isEmpty = <span>{'Nothing selected!'}</span>;
 
 const isTraining = onTrainingCheck => (
   <span>
@@ -38,7 +33,7 @@ const isTraining = onTrainingCheck => (
   </span>
 );
 
-class SearchClassifications extends React.Component {
+class SearchSelection extends React.Component {
   constructor(props) {
     super(props);
 
@@ -48,7 +43,7 @@ class SearchClassifications extends React.Component {
 
     this.state = {
       filterByClf: null,
-      sortOrder: 'desc'
+      sortOrder: 'asc'
     };
   }
 
@@ -80,11 +75,8 @@ class SearchClassifications extends React.Component {
           numToCassif(win.classification) !== this.state.filterByClf
       )
       .sort((a, b) => {
-        const aUpdated = Date.parse(a.updated);
-        const bUpdated = Date.parse(b.updated);
-
-        if (aUpdated < bUpdated) return -1 * sortOrder;
-        if (aUpdated > bUpdated) return 1 * sortOrder;
+        if (a.windowId < b.windowId) return -1 * sortOrder;
+        if (a.windowId > b.windowId) return 1 * sortOrder;
         return 0;
       })
       .map(win => ({
@@ -104,7 +96,12 @@ class SearchClassifications extends React.Component {
       <div className="full-dim search-tab-wrapper">
         <SubTopBar>
           <SubTopBottomBarButtons className="flex-c flex-a-c no-list-style">
-            <li>Classified {this.props.results.length} regions.</li>
+            <li>
+              Selected <strong>{this.props.results.length}</strong> regions.
+            </li>
+            <li>
+              <Button onClick={this.props.clearSelection}>Clear</Button>
+            </li>
           </SubTopBottomBarButtons>
           <SubTopBottomBarButtons className="flex-c flex-a-c flex-jc-e no-list-style">
             <li>
@@ -114,13 +111,13 @@ class SearchClassifications extends React.Component {
                 delayOut={500}
                 title={
                   <span className="flex-c">
-                    <span>Sort by date</span>
+                    <span>Sort by genome position</span>
                   </span>
                 }
               >
                 <ButtonRadio
-                  label="Sort"
-                  name="search-filter-by-classification"
+                  label="Sort by position"
+                  name="search-sort-by-genome-position"
                   onClick={this.onSortOrderBnd}
                   options={BUTTON_RADIO_SORT_ORDER_OPTIONS}
                   selection={this.state.sortOrder}
@@ -134,7 +131,7 @@ class SearchClassifications extends React.Component {
                 delayOut={500}
                 title={
                   <span className="flex-c">
-                    <span>Exclude positive or negative labels</span>
+                    <span>Exclude positive, neutral, or negative labels</span>
                   </span>
                 }
               >
@@ -143,7 +140,7 @@ class SearchClassifications extends React.Component {
                   name="search-filter-by-classification"
                   isDeselectable={true}
                   onClick={this.onFilterByClfBnd}
-                  options={BUTTON_RADIO_FILTER_CLASSIFICATION_OPTIONS}
+                  options={BUTTON_RADIO_CLASSIFICATION_OPTIONS}
                   selection={this.state.filterByClf}
                 />
               </ToolTip>
@@ -177,15 +174,16 @@ class SearchClassifications extends React.Component {
   }
 }
 
-SearchClassifications.defaultProps = {
+SearchSelection.defaultProps = {
   isLoading: true,
   isError: false,
   results: [],
   windows: {}
 };
 
-SearchClassifications.propTypes = {
+SearchSelection.propTypes = {
   classificationChangeHandler: PropTypes.func.isRequired,
+  clearSelection: PropTypes.func.isRequired,
   dataTracks: PropTypes.array,
   info: PropTypes.object.isRequired,
   isError: PropTypes.bool,
@@ -205,7 +203,19 @@ SearchClassifications.propTypes = {
   pageTotal: PropTypes.number,
   results: PropTypes.array,
   searchInfo: PropTypes.object.isRequired,
+  selectedRegions: PropTypes.array.isRequired,
   windows: PropTypes.object
 };
 
-export default SearchClassifications;
+const mapStateToProps = state => ({
+  selectedRegions: state.present.searchSelection
+});
+
+const mapDispatchToProps = dispatch => ({
+  clearSelection: () => dispatch(setSearchSelection([]))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SearchSelection);

@@ -25,6 +25,7 @@ import SearchClassifications from './SearchClassifications';
 import SearchResults from './SearchResults';
 import SearchRightBar from './SearchRightBar';
 import SearchSeeds from './SearchSeeds';
+import SearchSelection from './SearchSelection';
 import SearchSubTopBar from './SearchSubTopBar';
 import SearchSubTopBarAll from './SearchSubTopBarAll';
 import SearchSubTopBarTabs from './SearchSubTopBarTabs';
@@ -56,6 +57,7 @@ import {
   TAB_RIGHT_BAR_HELP,
   TAB_RIGHT_BAR_INFO,
   TAB_SEEDS,
+  TAB_SELECTION,
   TRAINING_CHECK_INTERVAL,
   PER_PAGE_ITEMS
 } from '../configs/search';
@@ -94,11 +96,13 @@ class Search extends React.Component {
       isErrorProgress: false,
       isErrorResults: false,
       isErrorSeeds: false,
+      isErrorSelection: false,
       isInit: true,
       isLoading: false,
       isLoadingClassifications: false,
       isLoadingResults: false,
       isLoadingSeeds: false,
+      isLoadingSelection: false,
       isLoadingProgress: false,
       isMinMaxValuesByTarget: false,
       isTraining: null,
@@ -112,6 +116,8 @@ class Search extends React.Component {
       pageResultsTotal: null,
       pageSeeds: 0,
       pageSeedsTotal: null,
+      pageSelection: 0,
+      pageSelectionTotal: null,
       progress: {},
       results: [],
       resultsProbs: [],
@@ -120,6 +126,7 @@ class Search extends React.Component {
       searchInfo: null,
       searchInfosAll: null,
       seeds: {},
+      selection: [],
       windows: {},
       predictionProbBorder: 0.5
     };
@@ -127,6 +134,7 @@ class Search extends React.Component {
     this.onPageClassifications = this.onPage('classifications');
     this.onPageResults = this.onPage('results');
     this.onPageSeeds = this.onPage('seeds');
+    this.onPageSelection = this.onPage('selection');
 
     this.pubSubs.push(
       this.props.pubSub.subscribe('keydown', this.keyDownHandler)
@@ -186,6 +194,12 @@ class Search extends React.Component {
     ) {
       this.denormalize();
     }
+    if (
+      prevProps.selectedRegions !== this.props.selectedRegions &&
+      this.props.tab === TAB_SELECTION
+    ) {
+      this.prepareSelection();
+    }
   }
 
   /* -------------------------- Getters & Setters --------------------------- */
@@ -221,6 +235,8 @@ class Search extends React.Component {
     if (this.props.tab === TAB_RESULTS) this.loadResults();
 
     if (this.props.tab === TAB_CLASSIFICATIONS) this.loadClassifications();
+
+    if (this.props.tab === TAB_SELECTION) this.prepareSelection();
   }
 
   async loadMetadata() {
@@ -332,6 +348,44 @@ class Search extends React.Component {
       pageClassificationsTotal: Math.ceil(
         classifications.length / PER_PAGE_ITEMS
       )
+    });
+  }
+
+  async prepareSelection() {
+    if (this.state.isLoadingClassifications) return;
+
+    this.setState({
+      isLoadingSelection: true,
+      isErrorSelection: false
+    });
+
+    await this.loadClassifications();
+
+    const isErrorSelection = this.state.isErrorClassifications
+      ? "Could't load classifications."
+      : false;
+
+    const classificationById = this.state.classifications.reduce(
+      (index, classification) => {
+        index[classification.windowId] = classification.classification;
+        return index;
+      },
+      {}
+    );
+
+    const selection = isErrorSelection
+      ? []
+      : this.props.selectedRegions.map(windowId => ({
+          classification: classificationById[windowId] || 0,
+          windowId
+        }));
+
+    this.setState({
+      isLoadingSelection: false,
+      isErrorSelection,
+      selection,
+      pageSelection: 0,
+      pageSelectionTotal: Math.ceil(selection.length / PER_PAGE_ITEMS)
     });
   }
 
@@ -1185,6 +1239,32 @@ class Search extends React.Component {
                   page={this.state.pageClassifications}
                   pageTotal={this.state.pageClassificationsTotal}
                   results={this.state.classifications}
+                  searchInfo={this.state.searchInfo}
+                  windows={this.state.windows}
+                />
+              </TabContent>
+              <TabContent
+                className="full-dim flex-c flex-v"
+                for={TAB_SELECTION}
+                tabOpen={this.props.tab}
+              >
+                <SearchSelection
+                  classificationChangeHandler={this.classificationChangeHandler}
+                  dataTracks={this.state.dataTracks}
+                  info={this.state.info}
+                  isError={this.state.isErrorSelection}
+                  isLoading={this.state.isLoadingSelection}
+                  isTraining={this.state.isTraining}
+                  itemsPerPage={PER_PAGE_ITEMS}
+                  normalizationSource={this.state.minMaxSource}
+                  normalizeBy={this.state.minMaxValues}
+                  onNormalize={this.onNormalize}
+                  onPage={this.onPageSelection}
+                  onTrainingStart={this.onTrainingStart}
+                  onTrainingCheck={this.onTrainingCheck}
+                  page={this.state.pageSelection}
+                  pageTotal={this.state.pageSelectionTotal}
+                  results={this.state.selection}
                   searchInfo={this.state.searchInfo}
                   windows={this.state.windows}
                 />
