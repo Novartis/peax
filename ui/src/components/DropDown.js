@@ -19,7 +19,7 @@ class DropDown extends React.Component {
   }
 
   componentDidMount() {
-    if (this.props.closeOnOuterClick) {
+    if (!this.props.noCloseOnOuterClick) {
       this.pubSubs.push(
         this.props.pubSub.subscribe('click', this.clickHandler.bind(this))
       );
@@ -99,13 +99,21 @@ class DropDown extends React.Component {
   }
 }
 
+DropDown.defaultProps = {
+  alignRight: false,
+  alignTop: false,
+  className: null,
+  id: null,
+  noCloseOnOuterClick: false
+};
+
 DropDown.propTypes = {
-  closeOnOuterClick: PropTypes.bool,
-  children: PropTypes.node.isRequired,
-  className: PropTypes.string,
   alignRight: PropTypes.bool,
   alignTop: PropTypes.bool,
+  children: PropTypes.node.isRequired,
+  className: PropTypes.string,
   id: PropTypes.string,
+  noCloseOnOuterClick: PropTypes.bool,
   pubSub: PropTypes.object.isRequired
 };
 
