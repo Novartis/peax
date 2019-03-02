@@ -7,13 +7,14 @@ import { withPubSub } from '../hocs/pub-sub';
 
 // Components
 import AppInfo from '../components/AppInfo';
+import Button from '../components/Button';
 import ButtonIcon from '../components/ButtonIcon';
 import SubTopBar from '../components/SubTopBar';
 import SubTopBottomBarButtons from '../components/SubTopBottomBarButtons';
 import ToolTip from '../components/ToolTip';
 
 // Services
-import { setShowAutoencodings } from '../actions';
+import { setSearchSelection, setShowAutoencodings } from '../actions';
 
 // Utils
 import { Deferred, Logger } from '../utils';
@@ -55,7 +56,26 @@ const SearchSubTopBar = props => (
           />
         </ToolTip>
       </li>
-      <li className="separator" />
+      <li>
+        <ToolTip
+          align="left"
+          delayIn={2000}
+          delayOut={500}
+          title={
+            <span className="flex-c">
+              <span>Normalize to this</span>
+            </span>
+          }
+        >
+          <ButtonIcon
+            icon="ratio"
+            iconOnly={true}
+            isIconMirrorOnFocus={true}
+            isActive={props.isMinMaxValsByTarget}
+            onClick={props.normalize}
+          />
+        </ToolTip>
+      </li>
       <li>
         <ToolTip
           align="left"
@@ -77,26 +97,11 @@ const SearchSubTopBar = props => (
           />
         </ToolTip>
       </li>
-      <li>
-        <ToolTip
-          align="left"
-          delayIn={2000}
-          delayOut={500}
-          title={
-            <span className="flex-c">
-              <span>Normalize to this</span>
-            </span>
-          }
-        >
-          <ButtonIcon
-            icon="ratio"
-            iconOnly={true}
-            isIconMirrorOnFocus={true}
-            isActive={props.isMinMaxValsByTarget}
-            onClick={props.normalize}
-          />
-        </ToolTip>
-      </li>
+      {props.selectedRegions.length > 0 && (
+        <li>
+          <Button onClick={props.clearSelection}>Clear Selection</Button>
+        </li>
+      )}
     </SubTopBottomBarButtons>
     <SubTopBottomBarButtons className="flex-c flex-a-c flex-jc-e no-list-style">
       <li>
@@ -149,19 +154,23 @@ SearchSubTopBar.defaultProps = {
 };
 
 SearchSubTopBar.propTypes = {
+  clearSelection: PropTypes.func.isRequired,
   isMinMaxValsByTarget: PropTypes.bool,
   resetViewport: PropTypes.func.isRequired,
   normalize: PropTypes.func.isRequired,
   pubSub: PropTypes.object.isRequired,
+  selectedRegions: PropTypes.array.isRequired,
   setShowAutoencodings: PropTypes.func,
   showAutoencodings: PropTypes.bool,
   viewportChanged: PropTypes.bool
 };
 
 const mapStateToProps = state => ({
+  selectedRegions: state.present.searchSelection,
   showAutoencodings: state.present.showAutoencodings
 });
 const mapDispatchToProps = dispatch => ({
+  clearSelection: () => dispatch(setSearchSelection([])),
   setShowAutoencodings: showAutoencodings =>
     dispatch(setShowAutoencodings(showAutoencodings))
 });
