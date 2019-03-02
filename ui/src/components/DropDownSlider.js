@@ -10,12 +10,12 @@ import DropDownTrigger from './DropDownTrigger';
 import './DropDownSlider.scss';
 
 const DropDownSlider = props => (
-  <DropDown className="drop-down-slider">
+  <DropDown className={`drop-down-slider ${props.reversed ? 'reversed' : ''}`}>
     <DropDownTrigger>
       <Button>{props.value}</Button>
     </DropDownTrigger>
     <DropDownContent>
-      <div className={`flex-c flex-a-c ${props.reversed ? 'reversed' : ''}`}>
+      <div className="flex-c flex-a-c">
         {props.reversed ? (
           <span className="drop-down-slider-max">{props.max}</span>
         ) : (
@@ -37,12 +37,27 @@ const DropDownSlider = props => (
           <span className="drop-down-slider-max">{props.max}</span>
         )}
       </div>
+      {props.histogram && props.histogram.length && (
+        <div className="flex-c histogram">
+          {props.histogram.map((bin, i) => (
+            <div
+              key={i}
+              className="flex-g-1"
+              style={{
+                height: `${Math.min(1, bin / props.histogramNorm) * 100}%`
+              }}
+            />
+          ))}
+        </div>
+      )}
     </DropDownContent>
   </DropDown>
 );
 
 DropDownSlider.defaultProps = {
   disabled: false,
+  histogram: [],
+  histogramNorm: 1,
   max: 1,
   min: 0,
   reversed: false,
@@ -51,6 +66,8 @@ DropDownSlider.defaultProps = {
 
 DropDownSlider.propTypes = {
   disabled: PropTypes.bool,
+  histogram: PropTypes.array,
+  histogramNorm: PropTypes.number,
   id: PropTypes.string,
   max: PropTypes.number,
   min: PropTypes.number,

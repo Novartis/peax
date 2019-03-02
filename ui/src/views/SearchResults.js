@@ -140,8 +140,10 @@ class SearchResults extends React.Component {
                     prediction probability &ge;
                   </span>
                   <DropDownSlider
-                    reversed={true}
+                    histogram={this.props.resultsPredictionHistogram}
+                    histogramNorm={results.length}
                     onChange={this.props.onChangePreditionProbBorder}
+                    reversed
                     value={this.props.preditionProbBorder}
                   />
                   {this.props.preditionProbBorder !==
@@ -287,7 +289,8 @@ SearchResults.propTypes = {
   page: PropTypes.number,
   pageTotal: PropTypes.number,
   preditionProbBorder: PropTypes.number.isRequired,
-  results: PropTypes.array,
+  results: PropTypes.array.isRequired,
+  resultsPredictionHistogram: PropTypes.array.isRequired,
   resultsPredictionProbBorder: PropTypes.number.isRequired,
   searchInfo: PropTypes.object,
   setTab: PropTypes.func,

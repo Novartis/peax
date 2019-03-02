@@ -14,7 +14,7 @@
     z-index: 10;
     width: 10rem;
     margin: 0.2rem 0 0 1.25rem;
-    padding: 0.25rem 0.5rem;
+    padding: 0.25rem 0.5rem 0.5rem 0.5rem;
     border-radius: 0.25rem;
     background: $white;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 6px 0 rgba(0, 0, 0, 0.075);
@@ -49,7 +49,21 @@
     text-align: left;
   }
 
-  .reversed {
+  input {
+    z-index: 1;
+  }
+
+  .histogram {
+    height: 4rem;
+    margin: -0.5rem 0.85rem 0 0.85rem;
+    transform: translate(0, 1px);
+
+    div {
+      background: $gray-lightest;
+    }
+  }
+
+  &.reversed {
     input {
       direction: rtl;
     }
@@ -60,6 +74,10 @@
 
     .drop-down-slider-min {
       text-align: right;
+    }
+
+    .histogram {
+      flex-direction: row-reverse;
     }
   }
 }

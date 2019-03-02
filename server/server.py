@@ -399,7 +399,13 @@ def create(
                     "classification": None,
                 }
 
-        return jsonify({"results": results, "predictionProbBorder": border})
+        return jsonify(
+            {
+                "results": results,
+                "predictionProbBorder": border,
+                "predictionHistogram": np.histogram(p_y[:, 1], 40)[0].tolist(),
+            }
+        )
 
     @app.route("/api/v1/classes/", methods=["GET"])
     def view_classes():

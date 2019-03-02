@@ -114,6 +114,7 @@ class Search extends React.Component {
       progress: {},
       results: [],
       resultsProbs: [],
+      resultsPredictionHistogram: null,
       resultsPredictionProbBorder: null,
       searchInfo: null,
       searchInfosAll: null,
@@ -352,6 +353,7 @@ class Search extends React.Component {
         isLoadingResults: false,
         isErrorResults,
         results: predictions.results,
+        resultsPredictionHistogram: predictions.predictionHistogram,
         resultsPredictionProbBorder: predictions.predictionProbBorder,
         pageResultsTotal: Math.ceil(predictions.results.length / PER_PAGE_ITEMS)
       });
@@ -1106,6 +1108,9 @@ class Search extends React.Component {
                   pageTotal={this.state.pageResultsTotal}
                   preditionProbBorder={this.state.preditionProbBorder}
                   results={this.state.results}
+                  resultsPredictionHistogram={
+                    this.state.resultsPredictionHistogram
+                  }
                   resultsPredictionProbBorder={
                     this.state.resultsPredictionProbBorder
                   }
