@@ -61,7 +61,7 @@ class SearchSeeds extends React.Component {
                 }
                 onClick={() => this.props.onTrainingStart()}
               >
-                Train Classifier
+                Train
               </Button>
             </li>
           </SubTopBottomBarButtons>
