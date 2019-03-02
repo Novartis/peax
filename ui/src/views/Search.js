@@ -115,13 +115,13 @@ class Search extends React.Component {
       progress: {},
       results: [],
       resultsProbs: [],
-      resultsPredictionHistogram: null,
-      resultsPredictionProbBorder: 0.5,
+      resultsPredictionHistogram: [],
+      resultsPredictionProbBorder: null,
       searchInfo: null,
       searchInfosAll: null,
       seeds: {},
       windows: {},
-      preditionProbBorder: 0.5
+      predictionProbBorder: 0.5
     };
 
     this.onPageClassifications = this.onPage('classifications');
@@ -134,7 +134,7 @@ class Search extends React.Component {
     this.pubSubs.push(this.props.pubSub.subscribe('keyup', this.keyUpHandler));
 
     this.onChangePreditionProbBorder = compose(
-      this.onChangeState('preditionProbBorder'),
+      this.onChangeState('predictionProbBorder'),
       inputToNum
     );
 
@@ -364,7 +364,7 @@ class Search extends React.Component {
     if (this.isSeeded && this.isTrained) {
       let predictions = await api.getPredictions(
         this.id,
-        this.state.preditionProbBorder
+        this.state.predictionProbBorder
       );
       const isErrorResults =
         predictions.status !== 200 ? "Could't load results." : false;
@@ -1150,7 +1150,7 @@ class Search extends React.Component {
                   onTrainingCheck={this.onTrainingCheck}
                   page={this.state.pageResults}
                   pageTotal={this.state.pageResultsTotal}
-                  preditionProbBorder={this.state.preditionProbBorder}
+                  predictionProbBorder={this.state.predictionProbBorder}
                   results={this.state.results}
                   resultsPredictionHistogram={
                     this.state.resultsPredictionHistogram

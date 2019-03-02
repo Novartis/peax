@@ -144,9 +144,9 @@ class SearchResults extends React.Component {
                     histogramNorm={results.length}
                     onChange={this.props.onChangePreditionProbBorder}
                     reversed
-                    value={this.props.preditionProbBorder}
+                    value={this.props.predictionProbBorder}
                   />
-                  {this.props.preditionProbBorder !==
+                  {this.props.predictionProbBorder !==
                     this.props.resultsPredictionProbBorder && (
                     <ButtonIcon
                       className="m-l-0-25"
@@ -262,6 +262,8 @@ SearchResults.defaultProps = {
   isTrained: false,
   isTraining: null,
   results: [],
+  resultsPredictionHistogram: [],
+  resultsPredictionProbBorder: null,
   searchInfo: {}
 };
 
@@ -288,10 +290,10 @@ SearchResults.propTypes = {
   onTrainingCheck: PropTypes.func.isRequired,
   page: PropTypes.number,
   pageTotal: PropTypes.number,
-  preditionProbBorder: PropTypes.number.isRequired,
+  predictionProbBorder: PropTypes.number.isRequired,
   results: PropTypes.array.isRequired,
-  resultsPredictionHistogram: PropTypes.array.isRequired,
-  resultsPredictionProbBorder: PropTypes.number.isRequired,
+  resultsPredictionHistogram: PropTypes.array,
+  resultsPredictionProbBorder: PropTypes.number,
   searchInfo: PropTypes.object,
   setTab: PropTypes.func,
   windows: PropTypes.object
