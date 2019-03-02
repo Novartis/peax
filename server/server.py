@@ -323,10 +323,14 @@ def create(
     @app.route("/api/v1/predictions/", methods=["GET"])
     def predictions():
         search_id = request.args.get("s")
+        border = request.args.get("b", type=float)
         classifier_id = request.args.get("c")
 
         if search_id is None:
             return jsonify({"error": "Search id (`s`) is missing."}), 400
+
+        if border is None:
+            border = 0.5
 
         classifier = classifiers.get(search_id, classifier_id)
 
@@ -352,9 +356,10 @@ def create(
             and np.max(search_target_windows[1]) < num_window
         ):
             fit_y[np.arange(*search_target_windows[1]).astype(int)] = 0
+            p_y[np.arange(*search_target_windows[1]).astype(int)] = 0
 
         # Only regard positive classifications
-        positive = np.where(fit_y == 1)
+        positive = np.where(p_y[:, 1] >= border)
         window_ids_pos = window_ids[positive]
         p_y_pos = p_y[positive]
 
@@ -394,7 +399,7 @@ def create(
                     "classification": None,
                 }
 
-        return jsonify({"results": results})
+        return jsonify({"results": results, "predictionProbBorder": border})
 
     @app.route("/api/v1/classes/", methods=["GET"])
     def view_classes():

@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
+import { compose } from 'recompose';
 
 // Higher-order components
 import { withPubSub } from '../hocs/pub-sub';
@@ -39,7 +40,7 @@ import {
 import {
   api,
   Deferred,
-  // inputToNum,
+  inputToNum,
   Logger,
   readableDate,
   removeHiGlassEventListeners,
@@ -113,10 +114,12 @@ class Search extends React.Component {
       progress: {},
       results: [],
       resultsProbs: [],
+      resultsPredictionProbBorder: null,
       searchInfo: null,
       searchInfosAll: null,
       seeds: {},
-      windows: {}
+      windows: {},
+      preditionProbBorder: 0.5
     };
 
     this.onPageClassifications = this.onPage('classifications');
@@ -127,6 +130,11 @@ class Search extends React.Component {
       this.props.pubSub.subscribe('keydown', this.keyDownHandler)
     );
     this.pubSubs.push(this.props.pubSub.subscribe('keyup', this.keyUpHandler));
+
+    this.onChangePreditionProbBorder = compose(
+      this.onChangeState('preditionProbBorder'),
+      inputToNum
+    );
   }
 
   componentDidMount() {
@@ -305,6 +313,7 @@ class Search extends React.Component {
     });
   }
 
+  @boundMethod
   async loadResults() {
     if (this.state.isLoadingResults) return;
 
@@ -331,7 +340,10 @@ class Search extends React.Component {
     }
 
     if (this.isSeeded && this.isTrained) {
-      let predictions = await api.getPredictions(this.id);
+      let predictions = await api.getPredictions(
+        this.id,
+        this.state.preditionProbBorder
+      );
       const isErrorResults =
         predictions.status !== 200 ? "Could't load results." : false;
       predictions = isErrorResults ? [] : predictions.body;
@@ -340,6 +352,7 @@ class Search extends React.Component {
         isLoadingResults: false,
         isErrorResults,
         results: predictions.results,
+        resultsPredictionProbBorder: predictions.predictionProbBorder,
         pageResultsTotal: Math.ceil(predictions.results.length / PER_PAGE_ITEMS)
       });
     }
@@ -1081,15 +1094,21 @@ class Search extends React.Component {
                   isTrained={this.isTrained}
                   isTraining={this.state.isTraining}
                   itemsPerPage={PER_PAGE_ITEMS}
+                  loadResultsAgain={this.loadResults}
                   normalizationSource={this.state.minMaxSource}
                   normalizeBy={this.state.minMaxValues}
                   onNormalize={this.onNormalize}
                   onPage={this.onPageResults}
+                  onChangePreditionProbBorder={this.onChangePreditionProbBorder}
                   onTrainingStart={this.onTrainingStart}
                   onTrainingCheck={this.onTrainingCheck}
                   page={this.state.pageResults}
                   pageTotal={this.state.pageResultsTotal}
+                  preditionProbBorder={this.state.preditionProbBorder}
                   results={this.state.results}
+                  resultsPredictionProbBorder={
+                    this.state.resultsPredictionProbBorder
+                  }
                   searchInfo={this.state.searchInfo}
                   train={this.onTrainingBnd}
                   windows={this.state.windows}

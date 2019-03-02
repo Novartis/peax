@@ -48,4 +48,18 @@
   .drop-down-slider-min {
     text-align: left;
   }
+
+  .reversed {
+    input {
+      direction: rtl;
+    }
+
+    .drop-down-slider-max {
+      text-align: left;
+    }
+
+    .drop-down-slider-min {
+      text-align: right;
+    }
+  }
 }

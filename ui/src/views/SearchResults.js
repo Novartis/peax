@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import Button from '../components/Button';
 import ButtonIcon from '../components/ButtonIcon';
 import ButtonRadio from '../components/ButtonRadio';
+import DropDownSlider from '../components/DropDownSlider';
 import HiglassResultList from '../components/HiglassResultList';
 import SubTopBar from '../components/SubTopBar';
 import SubTopBottomBarButtons from '../components/SubTopBottomBarButtons';
@@ -132,7 +133,29 @@ class SearchResults extends React.Component {
           <SubTopBottomBarButtons className="flex-c flex-a-c no-list-style">
             {!this.props.isLoading &&
               !this.props.isError &&
-              this.props.isTrained && <li>Found {results.length} regions.</li>}
+              this.props.isTrained && (
+                <li className="flex-c flex-a-c">
+                  <span className="m-r-0-25">
+                    Found <strong>{results.length}</strong> regions with a
+                    prediction probability &ge;
+                  </span>
+                  <DropDownSlider
+                    reversed={true}
+                    onChange={this.props.onChangePreditionProbBorder}
+                    value={this.props.preditionProbBorder}
+                  />
+                  {this.props.preditionProbBorder !==
+                    this.props.resultsPredictionProbBorder && (
+                    <ButtonIcon
+                      className="m-l-0-25"
+                      icon="reset"
+                      iconOnly
+                      isIconRotationOnFocus
+                      onClick={this.props.loadResultsAgain}
+                    />
+                  )}
+                </li>
+              )}
           </SubTopBottomBarButtons>
           <SubTopBottomBarButtons className="flex-c flex-a-c flex-jc-e no-list-style">
             <li>
@@ -201,7 +224,7 @@ class SearchResults extends React.Component {
                 isDisabled={this.props.isTraining === true}
                 onClick={() => this.props.onTrainingStart()}
               >
-                Train Classifier Again
+                Re-Train
               </Button>
             </li>
           </SubTopBottomBarButtons>
@@ -250,6 +273,7 @@ SearchResults.propTypes = {
   isTrained: PropTypes.bool,
   isTraining: PropTypes.bool,
   itemsPerPage: PropTypes.number,
+  loadResultsAgain: PropTypes.func.isRequired,
   normalizationSource: PropTypes.oneOfType([
     PropTypes.number,
     PropTypes.string
@@ -257,11 +281,14 @@ SearchResults.propTypes = {
   normalizeBy: PropTypes.object,
   onNormalize: PropTypes.func.isRequired,
   onPage: PropTypes.func.isRequired,
+  onChangePreditionProbBorder: PropTypes.func.isRequired,
   onTrainingStart: PropTypes.func.isRequired,
   onTrainingCheck: PropTypes.func.isRequired,
   page: PropTypes.number,
   pageTotal: PropTypes.number,
+  preditionProbBorder: PropTypes.number.isRequired,
   results: PropTypes.array,
+  resultsPredictionProbBorder: PropTypes.number.isRequired,
   searchInfo: PropTypes.object,
   setTab: PropTypes.func,
   windows: PropTypes.object

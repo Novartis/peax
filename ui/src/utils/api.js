@@ -63,8 +63,8 @@ const getDataTracks = async () =>
     .then(mergeJsonResponse)
     .catch(mergeError);
 
-const getPredictions = async searchId =>
-  fetch(`${server}/predictions/?s=${searchId}`)
+const getPredictions = async (searchId, border = 0.5) =>
+  fetch(`${server}/predictions/?s=${searchId}&b=${border}`)
     .then(mergeJsonResponse)
     .catch(mergeError);
 
