@@ -25,7 +25,12 @@ const classNames = props => {
 const getTag = href => (href && href.length ? 'a' : 'button');
 
 const ButtonIcon = props => {
-  const Tag = getTag(props.href);
+  let Tag = getTag(props.href);
+
+  if (!props.href && props.tag) {
+    Tag = props.tag;
+  }
+
   return (
     <Tag
       className={classNames(props)}
@@ -50,7 +55,8 @@ const ButtonIcon = props => {
 };
 
 ButtonIcon.defaultProps = {
-  iconPosition: 'left'
+  iconPosition: 'left',
+  tag: null
 };
 
 ButtonIcon.propTypes = {
@@ -71,6 +77,7 @@ ButtonIcon.propTypes = {
   onClick: PropTypes.func,
   onMouseDown: PropTypes.func,
   onMouseUp: PropTypes.func,
+  tag: PropTypes.str,
   title: PropTypes.string
 };
 
