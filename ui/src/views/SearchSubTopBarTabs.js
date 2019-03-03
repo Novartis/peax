@@ -4,11 +4,12 @@ import { connect } from 'react-redux';
 
 // Components
 import Button from '../components/Button';
+import ButtonIcon from '../components/ButtonIcon';
 import SubTopBar from '../components/SubTopBar';
 import TabTrigger from '../components/TabTrigger';
 
-// Services
-import { setSearchTab } from '../actions';
+// Actions
+import { setSearchSelection, setSearchTab } from '../actions';
 
 // Configs
 import {
@@ -58,9 +59,23 @@ const SearchSubTopBarTabs = props => (
       }`}
     >
       <Button
-        className={`full-h ${props.selectedRegions.length ? 'full-w' : 'no-w'}`}
+        className={`full-h ${
+          props.selectedRegions.length ? 'full-w' : 'no-w'
+        } flex-c flex-jc-c flex-a-c search-tab-trigger-selection`}
+        tag="div"
       >
         Selection
+        <ButtonIcon
+          icon="cross"
+          iconOnly
+          onClick={e => {
+            e.stopPropagation();
+            props.clearSelection();
+            if (props.tab === TAB_SELECTION) {
+              props.setTab(TAB_RESULTS);
+            }
+          }}
+        />
       </Button>
     </TabTrigger>
   </SubTopBar>
@@ -72,6 +87,7 @@ SearchSubTopBarTabs.defaultProps = {
 };
 
 SearchSubTopBarTabs.propTypes = {
+  clearSelection: PropTypes.func,
   minClassifications: PropTypes.number,
   numClassifications: PropTypes.number,
   selectedRegions: PropTypes.array.isRequired,
@@ -85,6 +101,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  clearSelection: () => dispatch(setSearchSelection([])),
   setTab: searchTab => dispatch(setSearchTab(searchTab))
 });
 

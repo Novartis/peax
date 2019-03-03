@@ -172,6 +172,17 @@
       }
     }
 
+    .search-tab-trigger-selection {
+      .button-icon {
+        margin-left: 0.25rem;
+        background: none;
+
+        .icon {
+          margin-left: 0;
+        }
+      }
+    }
+
     .button {
       border: 0;
       border-radius: 0.25rem 0.25rem 0 0;
