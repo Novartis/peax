@@ -10,7 +10,7 @@ import SubTopBar from '../components/SubTopBar';
 import SubTopBottomBarButtons from '../components/SubTopBottomBarButtons';
 import ToolTip from '../components/ToolTip';
 
-// Services
+// Actions
 import { setSearchSelection } from '../actions';
 
 // Configs
