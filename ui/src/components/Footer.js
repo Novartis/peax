@@ -60,11 +60,13 @@ const Footer = () => (
               About
             </NavLink>
           </li>
-          <li>
-            <NavLink exact to="/help" activeClassName="is-active">
-              Help
-            </NavLink>
-          </li>
+          {
+            // <li>
+            //   <NavLink exact to="/help" activeClassName="is-active">
+            //     Help
+            //   </NavLink>
+            // </li>
+          }
         </ul>
       </nav>
     </div>

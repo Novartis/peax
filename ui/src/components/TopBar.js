@@ -78,11 +78,13 @@ class TopBar extends React.Component {
                   About
                 </NavLink>
               </li>
-              <li>
-                <NavLink to="/help" activeClassName="is-active">
-                  Help
-                </NavLink>
-              </li>
+              {
+                // <li>
+                //   <NavLink to="/help" activeClassName="is-active">
+                //     Help
+                //   </NavLink>
+                // </li>
+              }
             </ul>
             <Hamburger
               isActive={this.state.menuIsShown}
