@@ -116,49 +116,6 @@ class Help extends React.Component {
               marvelous getting started guide here. Until then you are excused
               to freak out.
             </p>
-
-            <h3 id="source-code" className="iconized underlined anchored">
-              <a href="#source-code" className="hidden-anchor">
-                <Icon iconId="link" />
-              </a>
-              <Icon iconId="code" />
-              Source Code
-            </h3>
-
-            <p>Peax uses and adopted the following open source component:</p>
-
-            <ul className="no-list-style large-spacing">
-              <li>
-                <strong>Genome viewer: </strong>
-                <a
-                  href="https://github.com/higlass/higlass"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  github.com/higlass/higlass
-                </a>
-              </li>
-              <li>
-                <strong>UI architecture: </strong>
-                <a
-                  href="https://github.com/higlass/higlass-app"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  github.com/higlass/higlass-app
-                </a>
-              </li>
-              <li>
-                <strong>Server: </strong>
-                <a
-                  href="https://github.com/higlass/hgflask"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  github.com/higlass/hgflask
-                </a>
-              </li>
-            </ul>
           </div>
         </Content>
         <Footer />
