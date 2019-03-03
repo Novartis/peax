@@ -17,7 +17,7 @@ import { setSearchTab } from '../actions';
 
 // Configs
 import {
-  BUTTON_RADIO_FILTER_CLASSIFICATION_OPTIONS,
+  BUTTON_RADIO_CLASSIFICATION_OPTIONS,
   BUTTON_RADIO_SORT_ORDER_OPTIONS,
   TAB_SEEDS
 } from '../configs/search';
@@ -58,7 +58,7 @@ class SearchResults extends React.Component {
     this.onSortOrderBnd = this.onSortOrder.bind(this);
 
     this.state = {
-      filterByClf: ['positive', 'negative'],
+      filterByClf: null,
       sortOrder: 'desc'
     };
 
@@ -74,16 +74,8 @@ class SearchResults extends React.Component {
     this.resultsWrapper = ref;
   }
 
-  async onFilterByClf(clf, deselectedClf) {
-    const filterByClf = [...this.state.filterByClf];
-
-    if (clf) filterByClf.push(clf);
-    if (deselectedClf) {
-      const idx = filterByClf.indexOf(deselectedClf);
-      if (idx >= 0) filterByClf.splice(idx, 1);
-    }
-
-    this.setState({ filterByClf });
+  async onFilterByClf(clf) {
+    this.setState({ filterByClf: clf });
     this.props.onPage(0);
   }
 
@@ -101,8 +93,8 @@ class SearchResults extends React.Component {
     const results = this.props.results
       .filter(
         win =>
-          numToCassif(win.classification) === 'neutral' ||
-          this.state.filterByClf.includes(numToCassif(win.classification))
+          this.state.filterByClf === null ||
+          numToCassif(win.classification) !== this.state.filterByClf
       )
       .sort((a, b) => {
         const aProbability = a.probability;
@@ -213,12 +205,11 @@ class SearchResults extends React.Component {
                 }
               >
                 <ButtonRadio
-                  label="Include"
+                  label="Exclude"
                   name="search-filter-by-classification"
                   isDeselectable={true}
-                  isMultiple={true}
                   onClick={this.onFilterByClfBnd}
-                  options={BUTTON_RADIO_FILTER_CLASSIFICATION_OPTIONS}
+                  options={BUTTON_RADIO_CLASSIFICATION_OPTIONS}
                   selection={this.state.filterByClf}
                 />
               </ToolTip>
