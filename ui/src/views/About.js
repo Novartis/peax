@@ -41,10 +41,7 @@ const About = () => (
 
         <ol className="no-list-style authors">
           <li className="flex-c flex-v">
-            <span className="name">
-              Fritz Lekschas
-              <span className="badge role">Concept, Design, Engineering</span>
-            </span>
+            <span className="name">Fritz Lekschas</span>
             <span className="affiliation">
               Harvard John A. Paulson School of Engineering and Applied Sciences
             </span>
@@ -92,12 +89,63 @@ const About = () => (
             <span className="affiliation">
               Novartis Institutes for BioMedical Research
             </span>
+            <ul className="no-list-style flex-c out-links">
+              <li>
+                <a
+                  className="flex-c flex-a-c"
+                  href="https://twitter.com/fixedbydrift"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Icon iconId="gezwitscher" />
+                  fixedbydrift
+                </a>
+              </li>
+            </ul>
           </li>
           <li className="flex-c flex-v">
-            <span className="name">
-              Eric Ma
-              <span className="badge role">Engineering</span>
+            <span className="name">Daniel Haehn</span>
+            <span className="affiliation">
+              Harvard John A. Paulson School of Engineering and Applied Sciences
             </span>
+            <ul className="no-list-style flex-c out-links">
+              <li>
+                <a
+                  className="flex-c flex-a-c"
+                  href="https://danielhaehn.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Icon iconId="globe" />
+                  danielhaehn.com
+                </a>
+              </li>
+              <li>
+                <a
+                  className="flex-c flex-a-c"
+                  href="https://twitter.com/danielhaehn"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Icon iconId="gezwitscher" />
+                  danielhaehn
+                </a>
+              </li>
+              <li>
+                <a
+                  className="flex-c flex-a-c"
+                  href="https://github.com/haehn"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Icon iconId="github" />
+                  haehn
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li className="flex-c flex-v">
+            <span className="name">Eric Ma</span>
             <span className="affiliation">
               Novartis Institutes for BioMedical Research
             </span>
@@ -137,7 +185,156 @@ const About = () => (
               </li>
             </ul>
           </li>
+          <li className="flex-c flex-v">
+            <span className="name">Nils Gehlenborg</span>
+            <span className="affiliation">Harvard Medical School</span>
+            <ul className="no-list-style flex-c out-links">
+              <li>
+                <a
+                  className="flex-c flex-a-c"
+                  href="http://gehlenborglab.org"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Icon iconId="globe" />
+                  gehlenborglab.org
+                </a>
+              </li>
+              <li>
+                <a
+                  className="flex-c flex-a-c"
+                  href="https://twitter.com/ngehlenborg"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Icon iconId="gezwitscher" />
+                  ngehlenborg
+                </a>
+              </li>
+              <li>
+                <a
+                  className="flex-c flex-a-c"
+                  href="https://github.com/ngehlenborg"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Icon iconId="github" />
+                  ngehlenborg
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li className="flex-c flex-v">
+            <span className="name">Hanspeter Pfister</span>
+            <span className="affiliation">
+              Harvard John A. Paulson School of Engineering and Applied Sciences
+            </span>
+            <ul className="no-list-style flex-c out-links">
+              <li>
+                <a
+                  className="flex-c flex-a-c"
+                  href="https://vcg.seas.harvard.edu/people"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Icon iconId="globe" />
+                  vcg.seas.harvard.edu
+                </a>
+              </li>
+              <li>
+                <a
+                  className="flex-c flex-a-c"
+                  href="https://twitter.com/hpfister"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Icon iconId="gezwitscher" />
+                  hpfister
+                </a>
+              </li>
+            </ul>
+          </li>
         </ol>
+
+        <h3 id="source-code" className="iconized underlined anchored">
+          <a href="#source-code" className="hidden-anchor">
+            <Icon iconId="link" />
+          </a>
+          <Icon iconId="code" />
+          Source Code
+        </h3>
+
+        <ul className="no-list-style large-spacing iconized">
+          <li className="iconized">
+            <Icon iconId="github" />
+            <span className="m-r-0-5">Repo:</span>
+            <a
+              href="https://github.com/novartis/peax"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              github.com/novartis/peax
+            </a>
+          </li>
+        </ul>
+
+        <p>Peax uses and adopts the following open source component:</p>
+
+        <ul className="no-list-style large-spacing iconized">
+          <li className="iconized">
+            <Icon iconId="github" />
+            <span className="m-r-0-5">Genome viewer:</span>
+            <a
+              href="https://github.com/higlass/higlass"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              github.com/higlass/higlass
+            </a>
+          </li>
+          <li className="iconized">
+            <Icon iconId="github" />
+            <span className="m-r-0-5">UI architecture:</span>
+            <a
+              href="https://github.com/higlass/higlass-app"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              github.com/higlass/higlass-app
+            </a>
+          </li>
+          <li className="iconized">
+            <Icon iconId="github" />
+            <span className="m-r-0-5">Server:</span>
+            <a
+              href="https://github.com/higlass/hgflask"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              github.com/higlass/hgflask
+            </a>
+          </li>
+        </ul>
+
+        <h3 id="design" className="iconized underlined anchored">
+          <a href="#design" className="hidden-anchor">
+            <Icon iconId="link" />
+          </a>
+          <Icon iconId="pen-ruler" />
+          Design
+        </h3>
+
+        <p>
+          The website and logo (<Icon iconId="logo" inline />) are designed by{' '}
+          <a
+            href="https://lekschas.de"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Fritz Lekschas
+          </a>
+          .
+        </p>
 
         <h3 id="copyright" className="iconized underlined anchored">
           <a href="#copyright" className="hidden-anchor">
@@ -164,7 +361,7 @@ const About = () => (
               >
                 Code
               </a>
-              by Bernar Novalyi
+              <span> by Bernar Novalyi</span>
             </p>
           </li>
           <li className="flex-c iconized">
@@ -177,7 +374,7 @@ const About = () => (
               >
                 Launch
               </a>
-              by Bhuvan
+              <span> by Bhuvan</span>
             </p>
           </li>
         </ul>
