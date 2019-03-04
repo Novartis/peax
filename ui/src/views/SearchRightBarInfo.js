@@ -471,6 +471,7 @@ class SearchRightBarInfo extends React.Component {
                 y2={this.props.progress.convergenceLabels}
                 y3={this.props.progress.divergenceAll}
                 y4={this.props.progress.divergenceLabels}
+                diverging
                 parentWidth={this.props.rightBarWidth}
               />
             </li>

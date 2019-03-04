@@ -53,8 +53,7 @@ class BarChart extends React.Component {
       (rel, v, i) => [...rel, v - (rel[i - 1] || 0)],
       []
     );
-    this.isDiverging = this.props.y.length === this.props.y3.length;
-    this.hasY2 = this.isDiverging
+    this.hasY2 = this.props.diverging
       ? this.props.y2.length === this.props.y.length &&
         this.props.y4.length === this.props.y3.length
       : this.props.y2.length === this.props.y.length;
@@ -224,7 +223,7 @@ class BarChart extends React.Component {
 
     let yScale = this.yScale;
 
-    if (this.isDiverging) {
+    if (this.props.diverging) {
       yScale = this.yScaleTop;
       this.yGridlinesG.call(this.yGridlinesTop);
       this.yGridlinesBottomG.call(this.yGridlinesBottom);
@@ -247,7 +246,7 @@ class BarChart extends React.Component {
       .attr('y', d => yScale(d.y))
       .attr('height', d => yScale(0) - yScale(d.y));
 
-    if (this.isDiverging) {
+    if (this.props.diverging) {
       this.baseBarsBottomG
         .selectAll('rect')
         .data(this.data)
@@ -271,7 +270,7 @@ class BarChart extends React.Component {
         .attr('y', d => yScale(d.y2))
         .attr('height', d => yScale(0) - yScale(d.y2) + 1);
 
-      if (this.isDiverging) {
+      if (this.props.diverging) {
         this.primaryBarsBottomG
           .selectAll('rect')
           .data(this.data)
@@ -286,7 +285,7 @@ class BarChart extends React.Component {
 
     this.xAxisG.call(this.xAxis);
 
-    if (this.isDiverging) {
+    if (this.props.diverging) {
       this.xAxisG.call(g => g.select('.domain').remove());
       this.xAxisMiddleG.call(this.xAxisMiddle);
       this.yAxisG.call(this.yAxisTop);
@@ -310,6 +309,7 @@ class BarChart extends React.Component {
 BarChart.defaultProps = {
   barWidth: 10,
   barWidthSecondary: 4,
+  diverging: false,
   parentWidth: null,
   x: [],
   y: [],
@@ -323,6 +323,7 @@ BarChart.defaultProps = {
 BarChart.propTypes = {
   barWidth: PropTypes.number,
   barWidthSecondary: PropTypes.number,
+  diverging: PropTypes.bool,
   parentWidth: PropTypes.number,
   x: PropTypes.array,
   y: PropTypes.array,
