@@ -265,8 +265,6 @@ def create(
                 k = np.ceil(config.step_freq * (offset - max_offset))
                 remove_windows = np.arange(window_from_idx + k, window_to_idx + k)
 
-        print("==== encoded_target", target.shape)
-
         with datasets.cache() as dsc:
             num_windows = dsc.encodings.shape[0]
 
@@ -292,6 +290,7 @@ def create(
 
             classifier = classifiers.get(search_id, default=None)
             encodings = dsc.encodings[:]
+
             if classifier:
                 _, p_y = classifier.predict(encodings)
 

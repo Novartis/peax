@@ -19,19 +19,8 @@ class Encoders:
         self.window_size = None
         self.resolution = None
 
-        self._total_len_windows = 0
-        self._total_len_encoded = 0
-
     def __iter__(self):
         return iter(self.encoders)
-
-    @property
-    def total_len_windows(self):
-        return self._total_len_windows
-
-    @property
-    def total_len_encoded(self):
-        return self._total_len_encoded
 
     def add(self, encoder):
         if self.window_size is None:
@@ -46,9 +35,6 @@ class Encoders:
 
         self.encoders.append(encoder)
         self.encoders_by_type[encoder.content_type] = encoder
-
-        self._total_len_windows += int(self.window_size // encoder.resolution)
-        self._total_len_encoded += encoder.latent_dim
 
     def get(self, dtype: str):
         if dtype in self.encoders_by_type:

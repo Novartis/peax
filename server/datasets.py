@@ -29,6 +29,8 @@ class Datasets:
         self.datasets_by_type = {}
         self.chromsizes = None
         self._cache_filename = None
+        self._total_len_windows = -1
+        self._total_len_encoded = -1
 
     def __iter__(self):
         return iter(self.datasets)
@@ -40,6 +42,14 @@ class Datasets:
     @property
     def cache_filepath(self):
         return self._cache_filepath
+
+    @property
+    def total_len_windows(self):
+        return self._total_len_windows
+
+    @property
+    def total_len_encoded(self):
+        return self._total_len_encoded
 
     @property
     def length(self):
@@ -145,6 +155,15 @@ class Datasets:
         self._cache_filename = "{}.hdf5".format(self.createCacheHash(encoders, config))
         self._cache_filepath = os.path.join(config.cache_dir, self.cache_filename)
 
+        self._total_len_windows = 0
+        self._total_len_encoded = 0
+
+        for dataset in self.datasets:
+            encoder = encoders.get(dataset.content_type)
+
+            self._total_len_encoded += encoder.latent_dim
+            self._total_len_windows += int(encoders.window_size // encoder.resolution)
+
         # Concatenate data
         mode = "w" if clear else "w-"
 
@@ -152,7 +171,7 @@ class Datasets:
             with h5py.File(self.cache_filepath, mode) as f:
                 w = f.create_dataset(
                     "windows",
-                    (total_num_windows, encoders.total_len_windows),
+                    (total_num_windows, self.total_len_windows),
                     dtype=np.float32,
                 )
                 w_max = f.create_dataset(
@@ -166,13 +185,13 @@ class Datasets:
                 )
                 e = f.create_dataset(
                     "encodings",
-                    (total_num_windows, encoders.total_len_encoded),
+                    (total_num_windows, self.total_len_encoded),
                     dtype=np.float32,
                 )
 
                 # Metadata
-                w.attrs["total_len_windows"] = encoders.total_len_windows
-                e.attrs["total_len_encoded"] = encoders.total_len_encoded
+                w.attrs["total_len_windows"] = self._total_len_windows
+                e.attrs["total_len_encoded"] = self._total_len_encoded
 
                 pos_window_from = 0
                 pos_window_to = 0
