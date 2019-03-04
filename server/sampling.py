@@ -18,10 +18,8 @@ from server import utils
 
 def random_sampling(data: np.ndarray, num_samples: int = 20):
     try:
-        return data[
-            np.random.choice(data.shape[0], size=num_samples, replace=False)
-        ]
-    except ValueError as e:
+        return data[np.random.choice(data.shape[0], size=num_samples, replace=False)]
+    except ValueError:
         print(
             "WARNING: too few data points ({}) for sampling {} items".format(
                 data.shape[0], num_samples
@@ -42,10 +40,8 @@ def dist_sampling(
         dist = cdist(
             data[selected], target.reshape((1, target.size)), dist_metric
         ).flatten()
-    except ValueError as e:
-        dist = cdist(
-            data[selected], target.reshape((1, target.size))
-        ).flatten()
+    except ValueError:
+        dist = cdist(data[selected], target.reshape((1, target.size))).flatten()
 
     dist_sorted_idx = np.argsort(dist)
     indices_sorted = indices[dist_sorted_idx]
@@ -95,9 +91,7 @@ def get_seeds(
     selected[seeds[0:half]] = False
 
     # Half of the seeds are sampled randomly
-    seeds[half:] = random_sampling(
-        np.where(selected)[0], num_samples=other_half
-    )
+    seeds[half:] = random_sampling(np.where(selected)[0], num_samples=other_half)
     # data_no_dist_rnd = np.detele(data, samples[0:half * 2], axis=0)
 
     # The other half are sampled spatially randomly
@@ -132,7 +126,7 @@ def seeds_by_dim(
         try:
             dim_dist = cdist(dim_data, dim_src, metric).flatten()
             reduced_dist = cdist(reduced_data, reduced_src, metric).flatten()
-        except ValueError as e:
+        except ValueError:
             dim_dist = cdist(dim_data, dim_src).flatten()
             reduced_dist = cdist(reduced_data, reduced_src).flatten()
 
@@ -175,10 +169,8 @@ def sample_by_dist_density(
     sdata = data[selected]
     indices = np.where(selected)[0]
     try:
-        dist = cdist(
-            sdata, target.reshape((1, target.size)), dist_metric
-        ).flatten()
-    except ValueError as e:
+        dist = cdist(sdata, target.reshape((1, target.size)), dist_metric).flatten()
+    except ValueError:
         dist = cdist(sdata, target.reshape((1, target.size))).flatten()
 
     # Calculate the point density of using the pairwise (pw) distances of the
