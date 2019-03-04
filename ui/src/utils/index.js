@@ -19,7 +19,7 @@ export { default as max } from './max';
 export { default as mean } from './mean';
 export { default as mergeError } from './merge-error';
 export { default as mergeJsonResponse } from './merge-json-response';
-export { default as numToCassif } from './num-to-classif';
+export { default as numToClassif } from './num-to-classif';
 export { default as objectHas } from './object-has';
 export { default as objectSet } from './object-set';
 export { default as range } from './range';

@@ -20,7 +20,7 @@ import {
 } from '../configs/search';
 
 // Utils
-import { Logger, numToCassif } from '../utils';
+import { Logger, numToClassif } from '../utils';
 
 const logger = Logger('SearchClassifications'); // eslint-disable-line
 
@@ -77,7 +77,7 @@ class SearchClassifications extends React.Component {
       .filter(
         win =>
           this.state.filterByClf === null ||
-          numToCassif(win.classification) !== this.state.filterByClf
+          numToClassif(win.classification) !== this.state.filterByClf
       )
       .sort((a, b) => {
         const aUpdated = Date.parse(a.updated);
@@ -88,7 +88,7 @@ class SearchClassifications extends React.Component {
         return 0;
       })
       .map(win => ({
-        classification: numToCassif(win.classification),
+        classification: numToClassif(win.classification),
         classificationChangeHandler: this.props.classificationChangeHandler,
         dataTracks: this.props.dataTracks,
         normalizationSource: this.props.normalizationSource,
