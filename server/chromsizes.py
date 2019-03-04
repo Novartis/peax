@@ -95,7 +95,7 @@ grch38 = {
     "chrM": {"size": 16569},
 }
 
-all = {"hg19": hg19, "grch38": grch38}
+all = {"hg19": hg19, "grch37": hg19, "hg38": grch38, "grch38": grch38}
 
 
 def equals(cs1, cs2):
