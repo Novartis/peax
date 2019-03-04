@@ -462,7 +462,7 @@ def create(
         if search_id is None:
             return jsonify({"error": "Search id (`s`) is missing."}), 400
 
-        classifier = classifiers.get(search_id, classifier_id)
+        classifier = classifiers.get(search_id, classifier_id, default=None)
 
         with datasets.cache() as dsc:
             num_windows = dsc.windows.shape[0]
