@@ -269,28 +269,15 @@ def chunk(
             continue
 
         chrom_size = chrom_sizes[chrom]
-        num_windows = np.ceil((chrom_size - step_size) / step_size).astype(int)
+        num_windows = np.ceil((chrom_size - window_size) / step_size).astype(int) + 1
 
-        start_bps = np.arange(0, chrom_size - step_size, step_size)
-        end_bps = np.append(np.arange(window_size, chrom_size, step_size), chrom_size)
+        start_bps = np.arange(0, chrom_size - window_size + step_size, step_size)
+        end_bps = np.arange(window_size, chrom_size + step_size, step_size)
 
         end = start + num_windows
 
-        # Extract all but the last window in one fashion (faster than `fetch`
-        # with loops)
-        values[start : end - 1] = bbi.stackup(
-            bigwig,
-            [chrom] * (start_bps.size - 1),
-            start_bps[:-1],
-            end_bps[:-1],
-            bins=bins,
-            missing=0,
-        )
-        final_bins = np.ceil((end_bps[-1] - start_bps[-1]) / resolution).astype(int)
-        # Extract the last window separately because it's size is likely to be
-        # different from the others
-        values[end - 1, :final_bins] = bbi.fetch(
-            bigwig, chrom, start_bps[-1], end_bps[-1], bins=final_bins, missing=0.0
+        values[start:end] = bbi.stackup(
+            bigwig, [chrom] * start_bps.size, start_bps, end_bps, bins=bins, missing=0.0
         )
 
         if normalize:
