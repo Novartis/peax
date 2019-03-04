@@ -20,7 +20,7 @@ class Progresses:
         convergence_labels = []
         divergence_all = []
         divergence_labels = []
-        num_labels = 0
+        num_labels = []
 
         for p in range(len(progress_data)):
             classifier_ids.append(progress_data[p][0])

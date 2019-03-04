@@ -43,7 +43,7 @@ class Progress:
         convergence_labels: list = [],
         divergence_all: list = [],
         divergence_labels: list = [],
-        num_labels: int = 0,
+        num_labels: list = [],
     ):
         self.search_id = search_id
 
