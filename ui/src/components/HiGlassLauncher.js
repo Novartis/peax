@@ -113,6 +113,8 @@ class HiGlassLauncher extends React.Component {
       ? false
       : this.props.options.bounded;
 
+    options.disableTrackMenu = this.props.disableTrackMenu;
+
     const className = !this.props.autoExpand ? 'full-dim' : 'rel';
 
     let classNameHgLauncher = 'higlass-launcher twbs';
@@ -141,6 +143,7 @@ class HiGlassLauncher extends React.Component {
 }
 
 HiGlassLauncher.defaultProps = {
+  disableTrackMenu: false,
   isGlobalMousePosition: false,
   isZoomFixed: false,
   options: {
@@ -153,6 +156,7 @@ HiGlassLauncher.defaultProps = {
 HiGlassLauncher.propTypes = {
   api: PropTypes.func,
   autoExpand: PropTypes.bool,
+  disableTrackMenu: PropTypes.bool,
   enableAltMouseTools: PropTypes.bool,
   isGlobalMousePosition: PropTypes.bool,
   isPadded: PropTypes.bool,

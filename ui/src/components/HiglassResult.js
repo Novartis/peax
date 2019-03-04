@@ -223,10 +223,11 @@ class HiglassResult extends React.Component {
         </aside>
         <HiGlassViewer
           api={this.onApi}
+          disableTrackMenu
           height={this.props.viewHeight}
-          isGlobalMousePosition={true}
-          isStatic={true}
-          isZoomFixed={true}
+          isGlobalMousePosition
+          isStatic
+          isZoomFixed
           viewConfigId={this.viewId}
         />
         <div className="higlass-class-probability-wrapper">

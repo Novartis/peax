@@ -191,6 +191,7 @@ class HiGlassViewer extends React.Component {
               <HiGlassLauncher
                 api={this.props.api}
                 autoExpand={this.props.autoExpand}
+                disableTrackMenu={this.props.disableTrackMenu}
                 enableAltMouseTools={this.props.enableAltMouseTools}
                 onError={this.onError.bind(this)}
                 viewConfig={this.state.viewConfigStatic}
@@ -201,6 +202,7 @@ class HiGlassViewer extends React.Component {
             ) : (
               <HiGlassLoader
                 api={this.props.api}
+                disableTrackMenu={this.props.disableTrackMenu}
                 enableAltMouseTools={this.props.enableAltMouseTools}
                 onError={this.onError.bind(this)}
                 isGlobalMousePosition={this.props.isGlobalMousePosition}
@@ -216,6 +218,7 @@ class HiGlassViewer extends React.Component {
 
 HiGlassViewer.defaultProps = {
   api: () => {},
+  disableTrackMenu: false,
   isGlobalMousePosition: false,
   isPadded: false,
   isStatic: false,
@@ -227,6 +230,7 @@ HiGlassViewer.propTypes = {
   api: PropTypes.func,
   autoExpand: PropTypes.bool,
   className: PropTypes.string,
+  disableTrackMenu: PropTypes.bool,
   enableAltMouseTools: PropTypes.bool,
   hasSubTopBar: PropTypes.bool,
   height: PropTypes.number,

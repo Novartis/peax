@@ -1089,8 +1089,9 @@ class Search extends React.Component {
                   </div>
                   <HiGlassViewer
                     height={info.viewHeight}
-                    isGlobalMousePosition={true}
-                    isStatic={true}
+                    isGlobalMousePosition
+                    isStatic
+                    disableTrackMenu
                     viewConfigId={hgViewId(info.id)}
                   />
                   <Link to={`/search/${info.id}`} className="searches-continue">
@@ -1140,8 +1141,9 @@ class Search extends React.Component {
                   ? this.state.searchInfo.maxViewHeight
                   : this.state.searchInfo.viewHeight
               }
-              isGlobalMousePosition={true}
-              isStatic={true}
+              isGlobalMousePosition
+              isStatic
+              disableTrackMenu
               viewConfigId={hgViewId(this.state.searchInfo.id)}
               viewConfigAdjustments={this.viewConfigAdjustments}
             />
