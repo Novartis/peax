@@ -230,15 +230,9 @@ def create(
                 400,
             )
 
-        total_len = 0
-        for encoder in encoders:
-            total_len += encoder.latent_dim
-
-        target = np.zeros(total_len)
-
+        target = None
         remove_windows = None
 
-        pos = 0
         for dataset in datasets:
             encoder = encoders.get(dataset.content_type)
             step_size = encoders.window_size / config.step_freq
@@ -251,11 +245,16 @@ def create(
                 np.round((target_locus_rel[0] - window_from_start) / encoder.resolution)
             )
 
-            target[pos : pos + encoder.latent_dim] = encoder.encode(
+            encoded_target = encoder.encode(
                 bigwig.get(dataset.filepath, *target_locus_chrom[0], bins).reshape(
                     (1, bins, 1)
                 )
             )
+
+            if target is None:
+                target = encoded_target
+            else:
+                target = np.concatenate((target, encoded_target))
 
             if remove_windows is None:
                 # Remove windows that overlap too much with the target search
@@ -266,7 +265,7 @@ def create(
                 k = np.ceil(config.step_freq * (offset - max_offset))
                 remove_windows = np.arange(window_from_idx + k, window_to_idx + k)
 
-            pos += encoder.latent_dim
+        print("==== encoded_target", target.shape)
 
         with datasets.cache() as dsc:
             num_windows = dsc.encodings.shape[0]
@@ -291,7 +290,7 @@ def create(
             # Remove already classified windows
             data_idx[classifications] = False
 
-            classifier = classifiers.get(search_id)
+            classifier = classifiers.get(search_id, default=None)
             encodings = dsc.encodings[:]
             if classifier:
                 _, p_y = classifier.predict(encodings)
