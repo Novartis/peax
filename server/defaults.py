@@ -11,6 +11,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import copy
+
 CACHE_DIR = "cache"
 
 # If set to `False` the chunked, encoded, and potentially autoencoded data will not be
@@ -169,9 +171,9 @@ ENCODINGS_TRACK = {
     "height": 60,
 }
 
-GENE_ANNOTATION_TRACK_HG19 = {
+GENE_ANNOTATION_TRACK = {
     "server": "//higlass.io/api/v1",
-    "tilesetUid": "OHJakQICQD6gTD7skx4EWA",
+    "tilesetUid": "???",
     "uid": "gene-annotations-hg19",
     "type": "horizontal-gene-annotations",
     "height": 24,
@@ -189,31 +191,23 @@ GENE_ANNOTATION_TRACK_HG19 = {
     },
 }
 
-GENE_ANNOTATION_TRACK_HG38 = {
-    "server": "//higlass.io/api/v1",
-    "tilesetUid": "P0PLbQMwTYGy-5uPIQid7A",
-    "uid": "gene-annotations-hg38",
-    "type": "horizontal-gene-annotations",
-    "height": 24,
-    "options": {
-        "labelPosition": "hidden",
-        "plusStrandColor": "black",
-        "minusStrandColor": "black",
-        "trackBorderWidth": 0,
-        "showMousePosition": True,
-        "mousePositionColor": "black",
-        "fontSize": 8,
-        "geneAnnoHeight": 8,
-        "geneLabelPosition": "inside",
-        "geneStrandSpacing": 2,
-    },
-}
+GENE_ANNOTATION_TRACK_HG19 = copy.deepcopy(GENE_ANNOTATION_TRACK)
+GENE_ANNOTATION_TRACK_HG19["tilesetUid"] = "OHJakQICQD6gTD7skx4EWA"
 
-CHROM_TRACK_HG19 = {
-    "chromInfoPath": "http://localhost:5000/api/v1/chrom-sizes/?id=hg19&type=csv",
-    "uid": "chrom-labels-hg19",
+GENE_ANNOTATION_TRACK_HG38 = copy.deepcopy(GENE_ANNOTATION_TRACK)
+GENE_ANNOTATION_TRACK_HG38["tilesetUid"] = "P0PLbQMwTYGy-5uPIQid7A"
+
+GENE_ANNOTATION_TRACK_MM9 = copy.deepcopy(GENE_ANNOTATION_TRACK)
+GENE_ANNOTATION_TRACK_MM9["tilesetUid"] = "GUm5aBiLRCyz2PsBea7Yzg"
+
+GENE_ANNOTATION_TRACK_MM10 = copy.deepcopy(GENE_ANNOTATION_TRACK)
+GENE_ANNOTATION_TRACK_MM10["tilesetUid"] = "QDutvmyiSrec5nX4pA5WGQ"
+
+CHROM_TRACK = {
+    "chromInfoPath": "???",
+    "uid": "chrom-labels-???",
     "type": "horizontal-chromosome-labels",
-    "name": "Chromosome Labels (hg19)",
+    "name": "Chromosome Labels (???)",
     "height": 10,
     "options": {
         "fontSize": 8,
@@ -223,19 +217,33 @@ CHROM_TRACK_HG19 = {
     },
 }
 
-CHROM_TRACK_HG38 = {
-    "chromInfoPath": "http://localhost:5000/api/v1/chrom-sizes/?id=grch38&type=csv",
-    "uid": "chrom-labels-hg38",
-    "type": "horizontal-chromosome-labels",
-    "name": "Chromosome Labels (hg38)",
-    "height": 10,
-    "options": {
-        "fontSize": 8,
-        "fontIsLeftAligned": True,
-        "showMousePosition": True,
-        "mousePositionColor": "#000000",
-    },
-}
+CHROM_TRACK_HG19 = copy.deepcopy(CHROM_TRACK)
+CHROM_TRACK_HG19[
+    "chromInfoPath"
+] = "http://localhost:5000/api/v1/chrom-sizes/?id=hg19&type=csv"
+CHROM_TRACK_HG19["uid"] = "chrom-labels-hg19"
+CHROM_TRACK_HG19["name"] = "Chromosome Labels (hg19)"
+
+CHROM_TRACK_HG38 = copy.deepcopy(CHROM_TRACK)
+CHROM_TRACK_HG38[
+    "chromInfoPath"
+] = "http://localhost:5000/api/v1/chrom-sizes/?id=hg38&type=csv"
+CHROM_TRACK_HG38["uid"] = "chrom-labels-hg38"
+CHROM_TRACK_HG38["name"] = "Chromosome Labels (hg38)"
+
+CHROM_TRACK_MM9 = copy.deepcopy(CHROM_TRACK)
+CHROM_TRACK_MM9[
+    "chromInfoPath"
+] = "http://localhost:5000/api/v1/chrom-sizes/?id=mm9&type=csv"
+CHROM_TRACK_MM9["uid"] = "chrom-labels-mm9"
+CHROM_TRACK_MM9["name"] = "Chromosome Labels (mm9)"
+
+CHROM_TRACK_MM10 = copy.deepcopy(CHROM_TRACK)
+CHROM_TRACK_MM10[
+    "chromInfoPath"
+] = "http://localhost:5000/api/v1/chrom-sizes/?id=mm10&type=csv"
+CHROM_TRACK_MM10["uid"] = "chrom-labels-mm10"
+CHROM_TRACK_MM10["name"] = "Chromosome Labels (mm10)"
 
 VIEW_CONFIG = {
     "editable": False,
