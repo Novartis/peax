@@ -15,6 +15,7 @@ limitations under the License.
 import argparse
 import atexit
 import json
+import os
 import sys
 
 
@@ -29,7 +30,7 @@ parser.add_argument(
     "--clear-cache", action="store_true", help="clears the cache on startup"
 )
 parser.add_argument(
-    "--clear-cache-after", action="store_true", help="clears the cache on shutdown"
+    "--clear-cache-at-exit", action="store_true", help="clear the cache on shutdown"
 )
 parser.add_argument(
     "--clear-db", action="store_true", help="clears the database on startup"
@@ -67,6 +68,14 @@ except FileNotFoundError:
 # Create a config object
 config = Config(config_file)
 
+clear_cache = args.clear or args.clear_cache
+clear_db = args.clear or args.clear_db
+
+# Turn off clearing as Werkzeug is calling this script the second time
+if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+    clear_cache = False
+    clear_db = False
+
 # Create app instance
 app = server.create(
     config,
@@ -80,7 +89,8 @@ def remove_cache(config):
     config.datasets.remove_cache()
 
 
-atexit.register(remove_cache, config)
+if args.clear_cache_at_exit:
+    atexit.register(remove_cache, config)
 
 # Run the instance
 app.run(debug=args.debug, host=args.host, port=args.port)
