@@ -77,7 +77,7 @@ ButtonIcon.propTypes = {
   onClick: PropTypes.func,
   onMouseDown: PropTypes.func,
   onMouseUp: PropTypes.func,
-  tag: PropTypes.str,
+  tag: PropTypes.string,
   title: PropTypes.string
 };
 
