@@ -803,7 +803,7 @@ def create(
                 if info is not None:
                     step_size = encoders.window_size // config.step_freq
                     target_from_rel = step_size * int(window_id)
-                    target_to_rel = target_from_rel + step_size
+                    target_to_rel = target_from_rel + encoders.window_size
                     target_abs = list(
                         map(
                             int,
