@@ -43,10 +43,13 @@ class Classifiers:
         self.db.delete_classifier(search_id, classifier_id)
         self.classifiers.pop(search_id, None)
 
-    def get(self, search_id: int, classifier_id: int = None):
+    def get(self, search_id: int, classifier_id: int = None, **kwargs):
         classifier_info = self.db.get_classifier(search_id, classifier_id)
 
         if classifier_info is None:
+            if "default" in kwargs:
+                return kwargs["default"]
+
             raise ClassifierNotFound(
                 "No classifier for search #{}{} found".format(
                     search_id,
