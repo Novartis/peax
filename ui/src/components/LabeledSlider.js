@@ -52,24 +52,43 @@ class LabeledSlider extends React.Component {
   render() {
     let className = 'labeled-slider';
 
+    className += ` ${this.props.sameLine ? ' same-line' : ''}`;
     className += ` ${this.props.className || ''}`;
 
     return (
       <div className={className}>
         <label className="flex-c flex-jc-sb" htmlFor={this.props.id}>
-          <div>
+          <div className="flex-c flex-a-c labeled-slider-label-container">
             <span className="labeled-slider-label">{this.props.label}</span>
-            <span className={this.valueClass}>
-              <span
-                ref={ref => {
-                  this.bamEl = ref;
-                }}
-                className="labeled-slider-value-bam"
-              />
-              {this.props.value}
+            <span className="flex-c flex-jc-c labeled-slider-value-container">
+              <span className={this.valueClass}>
+                <span
+                  ref={ref => {
+                    this.bamEl = ref;
+                  }}
+                  className="labeled-slider-value-bam"
+                />
+                {this.props.value}
+              </span>
             </span>
           </div>
-          <div>
+          {this.props.sameLine && (
+            <div className="flex-g-1 m-l-0-25">
+              <input
+                id={this.props.id}
+                type="range"
+                min={this.props.min}
+                max={this.props.max}
+                step={this.props.step}
+                disabled={this.props.disabled}
+                value={this.props.value}
+                onChange={this.props.onChange}
+              />
+            </div>
+          )}
+          <div
+            className={this.props.info && this.props.sameLine ? 'm-l-0-25' : ''}
+          >
             {this.props.info && (
               <ButtonIcon
                 className="info-external"
@@ -82,16 +101,18 @@ class LabeledSlider extends React.Component {
             )}
           </div>
         </label>
-        <input
-          id={this.props.id}
-          type="range"
-          min={this.props.min}
-          max={this.props.max}
-          step={this.props.step}
-          disabled={this.props.disabled}
-          value={this.props.value}
-          onChange={this.props.onChange}
-        />
+        {!this.props.sameLine && (
+          <input
+            id={this.props.id}
+            type="range"
+            min={this.props.min}
+            max={this.props.max}
+            step={this.props.step}
+            disabled={this.props.disabled}
+            value={this.props.value}
+            onChange={this.props.onChange}
+          />
+        )}
       </div>
     );
   }
@@ -102,6 +123,7 @@ LabeledSlider.defaultProps = {
   min: 0,
   max: 10,
   onChange: () => {},
+  sameLine: false,
   step: 1
 };
 
@@ -114,6 +136,7 @@ LabeledSlider.propTypes = {
   max: PropTypes.number,
   min: PropTypes.number,
   onChange: PropTypes.func,
+  sameLine: PropTypes.bool,
   step: PropTypes.number,
   value: PropTypes.number.isRequired
 };

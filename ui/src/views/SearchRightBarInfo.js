@@ -385,10 +385,11 @@ class SearchRightBarInfo extends React.Component {
                   <LabeledSlider
                     disabled={this.state.isLoading || this.state.isError}
                     id="search-projection-settings-point-size"
-                    label="Point size"
+                    label="Size"
                     max={10}
                     min={0.5}
                     onChange={this.onChangePointSize}
+                    sameLine
                     step={0.5}
                     value={this.state.pointSize}
                   />
