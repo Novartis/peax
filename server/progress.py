@@ -34,16 +34,16 @@ class Progress:
     def __init__(
         self,
         search_id: int,
-        classifier_ids,
-        unpredictability_all,
-        unpredictability_labels,
-        prediction_proba_change_all,
-        prediction_proba_change_labels,
-        convergence_all,
-        convergence_labels,
-        divergence_all,
-        divergence_labels,
-        num_labels,
+        classifier_ids: list = [],
+        unpredictability_all: list = [],
+        unpredictability_labels: list = [],
+        prediction_proba_change_all: list = [],
+        prediction_proba_change_labels: list = [],
+        convergence_all: list = [],
+        convergence_labels: list = [],
+        divergence_all: list = [],
+        divergence_labels: list = [],
+        num_labels: int = 0,
     ):
         self.search_id = search_id
 

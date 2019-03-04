@@ -9,11 +9,6 @@ class Progresses:
         self.progresses = {}
 
     def get(self, search_id: int, update: bool = False):
-        classifier_info = self.db.get_classifier(search_id)
-
-        if classifier_info is None:
-            return
-
         progress_data = self.db.get_progress(search_id)
 
         classifier_ids = []
@@ -25,7 +20,8 @@ class Progresses:
         convergence_labels = []
         divergence_all = []
         divergence_labels = []
-        num_labels = []
+        num_labels = 0
+
         for p in range(len(progress_data)):
             classifier_ids.append(progress_data[p][0])
             unpredictability_all.append(progress_data[p][1])
@@ -55,7 +51,7 @@ class Progresses:
                 num_labels=num_labels,
             )
 
-        if not progress.is_computed or update:
+        if len(classifier_ids) and (not progress.is_computed or update):
             progress.update(self.classifiers, force=update)
 
         return progress
