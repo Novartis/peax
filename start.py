@@ -78,10 +78,7 @@ if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
 
 # Create app instance
 app = server.create(
-    config,
-    clear_cache=args.clear or args.clear_cache,
-    clear_db=args.clear or args.clear_db,
-    verbose=args.verbose,
+    config, clear_cache=clear_cache, clear_db=clear_db, verbose=args.verbose
 )
 
 
