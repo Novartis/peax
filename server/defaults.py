@@ -86,6 +86,19 @@ SELECTION_TRACK = {
     "height": 6,
 }
 
+LABEL_TRACK = {
+    "uid": "???",
+    "type": "horizontal-1d-annotations",
+    "options": {
+        "regions": [],
+        "minRectWidth": 3,
+        "fill": "#0f5d92",
+        "fillOpacity": 1.0,
+        "strokeWidth": 0,
+    },
+    "height": 6,
+}
+
 CLASS_PROB_TRACK = {
     "server": "//localhost:5000/api/v1",
     "tilesetUid": "s?p",

@@ -72,6 +72,49 @@ def build(
 
         view_config["views"][0]["tracks"]["top"].append(combined_track_config)
 
+    # Add an empty annotation track for visually highlighting labels
+    if incl_selections:
+        combined_track_config = copy.deepcopy(defaults.COMBINED_TRACK)
+        combined_track_config["uid"] = "labels-combined"
+
+        anno_track_config = copy.deepcopy(defaults.ANNOTATION_TRACK)
+        anno_track_config["uid"] = "labels-annotation"
+
+        if region is not None:
+            anno_track_config["options"]["regions"].append(region)
+
+        selection_track_config = copy.deepcopy(defaults.LABEL_TRACK)
+        uid = "labels"
+        selection_track_config["tilesetUid"] = uid
+        selection_track_config["uid"] = uid
+
+        combined_track_config["height"] = selection_track_config.get("height")
+        combined_track_config["contents"].extend(
+            [anno_track_config, selection_track_config]
+        )
+
+        view_config["views"][0]["tracks"]["top"].append(combined_track_config)
+
+    if incl_predictions:
+        combined_track_config = copy.deepcopy(defaults.COMBINED_TRACK)
+        combined_track_config["uid"] = "class-probs-combined"
+
+        anno_track_config = copy.deepcopy(defaults.ANNOTATION_TRACK)
+        anno_track_config["uid"] = "class-probs-annotation"
+
+        if region is not None:
+            anno_track_config["options"]["regions"].append(region)
+
+        probs_heatmap = copy.deepcopy(defaults.CLASS_PROB_TRACK)
+        uid = "s{}p".format(search_info["id"])
+        probs_heatmap["tilesetUid"] = uid
+        probs_heatmap["uid"] = uid
+
+        combined_track_config["height"] = probs_heatmap.get("height")
+        combined_track_config["contents"].extend([anno_track_config, probs_heatmap])
+
+        view_config["views"][0]["tracks"]["top"].append(combined_track_config)
+
     # Setup defaut tracks
     for track in defaults.TOP_TRACKS:
         real_track = copy.deepcopy(track)
@@ -95,26 +138,6 @@ def build(
         combined_track_config["height"] = real_track.get("height")
 
         combined_track_config["contents"].extend([anno_track_config, real_track])
-
-        view_config["views"][0]["tracks"]["top"].append(combined_track_config)
-
-    if incl_predictions:
-        combined_track_config = copy.deepcopy(defaults.COMBINED_TRACK)
-        combined_track_config["uid"] = "class-probs-combined"
-
-        anno_track_config = copy.deepcopy(defaults.ANNOTATION_TRACK)
-        anno_track_config["uid"] = "class-probs-annotation"
-
-        if region is not None:
-            anno_track_config["options"]["regions"].append(region)
-
-        probs_heatmap = copy.deepcopy(defaults.CLASS_PROB_TRACK)
-        uid = "s{}p".format(search_info["id"])
-        probs_heatmap["tilesetUid"] = uid
-        probs_heatmap["uid"] = uid
-
-        combined_track_config["height"] = probs_heatmap.get("height")
-        combined_track_config["contents"].extend([anno_track_config, probs_heatmap])
 
         view_config["views"][0]["tracks"]["top"].append(combined_track_config)
 
@@ -197,5 +220,6 @@ def height(datasets, config):
 
     extra_height = defaults.CLASS_PROB_TRACK.get("height", 0)
     extra_height += defaults.SELECTION_TRACK.get("height", 0)
+    extra_height += defaults.LABEL_TRACK.get("height", 0)
 
     return total_height, total_height + extra_height
