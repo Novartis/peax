@@ -11,22 +11,41 @@ import sys
 from ae.utils import get_tqdm
 
 
-def download_file(filename: str, base: str = "."):
+def download_encode_file(
+    filename: str, base: str = ".", dir: str = "data", overwrite: bool = False
+):
+    """Method for downloading ENCODE datasets
+
+    Arguments:
+        filename {str} -- File access of the ENCODE data file
+
+    Keyword Arguments:
+        base {str} -- Base directory (default: {"."})
+        dir {str} -- Download directory (default: {"data"})
+        overwrite {bool} -- If {True} existing files with be overwritten (default: {False})
+
+    Returns:
+        {str} -- Returns a pointer to `filename`.
     """
-    Helper method handling downloading large files from `url` to `filename`. Returns a pointer to `filename`.
-    """
+    filepath = os.path.join(base, dir, filename)
+
+    if pathlib.Path(filepath).is_file() and not overwrite:
+        print("File already exist. To overwrite pass `overwrite=True`")
+        return
+
     tqdm = get_tqdm()
     chunkSize = 1024
     name, _ = os.path.splitext(filename)
     url = "https://www.encodeproject.org/files/{}/@@download/{}".format(name, filename)
     r = requests.get(url, stream=True)
-    filepath = os.path.join(base, "data", filename)
+
     with open(filepath, "wb") as f:
         pbar = tqdm(unit="B", unit_scale=True, total=int(r.headers["Content-Length"]))
         for chunk in r.iter_content(chunk_size=chunkSize):
             if chunk:  # filter out keep-alive new chunks
                 pbar.update(len(chunk))
                 f.write(chunk)
+
     return filename
 
 
@@ -63,8 +82,7 @@ def download(
                 fileext = file_types[data_type]
                 filename = "{}.{}".format(os.path.basename(dataset[data_type]), fileext)
 
-                if not pathlib.Path(os.path.join("data", filename)).is_file() or clear:
-                    download_file(filename, base)
+                download_encode_file(filename, base, overwrite=clear)
 
         num_downloads += 1
 
