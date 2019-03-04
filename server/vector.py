@@ -65,18 +65,19 @@ def get_values(
         return out
 
     else:
-        # Either that start or the end lies within the available data vector
+        # Either the start or the end lies within the available data vector:
+        # start_res and end_res correspond to the indices of the data vector
+        # associated the start and end of the requested tiles
         start_res = np.floor((rel_start - v_offset_abs) / v_res).astype(int)
         end_res = np.ceil((rel_end - v_offset_abs) / v_res).astype(int)
 
         res_ratio = v_res / res
-
         data = np.zeros(bins)
         data[:] = missing
 
         if res_ratio < 1:
-            # output resolution is greater than the data resolution, hence,
-            # we need to aggregate the data
+            # output resolution is greater (e.g., 10 kb) than the data resolution
+            # (e.g., 1 kb), hence, we need to aggregate the data
             data = utils.zoom_array(
                 v[start_res:end_res], (bins,), aggregator=aggregator
             )
@@ -86,19 +87,21 @@ def get_values(
                 v[start_res:end_res], bins, aggregator=scaleup_aggregator
             )
 
-        if rel_end > abs_end:
+        if rel_end < abs_end:
             # Intervals overlaps with the start
             # ^ = Start; $ = end
-            # Tile request: ----------^======$----
-            # Data        : -------^======$-------
-            out[out.size - data.size :] = data
+            # Tile req. (abs): ----------^=======$----
+            # Data           : -------^=======$-------
+            # Rel            : ----------^====$-------
+            out[: data.size] = data
 
-        elif rel_start < abs_start:
+        elif rel_start > abs_start:
             # Intervals overlaps with the end
             # ^ = Start; $ = end;
-            # Tile request: ----^======$----------
-            # Data        : -------^======$-------
-            out[: data.size] = data
+            # Tile req. (abs): ----^=======$----------
+            # Data           : -------^=======$-------
+            # Rel            : -------^====$----------
+            out[out.size - data.size :] = data
 
         else:
             out = data
