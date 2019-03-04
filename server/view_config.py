@@ -115,29 +115,59 @@ def build(
 
         view_config["views"][0]["tracks"]["top"].append(combined_track_config)
 
-    # Setup defaut tracks
-    for track in defaults.TOP_TRACKS:
-        real_track = copy.deepcopy(track)
+    # Add gene annotation track
+    gene_annotation_track = (
+        defaults.GENE_ANNOTATION_TRACK_HG38
+        if config.coords == "grch38"
+        else defaults.GENE_ANNOTATION_TRACK_HG19
+    )
+    gene_annotation_track_config = copy.deepcopy(gene_annotation_track)
 
+    combined_track_config = copy.deepcopy(defaults.COMBINED_TRACK)
+    combined_track_config["uid"] = "gene-annotations-combined"
+
+    anno_track_config = copy.deepcopy(defaults.ANNOTATION_TRACK)
+    anno_track_config["uid"] = "gene-annotations-annotation"
+
+    if region is not None:
+        anno_track_config["options"]["regions"].append(region)
+
+    if default:
+        gene_annotation_track_config["height"] *= 2
+        gene_annotation_track_config["options"]["fontSize"] = 10
+        gene_annotation_track_config["options"]["geneAnnoHeight"] = 10
+        gene_annotation_track_config["options"]["geneLabelPosition"] = "outside"
+        gene_annotation_track_config["options"]["geneStrandSpacing"] = 3
+
+    combined_track_config["height"] = gene_annotation_track_config.get("height")
+
+    combined_track_config["contents"].extend(
+        [anno_track_config, gene_annotation_track_config]
+    )
+
+    view_config["views"][0]["tracks"]["top"].append(combined_track_config)
+
+    # Add separate chrom track when more than 1 dataset is explored
+    if datasets.length > 1:
         combined_track_config = copy.deepcopy(defaults.COMBINED_TRACK)
-        combined_track_config["uid"] = real_track["uid"] + "-combined"
+        combined_track_config["uid"] = "chrom-combined"
 
         anno_track_config = copy.deepcopy(defaults.ANNOTATION_TRACK)
-        anno_track_config["uid"] = real_track["uid"] + "-annotation"
+        anno_track_config["uid"] = "chrom-annotation"
 
         if region is not None:
             anno_track_config["options"]["regions"].append(region)
 
-        if default and real_track.get("type") == "horizontal-gene-annotations":
-            real_track["height"] *= 2
-            real_track["options"]["fontSize"] = 10
-            real_track["options"]["geneAnnoHeight"] = 10
-            real_track["options"]["geneLabelPosition"] = "outside"
-            real_track["options"]["geneStrandSpacing"] = 3
+        chrom_track = (
+            defaults.CHROM_TRACK_HG38
+            if config.coords == "grch38"
+            else defaults.CHROM_TRACK_HG19
+        )
 
-        combined_track_config["height"] = real_track.get("height")
+        # Add the chrom labels to the last track
+        combined_track_config["contents"].extend([anno_track_config, chrom_track])
 
-        combined_track_config["contents"].extend([anno_track_config, real_track])
+        combined_track_config["height"] = chrom_track.get("height")
 
         view_config["views"][0]["tracks"]["top"].append(combined_track_config)
 
@@ -181,6 +211,10 @@ def build(
 
             if dataset.height:
                 bw_track_config["height"] = dataset.height
+            else:
+                bw_track_config["height"] = defaults.BIGWIG_TRACK_HEIGHTS[
+                    max(len(defaults.BIGWIG_TRACK_HEIGHTS), datasets.length) - 1
+                ]
 
             if dataset.fill:
                 bw_track_config["options"]["fillColor"] = dataset.fill
@@ -193,15 +227,24 @@ def build(
 
             if default:
                 bw_track_config["height"] *= 3
+                bw_track_config["options"]["axisMargin"] = 0
+                bw_track_config["options"]["labelPosition"] = "topRight"
+                bw_track_config["options"]["labelLeftMargin"] = 0
 
             combined_track_config["height"] = bw_track_config.get("height")
             combined_track_config["contents"].extend(
                 [anno_track_config, bw_track_config]
             )
 
-            if i == datasets.size() - 1:
+            if datasets.size() == 1:
+                chrom_track = (
+                    defaults.CHROM_TRACK_HG38
+                    if config.coords == "grch38"
+                    else defaults.CHROM_TRACK_HG19
+                )
+
                 # Add the chrom labels to the last track
-                combined_track_config["contents"].append(defaults.CHROM_TRACK)
+                combined_track_config["contents"].append(chrom_track)
 
             view_config["views"][0]["tracks"]["top"].append(combined_track_config)
 

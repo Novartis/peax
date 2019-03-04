@@ -147,6 +147,8 @@ BIGWIG_TRACK = {
     "height": 60,
 }
 
+BIGWIG_TRACK_HEIGHTS = [60, 40, 30, 25, 22, 19, 17]
+
 ENCODINGS_TRACK = {
     "server": "//localhost:5000/api/v1",
     "tilesetUid": "???",
@@ -167,33 +169,65 @@ ENCODINGS_TRACK = {
     "height": 60,
 }
 
-TOP_TRACKS = [
-    {
-        "server": "//higlass.io/api/v1",
-        "tilesetUid": "OHJakQICQD6gTD7skx4EWA",
-        "uid": "gene-annotations-hg19",
-        "type": "horizontal-gene-annotations",
-        "height": 24,
-        "options": {
-            "labelPosition": "hidden",
-            "plusStrandColor": "black",
-            "minusStrandColor": "black",
-            "trackBorderWidth": 0,
-            "showMousePosition": True,
-            "mousePositionColor": "black",
-            "fontSize": 8,
-            "geneAnnoHeight": 8,
-            "geneLabelPosition": "inside",
-            "geneStrandSpacing": 2,
-        },
-    }
-]
+GENE_ANNOTATION_TRACK_HG19 = {
+    "server": "//higlass.io/api/v1",
+    "tilesetUid": "OHJakQICQD6gTD7skx4EWA",
+    "uid": "gene-annotations-hg19",
+    "type": "horizontal-gene-annotations",
+    "height": 24,
+    "options": {
+        "labelPosition": "hidden",
+        "plusStrandColor": "black",
+        "minusStrandColor": "black",
+        "trackBorderWidth": 0,
+        "showMousePosition": True,
+        "mousePositionColor": "black",
+        "fontSize": 8,
+        "geneAnnoHeight": 8,
+        "geneLabelPosition": "inside",
+        "geneStrandSpacing": 2,
+    },
+}
 
-CHROM_TRACK = {
-    "chromInfoPath": "//s3.amazonaws.com/pkerp/data/hg19/chromSizes.tsv",
+GENE_ANNOTATION_TRACK_HG38 = {
+    "server": "//higlass.io/api/v1",
+    "tilesetUid": "P0PLbQMwTYGy-5uPIQid7A",
+    "uid": "gene-annotations-hg38",
+    "type": "horizontal-gene-annotations",
+    "height": 24,
+    "options": {
+        "labelPosition": "hidden",
+        "plusStrandColor": "black",
+        "minusStrandColor": "black",
+        "trackBorderWidth": 0,
+        "showMousePosition": True,
+        "mousePositionColor": "black",
+        "fontSize": 8,
+        "geneAnnoHeight": 8,
+        "geneLabelPosition": "inside",
+        "geneStrandSpacing": 2,
+    },
+}
+
+CHROM_TRACK_HG19 = {
+    "chromInfoPath": "http://localhost:5000/api/v1/chrom-sizes/?id=hg19&type=csv",
     "uid": "chrom-labels-hg19",
     "type": "horizontal-chromosome-labels",
     "name": "Chromosome Labels (hg19)",
+    "height": 10,
+    "options": {
+        "fontSize": 8,
+        "fontIsLeftAligned": True,
+        "showMousePosition": True,
+        "mousePositionColor": "#000000",
+    },
+}
+
+CHROM_TRACK_HG38 = {
+    "chromInfoPath": "http://localhost:5000/api/v1/chrom-sizes/?id=grch38&type=csv",
+    "uid": "chrom-labels-hg38",
+    "type": "horizontal-chromosome-labels",
+    "name": "Chromosome Labels (hg38)",
     "height": 10,
     "options": {
         "fontSize": 8,
