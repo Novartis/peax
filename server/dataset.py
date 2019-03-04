@@ -112,7 +112,12 @@ class Dataset:
         total_res_sizes = 0
 
         for chromosome in config.chroms:
-            num_windows = int(self.chromsizes[chromosome] // step_size)
+            num_windows = (
+                np.ceil(
+                    (self.chromsizes[chromosome] - encoder.window_size) / step_size
+                ).astype(int)
+                + 1
+            )
             num_windows_per_chrom.append(num_windows)
             total_num_windows += num_windows
             res_size = int(self.chromsizes[chromosome] // encoder.resolution)
@@ -161,6 +166,9 @@ class Dataset:
                     a.attrs["chrom_res_sizes"] = chrom_res_sizes
                     a.attrs["chrom_order"] = ascii_chroms
                     a.attrs["file_name"] = encoder.encoder_filename
+
+                if verbose:
+                    print("Extract windows for {}".format(self.id))
 
                 pos = 0
                 pos_ae = 0

@@ -258,7 +258,9 @@ def chunk(
 
     for chrom in chroms:
         chrom_size = chrom_sizes[chrom]
-        num_total_windows += np.ceil((chrom_size - step_size) / step_size).astype(int)
+        num_total_windows += (
+            np.ceil((chrom_size - window_size) / step_size).astype(int) + 1
+        )
 
     values = np.zeros((num_total_windows, base_bins))
 
