@@ -44,6 +44,7 @@ import {
   Deferred,
   inputToNum,
   Logger,
+  numToClassif,
   readableDate,
   removeHiGlassEventListeners,
   requestNextAnimationFrame
@@ -146,11 +147,23 @@ class Search extends React.Component {
       inputToNum
     );
 
-    this.viewConfigAdjustments = [];
+    this.viewConfigAdjustmentsSelections = {
+      key: 'views.0.tracks.top.0.contents.1.options.regions',
+      value: []
+    };
+    this.viewConfigAdjustmentsLabels = {
+      key: 'views.0.tracks.top.1.contents.1.options.regions',
+      value: []
+    };
+    this.viewConfigAdjustments = [
+      this.viewConfigAdjustmentsSelection,
+      this.viewConfigAdjustmentsLabels
+    ];
   }
 
   componentDidMount() {
     this.loadMetadata();
+    this.loadClassifications();
     this.loadProgress();
   }
 
@@ -172,6 +185,12 @@ class Search extends React.Component {
         nextState.searchInfo,
         nextProps.selectedRegions
       );
+    }
+    if (
+      nextState.searchInfo !== this.state.searchInfo ||
+      nextState.windows !== this.state.windows
+    ) {
+      this.translateLabeledRegions(nextState.searchInfo, nextState.windows);
     }
     return true;
   }
@@ -341,13 +360,22 @@ class Search extends React.Component {
       ? []
       : classifications.body.results;
 
+    const windows = Object.assign({}, this.state.windows);
+    classifications.forEach(({ windowId, classification }) => {
+      windows[windowId] = {
+        classification: numToClassif(classification),
+        classificationPending: false
+      };
+    });
+
     this.setState({
       isLoadingClassifications: false,
       isErrorClassifications,
       classifications,
       pageClassificationsTotal: Math.ceil(
         classifications.length / PER_PAGE_ITEMS
-      )
+      ),
+      windows
     });
   }
 
@@ -483,6 +511,28 @@ class Search extends React.Component {
     }
   }
 
+  translateLabeledRegions(
+    searchInfo = this.state.searchInfo,
+    windows = this.state.windows
+  ) {
+    if (!searchInfo) return;
+
+    const stepSize = searchInfo.windowSize / searchInfo.config.step_freq;
+
+    this.viewConfigAdjustmentsLabels.value = Object.keys(windows).map(
+      windowId => [
+        searchInfo.dataFrom + windowId * stepSize,
+        searchInfo.dataFrom + windowId * stepSize + searchInfo.windowSize,
+        windows[windowId].classification[0] === 'n' ? '#cc168c' : '#0f5d92'
+      ]
+    );
+
+    this.viewConfigAdjustments = [
+      this.viewConfigAdjustmentsSelections,
+      this.viewConfigAdjustmentsLabels
+    ];
+  }
+
   translateSelectedRegions(
     searchInfo = this.state.searchInfo,
     selectedRegions = this.props.selectedRegions
@@ -491,14 +541,16 @@ class Search extends React.Component {
 
     const stepSize = searchInfo.windowSize / searchInfo.config.step_freq;
 
+    this.viewConfigAdjustmentsSelections.value = selectedRegions.map(
+      regionId => [
+        searchInfo.dataFrom + regionId * stepSize,
+        searchInfo.dataFrom + regionId * stepSize + searchInfo.windowSize
+      ]
+    );
+
     this.viewConfigAdjustments = [
-      {
-        key: 'views.0.tracks.top.0.contents.1.options.regions',
-        value: selectedRegions.map(regionId => [
-          searchInfo.dataFrom + regionId * stepSize,
-          searchInfo.dataFrom + regionId * stepSize + searchInfo.windowSize
-        ])
-      }
+      this.viewConfigAdjustmentsSelections,
+      this.viewConfigAdjustmentsLabels
     ];
   }
 
