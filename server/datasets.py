@@ -19,7 +19,7 @@ import re
 
 from contextlib import contextmanager, suppress
 
-from server import utils
+from server import chromsizes, utils
 
 
 class Datasets:
@@ -54,11 +54,11 @@ class Datasets:
             cache.close()
 
     def add(self, dataset):
-        if not self.chromsizes:
+        if self.chromsizes is None:
             self.chromsizes = dataset.chromsizes
             self.chromsizes_cum = np.cumsum(self.chromsizes) - self.chromsizes
 
-        if not self.chromsizes.equals(dataset.chromsizes):
+        if not chromsizes.equals(self.chromsizes, dataset.chromsizes):
             raise ValueError(
                 "Incorrect coordinates: all datasets need to have the same coordinates."
             )
