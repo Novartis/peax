@@ -23,12 +23,7 @@ from server import utils
 
 TILE_SIZE = 1024
 
-TILESET_INFO = {
-    "filetype": "bigwig",
-    "datatype": "vector",
-    "coordSystem": "hg19",
-    "coordSystem2": "hg19",
-}
+TILESET_INFO = {"filetype": "bigwig", "datatype": "vector"}
 
 FILE_EXT = {"bigwig", "bw"}
 
