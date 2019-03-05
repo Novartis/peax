@@ -11,8 +11,8 @@ import sys
 from ae.utils import get_tqdm
 
 
-def download_encode_file(
-    filename: str, base: str = ".", dir: str = "data", overwrite: bool = False
+def download_file(
+    url: str, filename: str, base: str = ".", dir: str = "data", overwrite: bool = False
 ):
     """Method for downloading ENCODE datasets
 
@@ -36,7 +36,6 @@ def download_encode_file(
     tqdm = get_tqdm()
     chunkSize = 1024
     name, _ = os.path.splitext(filename)
-    url = "https://www.encodeproject.org/files/{}/@@download/{}".format(name, filename)
     r = requests.get(url, stream=True)
 
     with open(filepath, "wb") as f:
@@ -47,6 +46,28 @@ def download_encode_file(
                 f.write(chunk)
 
     return filename
+
+
+def download_encode_file(
+    filename: str, base: str = ".", dir: str = "data", overwrite: bool = False
+):
+    """Method for downloading ENCODE datasets
+
+    Arguments:
+        filename {str} -- File access of the ENCODE data file
+
+    Keyword Arguments:
+        base {str} -- Base directory (default: {"."})
+        dir {str} -- Download directory (default: {"data"})
+        overwrite {bool} -- If {True} existing files with be overwritten (default: {False})
+
+    Returns:
+        {str} -- Returns a pointer to `filename`.
+    """
+    name, _ = os.path.splitext(filename)
+    url = "https://www.encodeproject.org/files/{}/@@download/{}".format(name, filename)
+
+    return download_file(url, filename, base=base, dir=dir, overwrite=overwrite)
 
 
 def download(
