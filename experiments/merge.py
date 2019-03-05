@@ -84,6 +84,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "-s", "--settings", help="path to the settings file", default="settings.json"
     )
+    parser.add_argument("-n", "--name", help="name for the merged dataset file")
+    parser.add_argument("-t", "--dtype", help="data type")
     parser.add_argument(
         "-c", "--clear", action="store_true", help="clears previously prepared data"
     )
@@ -111,5 +113,11 @@ if __name__ == "__main__":
         sys.exit(2)
 
     merge(
-        datasets, settings, clear=args.clear, verbose=args.verbose, silent=args.silent
+        datasets,
+        settings,
+        name=args.name,
+        dtype=args.dtype,
+        clear=args.clear,
+        verbose=args.verbose,
+        silent=args.silent,
     )
