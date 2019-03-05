@@ -16,7 +16,8 @@ import itertools
 import operator
 
 from contextlib import contextmanager
-from forestci import random_forest_error
+
+# from forestci import random_forest_error
 from scipy.ndimage.interpolation import zoom
 from scipy.spatial.distance import cdist
 from scipy.stats import norm
@@ -57,14 +58,14 @@ def prediction_change(p0: np.ndarray, p1: np.ndarray, border: float = 0.5) -> fl
     return np.mean(np.sign(p0 - border) != np.sign(p1 - border))
 
 
-def uncertainty(model, X_train: np.ndarray, X_test: np.ndarray) -> float:
-    """Unpredictability score
-
-    Unpredictability is defined as the minimum deviation of the prediction probability
-    from `0.5` to `0` or `1`. For example, for a prediction probability of 0.6 the
-    unpredictability is 0.4. The highest unpredictability is 1 and the lowest is 0.
-    """
-    return random_forest_error(model, X_train, X_test).mean()
+# def uncertainty(model, X_train: np.ndarray, X_test: np.ndarray) -> float:
+#     """Unpredictability score
+#
+#     Unpredictability is defined as the minimum deviation of the prediction probability
+#     from `0.5` to `0` or `1`. For example, for a prediction probability of 0.6 the
+#     unpredictability is 0.4. The highest unpredictability is 1 and the lowest is 0.
+#     """
+#     return random_forest_error(model, X_train, X_test).mean()
 
 
 def convergence(
