@@ -142,20 +142,24 @@ def create(
                     404,
                 )
 
+            viewHeight, viewHeightTarget, viewHeightMax = view_config.height(
+                datasets, config
+            )
+
             if search_id is None:
                 if max_res > 0:
                     info = info[:max_res]
                 for i in info:
-                    i["viewHeight"], i["maxViewHeight"] = view_config.height(
-                        datasets, config
-                    )
+                    i["viewHeight"] = viewHeight
+                    i["viewHeightTarget"] = viewHeightTarget
+                    i["viewHeightMax"] = viewHeightMax
                     i["dataFrom"] = int(abs_offset)
                     i["dataTo"] = int(abs_ends)
                     i["windowSize"] = encoders.window_size
             else:
-                info["viewHeight"], info["maxViewHeight"] = view_config.height(
-                    datasets, config
-                )
+                info["viewHeight"] = viewHeight
+                info["viewHeightTarget"] = viewHeightTarget
+                info["viewHeightMax"] = viewHeightMax
                 info["dataFrom"] = int(abs_offset)
                 info["dataTo"] = int(abs_ends)
                 info["windowSize"] = encoders.window_size

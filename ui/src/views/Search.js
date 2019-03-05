@@ -1190,8 +1190,8 @@ class Search extends React.Component {
               api={this.checkHgApi}
               height={
                 this.isTrained
-                  ? this.state.searchInfo.maxViewHeight
-                  : this.state.searchInfo.viewHeight
+                  ? this.state.searchInfo.viewHeightMax
+                  : this.state.searchInfo.viewHeightTarget
               }
               isGlobalMousePosition
               isStatic
