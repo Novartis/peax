@@ -3,12 +3,10 @@
 import argparse
 import h5py
 import json
-import numpy as np
 import os
 import pathlib
+import re
 import sys
-
-from ae.utils import create_hdf5_dset
 
 
 ds_types = [
@@ -30,50 +28,58 @@ def merge(
     clear: bool = False,
     verbose: bool = False,
     silent: bool = False,
-    shuffling: bool = False,
 ):
-    data = {}
-    with h5py.File(os.path.join(base, "data", "{}.h5".format(name)), "w") as m:
-        for dataset in datasets:
-            filepath = os.path.join(base, "data", "{}.h5".format(dataset))
+    mode = "w" if clear else "w-"
+    shapes = {}
+    try:
+        with h5py.File(os.path.join(base, "data", "{}.h5".format(name)), mode) as m:
+            # 1. Get the global shape
+            for dataset in datasets:
+                filepath = os.path.join(base, "data", "{}.h5".format(dataset))
 
-            if not pathlib.Path(filepath).is_file():
-                sys.stderr.write("Dataset not found: {}\n".format(filepath))
+                if not pathlib.Path(filepath).is_file():
+                    sys.stderr.write("Dataset not found: {}\n".format(filepath))
+                    sys.exit(2)
+
+                with h5py.File(filepath, "r") as f:
+                    for ds_type in ds_types:
+                        if ds_type in shapes:
+                            shapes[ds_type][0] += f[ds_type].shape[0]
+                        else:
+                            shapes[ds_type] = list(f[ds_type].shape)
+
+            # 2. Create the dataset
+            for ds_type in ds_types:
+                m.create_dataset(ds_type, tuple(shapes[ds_type]), dtype=dtype)
+
+            # 3. Fill up the dataset
+            pos = {}
+            for dataset in datasets:
+                filepath = os.path.join(base, "data", "{}.h5".format(dataset))
+
+                with h5py.File(filepath, "r") as f:
+                    for ds_type in ds_types:
+                        if ds_type not in pos:
+                            pos[ds_type] = 0
+
+                        num = f[ds_type].shape[0]
+
+                        m[ds_type][pos[ds_type] : pos[ds_type] + num] = f[ds_type][:]
+                        pos[ds_type] += num
+    except OSError as error:
+        # When `clear` is `False` and the data is already prepared then we expect to
+        # see error number 17 as we opened the file in `w-` mode.
+        if not clear:
+            # Stupid h5py doesn't populate `error.errno` so we have to parse it out
+            # manually
+            matches = re.search(r"errno = (\d+)", str(error))
+            if matches and int(matches.group(1)) == 17:
+                sys.stderr.write("Merged dataset already exist.\n")
                 sys.exit(2)
-
-            with h5py.File(filepath, "r") as f:
-                for ds_type in ds_types:
-                    if ds_type in data:
-                        data[ds_type] = np.concatenate(
-                            (data[ds_type], f[ds_type][:]), axis=0
-                        )
-                    else:
-                        data[ds_type] = f[ds_type][:]
-
-        for ds_type in ds_types:
-            if shuffling:
-                num_windows = data[ds_type].shape[0]
-                new_shuffling = np.arange(num_windows)
-
-                # Shuffle window ids and use the shuffled ids to shuffle the window data and window peaks
-                np.random.seed(settings["rnd_seed"])
-                np.random.shuffle(new_shuffling)
-
-                data[ds_type] = data[ds_type][new_shuffling]
-
-            create_hdf5_dset(m, ds_type, data[ds_type], dtype=dtype)
-            create_hdf5_dset(
-                m, "{}_shuffling".format(ds_type), new_shuffling, dtype=dtype
-            )
-
-        no_peak_ratio = (m["data_train"].shape[0] - np.sum(m["peaks_train"])) / np.sum(
-            m["peaks_train"]
-        )
-        # There are `no_peak_ratio` times more no peak samples. To equalize the
-        # importance of samples we give samples that contain a peak more weight
-        # but we never downweight peak windows!
-        sample_weight = (m["peaks_train"] * np.max((0, no_peak_ratio - 1))) + 1
-        create_hdf5_dset(m, "sample_weight", sample_weight, dtype=dtype)
+            else:
+                raise
+        else:
+            raise
 
 
 if __name__ == "__main__":
