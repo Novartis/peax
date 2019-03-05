@@ -30,6 +30,7 @@ def merge(
     clear: bool = False,
     verbose: bool = False,
     silent: bool = False,
+    shuffling: bool = False,
 ):
     data = {}
     with h5py.File(os.path.join(base, "data", "{}.h5".format(name)), "w") as m:
@@ -50,14 +51,16 @@ def merge(
                         data[ds_type] = f[ds_type][:]
 
         for ds_type in ds_types:
-            num_windows = data[ds_type].shape[0]
-            new_shuffling = np.arange(num_windows)
+            if shuffling:
+                num_windows = data[ds_type].shape[0]
+                new_shuffling = np.arange(num_windows)
 
-            # Shuffle window ids and use the shuffled ids to shuffle the window data and window peaks
-            np.random.seed(settings["rnd_seed"])
-            np.random.shuffle(new_shuffling)
+                # Shuffle window ids and use the shuffled ids to shuffle the window data and window peaks
+                np.random.seed(settings["rnd_seed"])
+                np.random.shuffle(new_shuffling)
 
-            data[ds_type] = data[ds_type][new_shuffling]
+                data[ds_type] = data[ds_type][new_shuffling]
+
             create_hdf5_dset(m, ds_type, data[ds_type], dtype=dtype)
             create_hdf5_dset(
                 m, "{}_shuffling".format(ds_type), new_shuffling, dtype=dtype
