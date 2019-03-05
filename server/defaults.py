@@ -126,7 +126,7 @@ CLASS_PROB_TRACK = {
     "height": 6,
 }
 
-BIGWIG_TRACK = {
+BAR_TRACK = {
     "server": "//localhost:5000/api/v1",
     "tilesetUid": "???",
     "uid": "???",
@@ -149,7 +149,32 @@ BIGWIG_TRACK = {
     "height": 60,
 }
 
-BIGWIG_TRACK_HEIGHTS = [60, 40, 30, 25, 22, 19, 17]
+LINE_TRACK = {
+    "server": "//localhost:5000/api/v1",
+    "tilesetUid": "???",
+    "uid": "???",
+    "type": "horizontal-line",
+    "options": {
+        "axisPositionHorizontal": "left",
+        "axisMargin": 32,
+        "lineColor": "#00266d",
+        "lineOpacity": 0.75,
+        "labelBackgroundOpacity": 0.0001,
+        "labelColor": "black",
+        "labelTextOpacity": 0.5,
+        "labelPosition": "topLeft",
+        "labelLeftMargin": 56,
+        "trackBorderWidth": 0,
+        "showMousePosition": True,
+        "mousePositionColor": "#000000",
+        "showTooltip": True,
+    },
+    "height": 60,
+}
+
+DATA_TRACK_COLORS = ["#003ba8", "#008ca8", "#d24f00", "#d2ad00", "#8c00b8"]
+
+DATA_TRACK_HEIGHTS = [60, 40, 30, 25, 22, 19, 17]
 
 ENCODINGS_TRACK = {
     "server": "//localhost:5000/api/v1",

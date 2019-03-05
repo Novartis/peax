@@ -198,7 +198,7 @@ def build(
             if region is not None:
                 anno_track_config["options"]["regions"].append(region)
 
-            bw_track_config = copy.deepcopy(defaults.BIGWIG_TRACK)
+            bw_track_config = copy.deepcopy(defaults.BAR_TRACK)
             bw_track_config["tilesetUid"] = dataset.id
             bw_track_config["uid"] = dataset.id
 
@@ -212,18 +212,27 @@ def build(
             if dataset.height:
                 bw_track_config["height"] = dataset.height
             else:
-                bw_track_config["height"] = defaults.BIGWIG_TRACK_HEIGHTS[
-                    max(len(defaults.BIGWIG_TRACK_HEIGHTS), datasets.length) - 1
+                bw_track_config["height"] = defaults.DATA_TRACK_HEIGHTS[
+                    min(len(defaults.DATA_TRACK_HEIGHTS), datasets.length) - 1
                 ]
 
             if dataset.fill:
-                bw_track_config["options"]["fillColor"] = dataset.fill
+                bw_track_config["options"]["barFillColor"] = dataset.fill
+            else:
+                color_index = i % len(defaults.DATA_TRACK_COLORS)
+                bw_track_config["options"]["barFillColor"] = defaults.DATA_TRACK_COLORS[
+                    color_index
+                ]
 
             if dataset.name:
                 bw_track_config["options"]["name"] = dataset.name
 
             if hide_label:
                 bw_track_config["options"]["labelPosition"] = "hidden"
+
+            if i % 2 == 1:
+                bw_track_config["options"]["axisPositionHorizontal"] = "right"
+                bw_track_config["options"]["axisMargin"] = 72
 
             if default:
                 bw_track_config["height"] *= 3
@@ -261,8 +270,12 @@ def height(datasets, config):
     for track in view_config["views"][0]["tracks"]["top"]:
         total_height += track.get("height", 0)
 
-    extra_height = defaults.CLASS_PROB_TRACK.get("height", 0)
-    extra_height += defaults.SELECTION_TRACK.get("height", 0)
-    extra_height += defaults.LABEL_TRACK.get("height", 0)
+    extra_target_height = defaults.SELECTION_TRACK.get("height", 0)
+    extra_target_height += defaults.LABEL_TRACK.get("height", 0)
 
-    return total_height, total_height + extra_height
+    extra_probs_height = defaults.CLASS_PROB_TRACK.get("height", 0)
+
+    target_height = total_height + extra_target_height
+    max_height = target_height + extra_probs_height
+
+    return total_height, target_height, max_height
