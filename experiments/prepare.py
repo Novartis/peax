@@ -20,7 +20,7 @@ slurm_header = """#!/bin/bash
 #SBATCH -p cox
 #SBATCH -n 1 # Number of cores
 #SBATCH -N 1 # Ensure that all cores are on one machine
-#SBATCH --mem=8000
+#SBATCH --mem=12000
 #SBATCH --array=0-$num_datasets
 #SBATCH -t 2-00:00
 #SBATCH --mail-type=ALL
