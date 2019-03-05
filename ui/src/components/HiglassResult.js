@@ -164,7 +164,7 @@ class HiglassResult extends React.Component {
   render() {
     let className = 'rel flex-c higlass-result';
 
-    if (this.isHovered) className += ' is-hovered';
+    // if (this.isHovered) className += ' is-hovered';
     if (this.isSelected) className += ' is-selected';
 
     let classNameInfoSideBar = 'higlass-result-side-panel';
@@ -228,6 +228,7 @@ class HiglassResult extends React.Component {
           isGlobalMousePosition
           isStatic
           isZoomFixed
+          pixelPrecise
           viewConfigId={this.viewId}
         />
         <div className="higlass-class-probability-wrapper">

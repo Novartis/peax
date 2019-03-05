@@ -198,6 +198,7 @@ class HiGlassViewer extends React.Component {
                 isGlobalMousePosition={this.props.isGlobalMousePosition}
                 isPadded={this.props.isPadded}
                 isZoomFixed={this.props.isZoomFixed}
+                pixelPrecise={this.props.pixelPrecise}
               />
             ) : (
               <HiGlassLoader
@@ -208,6 +209,7 @@ class HiGlassViewer extends React.Component {
                 isGlobalMousePosition={this.props.isGlobalMousePosition}
                 isPadded={this.props.isPadded}
                 isZoomFixed={this.props.isZoomFixed}
+                pixelPrecise={this.props.pixelPrecise}
               />
             ))}
         </div>
@@ -223,6 +225,7 @@ HiGlassViewer.defaultProps = {
   isPadded: false,
   isStatic: false,
   isZoomFixed: false,
+  pixelPrecise: false,
   viewConfigAdjustments: []
 };
 
@@ -238,6 +241,7 @@ HiGlassViewer.propTypes = {
   isPadded: PropTypes.bool,
   isStatic: PropTypes.bool,
   isZoomFixed: PropTypes.bool,
+  pixelPrecise: PropTypes.bool,
   pubSub: PropTypes.object.isRequired,
   setViewConfig: PropTypes.func.isRequired,
   viewConfig: PropTypes.object,
