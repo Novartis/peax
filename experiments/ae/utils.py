@@ -767,9 +767,12 @@ def get_models(ae_filepath: str, silent: bool = True):
     matches = re.search(regex, ae_filepath)
 
     loss = None
+    custom_objects = {}
     if matches is not None:
         loss = matches.group(1)
         loss = get_loss(matches.group(1))
+        if hasattr(loss, "__name__"):
+            custom_objects = {loss.__name__: loss}
     else:
         print("Could not determine loss function")
         return None, None, None
@@ -777,9 +780,9 @@ def get_models(ae_filepath: str, silent: bool = True):
     if silent:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            autoencoder = load_model(ae_filepath, custom_objects={loss.__name__: loss})
+            autoencoder = load_model(ae_filepath, custom_objects=custom_objects)
     else:
-        autoencoder = load_model(ae_filepath, custom_objects={loss.__name__: loss})
+        autoencoder = load_model(ae_filepath, custom_objects=custom_objects)
 
     # Find embedding layer
     embedding_layer = None
