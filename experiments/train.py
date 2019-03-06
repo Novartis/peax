@@ -13,11 +13,11 @@ import seaborn as sns
 import sys
 import time
 
-from ae.cnn import create_model
-from ae.utils import namify, get_tqdm
-
 from keras.callbacks import Callback, EarlyStopping
 from keras.utils.io_utils import HDF5Matrix
+
+from ae.cnn import create_model
+from ae.utils import namify, get_tqdm, get_models
 
 # zp = zero point
 # This is the point (total signal) at which we're going to increase the weights for
@@ -125,7 +125,7 @@ def plot_loss_to_file(
     )
 
     # Print loss for fast evaluation
-    real_epochs = np.min((epochs, loss.shape[0], val_loss.shape[0])).astype(np.int)
+    real_epochs = np.min((epochs, len(loss), len(val_loss))).astype(np.int)
     data = np.zeros((real_epochs, 2))
     data[:, 0][:real_epochs] = loss[:real_epochs]
     data[:, 1][:real_epochs] = val_loss[:real_epochs]
@@ -144,6 +144,8 @@ def plot_loss_to_file(
 def train_on_single_dataset(
     settings: dict,
     dataset: str,
+    pre_trained_model_name: str = None,
+    re_trained_postfix: str = "re-trained",
     definition: dict = None,
     definitions: list = None,
     definition_idx: int = -1,
@@ -170,21 +172,31 @@ def train_on_single_dataset(
     )
 
     repetition = None
-    if definition_name is not None and len(definition_name.split("__")) > 1:
-        repetition = definition_name.split("__")[1]
+    if pre_trained_model_name is not None:
+        model_name = pre_trained_model_name.split("---autoencoder")[0]
+        postfix = "-{}".format(re_trained_postfix)
 
-    model_name = namify(definition)
-    encoder_name = os.path.join(
-        base, "models", "{}---encoder-{}.h5".format(model_name, dataset)
-    )
-    decoder_name = os.path.join(
-        base, "models", "{}---decoder-{}.h5".format(model_name, dataset)
+        pre_trained_model_filepth = os.path.join(
+            base, "models", "{}.h5".format(pre_trained_model_name)
+        )
+
+        if not pathlib.Path(pre_trained_model_filepth).is_file():
+            sys.stderr.write("Pre-trained autoencoder does not exists.\n")
+            sys.exit(2)
+    else:
+        if definition_name is not None and len(definition_name.split("__")) > 1:
+            repetition = definition_name.split("__")[1]
+
+        model_name = namify(definition)
+
+        postfix = "__{}".format(repetition) if repetition is not None else ""
+
+    autoencoder_name = os.path.join(
+        base, "models", "{}---autoencoder-{}{}.h5".format(model_name, dataset, postfix)
     )
 
-    if (
-        pathlib.Path(encoder_name).is_file() or pathlib.Path(decoder_name).is_file()
-    ) and not clear:
-        print("Encoder/decoder already exists. Use `--clear` to overwrite it.")
+    if pathlib.Path(autoencoder_name).is_file() and not clear:
+        print("Autoencoder already exists. Use `--clear` to overwrite it.")
         return
 
     peak_weight = (
@@ -205,7 +217,10 @@ def train_on_single_dataset(
     definition.pop("signal_weighting", None)
     definition.pop("signal_weighting_zero_point_percentage", None)
 
-    encoder, decoder, autoencoder = create_model(bins_per_window, **definition)
+    if pre_trained_model_name:
+        _, _, autoencoder = get_models(pre_trained_model_filepth)
+    else:
+        _, _, autoencoder = create_model(bins_per_window, **definition)
 
     loss = None
     val_loss = None
@@ -255,7 +270,7 @@ def train_on_single_dataset(
         callbacks += [
             EarlyStopping(
                 monitor="val_loss",
-                min_delta=1e-6,
+                min_delta=1e-7,
                 patience=10,
                 restore_best_weights=True,
             )
@@ -283,18 +298,7 @@ def train_on_single_dataset(
     except KeyError:
         pass
 
-    postfix = "__{}".format(repetition) if repetition is not None else ""
-
-    encoder.save(
-        os.path.join(
-            base, "models", "{}---encoder-{}{}.h5".format(model_name, dataset, postfix)
-        )
-    )
-    decoder.save(
-        os.path.join(
-            base, "models", "{}---decoder-{}{}.h5".format(model_name, dataset, postfix)
-        )
-    )
+    autoencoder.save(autoencoder_name)
 
     with h5py.File(
         os.path.join(

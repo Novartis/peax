@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import seaborn as sns
+import re
 import sys
 import warnings
 
@@ -32,9 +33,12 @@ stderr = sys.stderr
 sys.stderr = open(os.devnull, "w")
 from keras_tqdm import TQDMCallback, TQDMNotebookCallback
 from keras import backend as K
-from keras.models import load_model
+from keras.layers import Input
+from keras.models import Model, load_model
 
 sys.stderr = stderr
+
+from ae.loss import get_loss
 
 
 def train(
@@ -742,6 +746,68 @@ def get_tqdm(is_keras: bool = False):
             return tqdm
 
 
+def get_models(ae_filepath: str, silent: bool = True):
+    """Get encoder, decoder, and autoencoder from stored file
+
+    This method loads the autoencoder model and creates the related encoder and decoder
+    models.
+
+    Arguments:
+        ae_filepath {str} -- Path to the stored autoencoder model
+
+    Keyword Arguments:
+        silent {bool} -- If {True} Keras warnings from {load_model} are silenced. (default: {True})
+
+    Returns:
+        {tuple} -- Tuple with encoder, decoder, autoencoder models
+    """
+    # Since Keras does not store custom loss functions we have to first determine which
+    # loss function we've used for training to pass that into load_model()
+    regex = r"--l-(([a-z0-9]+\-?)+)--"
+    matches = re.search(regex, ae_filepath)
+
+    loss = None
+    if matches is not None:
+        loss = matches.group(1)
+        loss = get_loss(matches.group(1))
+    else:
+        print("Could not determine loss function")
+        return None, None, None
+
+    if silent:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            autoencoder = load_model(ae_filepath, custom_objects={loss.__name__: loss})
+    else:
+        autoencoder = load_model(ae_filepath, custom_objects={loss.__name__: loss})
+
+    # Find embedding layer
+    embedding_layer = None
+    embedding_layer_idx = None
+    for i, layer in enumerate(autoencoder.layers):
+        if layer.name == "embed":
+            embedding_layer = layer
+            embedding_layer_idx = i
+
+    # Create encoder
+    inputs = autoencoder.input
+    encoded = inputs
+    for i in range(1, embedding_layer_idx + 1):
+        encoded = autoencoder.layers[i](encoded)
+
+    encoder = Model(inputs, encoded)
+
+    embedding = embedding_layer.output_shape[1]
+
+    encoded_input = Input(shape=(embedding,), name="input")
+    decoded_input = encoded_input
+    for i in range(embedding_layer_idx + 1, len(autoencoder.layers)):
+        decoded_input = autoencoder.layers[i](decoded_input)
+    decoder = Model(encoded_input, decoded_input)
+
+    return encoder, decoder, autoencoder
+
+
 def plot_total_signal(dataset: str, base: str = "."):
     """Plot total signal of the train, dev, and test set
 
@@ -752,43 +818,11 @@ def plot_total_signal(dataset: str, base: str = "."):
         base {str} -- Path to the base directory (default: {"."})
     """
     with h5py.File(os.path.join(base, "data", "{}.h5".format(dataset)), "r") as f:
-        data_train = f["data_train"][:]
-        peaks_train = f["peaks_train"][:]
-        data_dev = f["data_dev"][:]
-        peaks_dev = f["peaks_dev"][:]
-        data_test = f["data_test"][:]
-        peaks_test = f["peaks_test"][:]
+        total_signal_train = np.sum(f["data_train"], axis=1)
+        total_signal_dev = np.sum(f["data_dev"], axis=1)
+        total_signal_test = np.sum(f["data_test"], axis=1)
 
-        print("Train data shape: {}".format(data_train.shape))
-        print(
-            "Train peaks shape: {} num windows with peaks {} ({:.2f}%)".format(
-                peaks_train.shape,
-                np.sum(peaks_train),
-                np.sum(peaks_train) / peaks_train.shape[0] * 100,
-            )
-        )
-        print("Dev data shape: {}".format(data_dev.shape))
-        print(
-            "Dev peaks shape: {} num windows with peaks {} ({:.2f}%)".format(
-                peaks_dev.shape,
-                np.sum(peaks_dev),
-                np.sum(peaks_dev) / peaks_dev.shape[0] * 100,
-            )
-        )
-        print("Test data shape: {}".format(data_test.shape))
-        print(
-            "Test peaks shape: {} num windows with peaks {} ({:.2f}%)".format(
-                peaks_test.shape,
-                np.sum(peaks_test),
-                np.sum(peaks_test) / peaks_test.shape[0] * 100,
-            )
-        )
-
-        total_signal_train = np.sum(data_train, axis=1)
-        total_signal_dev = np.sum(data_dev, axis=1)
-        total_signal_test = np.sum(data_test, axis=1)
-
-        num_win = data_train.shape[0]
+        num_win = f["data_train"].shape[0]
         num_empty_win = np.sum(total_signal_train == 0)
 
         print(
@@ -818,6 +852,7 @@ def plot_windows(
     trained_on_single_dataset: bool = False,
     silent: bool = False,
     repetition: str = None,
+    custom_postfix: str = None,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     with h5py.File(os.path.join(base, "data", "{}.h5".format(dataset)), "r") as f:
         data_type = "data_{}".format(ds_type)
@@ -848,20 +883,15 @@ def plot_windows(
             if repetition is not None:
                 postfix = "{}__{}".format(postfix, repetition)
 
-            encoder_filepath = os.path.join(
-                base, "models", "{}---encoder{}.h5".format(model_name, postfix)
+            if custom_postfix is not None:
+                postfix = "{}-{}".format(postfix, custom_postfix)
+
+            autoencoder_filepath = os.path.join(
+                base, "models", "{}---autoencoder{}.h5".format(model_name, postfix)
             )
-            decoder_filepath = os.path.join(
-                base, "models", "{}---decoder{}.h5".format(model_name, postfix)
-            )
-            if silent:
-                with warnings.catch_warnings():
-                    warnings.simplefilter("ignore")
-                    encoder = load_model(encoder_filepath)
-                    decoder = load_model(decoder_filepath)
-            else:
-                encoder = load_model(encoder_filepath)
-                decoder = load_model(decoder_filepath)
+
+            encoder, decoder, _ = get_models(autoencoder_filepath)
+
             sampled_encodings, _, _ = predict(encoder, decoder, sampled_wins)
             sampled_encodings = sampled_encodings.squeeze(axis=2)
 
