@@ -1,10 +1,10 @@
 {
   "hyperparameters": {
     "varying": {
-      "params": ["conv_layers", "conv_filter_size", "conv_kernel_size"],
+      "params": ["conv_layers", "conv_filter_size", "conv_kernel_size", "loss"],
       "values": [
-        [[4], [128, 256, 512, 1024], [3, 7, 11, 15]],
-        [[4], [128, 192, 288, 432], [3, 5, 7, 9]]
+        [[4], [[128, 256, 512, 1024]], [[3, 7, 11, 15]], ["smse-10", "bce"]],
+        [[4], [[128, 192, 288, 432]], [[3, 5, 7, 9]], ["smse-10", "bce"]]
       ]
     },
     "fixed": {
@@ -27,5 +27,6 @@
     }
   },
   "epochs": 5,
-  "batch_size": 256
+  "batch_size": 256,
+  "early_stopping": true
 }
