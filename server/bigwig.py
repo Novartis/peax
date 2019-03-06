@@ -274,7 +274,13 @@ def chunk(
         end = start + num_windows
 
         values[start:end] = bbi.stackup(
-            bigwig, [chrom] * start_bps.size, start_bps, end_bps, bins=bins, missing=0.0
+            bigwig,
+            [chrom] * start_bps.size,
+            start_bps,
+            end_bps,
+            bins=bins,
+            missing=0.0,
+            oob=0.0,
         )
 
         if normalize:
@@ -287,7 +293,7 @@ def chunk(
                 "Extracted",
                 "{} windows".format(num_windows),
                 "from {}".format(chrom),
-                "with a max value of {}.".format(np.max(values[start:end])),
+                "with a max value of {}.".format(np.nanmax(values[start:end])),
             )
 
         if print_per_chrom:
