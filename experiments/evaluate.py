@@ -10,7 +10,6 @@ import pandas as pd
 import pathlib
 import seaborn as sns
 import sys
-import warnings
 
 from string import Template
 
@@ -19,12 +18,11 @@ from string import Template
 stderr = sys.stderr
 sys.stderr = open(os.devnull, "w")
 from keras.metrics import mae, binary_crossentropy
-from keras.models import load_model
 
 sys.stderr = stderr
 
 from ae.metrics import dtw_metric, r2_min
-from ae.utils import get_tqdm, evaluate_model, plot_windows
+from ae.utils import get_tqdm, evaluate_model, plot_windows, get_models
 from ae.loss import scaled_mean_squared_error, scaled_logcosh, scaled_huber
 
 
@@ -119,11 +117,8 @@ def evaluate(
         repetition = parts[1]
         postfix = "{}__{}".format(postfix, repetition)
 
-    encoder_filepath = os.path.join(
-        base, "models", "{}---encoder{}.h5".format(model_name, postfix)
-    )
-    decoder_filepath = os.path.join(
-        base, "models", "{}---decoder{}.h5".format(model_name, postfix)
+    autoencoder_filepath = os.path.join(
+        base, "models", "{}---autoencoder{}.h5".format(model_name, postfix)
     )
     training_filepath = os.path.join(
         base, "models", "{}---training{}.h5".format(model_name, postfix)
@@ -138,11 +133,8 @@ def evaluate(
         "models", "{}---predictions{}.png".format(model_name, postfix)
     )
 
-    if (
-        not pathlib.Path(encoder_filepath).is_file()
-        or not pathlib.Path(decoder_filepath).is_file()
-    ):
-        sys.stderr.write("Encode and decoder need to be available\n")
+    if not pathlib.Path(autoencoder_filepath).is_file():
+        sys.stderr.write("Autoencoder needs to be available\n")
         return
 
     if pathlib.Path(evaluation_filepath).is_file() and not clear:
@@ -151,14 +143,8 @@ def evaluate(
 
     dtw = dtw_metric()
 
-    if silent:
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
             encoder = load_model(encoder_filepath)
-            decoder = load_model(decoder_filepath)
-    else:
-        encoder = load_model(encoder_filepath)
-        decoder = load_model(decoder_filepath)
+    encoder, decoder, _ = get_models(evaluation_filepath, silent=silent)
 
     if dataset_name is not None:
         datasets = {dataset_name: True}

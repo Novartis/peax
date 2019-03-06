@@ -952,6 +952,7 @@ def plot_windows(
                 i += 1
 
         fig.legend(handles=legend_elements, loc="lower center")
+        fig.tight_layout()
 
         if save_as is not None:
             fig.savefig(os.path.join(base, save_as), bbox_inches="tight")
