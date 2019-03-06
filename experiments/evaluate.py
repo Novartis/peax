@@ -143,7 +143,7 @@ def evaluate(
 
     dtw = dtw_metric()
 
-    encoder, decoder, _ = get_models(evaluation_filepath, silent=silent)
+    encoder, decoder, _ = get_models(autoencoder_filepath, silent=silent)
 
     if dataset_name is not None:
         datasets = {dataset_name: True}
