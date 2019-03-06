@@ -220,7 +220,7 @@ def create_model(
     elif loss.startswith("slogcosh") and len(loss_parts) > 1:
         loss = scaled_logcosh(float(loss_parts[1]))
 
-    if loss.startswith("bce"):
+    elif loss.startswith("bce"):
         loss = "binary_crossentropy"
 
     autoencoder.compile(optimizer=opt, loss=loss, metrics=metrics)
