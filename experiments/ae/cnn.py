@@ -72,7 +72,7 @@ def create_model(
     summary: bool = False,
     plot: bool = False,
 ):
-    inputs = Input(shape=(input_dim, 1), name="decoded_input")
+    inputs = Input(shape=(input_dim, 1), name="input")
 
     num_cfilter = len(conv_filters)
     num_dunits = len(dense_units)
@@ -158,7 +158,7 @@ def create_model(
 
     decoded = UpSampling1D(2, name="upsample{}".format(len(conv_filters) - 1))(decoded)
     decoded = Conv1D(
-        1, conv_kernels[0], activation="sigmoid", padding="same", name="out"
+        1, conv_kernels[0], activation="sigmoid", padding="same", name="output"
     )(decoded)
 
     autoencoder = Model(inputs, decoded)
