@@ -85,3 +85,24 @@ def scaled_huber(scale: float = 1.0, delta: float = 1.0):
         return huber_loss(y_true * scale, y_pred * scale, delta=delta)
 
     return huber
+
+
+def get_loss(loss: str):
+    loss_parts = loss.split("-")
+
+    if loss.startswith("smse") and len(loss_parts) > 1:
+        loss = scaled_mean_squared_error(float(loss_parts[1]))
+
+    elif loss.startswith("smae") and len(loss_parts) > 1:
+        loss = scaled_mean_absolute_error(float(loss_parts[1]))
+
+    elif loss.startswith("shuber") and len(loss_parts) > 2:
+        loss = scaled_huber(float(loss_parts[1]), float(loss_parts[2]))
+
+    elif loss.startswith("slogcosh") and len(loss_parts) > 1:
+        loss = scaled_logcosh(float(loss_parts[1]))
+
+    elif loss.startswith("bce"):
+        loss = "binary_crossentropy"
+
+    return loss

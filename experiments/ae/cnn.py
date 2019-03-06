@@ -46,12 +46,7 @@ from keras.utils import plot_model
 
 sys.stderr = stderr
 
-from ae.loss import (
-    scaled_mean_squared_error,
-    scaled_logcosh,
-    scaled_mean_absolute_error,
-    scaled_huber,
-)
+from ae.loss import get_loss
 
 
 def create_model(
@@ -206,22 +201,7 @@ def create_model(
         print("Unknown optimizer: {}. Using Adam.".format(optimizer))
         opt = optimizers.Adam(lr=learning_rate, decay=learning_rate_decay)
 
-    loss_parts = loss.split("-")
-
-    if loss.startswith("smse") and len(loss_parts) > 1:
-        loss = scaled_mean_squared_error(float(loss_parts[1]))
-
-    elif loss.startswith("smae") and len(loss_parts) > 1:
-        loss = scaled_mean_absolute_error(float(loss_parts[1]))
-
-    elif loss.startswith("shuber") and len(loss_parts) > 2:
-        loss = scaled_huber(float(loss_parts[1]), float(loss_parts[2]))
-
-    elif loss.startswith("slogcosh") and len(loss_parts) > 1:
-        loss = scaled_logcosh(float(loss_parts[1]))
-
-    elif loss.startswith("bce"):
-        loss = "binary_crossentropy"
+    loss = get_loss(loss)
 
     autoencoder.compile(optimizer=opt, loss=loss, metrics=metrics)
 
