@@ -87,6 +87,7 @@ def download_roadmap_epigenomics_file(
     dir: str = "data",
     overwrite: bool = False,
     silent: bool = False,
+    check: bool = False,
 ):
     """Method for downloading Roadmap Epigenomics datasets
 
@@ -127,9 +128,13 @@ def download_roadmap_epigenomics_file(
 
     url = base_url + filename
 
-    return download_file(
-        url, out_filename, base=base, dir=dir, overwrite=overwrite, silent=silent
-    )
+    if check:
+        if not pathlib.Path(os.path.join(base, dir, out_filename).is_file()):
+            print("{}/{}/{} not found".format(base, dir, out_filename))
+    else:
+        return download_file(
+            url, out_filename, base=base, dir=dir, overwrite=overwrite, silent=silent
+        )
 
 
 def download(
@@ -179,6 +184,7 @@ def download_roadmap_epigenomics(
     limit: int = math.inf,
     verbose: bool = False,
     silent: bool = False,
+    check: bool = False,
 ):
     tqdm = get_tqdm()
 
@@ -206,7 +212,13 @@ def download_roadmap_epigenomics(
         for target in targets_iter:
             for data_type in data_types:
                 download_roadmap_epigenomics_file(
-                    e_id, data_type, target, base=base, overwrite=clear, silent=silent
+                    e_id,
+                    data_type,
+                    target,
+                    base=base,
+                    overwrite=clear,
+                    silent=silent,
+                    check=check,
                 )
 
         num_downloads += 1
