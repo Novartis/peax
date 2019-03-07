@@ -270,7 +270,7 @@ def train_on_single_dataset(
     if checkpoint:
         callbacks += [
             ModelCheckpoint(
-                autoencoder_name[:-3] + "-{ep:02d}-{vl:.2f}.h5",
+                autoencoder_name[:-3] + "-{epoch:02d}-{val_loss:.6f}.h5",
                 period=5,
                 monitor="val_loss",
                 verbose=0,
