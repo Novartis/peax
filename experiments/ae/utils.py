@@ -970,6 +970,68 @@ def plot_windows(
         )
 
 
+def plot_windows_from_data(
+    data,
+    min_signal: float = 0,
+    max_signal: float = math.inf,
+    num: int = 10,
+    window_ids: list = None,
+):
+    if window_ids is not None:
+        num = len(window_ids)
+        sampled_wins = data[window_ids]
+        sampled_window_idx = window_ids
+    else:
+        total_signal = np.sum(data, axis=1)
+
+        gt_min_signal = total_signal > min_signal
+        st_max_signal = total_signal < max_signal
+
+        num_windows_to_be_sampled = np.sum(gt_min_signal & st_max_signal)
+
+        choices = np.random.choice(num_windows_to_be_sampled, num, replace=False)
+
+        sampled_wins = data[gt_min_signal & st_max_signal][choices]
+
+        sampled_window_idx = np.arange(data.shape[0])[gt_min_signal & st_max_signal][
+            choices
+        ]
+
+    cols = max(math.floor(math.sqrt(num) * 3 / 5), 1)
+    rows = math.ceil(num / cols)
+
+    x = np.arange(data.shape[1])
+
+    fig, axes = plt.subplots(rows, cols, figsize=(8 * cols, 1.25 * rows), sharex=True)
+    fig.patch.set_facecolor("white")
+
+    i = 0
+    for c in np.arange(cols):
+        for r in np.arange(rows):
+            if i >= num:
+                break
+
+            axis = axes[r] if cols == 1 else axes[r, c]
+
+            axis.bar(x, sampled_wins[i], width=1.0, color="#008ca8")
+            axis.set_xticks(x[5::10])
+            axis.set_xticklabels(x[5::10])
+
+            axis.spines["top"].set_color("silver")
+            axis.spines["right"].set_color("silver")
+            axis.spines["bottom"].set_color("silver")
+            axis.spines["left"].set_color("silver")
+            axis.tick_params(axis="x", colors="silver")
+            axis.tick_params(axis="y", colors="silver")
+            axis.set_ylim(0, 1)
+            axis.set_title(sampled_window_idx[i])
+            axis.set_xticks([], [])
+            axis.set_yticks([], [])
+            i += 1
+
+    fig.tight_layout()
+
+
 def create_hdf5_dset(f, name, data, extendable: bool = False, dtype: str = None):
     if dtype is not None:
         try:
