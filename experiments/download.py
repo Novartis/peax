@@ -129,7 +129,7 @@ def download_roadmap_epigenomics_file(
     url = base_url + filename
 
     if check:
-        if not pathlib.Path(os.path.join(base, dir, out_filename).is_file()):
+        if not pathlib.Path(os.path.join(base, dir, out_filename)).is_file():
             print("{}/{}/{} not found".format(base, dir, out_filename))
     else:
         return download_file(
