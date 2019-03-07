@@ -1196,6 +1196,7 @@ class Search extends React.Component {
               isGlobalMousePosition
               isStatic
               disableTrackMenu
+              pixelPrecise
               viewConfigId={hgViewId(this.state.searchInfo.id)}
               viewConfigAdjustments={this.viewConfigAdjustments}
             />
