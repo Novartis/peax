@@ -173,6 +173,7 @@ def download(
 def download_roadmap_epigenomics(
     datasets: list,
     settings: dict,
+    dataset_idx: int = None,
     base: str = ".",
     clear: bool = False,
     limit: int = math.inf,
@@ -189,7 +190,12 @@ def download_roadmap_epigenomics(
 
     num_downloads = 0
 
-    datasets_iter = datasets if silent else tqdm(datasets, desc="Dataset")
+    if dataset_idx is not None:
+        datasets_iter = [datasets[dataset_idx]]
+        datasets_iter = datasets_iter if silent else tqdm(datasets_iter, desc="Dataset")
+
+    else:
+        datasets_iter = datasets if silent else tqdm(datasets, desc="Dataset")
 
     for e_id in datasets_iter:
         if num_downloads >= limit:
@@ -210,6 +216,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Peax Downloader")
     parser.add_argument(
         "-d", "--datasets", help="path to the datasets file", default="datasets.json"
+    )
+    parser.add_argument(
+        "-x", "--dataset-idx", help="index of the dataset to be downloaded", type=int
     )
     parser.add_argument(
         "-s", "--settings", help="path to the settings file", default="settings.json"
@@ -254,6 +263,7 @@ if __name__ == "__main__":
         download_roadmap_epigenomics(
             datasets,
             settings,
+            dataset_idx=args.dataset_idx,
             clear=args.clear,
             limit=args.limit,
             verbose=args.verbose,
