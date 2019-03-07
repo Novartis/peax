@@ -70,6 +70,54 @@ def download_encode_file(
     return download_file(url, filename, base=base, dir=dir, overwrite=overwrite)
 
 
+def download_roadmap_epigenomics_file(
+    e_id: str,
+    data_type: str,
+    target: str,
+    base: str = ".",
+    dir: str = "data",
+    overwrite: bool = False,
+):
+    """Method for downloading Roadmap Epigenomics datasets
+
+    Arguments:
+        e_id {str} -- Experiment ID, e.g., e116
+        data_type {str} -- Data type, e.g., fc_signal
+        target {str} -- Histone modification, e.g., H3K27ac
+
+    Keyword Arguments:
+        base {str} -- Base directory (default: {"."})
+        dir {str} -- Download directory (default: {"data"})
+        overwrite {bool} -- If {True} existing files with be overwritten (default: {False})
+
+    Returns:
+        {str} -- Returns a pointer to `filename`.
+    """
+    base_url = ""
+    filename = ""
+    out_filename = ""
+
+    if data_type == "fc_signal":
+        base_url = "https://egg2.wustl.edu/roadmap/data/byFileType/signal/consolidated/macs2signal/foldChange/"
+        filename = "{}-{}.fc.signal.bigwig".format(e_id, target)
+        out_filename = "{}-{}.fc.signal.bigWig".format(e_id, target)
+
+    elif data_type == "narrow_peak":
+        base_url = "https://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/narrowPeak/"
+        filename = "{}-{}.narrowPeak.gz".format(e_id, target)
+
+    elif data_type == "broad_peaks":
+        base_url = "https://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/broadPeak/"
+        filename = "{}-{}.broadPeak.gz".format(e_id, target)
+
+    else:
+        print("Unknown data type: {}".format(data_type))
+
+    url = base_url + filename
+
+    return download_file(url, out_filename, base=base, dir=dir, overwrite=overwrite)
+
+
 def download(
     datasets: dict,
     settings: dict,
@@ -104,6 +152,36 @@ def download(
                 filename = "{}.{}".format(os.path.basename(dataset[data_type]), fileext)
 
                 download_encode_file(filename, base, overwrite=clear)
+
+        num_downloads += 1
+
+
+def download_roadmap_epigenomics(
+    datasets: dict,
+    settings: dict,
+    base: str = ".",
+    clear: bool = False,
+    limit: int = math.inf,
+    verbose: bool = False,
+):
+    tqdm = get_tqdm()
+
+    # Create data directory
+    pathlib.Path("data").mkdir(parents=True, exist_ok=True)
+
+    data_types = list(settings["data_types"].keys())
+    targets = settings["targets"]
+
+    num_downloads = 0
+    for e_id in tqdm(datasets, desc="Dataset"):
+        if num_downloads >= limit:
+            break
+
+        for target in tqdm(targets, desc="Targets", leave=False):
+            for data_type in data_types:
+                download_roadmap_epigenomics_file(
+                    e_id, data_type, target, base=base, overwrite=clear
+                )
 
         num_downloads += 1
 
