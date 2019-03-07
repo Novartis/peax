@@ -13,7 +13,7 @@ import seaborn as sns
 import sys
 import time
 
-from keras.callbacks import Callback, EarlyStopping
+from keras.callbacks import Callback, EarlyStopping, ModelCheckpoint
 from keras.utils.io_utils import HDF5Matrix
 
 from ae.cnn import create_model
@@ -159,6 +159,7 @@ def train_on_single_dataset(
     silent: bool = False,
     train_on_hdf5: bool = False,
     early_stopping: bool = False,
+    checkpoint: bool = False,
 ):
     # Create data directory
     pathlib.Path("models").mkdir(parents=True, exist_ok=True)
@@ -265,6 +266,16 @@ def train_on_single_dataset(
     times_history = TimeHistory()
 
     callbacks = [times_history]
+
+    if checkpoint:
+        callbacks += ModelCheckpoint(
+            autoencoder_name[:-3] + "-{ep:02d}-{vl:.2f}.h5",
+            period=5,
+            monitor="val_loss",
+            verbose=0,
+            save_best_only=False,
+            mode="min",
+        )
 
     if early_stopping:
         callbacks += [
@@ -435,7 +446,6 @@ def train(
                 )
 
                 times_history = TimeHistory()
-
                 callbacks = [times_history]
 
                 if early_stopping:
@@ -547,6 +557,20 @@ if __name__ == "__main__":
     parser.add_argument(
         "--early-stopping", action="store_true", help="employ early stopping"
     )
+    parser.add_argument(
+        "--checkpoint", action="store_true", help="store model every 5 epochs"
+    )
+    parser.add_argument(
+        "--pre-trained-model-name",
+        type=str,
+        help="start training with pre-trained model",
+    )
+    parser.add_argument(
+        "--re-trained-postfix",
+        type=str,
+        help="postfix when re-training",
+        default="re-trained",
+    )
 
     args = parser.parse_args()
 
@@ -616,6 +640,9 @@ if __name__ == "__main__":
             clear=args.clear,
             silent=args.silent,
             early_stopping=args.early_stopping,
+            checkpoint=args.checkpoint,
+            pre_trained_model_name=args.pre_trained_model_name,
+            re_trained_postfix=args.re_trained_postfix,
         )
     else:
         datasets = list(datasets.keys())
