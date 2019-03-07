@@ -29,7 +29,7 @@ const logger = Logger('SearchResults'); // eslint-disable-line
 
 const isNotReady = onGetStarted => (
   <span>
-    {'More seeds need to be classified. '}
+    {'More samples need to be labeled. '}
     <Button onClick={onGetStarted}>Get started</Button>
   </span>
 );
