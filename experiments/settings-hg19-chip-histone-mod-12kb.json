@@ -4,7 +4,8 @@
   "target": "histone",
   "data_types": {
     "fc_signal": "fold change over control",
-    "peaks": "peaks"
+    "narrow_peaks": "narrow peaks",
+    "broad_peaks": "broad peaks"
   },
   "file_types": {
     "fc_signal": "bigWig",

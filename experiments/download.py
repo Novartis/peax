@@ -102,13 +102,15 @@ def download_roadmap_epigenomics_file(
         filename = "{}-{}.fc.signal.bigwig".format(e_id, target)
         out_filename = "{}-{}.fc.signal.bigWig".format(e_id, target)
 
-    elif data_type == "narrow_peak":
+    elif data_type == "narrow_peaks":
         base_url = "https://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/narrowPeak/"
         filename = "{}-{}.narrowPeak.gz".format(e_id, target)
+        out_filename = "{}-{}.narrowPeak.gz".format(e_id, target)
 
     elif data_type == "broad_peaks":
         base_url = "https://egg2.wustl.edu/roadmap/data/byFileType/peaks/consolidated/broadPeak/"
         filename = "{}-{}.broadPeak.gz".format(e_id, target)
+        out_filename = "{}-{}.broadPeak.gz".format(e_id, target)
 
     else:
         print("Unknown data type: {}".format(data_type))
@@ -157,12 +159,13 @@ def download(
 
 
 def download_roadmap_epigenomics(
-    datasets: dict,
+    datasets: list,
     settings: dict,
     base: str = ".",
     clear: bool = False,
     limit: int = math.inf,
     verbose: bool = False,
+    silent: bool = False,
 ):
     tqdm = get_tqdm()
 
@@ -173,11 +176,16 @@ def download_roadmap_epigenomics(
     targets = settings["targets"]
 
     num_downloads = 0
-    for e_id in tqdm(datasets, desc="Dataset"):
+
+    datasets_iter = datasets if silent else tqdm(datasets, desc="Dataset")
+
+    for e_id in datasets_iter:
         if num_downloads >= limit:
             break
 
-        for target in tqdm(targets, desc="Targets", leave=False):
+        targets_iter = targets if silent else tqdm(targets, desc="Targets", leave=False)
+
+        for target in targets_iter:
             for data_type in data_types:
                 download_roadmap_epigenomics_file(
                     e_id, data_type, target, base=base, overwrite=clear
@@ -201,11 +209,17 @@ if __name__ == "__main__":
         "-v", "--verbose", action="store_true", help="turn on verbose logging"
     )
     parser.add_argument(
+        "-z", "--silent", action="store_true", help="if true hide all logs"
+    )
+    parser.add_argument(
         "-l",
         "--limit",
         type=int,
         help="limit the number of datasets to be downloaded",
         default=math.inf,
+    )
+    parser.add_argument(
+        "-r", "--roadmap", action="store_true", help="if true download roadmap data"
     )
 
     args = parser.parse_args()
@@ -224,6 +238,16 @@ if __name__ == "__main__":
         print("Please provide a settings file via `--settings`")
         sys.exit(2)
 
-    download(
-        datasets, settings, clear=args.clear, limit=args.limit, verbose=args.verbose
-    )
+    if args.roadmap:
+        download_roadmap_epigenomics(
+            datasets,
+            settings,
+            clear=args.clear,
+            limit=args.limit,
+            verbose=args.verbose,
+            silent=args.silent,
+        )
+    else:
+        download(
+            datasets, settings, clear=args.clear, limit=args.limit, verbose=args.verbose
+        )
