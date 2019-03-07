@@ -268,14 +268,16 @@ def train_on_single_dataset(
     callbacks = [times_history]
 
     if checkpoint:
-        callbacks += ModelCheckpoint(
-            autoencoder_name[:-3] + "-{ep:02d}-{vl:.2f}.h5",
-            period=5,
-            monitor="val_loss",
-            verbose=0,
-            save_best_only=False,
-            mode="min",
-        )
+        callbacks += [
+            ModelCheckpoint(
+                autoencoder_name[:-3] + "-{ep:02d}-{vl:.2f}.h5",
+                period=5,
+                monitor="val_loss",
+                verbose=0,
+                save_best_only=False,
+                mode="min",
+            )
+        ]
 
     if early_stopping:
         callbacks += [
