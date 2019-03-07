@@ -12,7 +12,12 @@ from ae.utils import get_tqdm
 
 
 def download_file(
-    url: str, filename: str, base: str = ".", dir: str = "data", overwrite: bool = False
+    url: str,
+    filename: str,
+    base: str = ".",
+    dir: str = "data",
+    overwrite: bool = False,
+    silent: bool = False,
 ):
     """Method for downloading ENCODE datasets
 
@@ -39,10 +44,14 @@ def download_file(
     r = requests.get(url, stream=True)
 
     with open(filepath, "wb") as f:
-        pbar = tqdm(unit="B", unit_scale=True, total=int(r.headers["Content-Length"]))
+        if not silent:
+            pbar = tqdm(
+                unit="B", unit_scale=True, total=int(r.headers["Content-Length"])
+            )
         for chunk in r.iter_content(chunk_size=chunkSize):
             if chunk:  # filter out keep-alive new chunks
-                pbar.update(len(chunk))
+                if not silent:
+                    pbar.update(len(chunk))
                 f.write(chunk)
 
     return filename
@@ -77,6 +86,7 @@ def download_roadmap_epigenomics_file(
     base: str = ".",
     dir: str = "data",
     overwrite: bool = False,
+    silent: bool = False,
 ):
     """Method for downloading Roadmap Epigenomics datasets
 
@@ -117,7 +127,9 @@ def download_roadmap_epigenomics_file(
 
     url = base_url + filename
 
-    return download_file(url, out_filename, base=base, dir=dir, overwrite=overwrite)
+    return download_file(
+        url, out_filename, base=base, dir=dir, overwrite=overwrite, silent=silent
+    )
 
 
 def download(
@@ -188,7 +200,7 @@ def download_roadmap_epigenomics(
         for target in targets_iter:
             for data_type in data_types:
                 download_roadmap_epigenomics_file(
-                    e_id, data_type, target, base=base, overwrite=clear
+                    e_id, data_type, target, base=base, overwrite=clear, silent=silent
                 )
 
         num_downloads += 1
