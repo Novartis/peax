@@ -54,12 +54,16 @@ def merge(
                     sys.stderr.write("Dataset not found: {}\n".format(filepath))
                     sys.exit(2)
 
-                with h5py.File(filepath, "r") as f:
-                    for ds_type in ds_types:
-                        if ds_type in shapes:
-                            shapes[ds_type][0] += f[ds_type].shape[0]
-                        else:
-                            shapes[ds_type] = list(f[ds_type].shape)
+                try:
+                    with h5py.File(filepath, "r") as f:
+                        for ds_type in ds_types:
+                            if ds_type in shapes:
+                                shapes[ds_type][0] += f[ds_type].shape[0]
+                            else:
+                                shapes[ds_type] = list(f[ds_type].shape)
+                except OSError:
+                    sys.stderr.write("Could not read {}".format(filepath))
+                    raise
 
             # 2. Create the dataset
             for ds_type in ds_types:
