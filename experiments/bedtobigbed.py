@@ -39,6 +39,17 @@ def bed_to_bigbed(
     else:
         datasets_iter = datasets if silent else tqdm(datasets, desc="Dataset")
 
+    # Check if chrom sizes are available
+    if not pathlib.Path(
+        os.path.join(base, "data", "{}.chrom.sizes".format(settings["coord_system"]))
+    ).is_file():
+        subprocess.call(
+            "fetchChromSizes {} > data/{}.chrom.sizes".format(
+                settings["coord_system"], settings["coord_system"]
+            ),
+            shell=True,
+        )
+
     for e_id in datasets_iter:
         if num_conversions >= limit:
             break
@@ -48,28 +59,35 @@ def bed_to_bigbed(
         for target in targets_iter:
             for file_type in file_types:
                 if file_type[-5:] == "peaks":
-                    wurst_type = (
+                    peak_type = (
                         "narrowPeak" if file_type[:-6] == "narrow" else "broadPeak"
                     )
                     input_file = os.path.join(
-                        base, "data", "{}-{}.{}.gz".format(e_id, target, wurst_type)
+                        base, "data", "{}-{}.{}.gz".format(e_id, target, peak_type)
                     )
                     tmp_file = os.path.join(
                         base,
                         "data",
-                        "{}-{}.{}.sorted.bed".format(e_id, target, wurst_type),
+                        "{}-{}.{}.sorted.bed".format(e_id, target, peak_type),
                     )
                     output_file = os.path.join(
                         base,
                         "data",
                         "{}-{}.peaks.{}.bigBed".format(e_id, target, file_type[:-6]),
                     )
-                    chromsizes = os.path.join(base, "data", "hg19-chromsizes.tsv")
+                    chromsizes = os.path.join(
+                        base, "data", "{}.chrom.sizes".format(settings["coord_system"])
+                    )
 
                     dtype = "bed6+4" if file_type[:-6] == "narrow" else "bed6+3"
 
+                    if pathlib.Path(output_file).is_file() and not clear:
+                        print("Already converted: {}".format(output_file))
+                        continue
+
                     if pathlib.Path(input_file).is_file():
-                        print("Convert {} to {}".format(input_file, output_file))
+                        if verbose and not silent:
+                            print("Convert {} to {}".format(input_file, output_file))
                         subprocess.call(
                             "gunzip -c {} | sort -k1,1 -k2,2n - > {}".format(
                                 input_file, tmp_file
@@ -82,7 +100,7 @@ def bed_to_bigbed(
                             ),
                             shell=True,
                         )
-                        # subprocess.call("rm {}".format(tmp_file), shell=True)
+                        subprocess.call("rm {}".format(tmp_file), shell=True)
                     else:
                         print("Bed file not found: {}".format(input_file))
 
@@ -116,14 +134,14 @@ if __name__ == "__main__":
         with open(args.datasets, "r") as f:
             datasets = json.load(f)
     except FileNotFoundError:
-        print("Please provide a datasets file via `--datasets`")
+        sys.stderr.write("Please provide a datasets file via `--datasets`\n")
         sys.exit(2)
 
     try:
         with open(args.settings, "r") as f:
             settings = json.load(f)
     except FileNotFoundError:
-        print("Please provide a settings file via `--settings`")
+        sys.stderr.write("Please provide a settings file via `--settings`\n")
         sys.exit(2)
 
     bed_to_bigbed(
