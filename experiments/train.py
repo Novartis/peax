@@ -273,9 +273,6 @@ def train_on_single_dataset(
                 autoencoder_name[:-3] + "-{epoch:02d}-{val_loss:.6f}.h5",
                 period=5,
                 monitor="val_loss",
-                verbose=0,
-                save_best_only=False,
-                mode="min",
             )
         ]
 
