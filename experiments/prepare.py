@@ -330,7 +330,12 @@ def prepare(
             if verbose:
                 print("\nPrepare dataset {}".format(dataset_name))
 
-            prep_data_filename = "{}.h5".format(dataset_name)
+            prep_data_filename = "{}_w-{}_f-{}_r-{}.h5".format(
+                dataset_name,
+                settings["window_size"],
+                settings["step_frequency"],
+                settings["resolution"],
+            )
             prep_data_filepath = os.path.join(data_dir, prep_data_filename)
 
             with h5py.File(prep_data_filepath, "a") as f:
