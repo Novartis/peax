@@ -437,7 +437,9 @@ def chunk_beds_binary(
 
     for chrom in chroms:
         chrom_size = chrom_sizes[chrom]
-        num_total_windows += np.ceil((chrom_size - step_size) / step_size).astype(int)
+        num_total_windows += (
+            np.ceil((chrom_size - window_size) / step_size).astype(int) + 1
+        )
 
     values = np.zeros((num_total_windows, base_bins))
 
@@ -449,7 +451,7 @@ def chunk_beds_binary(
 
         chrom_size = chrom_sizes[chrom]
         bins = np.ceil(chrom_size / window_size).astype(int)
-        num_windows = np.ceil((chrom_size - step_size) / step_size).astype(int)
+        num_windows = np.ceil((chrom_size - window_size) / step_size).astype(int) + 1
 
         start_pos = np.arange(0, step_size * step_freq, step_size)
         end_pos = np.arange(
@@ -458,8 +460,6 @@ def chunk_beds_binary(
 
         end = start + num_windows
 
-        # Extract all but the last window in one fashion (faster than `fetch`
-        # with loops)
         tmp = (
             np.transpose(
                 bbi.stackup(
