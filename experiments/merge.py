@@ -28,6 +28,7 @@ def merge(
     clear: bool = False,
     verbose: bool = False,
     silent: bool = False,
+    new: bool = False,
 ):
     mode = "w" if clear else "w-"
     shapes = {}
@@ -35,7 +36,15 @@ def merge(
         with h5py.File(os.path.join(base, "data", "{}.h5".format(name)), mode) as m:
             # 1. Get the global shape
             for dataset in datasets:
-                filepath = os.path.join(base, "data", "{}.h5".format(dataset))
+                if new:
+                    filepath = "{}_w-{}_f-{}_r-{}.h5".format(
+                        dataset,
+                        settings["window_size"],
+                        settings["step_frequency"],
+                        settings["resolution"],
+                    )
+                else:
+                    filepath = os.path.join(base, "data", "{}.h5".format(dataset))
 
                 if not pathlib.Path(filepath).is_file():
                     sys.stderr.write("Dataset not found: {}\n".format(filepath))
@@ -101,6 +110,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "-z", "--silent", action="store_true", help="disable all but error logs"
     )
+    parser.add_argument(
+        "-n", "--new", action="store_true", help="use new naming schema"
+    )
 
     args = parser.parse_args()
 
@@ -126,4 +138,5 @@ if __name__ == "__main__":
         clear=args.clear,
         verbose=args.verbose,
         silent=args.silent,
+        new=args.new,
     )
