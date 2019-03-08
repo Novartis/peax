@@ -1,21 +1,29 @@
 {
-  "coord_system": "GRCh38",
+  "coord_system": "hg19",
   "assay_type": "ChIP-seq",
+  "target": "histone",
   "data_types": {
     "fc_signal": "fold change over control",
-    "peaks": "peaks"
+    "narrow_peaks": "narrow peaks",
+    "broad_peaks": "broad peaks"
   },
   "file_types": {
     "fc_signal": "bigWig",
-    "peaks": "bigBed"
+    "narrow_peaks": "bigBed",
+    "broad_peaks": "bigBed"
   },
-  "encode_file_types": {
-    "fc_signal": "bigWig",
-    "peaks": "bigBed+narrowPeak"
-  },
-  "window_size": 12000,
+  "targets": [
+    "H3K4me1",
+    "H3K4me3",
+    "H3K27ac",
+    "H3K9ac",
+    "H3K27me3",
+    "H3K9me3",
+    "H3K36me3"
+  ],
+  "window_size": 3000,
   "step_frequency": 2,
-  "resolution": 100,
+  "resolution": 25,
   "chromosomes": [
     "chr1",
     "chr2",
