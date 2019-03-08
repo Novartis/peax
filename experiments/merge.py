@@ -110,9 +110,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-z", "--silent", action="store_true", help="disable all but error logs"
     )
-    parser.add_argument(
-        "-n", "--new", action="store_true", help="use new naming schema"
-    )
+    parser.add_argument("--new", action="store_true", help="use new naming schema")
 
     args = parser.parse_args()
 
