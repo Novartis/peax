@@ -8,7 +8,6 @@ import pathlib
 import subprocess
 import sys
 
-from download import download_file
 from ae.utils import get_tqdm
 
 
