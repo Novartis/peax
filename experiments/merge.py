@@ -68,7 +68,19 @@ def merge(
             # 3. Fill up the dataset
             pos = {}
             for dataset in datasets:
-                filepath = os.path.join(base, "data", "{}.h5".format(dataset))
+                if new:
+                    filepath = os.path.join(
+                        base,
+                        "data",
+                        "{}_w-{}_f-{}_r-{}.h5".format(
+                            dataset,
+                            settings["window_size"],
+                            settings["step_frequency"],
+                            settings["resolution"],
+                        ),
+                    )
+                else:
+                    filepath = os.path.join(base, "data", "{}.h5".format(dataset))
 
                 with h5py.File(filepath, "r") as f:
                     for ds_type in ds_types:
