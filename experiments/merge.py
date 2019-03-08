@@ -37,11 +37,15 @@ def merge(
             # 1. Get the global shape
             for dataset in datasets:
                 if new:
-                    filepath = "{}_w-{}_f-{}_r-{}.h5".format(
-                        dataset,
-                        settings["window_size"],
-                        settings["step_frequency"],
-                        settings["resolution"],
+                    filepath = os.path.join(
+                        base,
+                        "data",
+                        "{}_w-{}_f-{}_r-{}.h5".format(
+                            dataset,
+                            settings["window_size"],
+                            settings["step_frequency"],
+                            settings["resolution"],
+                        ),
                     )
                 else:
                     filepath = os.path.join(base, "data", "{}.h5".format(dataset))
