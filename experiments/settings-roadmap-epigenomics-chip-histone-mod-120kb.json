@@ -22,7 +22,7 @@
     "H3K36me3"
   ],
   "window_size": 120000,
-  "step_frequency": 3,
+  "step_frequency": 6,
   "resolution": 1000,
   "chromosomes": [
     "chr1",
