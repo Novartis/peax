@@ -777,8 +777,6 @@ if __name__ == "__main__":
     else:
         if args.roadmap:
             datasets = get_roadmap_datasets(datasets, args.type)
-            print(datasets)
-            exit()
 
         prepare(
             args.type,
