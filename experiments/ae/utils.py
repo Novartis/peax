@@ -1083,8 +1083,8 @@ def check_status(name: str, step: str, dataset: str = None, base: str = "."):
                         times = f["total_times"][:]
                     times = times
                 except KeyError:
-                    outdated.append(model_name)
+                    outdated.append(filepath)
         except OSError:
-            not_found.append(model_name)
+            not_found.append(filepath)
 
     return len(not_found) == 0, not_found, outdated
