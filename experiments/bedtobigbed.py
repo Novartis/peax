@@ -79,7 +79,12 @@ def bed_to_bigbed(
                         base, "data", "{}.chrom.sizes".format(settings["coord_system"])
                     )
 
-                    dtype = "bed6+4" if file_type[:-6] == "narrow" else "bed6+3"
+                    # Usually narrowPeak are in bed6+4 format but the scores in
+                    # the narrowPeak (and broadPeak) files from Roadmap Epigenomics are
+                    # above 1000 which is not allowed and breaks bedToBigBed.
+                    # Fortunately, we don't care about the scores so we just ignore them
+                    # by using bed3+x formats
+                    dtype = "bed3+7" if file_type[:-6] == "narrow" else "bed3+6"
 
                     if pathlib.Path(output_file).is_file() and not clear:
                         print("Already converted: {}".format(output_file))
@@ -148,9 +153,7 @@ if __name__ == "__main__":
         datasets,
         settings,
         dataset_idx=args.dataset_idx,
-        base=args.base,
         clear=args.clear,
-        limit=args.limit,
         verbose=args.verbose,
         silent=args.silent,
     )
