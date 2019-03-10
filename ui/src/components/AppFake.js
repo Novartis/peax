@@ -32,9 +32,6 @@ const AppLoading = props => (
             <li>
               <a href="/about">About</a>
             </li>
-            <li>
-              <a href="/help">Help</a>
-            </li>
           </ul>
         </nav>
       </div>
@@ -69,9 +66,6 @@ const AppLoading = props => (
               </li>
               <li>
                 <a href="/about">About</a>
-              </li>
-              <li>
-                <a href="/help">Help</a>
               </li>
             </ul>
           </nav>
