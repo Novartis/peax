@@ -303,7 +303,10 @@ HiglassResult.propTypes = {
   dataTracks: PropTypes.array,
   hover: PropTypes.number.isRequired,
   isInfoSideBar: PropTypes.bool,
-  normalizationSource: PropTypes.number,
+  normalizationSource: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number
+  ]),
   normalizeBy: PropTypes.object,
   onNormalize: PropTypes.func.isRequired,
   searchId: PropTypes.number.isRequired,
