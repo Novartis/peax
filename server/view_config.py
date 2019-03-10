@@ -231,8 +231,7 @@ def build(
                 bw_track_config["options"]["labelPosition"] = "hidden"
 
             if i % 2 == 1:
-                bw_track_config["options"]["axisPositionHorizontal"] = "right"
-                bw_track_config["options"]["axisMargin"] = 72
+                bw_track_config["options"]["axisMargin"] = 48
 
             if default:
                 bw_track_config["height"] *= 3
