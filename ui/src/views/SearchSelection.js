@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 
 // Components
 import Button from '../components/Button';
+import ButtonIcon from '../components/ButtonIcon';
 import ButtonRadio from '../components/ButtonRadio';
 import HiglassResultList from '../components/HiglassResultList';
 import SubTopBar from '../components/SubTopBar';
@@ -100,7 +101,9 @@ class SearchSelection extends React.Component {
               Selected <strong>{this.props.results.length}</strong> regions.
             </li>
             <li>
-              <Button onClick={this.props.clearSelection}>Clear</Button>
+              <ButtonIcon icon="cross" onClick={this.props.clearSelection}>
+                Clear
+              </ButtonIcon>
             </li>
           </SubTopBottomBarButtons>
           <SubTopBottomBarButtons className="flex-c flex-a-c flex-jc-e no-list-style">
