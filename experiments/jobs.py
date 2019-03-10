@@ -215,6 +215,9 @@ def jobs(
 
     model_names = []
 
+    if len(combinations) == 0:
+        combinations = [[]]
+
     skipped = 0
     for combination in tqdm(combinations, desc="Jobs", unit="job"):
         for r in range(repeat):
