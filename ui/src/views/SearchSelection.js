@@ -101,7 +101,11 @@ class SearchSelection extends React.Component {
               Selected <strong>{this.props.results.length}</strong> regions.
             </li>
             <li>
-              <ButtonIcon icon="cross" onClick={this.props.clearSelection}>
+              <ButtonIcon
+                icon="cross"
+                iconSmaller
+                onClick={this.props.clearSelection}
+              >
                 Clear
               </ButtonIcon>
             </li>

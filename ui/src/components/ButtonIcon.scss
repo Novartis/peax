@@ -1,7 +1,7 @@
-@import "../styles/colors";
-@import "../styles/rotate";
-@import "../styles/mirror";
-@import "../styles/transitions";
+@import '../styles/colors';
+@import '../styles/rotate';
+@import '../styles/mirror';
+@import '../styles/transitions';
 
 .button-icon {
   height: 1.5em;
@@ -60,6 +60,11 @@
     width: 1em;
     height: 1em;
     margin-right: 0.25em;
+  }
+
+  &.icon-smaller .icon {
+    width: 0.75em;
+    height: 0.75em;
   }
 
   &.is-icon-rotation-on-focus:hover .icon {
