@@ -223,9 +223,9 @@ class HiglassResult extends React.Component {
         </aside>
         <HiGlassViewer
           api={this.onApi}
-          disableTrackMenu
           height={this.props.viewHeight}
           isGlobalMousePosition
+          isNotEditable
           isStatic
           isZoomFixed
           pixelPrecise
@@ -303,7 +303,7 @@ HiglassResult.propTypes = {
   dataTracks: PropTypes.array,
   hover: PropTypes.number.isRequired,
   isInfoSideBar: PropTypes.bool,
-  normalizationSource: PropTypes.string,
+  normalizationSource: PropTypes.number,
   normalizeBy: PropTypes.object,
   onNormalize: PropTypes.func.isRequired,
   searchId: PropTypes.number.isRequired,

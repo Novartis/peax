@@ -113,7 +113,7 @@ class HiGlassLauncher extends React.Component {
       ? false
       : this.props.options.bounded;
 
-    options.disableTrackMenu = this.props.disableTrackMenu;
+    if (this.props.isNotEditable) options.editable = false;
 
     if (this.props.pixelPrecise) {
       options.bounded = false;
@@ -162,9 +162,9 @@ HiGlassLauncher.defaultProps = {
 HiGlassLauncher.propTypes = {
   api: PropTypes.func,
   autoExpand: PropTypes.bool,
-  disableTrackMenu: PropTypes.bool,
   enableAltMouseTools: PropTypes.bool,
   isGlobalMousePosition: PropTypes.bool,
+  isNotEditable: PropTypes.bool,
   isPadded: PropTypes.bool,
   isZoomFixed: PropTypes.bool,
   onError: PropTypes.func.isRequired,

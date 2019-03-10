@@ -191,23 +191,23 @@ class HiGlassViewer extends React.Component {
               <HiGlassLauncher
                 api={this.props.api}
                 autoExpand={this.props.autoExpand}
-                disableTrackMenu={this.props.disableTrackMenu}
                 enableAltMouseTools={this.props.enableAltMouseTools}
                 onError={this.onError.bind(this)}
                 viewConfig={this.state.viewConfigStatic}
                 isGlobalMousePosition={this.props.isGlobalMousePosition}
                 isPadded={this.props.isPadded}
+                isNotEditable={this.props.isNotEditable}
                 isZoomFixed={this.props.isZoomFixed}
                 pixelPrecise={this.props.pixelPrecise}
               />
             ) : (
               <HiGlassLoader
                 api={this.props.api}
-                disableTrackMenu={this.props.disableTrackMenu}
                 enableAltMouseTools={this.props.enableAltMouseTools}
                 onError={this.onError.bind(this)}
                 isGlobalMousePosition={this.props.isGlobalMousePosition}
                 isPadded={this.props.isPadded}
+                isNotEditable={this.props.isNotEditable}
                 isZoomFixed={this.props.isZoomFixed}
                 pixelPrecise={this.props.pixelPrecise}
               />
@@ -233,11 +233,11 @@ HiGlassViewer.propTypes = {
   api: PropTypes.func,
   autoExpand: PropTypes.bool,
   className: PropTypes.string,
-  disableTrackMenu: PropTypes.bool,
   enableAltMouseTools: PropTypes.bool,
   hasSubTopBar: PropTypes.bool,
   height: PropTypes.number,
   isGlobalMousePosition: PropTypes.bool,
+  isNotEditable: PropTypes.bool,
   isPadded: PropTypes.bool,
   isStatic: PropTypes.bool,
   isZoomFixed: PropTypes.bool,
