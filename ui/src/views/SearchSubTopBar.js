@@ -71,7 +71,7 @@ const SearchSubTopBar = props => (
             icon="ratio"
             iconOnly={true}
             isIconMirrorOnFocus={true}
-            isActive={props.isMinMaxValsByTarget}
+            isActive={props.isMinMaxValuesByTarget}
             onClick={props.normalize}
           />
         </ToolTip>
@@ -149,13 +149,13 @@ const SearchSubTopBar = props => (
 );
 
 SearchSubTopBar.defaultProps = {
-  isMinMaxValsByTarget: false,
+  isMinMaxValuesByTarget: false,
   viewportChanged: false
 };
 
 SearchSubTopBar.propTypes = {
   clearSelection: PropTypes.func.isRequired,
-  isMinMaxValsByTarget: PropTypes.bool,
+  isMinMaxValuesByTarget: PropTypes.bool,
   resetViewport: PropTypes.func.isRequired,
   normalize: PropTypes.func.isRequired,
   pubSub: PropTypes.object.isRequired,
