@@ -85,6 +85,9 @@ def evaluate(
 
     postfix = "-{}".format(dataset_name) if dataset_name else ""
 
+    if verbose:
+        print("Evaluate()...")
+
     if model_name is not None:
         pass
     elif model_names is not None and model_name_idx >= 0:
@@ -182,6 +185,9 @@ def evaluate(
         with h5py.File(data_filepath, "r") as f:
             data_test = f["data_test"]
 
+            if verbose:
+                print("Start evaluate {}".format(dataset_name))
+
             loss = evaluate_model(
                 encoder,
                 decoder,
@@ -204,6 +210,9 @@ def evaluate(
             total_times[i, 3] = np.max(times)
 
         i += 1
+
+    if verbose:
+        print("Plot windows...")
 
     # Only plot windows for the first dataset
     window_idx, total_signal, max_signal = plot_windows(
@@ -369,6 +378,7 @@ if __name__ == "__main__":
         datasets=datasets,
         dataset_name=args.dataset,
         clear=args.clear,
+        verbose=args.verbose,
         silent=args.silent,
         incl_dtw=args.incl_dtw,
     )
