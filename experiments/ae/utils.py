@@ -170,7 +170,7 @@ def evaluate_model(
                 )
             )
 
-        loss[batch_start, batch_start + batch.shape[0]] = batch_loss
+        loss[batch_start : batch_start + batch.shape[0]] = batch_loss
 
         if verbose:
             print(
