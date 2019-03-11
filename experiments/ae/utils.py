@@ -98,15 +98,15 @@ def evaluate_model(
 
     loss = None
 
-    if data_test.ndim == 3:
-        data_test = data_test.squeeze(axis=2)
-
     for batch_start in np.arange(0, N, batch_size):
         batch = data_test[batch_start : batch_start + batch_size]
 
         batch_prediction = decoder.predict(
             encoder.predict(batch.reshape(batch.shape[0], batch.shape[1], 1))
         )
+
+        if batch.ndim == 3:
+            batch = batch.squeeze(axis=2)
 
         if batch_prediction.ndim == 3:
             batch_prediction = batch_prediction.squeeze(axis=2)
