@@ -577,7 +577,7 @@ def prepare(
                         silent=silent,
                     )
 
-                if dtype == "chip":
+                elif dtype == "chip":
                     prepared_data = prepare_chip(
                         f,
                         dataset,
