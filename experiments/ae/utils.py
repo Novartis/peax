@@ -26,6 +26,7 @@ import warnings
 from matplotlib.cm import copper
 from typing import Tuple
 from tqdm import tqdm, tqdm_notebook
+from IPython.display import Image, display
 
 # Stupid Keras things is a smart way to always print. See:
 # https://github.com/keras-team/keras/issues/1406
@@ -1055,7 +1056,9 @@ def create_hdf5_dset(f, name, data, extendable: bool = False, dtype: str = None)
             f.create_dataset(name, data=data, dtype=dtype)
 
 
-def check_status(name: str, step: str, dataset: str = None, base: str = "."):
+def check_status(
+    name: str, step: str, dataset: str = None, base: str = ".", show_loss: bool = False
+):
     with open(os.path.join(base, "definitions-{}.json".format(name)), "r") as f:
         model_names = json.load(f)
 
@@ -1077,13 +1080,26 @@ def check_status(name: str, step: str, dataset: str = None, base: str = "."):
             with h5py.File(filepath, "r") as f:
                 try:
                     times = None
+                    loss = None
+                    val_loss = None
                     if step == "training":
                         times = f["times"][:]
+                        loss = f["loss"][:]
+                        val_loss = f["val_loss"][:]
                     elif step == "total_times":
                         times = f["total_times"][:]
                     times = times
+                    loss = loss
+                    val_loss = val_loss
                 except KeyError:
                     outdated.append(filepath)
+                    continue
+            if show_loss:
+                filename = "{}---train-loss{}.png".format(model_name, postfix)
+                filepath = os.path.join(base, "models", filename)
+                print(filename)
+                print("Loss: {} Val loss: {}".format(np.mean(loss), np.mean(val_loss)))
+                display(Image(filename=filepath))
         except OSError:
             not_found.append(filepath)
 
