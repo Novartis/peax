@@ -180,9 +180,9 @@ def evaluate(
             first_dataset_name = dataset_name
 
         with h5py.File(data_filepath, "r") as f:
-            data_test = f["data_test"][:]
+            data_test = f["data_test"]
 
-            loss, _ = evaluate_model(
+            loss = evaluate_model(
                 encoder,
                 decoder,
                 data_test,

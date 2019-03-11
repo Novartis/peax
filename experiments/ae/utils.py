@@ -88,63 +88,79 @@ def evaluate_model(
     keras_metric_names: list = [],
     numpy_metrics: list = [],
     numpy_metric_names: list = [],
+    batch_size: int = 1024,
     verbose: bool = False,
 ):
+    N = data_test.shape[0]
+
     if verbose:
-        print("Predict {} windows... ".format(data_test.shape[0]), end="", flush=True)
-    prediction = decoder.predict(
-        encoder.predict(data_test.reshape(data_test.shape[0], data_test.shape[1], 1))
-    )
-    if verbose:
-        print("done!")
+        print("Evaluate {} windows... ".format(N), end="", flush=True)
+
+    loss = None
 
     if data_test.ndim == 3:
         data_test = data_test.squeeze(axis=2)
 
-    if prediction.ndim == 3:
-        prediction = prediction.squeeze(axis=2)
+    for batch_start in np.arange(0, N, batch_size):
+        batch = data_test[batch_start : batch_start + batch_size]
 
-    loss = np.zeros((data_test.shape[0], len(numpy_metrics) + len(keras_metrics)))
+        batch_prediction = decoder.predict(
+            encoder.predict(batch.reshape(batch.shape[0], batch.shape[1], 1))
+        )
 
-    i = 0
+        if batch_prediction.ndim == 3:
+            batch_prediction = batch_prediction.squeeze(axis=2)
 
-    if len(keras_metrics) > 0:
-        k_data = K.variable(data_test)
-        k_pred = K.variable(prediction)
+        batch_loss = np.zeros((batch.shape[0], len(numpy_metrics) + len(keras_metrics)))
 
-    for metric in keras_metrics:
-        if verbose:
-            try:
-                metric_name = keras_metric_names[i]
-            except IndexError:
-                metric_name = "#{}".format(i)
-            print(
-                "Compute {} metric (keras) ... ".format(metric_name), end="", flush=True
-            )
+        i = 0
 
-        loss[:, i] = K.eval(metric(k_data, k_pred))
-        i += 1
+        if len(keras_metrics) > 0:
+            k_data = K.variable(batch)
+            k_pred = K.variable(batch_prediction)
 
-        if verbose:
-            print("done!")
+        for metric in keras_metrics:
+            if verbose:
+                try:
+                    metric_name = keras_metric_names[i]
+                except IndexError:
+                    metric_name = "#{}".format(i)
+                print(
+                    "Compute {} metric (keras) ... ".format(metric_name),
+                    end="",
+                    flush=True,
+                )
 
-    for metric in numpy_metrics:
-        if verbose:
-            try:
-                metric_name = numpy_metric_names[i]
-            except IndexError:
-                metric_name = "#{}".format(i)
-            print(
-                "Compute {} metric (numpy) ... ".format(metric_name), end="", flush=True
-            )
+            batch_loss[:, i] = K.eval(metric(k_data, k_pred))
+            i += 1
 
-        loss[:, i] = metric(data_test, prediction)
-        i += 1
+            if verbose:
+                print("done!")
 
-        if verbose:
-            print("done!")
+        for metric in numpy_metrics:
+            if verbose:
+                try:
+                    metric_name = numpy_metric_names[i]
+                except IndexError:
+                    metric_name = "#{}".format(i)
+                print(
+                    "Compute {} metric (numpy) ... ".format(metric_name),
+                    end="",
+                    flush=True,
+                )
 
-    return loss, prediction
+            batch_loss[:, i] = metric(batch, batch_prediction)
+            i += 1
+
+            if verbose:
+                print("done!")
+
+        if loss is None:
+            loss = batch_loss
+        else:
+            loss = np.concatenate((loss, batch_loss), axis=0)
+
+    return loss
 
 
 def predict_2d(encoder, decoder, test, validator=None):
