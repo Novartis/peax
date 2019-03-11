@@ -23,6 +23,7 @@ import re
 import sys
 import warnings
 
+from itertools import takewhile
 from matplotlib.cm import copper
 from typing import Tuple
 from tqdm import tqdm, tqdm_notebook
@@ -78,6 +79,17 @@ def predict(encoder, decoder, test, validator=None):
         )
 
     return decoded, loss, encoded
+
+
+def lcp(l: list):
+    """Get the longest common prefix of a list of strings
+
+    Arguments:
+        l {list} -- List of strings
+    """
+    return "".join(
+        c[0] for c in takewhile(lambda x: all(x[0] == y for y in x), zip(*l))
+    )
 
 
 def evaluate_model(
