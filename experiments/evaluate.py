@@ -85,8 +85,7 @@ def evaluate(
 
     postfix = "-{}".format(dataset_name) if dataset_name else ""
 
-    if verbose:
-        print("Evaluate()...")
+    print("Evaluate(verbose={})...".format("True" if verbose else "False"))
 
     if model_name is not None:
         pass
