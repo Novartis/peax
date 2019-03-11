@@ -107,17 +107,28 @@ def evaluate_model(
     N = data_test.shape[0]
 
     if verbose:
-        print("Evaluate {} windows... ".format(N), end="", flush=True)
+        print("Evaluate {} windows... ")
 
     loss = None
 
     for batch_start in np.arange(0, N, batch_size):
+
+        if verbose:
+            print("Evaluate batch {}:{}".format(batch_start, batch_start + batch_size))
+
         t0 = time.time()
         batch = data_test[batch_start : batch_start + batch_size]
 
         batch_prediction = decoder.predict(
             encoder.predict(batch.reshape(batch.shape[0], batch.shape[1], 1))
         )
+
+        if verbose:
+            print(
+                "Prediction of batch {}:{} took {} sec".format(
+                    batch_start, batch_start + batch_size, time.time() - t0
+                )
+            )
 
         if batch.ndim == 3:
             batch = batch.squeeze(axis=2)
@@ -174,11 +185,12 @@ def evaluate_model(
         else:
             loss = np.concatenate((loss, batch_loss), axis=0)
 
-        print(
-            "Evaluation of batch {}:{} took {} sec".format(
-                batch_start, batch_start + batch_size, time.time() - t0
+        if verbose:
+            print(
+                "Evaluation of batch {}:{} took {} sec".format(
+                    batch_start, batch_start + batch_size, time.time() - t0
+                )
             )
-        )
 
     return loss
 
