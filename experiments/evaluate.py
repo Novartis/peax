@@ -153,9 +153,9 @@ def evaluate(
     keras_metrics = {
         "smse-10": scaled_mean_squared_error(10.0),
         "r2": r2_min,
-        "shuber-10-5": scaled_huber(10.0, 5.0),
-        "slogcosh-10": scaled_logcosh(10.0),
-        "mae": mae,
+        # "shuber-10-5": scaled_huber(10.0, 5.0),
+        # "slogcosh-10": scaled_logcosh(10.0),
+        # "mae": mae,
         "bce": binary_crossentropy,
     }
     numpy_metrics = {}
