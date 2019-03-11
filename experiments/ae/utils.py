@@ -88,7 +88,7 @@ def evaluate_model(
     keras_metric_names: list = [],
     numpy_metrics: list = [],
     numpy_metric_names: list = [],
-    batch_size: int = 1024,
+    batch_size: int = 10240,
     verbose: bool = False,
 ):
     N = data_test.shape[0]
@@ -873,7 +873,8 @@ def plot_windows(
     silent: bool = False,
     repetition: str = None,
     custom_postfix: str = None,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    batch_size: int = 10240,
+):
     with h5py.File(os.path.join(base, "data", "{}.h5".format(dataset)), "r") as f:
         data_type = "data_{}".format(ds_type)
         peaks_type = "peaks_{}".format(ds_type)
@@ -882,10 +883,21 @@ def plot_windows(
             sys.stderr.write("Dataset type not available: {}\n".format(ds_type))
             return
 
-        data = np.squeeze(f[data_type][:], axis=2)
-        peaks = f[peaks_type][:]
+        N = f[data_type].shape[0]
+        L = f[data_type].shape[1]
+        total_signal = None
 
-        total_signal = np.sum(data, axis=1)
+        for batch_start in np.arange(0, N, batch_size):
+            batch_data = np.squeeze(
+                f[data_type][batch_start : batch_start + batch_size], axis=2
+            )
+
+            batch_total_signal = np.sum(batch_data, axis=1)
+
+            if total_signal is None:
+                total_signal = batch_total_signal
+            else:
+                total_signal = np.concatenate((total_signal, batch_total_signal))
 
         gt_min_signal = total_signal > min_signal
         st_max_signal = total_signal < max_signal
@@ -894,8 +906,8 @@ def plot_windows(
 
         choices = np.random.choice(num_windows_to_be_sampled, num, replace=False)
 
-        sampled_wins = data[gt_min_signal & st_max_signal][choices]
-        sampled_peaks = peaks[gt_min_signal & st_max_signal][choices]
+        sampled_wins = f[data_type][gt_min_signal & st_max_signal][choices]
+        sampled_peaks = f[peaks_type][gt_min_signal & st_max_signal][choices]
 
         if model_name:
             postfix = "-{}".format(dataset) if trained_on_single_dataset else ""
@@ -918,7 +930,7 @@ def plot_windows(
         cols = max(math.floor(math.sqrt(num) * 3 / 5), 1)
         rows = math.ceil(num / cols)
 
-        x = np.arange(data.shape[1])
+        x = np.arange(L)
 
         fig, axes = plt.subplots(
             rows, cols, figsize=(8 * cols, 1.25 * rows), sharex=True
@@ -933,9 +945,7 @@ def plot_windows(
             Patch(facecolor="green", label="Prediction (w/ peak annotation)"),
         ]
 
-        sampled_window_idx = np.arange(data.shape[0])[gt_min_signal & st_max_signal][
-            choices
-        ]
+        sampled_window_idx = np.arange(N)[gt_min_signal & st_max_signal][choices]
 
         i = 0
         for c in np.arange(cols):
@@ -983,7 +993,7 @@ def plot_windows(
             # Total signal of the windows
             total_signal[gt_min_signal & st_max_signal][choices],
             # Max signal in the window
-            np.max(data, axis=1)[gt_min_signal & st_max_signal][choices],
+            np.max(sampled_wins, axis=1),
         )
 
 
