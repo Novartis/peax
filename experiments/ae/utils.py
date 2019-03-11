@@ -101,15 +101,16 @@ def evaluate_model(
     keras_metric_names: list = [],
     numpy_metrics: list = [],
     numpy_metric_names: list = [],
-    batch_size: int = 10240,
+    batch_size: int = 20480,
     verbose: bool = False,
 ):
     N = data_test.shape[0]
 
     if verbose:
-        print("Evaluate {} windows... ")
+        print("Evaluate {} windows... ".format(N))
 
-    loss = None
+    num_metrics = len(numpy_metrics) + len(keras_metrics)
+    loss = np.zeros((N, num_metrics))
 
     for batch_start in np.arange(0, N, batch_size):
 
@@ -136,7 +137,7 @@ def evaluate_model(
         if batch_prediction.ndim == 3:
             batch_prediction = batch_prediction.squeeze(axis=2)
 
-        batch_loss = np.zeros((batch.shape[0], len(numpy_metrics) + len(keras_metrics)))
+        batch_loss = np.zeros((batch.shape[0], num_metrics))
 
         i = 0
 
@@ -144,46 +145,32 @@ def evaluate_model(
             k_data = K.variable(batch)
             k_pred = K.variable(batch_prediction)
 
+        t1 = time.time()
         for metric in keras_metrics:
-            if verbose:
-                try:
-                    metric_name = keras_metric_names[i]
-                except IndexError:
-                    metric_name = "#{}".format(i)
-                print(
-                    "Compute {} metric (keras) ... ".format(metric_name),
-                    end="",
-                    flush=True,
-                )
-
             batch_loss[:, i] = K.eval(metric(k_data, k_pred))
             i += 1
 
-            if verbose:
-                print("done!")
+        if verbose:
+            print(
+                "Computing the keras metrics of batch {}:{} took {} sec".format(
+                    batch_start, batch_start + batch_size, time.time() - t1
+                )
+            )
+
+        t1 = time.time()
 
         for metric in numpy_metrics:
-            if verbose:
-                try:
-                    metric_name = numpy_metric_names[i]
-                except IndexError:
-                    metric_name = "#{}".format(i)
-                print(
-                    "Compute {} metric (numpy) ... ".format(metric_name),
-                    end="",
-                    flush=True,
-                )
-
             batch_loss[:, i] = metric(batch, batch_prediction)
             i += 1
 
-            if verbose:
-                print("done!")
+        if verbose and len(numpy_metrics) > 0:
+            print(
+                "Computing the numpy metrics of batch {}:{} took {} sec".format(
+                    batch_start, batch_start + batch_size, time.time() - t1
+                )
+            )
 
-        if loss is None:
-            loss = batch_loss
-        else:
-            loss = np.concatenate((loss, batch_loss), axis=0)
+        loss[batch_start, batch_start + batch.shape[0]] = batch_loss
 
         if verbose:
             print(
