@@ -1,0 +1,842 @@
+{
+  "ENCSR000EQB": {
+    "2": {
+      "rdn_signal": "ENCFF789THD",
+      "narrow_peaks": "ENCFF148PCX",
+      "broad_peaks": "ENCFF816FJE"
+    }
+  },
+  "ENCSR316UDN": {
+    "1": {
+      "rdn_signal": "ENCFF468PTJ",
+      "narrow_peaks": "ENCFF420JOQ",
+      "broad_peaks": "ENCFF337NUC"
+    }
+  },
+  "ENCSR317SIH": {
+    "1": {
+      "rdn_signal": "ENCFF847HLP",
+      "narrow_peaks": "ENCFF593IYQ",
+      "broad_peaks": "ENCFF556QPI"
+    }
+  },
+  "ENCSR000EJO": {
+    "1": {
+      "rdn_signal": "ENCFF753SCX",
+      "narrow_peaks": "ENCFF554XLD",
+      "broad_peaks": "ENCFF586SUA"
+    }
+  },
+  "ENCSR038XTK": {
+    "1": {
+      "rdn_signal": "ENCFF188JVI",
+      "narrow_peaks": "ENCFF022HMD",
+      "broad_peaks": "ENCFF647WNY"
+    }
+  },
+  "ENCSR158VAT": {
+    "1": {
+      "rdn_signal": "ENCFF677VKI",
+      "narrow_peaks": "ENCFF096LRV",
+      "broad_peaks": "ENCFF381CAH"
+    }
+  },
+  "ENCSR680SDS": {
+    "1": {
+      "rdn_signal": "ENCFF010TXA",
+      "narrow_peaks": "ENCFF304NML",
+      "broad_peaks": "ENCFF162KWI"
+    }
+  },
+  "ENCSR440FZS": {
+    "1": {
+      "rdn_signal": "ENCFF736QYT",
+      "narrow_peaks": "ENCFF985LZU",
+      "broad_peaks": "ENCFF367XUV"
+    }
+  },
+  "ENCSR678PDD": {
+    "1": {
+      "rdn_signal": "ENCFF024WMP",
+      "narrow_peaks": "ENCFF682DNN",
+      "broad_peaks": "ENCFF086IZH"
+    }
+  },
+  "ENCSR299INS": {
+    "1": {
+      "rdn_signal": "ENCFF071LJS",
+      "narrow_peaks": "ENCFF425DNB",
+      "broad_peaks": "ENCFF098RMG"
+    }
+  },
+  "ENCSR000ENZ": {
+    "1": {
+      "rdn_signal": "ENCFF189TQN",
+      "narrow_peaks": "ENCFF767URD",
+      "broad_peaks": "ENCFF812ZZB"
+    }
+  },
+  "ENCSR121ZSL": {
+    "1": {
+      "rdn_signal": "ENCFF248OBP",
+      "narrow_peaks": "ENCFF855ZAJ",
+      "broad_peaks": "ENCFF150JFJ"
+    }
+  },
+  "ENCSR796SJV": {
+    "1": {
+      "rdn_signal": "ENCFF112GQO",
+      "narrow_peaks": "ENCFF642DUF",
+      "broad_peaks": "ENCFF184YMF"
+    }
+  },
+  "ENCSR035QHH": {
+    "1": {
+      "rdn_signal": "ENCFF681MHT",
+      "narrow_peaks": "ENCFF127OUS",
+      "broad_peaks": "ENCFF014QJZ"
+    }
+  },
+  "ENCSR515EWI": {
+    "2": {
+      "rdn_signal": "ENCFF724AIN",
+      "narrow_peaks": "ENCFF380NCJ",
+      "broad_peaks": "ENCFF919VCC"
+    }
+  },
+  "ENCSR000EQD": {
+    "1": {
+      "rdn_signal": "ENCFF204BQM",
+      "narrow_peaks": "ENCFF503NRW",
+      "broad_peaks": "ENCFF872BMQ"
+    }
+  },
+  "ENCSR271QSV": {
+    "1": {
+      "rdn_signal": "ENCFF992LZL",
+      "narrow_peaks": "ENCFF160FVF",
+      "broad_peaks": "ENCFF420LPD"
+    }
+  },
+  "ENCSR426IEA": {
+    "1": {
+      "rdn_signal": "ENCFF953EXS",
+      "narrow_peaks": "ENCFF940TDL",
+      "broad_peaks": "ENCFF711JTW"
+    }
+  },
+  "ENCSR000EPG": {
+    "2": {
+      "rdn_signal": "ENCFF811BRR",
+      "narrow_peaks": "ENCFF184LKM",
+      "broad_peaks": "ENCFF036UMF"
+    }
+  },
+  "ENCSR000EIY": {
+    "1": {
+      "rdn_signal": "ENCFF685MZL",
+      "narrow_peaks": "ENCFF606DFV",
+      "broad_peaks": "ENCFF855XCW"
+    }
+  },
+  "ENCSR595CSH": {
+    "1": {
+      "rdn_signal": "ENCFF641HVS",
+      "narrow_peaks": "ENCFF434OLY",
+      "broad_peaks": "ENCFF228LYZ"
+    }
+  },
+  "ENCSR000EQJ": {
+    "1": {
+      "rdn_signal": "ENCFF313YWE",
+      "narrow_peaks": "ENCFF681KEG",
+      "broad_peaks": "ENCFF369QKC"
+    }
+  },
+  "ENCSR383BLX": {
+    "1": {
+      "rdn_signal": "ENCFF006LVL",
+      "narrow_peaks": "ENCFF976IAY",
+      "broad_peaks": "ENCFF161OZO"
+    }
+  },
+  "ENCSR628IRM": {
+    "1": {
+      "rdn_signal": "ENCFF801DBL",
+      "narrow_peaks": "ENCFF524RWW",
+      "broad_peaks": "ENCFF591WLT"
+    }
+  },
+  "ENCSR477RTP": {
+    "1": {
+      "rdn_signal": "ENCFF706WOH",
+      "narrow_peaks": "ENCFF003IFJ",
+      "broad_peaks": "ENCFF509UMP"
+    }
+  },
+  "ENCSR512CWR": {
+    "1": {
+      "rdn_signal": "ENCFF622CII",
+      "narrow_peaks": "ENCFF477AJX",
+      "broad_peaks": "ENCFF604NKJ"
+    }
+  },
+  "ENCSR000EQI": {
+    "1": {
+      "rdn_signal": "ENCFF438GIW",
+      "narrow_peaks": "ENCFF983WSR",
+      "broad_peaks": "ENCFF211BPZ"
+    }
+  },
+  "ENCSR945RWN": {
+    "1": {
+      "rdn_signal": "ENCFF053FMQ",
+      "narrow_peaks": "ENCFF234OAL",
+      "broad_peaks": "ENCFF477DEI"
+    }
+  },
+  "ENCSR272RQX": {
+    "1": {
+      "rdn_signal": "ENCFF716VIS",
+      "narrow_peaks": "ENCFF206CQG",
+      "broad_peaks": "ENCFF927UVP"
+    }
+  },
+  "ENCSR814KRX": {
+    "1": {
+      "rdn_signal": "ENCFF528SGI",
+      "narrow_peaks": "ENCFF526PCJ",
+      "broad_peaks": "ENCFF788JFX"
+    }
+  },
+  "ENCSR548MMD": {
+    "1": {
+      "rdn_signal": "ENCFF746DZE",
+      "narrow_peaks": "ENCFF239JUW",
+      "broad_peaks": "ENCFF598LUV"
+    }
+  },
+  "ENCSR141VGA": {
+    "1": {
+      "rdn_signal": "ENCFF899HCF",
+      "narrow_peaks": "ENCFF535EEL",
+      "broad_peaks": "ENCFF020DBC"
+    }
+  },
+  "ENCSR645GJD": {
+    "1": {
+      "rdn_signal": "ENCFF557YAB",
+      "narrow_peaks": "ENCFF271EPK",
+      "broad_peaks": "ENCFF786HZR"
+    }
+  },
+  "ENCSR594NOE": {
+    "1": {
+      "rdn_signal": "ENCFF548BBX",
+      "narrow_peaks": "ENCFF073CWQ",
+      "broad_peaks": "ENCFF885NKD"
+    }
+  },
+  "ENCSR691MQJ": {
+    "2": {
+      "rdn_signal": "ENCFF523ELU",
+      "narrow_peaks": "ENCFF456GUH",
+      "broad_peaks": "ENCFF731AXM"
+    }
+  },
+  "ENCSR000EPI": {
+    "1": {
+      "rdn_signal": "ENCFF606KFN",
+      "narrow_peaks": "ENCFF418HPA",
+      "broad_peaks": "ENCFF515DLM"
+    }
+  },
+  "ENCSR381PXW": {
+    "1": {
+      "rdn_signal": "ENCFF220IWU",
+      "narrow_peaks": "ENCFF114WVD",
+      "broad_peaks": "ENCFF572MXM"
+    }
+  },
+  "ENCSR468ZXN": {
+    "1": {
+      "rdn_signal": "ENCFF523VFS",
+      "narrow_peaks": "ENCFF542KZT",
+      "broad_peaks": "ENCFF606DMR"
+    }
+  },
+  "ENCSR000EPE": {
+    "2": {
+      "rdn_signal": "ENCFF888EDP",
+      "narrow_peaks": "ENCFF023MDO",
+      "broad_peaks": "ENCFF387XSU"
+    }
+  },
+  "ENCSR434OBM": {
+    "1": {
+      "rdn_signal": "ENCFF520XMG",
+      "narrow_peaks": "ENCFF742NJV",
+      "broad_peaks": "ENCFF199GER"
+    }
+  },
+  "ENCSR931UQB": {
+    "1": {
+      "rdn_signal": "ENCFF619LIB",
+      "narrow_peaks": "ENCFF260SQU",
+      "broad_peaks": "ENCFF893MQY"
+    }
+  },
+  "ENCSR217RVH": {
+    "1": {
+      "rdn_signal": "ENCFF618JYS",
+      "narrow_peaks": "ENCFF926BVP",
+      "broad_peaks": "ENCFF090QAZ"
+    }
+  },
+  "ENCSR325LYJ": {
+    "1": {
+      "rdn_signal": "ENCFF123ENC",
+      "narrow_peaks": "ENCFF158LXZ",
+      "broad_peaks": "ENCFF789VUY"
+    }
+  },
+  "ENCSR004SUL": {
+    "1": {
+      "rdn_signal": "ENCFF938XUM",
+      "narrow_peaks": "ENCFF635CSK",
+      "broad_peaks": "ENCFF091AWM"
+    }
+  },
+  "ENCSR035RVH": {
+    "1": {
+      "rdn_signal": "ENCFF971NFK",
+      "narrow_peaks": "ENCFF460PJH",
+      "broad_peaks": "ENCFF999MSN"
+    }
+  },
+  "ENCSR217TAW": {
+    "1": {
+      "rdn_signal": "ENCFF711EJL",
+      "narrow_peaks": "ENCFF042RQO",
+      "broad_peaks": "ENCFF787HKF"
+    }
+  },
+  "ENCSR184LMY": {
+    "1": {
+      "rdn_signal": "ENCFF445MXG",
+      "narrow_peaks": "ENCFF288GNN",
+      "broad_peaks": "ENCFF160DNU"
+    }
+  },
+  "ENCSR940NLN": {
+    "1": {
+      "rdn_signal": "ENCFF363RKM",
+      "narrow_peaks": "ENCFF601HBG",
+      "broad_peaks": "ENCFF218HZR"
+    }
+  },
+  "ENCSR000FFJ": {
+    "1": {
+      "rdn_signal": "ENCFF741DDM",
+      "narrow_peaks": "ENCFF909NHK",
+      "broad_peaks": "ENCFF981TEU"
+    }
+  },
+  "ENCSR153LHP": {
+    "1": {
+      "rdn_signal": "ENCFF366GCX",
+      "narrow_peaks": "ENCFF190BAX",
+      "broad_peaks": "ENCFF381UFW"
+    }
+  },
+  "ENCSR383SNM": {
+    "1": {
+      "rdn_signal": "ENCFF294LWY",
+      "narrow_peaks": "ENCFF351ZVR",
+      "broad_peaks": "ENCFF364GJJ"
+    }
+  },
+  "ENCSR052AWE": {
+    "1": {
+      "rdn_signal": "ENCFF999OEJ",
+      "narrow_peaks": "ENCFF797MUI",
+      "broad_peaks": "ENCFF800HHB"
+    }
+  },
+  "ENCSR672EWY": {
+    "2": {
+      "rdn_signal": "ENCFF498YIW",
+      "narrow_peaks": "ENCFF665CPJ",
+      "broad_peaks": "ENCFF912XFB"
+    }
+  },
+  "ENCSR098PTC": {
+    "2": {
+      "rdn_signal": "ENCFF438PGV",
+      "narrow_peaks": "ENCFF676MDE",
+      "broad_peaks": "ENCFF047SJC"
+    }
+  },
+  "ENCSR452DCM": {
+    "1": {
+      "rdn_signal": "ENCFF724HAH",
+      "narrow_peaks": "ENCFF564GIH",
+      "broad_peaks": "ENCFF051POE"
+    }
+  },
+  "ENCSR265TEK": {
+    "1": {
+      "rdn_signal": "ENCFF564MGY",
+      "narrow_peaks": "ENCFF054OTC",
+      "broad_peaks": "ENCFF886RHJ"
+    }
+  },
+  "ENCSR852TRT": {
+    "1": {
+      "rdn_signal": "ENCFF233ORX",
+      "narrow_peaks": "ENCFF967YGX",
+      "broad_peaks": "ENCFF034LPB"
+    }
+  },
+  "ENCSR120LVW": {
+    "1": {
+      "rdn_signal": "ENCFF415LNY",
+      "narrow_peaks": "ENCFF548ORT",
+      "broad_peaks": "ENCFF787SOS"
+    }
+  },
+  "ENCSR251UPG": {
+    "1": {
+      "rdn_signal": "ENCFF113YFF",
+      "narrow_peaks": "ENCFF157FYC",
+      "broad_peaks": "ENCFF502KEA"
+    }
+  },
+  "ENCSR564JUY": {
+    "1": {
+      "rdn_signal": "ENCFF438MEL",
+      "narrow_peaks": "ENCFF279NKU",
+      "broad_peaks": "ENCFF459TOA"
+    }
+  },
+  "ENCSR782XFY": {
+    "1": {
+      "rdn_signal": "ENCFF540MDC",
+      "narrow_peaks": "ENCFF516BNN",
+      "broad_peaks": "ENCFF554LOW"
+    }
+  },
+  "ENCSR774RCO": {
+    "1": {
+      "rdn_signal": "ENCFF518IQW",
+      "narrow_peaks": "ENCFF970KSI",
+      "broad_peaks": "ENCFF082HFJ"
+    }
+  },
+  "ENCSR405TXU": {
+    "1": {
+      "rdn_signal": "ENCFF531MYW",
+      "narrow_peaks": "ENCFF284GML",
+      "broad_peaks": "ENCFF309SMK"
+    }
+  },
+  "ENCSR154ZNQ": {
+    "1": {
+      "rdn_signal": "ENCFF604EJP",
+      "narrow_peaks": "ENCFF105FAU",
+      "broad_peaks": "ENCFF529KEL"
+    }
+  },
+  "ENCSR257BGZ": {
+    "1": {
+      "rdn_signal": "ENCFF828TLX",
+      "narrow_peaks": "ENCFF792JXN",
+      "broad_peaks": "ENCFF934AKW"
+    }
+  },
+  "ENCSR148VUP": {
+    "1": {
+      "rdn_signal": "ENCFF833WVM",
+      "narrow_peaks": "ENCFF487WUJ",
+      "broad_peaks": "ENCFF950JRR"
+    }
+  },
+  "ENCSR593LTJ": {
+    "1": {
+      "rdn_signal": "ENCFF925UKW",
+      "narrow_peaks": "ENCFF728DNR",
+      "broad_peaks": "ENCFF930CTY"
+    }
+  },
+  "ENCSR622TWS": {
+    "1": {
+      "rdn_signal": "ENCFF900LOG",
+      "narrow_peaks": "ENCFF912YXA",
+      "broad_peaks": "ENCFF195RQP"
+    }
+  },
+  "ENCSR649KBB": {
+    "1": {
+      "rdn_signal": "ENCFF361UTR",
+      "narrow_peaks": "ENCFF635JKO",
+      "broad_peaks": "ENCFF593VPL"
+    }
+  },
+  "ENCSR000ELO": {
+    "1": {
+      "rdn_signal": "ENCFF927VUO",
+      "narrow_peaks": "ENCFF973EGX",
+      "broad_peaks": "ENCFF305WVK"
+    }
+  },
+  "ENCSR696TPW": {
+    "1": {
+      "rdn_signal": "ENCFF290ZJP",
+      "narrow_peaks": "ENCFF450NTG",
+      "broad_peaks": "ENCFF826QBM"
+    }
+  },
+  "ENCSR191EII": {
+    "1": {
+      "rdn_signal": "ENCFF103KGP",
+      "narrow_peaks": "ENCFF321LFG",
+      "broad_peaks": "ENCFF874NIV"
+    }
+  },
+  "ENCSR019JDO": {
+    "1": {
+      "rdn_signal": "ENCFF220RFB",
+      "narrow_peaks": "ENCFF784VSS",
+      "broad_peaks": "ENCFF520EUH"
+    }
+  },
+  "ENCSR000EML": {
+    "1": {
+      "rdn_signal": "ENCFF753ETN",
+      "narrow_peaks": "ENCFF317UIC",
+      "broad_peaks": "ENCFF561XUE"
+    }
+  },
+  "ENCSR458LIB": {
+    "2": {
+      "rdn_signal": "ENCFF896FUI",
+      "narrow_peaks": "ENCFF224OJG",
+      "broad_peaks": "ENCFF157NEA"
+    }
+  },
+  "ENCSR269SIA": {
+    "2": {
+      "rdn_signal": "ENCFF141KAP",
+      "narrow_peaks": "ENCFF822LKC",
+      "broad_peaks": "ENCFF342XZA"
+    }
+  },
+  "ENCSR000EMR": {
+    "1": {
+      "rdn_signal": "ENCFF709TDR",
+      "narrow_peaks": "ENCFF185MOE",
+      "broad_peaks": "ENCFF901VEU"
+    }
+  },
+  "ENCSR385AMY": {
+    "1": {
+      "rdn_signal": "ENCFF973KXU",
+      "narrow_peaks": "ENCFF273YNA",
+      "broad_peaks": "ENCFF314UJD"
+    }
+  },
+  "ENCSR208DMX": {
+    "1": {
+      "rdn_signal": "ENCFF978RWQ",
+      "narrow_peaks": "ENCFF973QWZ",
+      "broad_peaks": "ENCFF022RXS"
+    }
+  },
+  "ENCSR033STL": {
+    "1": {
+      "rdn_signal": "ENCFF577QJI",
+      "narrow_peaks": "ENCFF548WHX",
+      "broad_peaks": "ENCFF826BCV"
+    }
+  },
+  "ENCSR683QJJ": {
+    "1": {
+      "rdn_signal": "ENCFF131RGB",
+      "narrow_peaks": "ENCFF358COT",
+      "broad_peaks": "ENCFF228NXF"
+    }
+  },
+  "ENCSR845CFB": {
+    "1": {
+      "rdn_signal": "ENCFF800PMS",
+      "narrow_peaks": "ENCFF366QVI",
+      "broad_peaks": "ENCFF745QTF"
+    }
+  },
+  "ENCSR228VNQ": {
+    "2": {
+      "rdn_signal": "ENCFF227VUS",
+      "narrow_peaks": "ENCFF086UNN",
+      "broad_peaks": "ENCFF675POQ"
+    }
+  },
+  "ENCSR517NHP": {
+    "1": {
+      "rdn_signal": "ENCFF644WCO",
+      "narrow_peaks": "ENCFF041WYX",
+      "broad_peaks": "ENCFF544ISU"
+    }
+  },
+  "ENCSR337IRF": {
+    "1": {
+      "rdn_signal": "ENCFF620RYJ",
+      "narrow_peaks": "ENCFF881SMO",
+      "broad_peaks": "ENCFF299VNK"
+    }
+  },
+  "ENCSR000EPK": {
+    "2": {
+      "rdn_signal": "ENCFF659BVQ",
+      "narrow_peaks": "ENCFF387IFB",
+      "broad_peaks": "ENCFF520YSK"
+    }
+  },
+  "ENCSR554WUJ": {
+    "1": {
+      "rdn_signal": "ENCFF407LCA",
+      "narrow_peaks": "ENCFF077SKY",
+      "broad_peaks": "ENCFF411UDU"
+    }
+  },
+  "ENCSR770DEN": {
+    "1": {
+      "rdn_signal": "ENCFF375JUQ",
+      "narrow_peaks": "ENCFF636ISB",
+      "broad_peaks": "ENCFF545TSQ"
+    }
+  },
+  "ENCSR724CND": {
+    "1": {
+      "rdn_signal": "ENCFF380PKB",
+      "narrow_peaks": "ENCFF760SFW",
+      "broad_peaks": "ENCFF126WHY"
+    }
+  },
+  "ENCSR911LTI": {
+    "1": {
+      "rdn_signal": "ENCFF326FWY",
+      "narrow_peaks": "ENCFF771TOB",
+      "broad_peaks": "ENCFF144DNC"
+    }
+  },
+  "ENCSR857AEB": {
+    "1": {
+      "rdn_signal": "ENCFF443KCU",
+      "narrow_peaks": "ENCFF433TRD",
+      "broad_peaks": "ENCFF509AGT"
+    }
+  },
+  "ENCSR959ZXU": {
+    "1": {
+      "rdn_signal": "ENCFF977IGB",
+      "narrow_peaks": "ENCFF733FCG",
+      "broad_peaks": "ENCFF862ATX"
+    }
+  },
+  "ENCSR000EPD": {
+    "1": {
+      "rdn_signal": "ENCFF748YJM",
+      "narrow_peaks": "ENCFF952QAC",
+      "broad_peaks": "ENCFF359CTM"
+    }
+  },
+  "ENCSR714DIF": {
+    "1": {
+      "rdn_signal": "ENCFF918FRW",
+      "narrow_peaks": "ENCFF633FAD",
+      "broad_peaks": "ENCFF288OPJ"
+    }
+  },
+  "ENCSR141NSQ": {
+    "1": {
+      "rdn_signal": "ENCFF044CTX",
+      "narrow_peaks": "ENCFF407RQL",
+      "broad_peaks": "ENCFF212MQX"
+    }
+  },
+  "ENCSR083STA": {
+    "1": {
+      "rdn_signal": "ENCFF723FDT",
+      "narrow_peaks": "ENCFF567ZVF",
+      "broad_peaks": "ENCFF254QCC"
+    }
+  },
+  "ENCSR346IHH": {
+    "1": {
+      "rdn_signal": "ENCFF399TJD",
+      "narrow_peaks": "ENCFF166ONR",
+      "broad_peaks": "ENCFF397RLH"
+    }
+  },
+  "ENCSR164WOF": {
+    "1": {
+      "rdn_signal": "ENCFF414NAA",
+      "narrow_peaks": "ENCFF535LVX",
+      "broad_peaks": "ENCFF790RCI"
+    }
+  },
+  "ENCSR224FOA": {
+    "2": {
+      "rdn_signal": "ENCFF891ICW",
+      "narrow_peaks": "ENCFF071XFN",
+      "broad_peaks": "ENCFF204YJT"
+    }
+  },
+  "ENCSR000EJQ": {
+    "1": {
+      "rdn_signal": "ENCFF082SFS",
+      "narrow_peaks": "ENCFF888RUB",
+      "broad_peaks": "ENCFF465ZOS"
+    }
+  },
+  "ENCSR621ENC": {
+    "1": {
+      "rdn_signal": "ENCFF113RRS",
+      "narrow_peaks": "ENCFF387JML",
+      "broad_peaks": "ENCFF011TNH"
+    }
+  },
+  "ENCSR228IKB": {
+    "1": {
+      "rdn_signal": "ENCFF102SIK",
+      "narrow_peaks": "ENCFF787XJW",
+      "broad_peaks": "ENCFF234JHD"
+    }
+  },
+  "ENCSR954AJK": {
+    "1": {
+      "rdn_signal": "ENCFF220BQY",
+      "narrow_peaks": "ENCFF471ZSH",
+      "broad_peaks": "ENCFF678ZAZ"
+    }
+  },
+  "ENCSR206FSY": {
+    "1": {
+      "rdn_signal": "ENCFF340RUK",
+      "narrow_peaks": "ENCFF629BZE",
+      "broad_peaks": "ENCFF498AKV"
+    }
+  },
+  "ENCSR275ICP": {
+    "1": {
+      "rdn_signal": "ENCFF334GMP",
+      "narrow_peaks": "ENCFF306CKD",
+      "broad_peaks": "ENCFF412AMQ"
+    }
+  },
+  "ENCSR552XJI": {
+    "1": {
+      "rdn_signal": "ENCFF708XRO",
+      "narrow_peaks": "ENCFF202XIJ",
+      "broad_peaks": "ENCFF774FTQ"
+    }
+  },
+  "ENCSR445XYW": {
+    "1": {
+      "rdn_signal": "ENCFF338GCP",
+      "narrow_peaks": "ENCFF699ZLC",
+      "broad_peaks": "ENCFF189ZZZ"
+    }
+  },
+  "ENCSR166KPV": {
+    "1": {
+      "rdn_signal": "ENCFF131GBV",
+      "narrow_peaks": "ENCFF239NIW",
+      "broad_peaks": "ENCFF212NIA"
+    }
+  },
+  "ENCSR935EVZ": {
+    "1": {
+      "rdn_signal": "ENCFF106TCU",
+      "narrow_peaks": "ENCFF024OGW",
+      "broad_peaks": "ENCFF625MWA"
+    }
+  },
+  "ENCSR236SFP": {
+    "1": {
+      "rdn_signal": "ENCFF082TEM",
+      "narrow_peaks": "ENCFF619XKR",
+      "broad_peaks": "ENCFF395LBQ"
+    }
+  },
+  "ENCSR792ZXA": {
+    "1": {
+      "rdn_signal": "ENCFF419BLQ",
+      "narrow_peaks": "ENCFF859VZX",
+      "broad_peaks": "ENCFF258IDM"
+    }
+  },
+  "ENCSR426TPQ": {
+    "1": {
+      "rdn_signal": "ENCFF241XMS",
+      "narrow_peaks": "ENCFF147BEM",
+      "broad_peaks": "ENCFF085MJG"
+    }
+  },
+  "ENCSR582IPV": {
+    "2": {
+      "rdn_signal": "ENCFF629AAK",
+      "narrow_peaks": "ENCFF610SBT",
+      "broad_peaks": "ENCFF678DDL"
+    }
+  },
+  "ENCSR524OCB": {
+    "1": {
+      "rdn_signal": "ENCFF095KFF",
+      "narrow_peaks": "ENCFF490LLY",
+      "broad_peaks": "ENCFF316EPI"
+    }
+  },
+  "ENCSR000EMV": {
+    "1": {
+      "rdn_signal": "ENCFF554DWH",
+      "narrow_peaks": "ENCFF513MVQ",
+      "broad_peaks": "ENCFF388ADB"
+    }
+  },
+  "ENCSR902XFY": {
+    "1": {
+      "rdn_signal": "ENCFF762FMJ",
+      "narrow_peaks": "ENCFF406QLG",
+      "broad_peaks": "ENCFF623GXH"
+    }
+  },
+  "ENCSR000EIS": {
+    "1": {
+      "rdn_signal": "ENCFF890OGQ",
+      "narrow_peaks": "ENCFF896VVT",
+      "broad_peaks": "ENCFF713FDC"
+    }
+  },
+  "ENCSR921NMD": {
+    "1": {
+      "rdn_signal": "ENCFF971AHO",
+      "narrow_peaks": "ENCFF883JAX",
+      "broad_peaks": "ENCFF523LBZ"
+    }
+  },
+  "ENCSR873ANE": {
+    "1": {
+      "rdn_signal": "ENCFF248ZTQ",
+      "narrow_peaks": "ENCFF048TUT",
+      "broad_peaks": "ENCFF601OCM"
+    }
+  },
+  "ENCSR850YHJ": {
+    "1": {
+      "rdn_signal": "ENCFF047HXB",
+      "narrow_peaks": "ENCFF467PMJ",
+      "broad_peaks": "ENCFF141LCJ"
+    }
+  }
+}
