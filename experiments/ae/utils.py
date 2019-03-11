@@ -21,6 +21,7 @@ import os
 import seaborn as sns
 import re
 import sys
+import time
 import warnings
 
 from itertools import takewhile
@@ -111,6 +112,7 @@ def evaluate_model(
     loss = None
 
     for batch_start in np.arange(0, N, batch_size):
+        t0 = time.time()
         batch = data_test[batch_start : batch_start + batch_size]
 
         batch_prediction = decoder.predict(
@@ -171,6 +173,12 @@ def evaluate_model(
             loss = batch_loss
         else:
             loss = np.concatenate((loss, batch_loss), axis=0)
+
+        print(
+            "Evaluation of batch {}:{} took {} sec".format(
+                batch_start, batch_start + batch_size, time.time() - t0
+            )
+        )
 
     return loss
 

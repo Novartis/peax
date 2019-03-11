@@ -17,13 +17,13 @@ from string import Template
 # https://github.com/keras-team/keras/issues/1406
 stderr = sys.stderr
 sys.stderr = open(os.devnull, "w")
-from keras.metrics import mae, binary_crossentropy
+from keras.metrics import binary_crossentropy  # , mae
 
 sys.stderr = stderr
 
 from ae.metrics import dtw_metric, r2_min
 from ae.utils import get_tqdm, evaluate_model, plot_windows, get_models
-from ae.loss import scaled_mean_squared_error, scaled_logcosh, scaled_huber
+from ae.loss import scaled_mean_squared_error  # , scaled_logcosh, scaled_huber
 
 
 slurm_header = """#!/bin/bash
