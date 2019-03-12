@@ -930,8 +930,14 @@ def plot_windows(
 
         choices = np.random.choice(num_windows_to_be_sampled, num, replace=False)
 
-        sampled_wins = f[data_type][gt_min_signal & st_max_signal][choices]
-        sampled_peaks = f[peaks_type][gt_min_signal & st_max_signal][choices]
+        selected_window_ids = np.arange(N)[gt_min_signal & st_max_signal][choices]
+
+        sampled_wins = np.zeros((N, L, 1))
+        sampled_peaks = np.zeros(N)
+
+        for i, idx in enumerate(selected_window_ids):
+            sampled_wins[i] = f[data_type][idx]
+            sampled_peaks[i] = f[peaks_type][idx]
 
         if model_name:
             postfix = "-{}".format(dataset) if trained_on_single_dataset else ""
