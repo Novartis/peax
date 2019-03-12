@@ -1,3 +1,4 @@
+import numpy as np
 import os
 import sys
 
@@ -10,8 +11,10 @@ from tensorflow.losses import huber_loss
 
 sys.stderr = stderr
 
+eps = np.float(K.epsilon())
 
-def scaled_mean_squared_error(scale: float = 1.0):
+
+def scaled_mean_squared_error(scale: float = 1.0, with_numpy: bool = False):
     """Scaled mean squared error
 
     Scaling is applied to the absolute error before squaring the data
@@ -25,6 +28,12 @@ def scaled_mean_squared_error(scale: float = 1.0):
 
     def mean_squared_error(y_true, y_pred):
         return K.mean(K.square((y_pred - y_true) * scale), axis=-1)
+
+    def mean_squared_error_numpy(y_true, y_pred):
+        return np.mean(np.square((y_pred - y_true) * scale), axis=-1)
+
+    if with_numpy:
+        return mean_squared_error_numpy
 
     return mean_squared_error
 
@@ -85,6 +94,14 @@ def scaled_huber(scale: float = 1.0, delta: float = 1.0):
         return huber_loss(y_true * scale, y_pred * scale, delta=delta)
 
     return huber
+
+
+def binary_crossentropy_numpy(y_true, y_pred):
+    output = np.clip(y_pred, eps, 1 - eps)
+
+    return np.mean(
+        -(y_true * np.log(output) + (1 - y_true) * np.log(1 - output)), axis=-1
+    )
 
 
 def get_loss(loss: str):

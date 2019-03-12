@@ -148,17 +148,21 @@ def evaluate_model(
             k_data = K.variable(batch)
             k_pred = K.variable(batch_prediction)
 
+        print("Evaluate {} keras metrics".format(len(keras_metrics)))
+
         t1 = time.time()
         for metric in keras_metrics:
             batch_loss[:, i] = K.eval(metric(k_data, k_pred))
             i += 1
 
-        if verbose:
+        if verbose and len(keras_metrics) > 0:
             print(
                 "Computing the keras metrics of batch {}:{} took {} sec".format(
                     batch_start, batch_start + batch_size, time.time() - t1
                 )
             )
+
+        print("Evaluate {} numpy metrics".format(len(numpy_metrics)))
 
         t1 = time.time()
 
@@ -941,6 +945,8 @@ def plot_windows(
             sampled_wins[i] = f[data_type][idx]
             sampled_peaks[i] = f[peaks_type][idx]
 
+        sampled_wins = sampled_wins.squeeze(axis=2)
+
         if model_name:
             postfix = "-{}".format(dataset) if trained_on_single_dataset else ""
 
@@ -954,9 +960,16 @@ def plot_windows(
                 base, "models", "{}---autoencoder{}.h5".format(model_name, postfix)
             )
 
-            encoder, decoder, _ = get_models(autoencoder_filepath)
+            if silent:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    autoencoder = load_model(autoencoder_filepath)
+            else:
+                autoencoder = load_model(autoencoder_filepath)
 
-            sampled_encodings, _, _ = predict(encoder, decoder, sampled_wins)
+            sampled_encodings = autoencoder.predict(
+                sampled_wins.reshape(sampled_wins.shape[0], sampled_wins.shape[1], 1)
+            )
             sampled_encodings = sampled_encodings.squeeze(axis=2)
 
         cols = max(math.floor(math.sqrt(num) * 3 / 5), 1)
