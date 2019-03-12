@@ -18,14 +18,13 @@ from string import Template
 # https://github.com/keras-team/keras/issues/1406
 stderr = sys.stderr
 sys.stderr = open(os.devnull, "w")
-from keras.metrics import binary_crossentropy  # , mae
 from keras.models import load_model
 
 sys.stderr = stderr
 
-from ae.metrics import dtw_metric, r2_min
-from ae.utils import get_tqdm, evaluate_model, plot_windows, get_models
-from ae.loss import scaled_mean_squared_error  # , scaled_logcosh, scaled_huber
+from ae.metrics import dtw_metric, r2_min_numpy
+from ae.utils import get_tqdm, evaluate_model, plot_windows
+from ae.loss import scaled_mean_squared_error, binary_crossentropy_numpy
 
 
 slurm_header = """#!/bin/bash
@@ -160,14 +159,18 @@ def evaluate(
     num_datasets = len(datasets)
 
     keras_metrics = {
-        "smse-10": scaled_mean_squared_error(10.0),
-        "r2": r2_min,
+        # "smse-10": scaled_mean_squared_error(10.0),
+        # "r2": r2_min,
         # "shuber-10-5": scaled_huber(10.0, 5.0),
         # "slogcosh-10": scaled_logcosh(10.0),
         # "mae": mae,
-        "bce": binary_crossentropy,
+        # "bce": binary_crossentropy
     }
-    numpy_metrics = {}
+    numpy_metrics = {
+        "smse-10": scaled_mean_squared_error(10.0, True),
+        "r2": r2_min_numpy,
+        "bce": binary_crossentropy_numpy,
+    }
 
     if incl_dtw:
         numpy_metrics["dtw"] = dtw
