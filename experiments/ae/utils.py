@@ -96,7 +96,6 @@ def lcp(l: list):
 
 def evaluate_model(
     autoencoder,
-    decoder,
     data_test,
     keras_metrics: list = [],
     keras_metric_names: list = [],
