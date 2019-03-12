@@ -95,7 +95,7 @@ def lcp(l: list):
 
 
 def evaluate_model(
-    encoder,
+    autoencoder,
     decoder,
     data_test,
     keras_metrics: list = [],
@@ -121,8 +121,11 @@ def evaluate_model(
         t0 = time.time()
         batch = data_test[batch_start : batch_start + batch_size]
 
-        batch_prediction = decoder.predict(
-            encoder.predict(batch.reshape(batch.shape[0], batch.shape[1], 1))
+        if verbose:
+            print("Batch shape", batch.shape)
+
+        batch_prediction = autoencoder.predict(
+            batch.reshape(batch.shape[0], batch.shape[1], 1)
         )
 
         if verbose:
