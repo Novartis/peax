@@ -12,7 +12,6 @@ limitations under the License.
 """
 
 import bbi
-import gc
 import h5py
 import json
 import math
@@ -178,10 +177,6 @@ def evaluate_model(
             )
 
         loss[batch_start : batch_start + batch.shape[0]] = batch_loss
-
-        # Needed because Keras variables with tensorflow seem to have a memory leak
-        K.clear_session()
-        gc.collect()
 
         if verbose:
             print(
