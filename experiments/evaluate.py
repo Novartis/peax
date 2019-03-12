@@ -10,6 +10,7 @@ import pandas as pd
 import pathlib
 import seaborn as sns
 import sys
+import warnings
 
 from string import Template
 
@@ -18,6 +19,7 @@ from string import Template
 stderr = sys.stderr
 sys.stderr = open(os.devnull, "w")
 from keras.metrics import binary_crossentropy  # , mae
+from keras.models import load_model
 
 sys.stderr = stderr
 
@@ -145,7 +147,12 @@ def evaluate(
 
     dtw = dtw_metric()
 
-    encoder, decoder, _ = get_models(autoencoder_filepath, silent=silent)
+    if silent:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            autoencoder = load_model(autoencoder_filepath)
+    else:
+        autoencoder = load_model(autoencoder_filepath)
 
     if dataset_name is not None:
         datasets = {dataset_name: True}
@@ -188,8 +195,7 @@ def evaluate(
                 print("Start evaluate {}".format(dataset_name))
 
             loss = evaluate_model(
-                encoder,
-                decoder,
+                autoencoder,
                 data_test,
                 keras_metrics=list(keras_metrics.values()),
                 numpy_metrics=list(numpy_metrics.values()),
