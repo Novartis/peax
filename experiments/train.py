@@ -159,7 +159,7 @@ def train_on_single_dataset(
     silent: bool = False,
     train_on_hdf5: bool = False,
     early_stopping: bool = False,
-    checkpoint: bool = False,
+    checkpoint: int = None,
 ):
     # Create data directory
     pathlib.Path("models").mkdir(parents=True, exist_ok=True)
@@ -267,7 +267,7 @@ def train_on_single_dataset(
 
     callbacks = [times_history]
 
-    if checkpoint:
+    if checkpoint is not None and checkpoint > 0:
         callbacks += [
             ModelCheckpoint(
                 autoencoder_name[:-3] + "-{epoch:02d}-{val_loss:.6f}.h5",
@@ -556,9 +556,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--early-stopping", action="store_true", help="employ early stopping"
     )
-    parser.add_argument(
-        "--checkpoint", action="store_true", help="store model every 5 epochs"
-    )
+    parser.add_argument("--checkpoint", type=int, help="store model every x epochs")
     parser.add_argument(
         "--pre-trained-model-name",
         type=str,
