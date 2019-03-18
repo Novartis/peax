@@ -1043,10 +1043,13 @@ def plot_windows_from_data(
     max_signal: float = math.inf,
     num: int = 10,
     window_ids: list = None,
+    predictions: np.ndarray = None,
 ):
     if window_ids is not None:
         num = len(window_ids)
         sampled_wins = data[window_ids]
+        if predictions is not None:
+            sampled_wins_pred = predictions[window_ids]
         sampled_window_idx = window_ids
     else:
         total_signal = np.sum(data, axis=1)
@@ -1059,6 +1062,8 @@ def plot_windows_from_data(
         choices = np.random.choice(num_windows_to_be_sampled, num, replace=False)
 
         sampled_wins = data[gt_min_signal & st_max_signal][choices]
+        if predictions is not None:
+            sampled_wins_pred = predictions[gt_min_signal & st_max_signal][choices]
 
         sampled_window_idx = np.arange(data.shape[0])[gt_min_signal & st_max_signal][
             choices
@@ -1080,7 +1085,11 @@ def plot_windows_from_data(
 
             axis = axes[r] if cols == 1 else axes[r, c]
 
-            axis.bar(x, sampled_wins[i], width=1.0, color="#008ca8")
+            if predictions is None:
+                axis.bar(x, sampled_wins[i], width=1.0, color="#008ca8")
+            else:
+                axis.bar(x, sampled_wins[i], width=1.0, color="#808080")
+                axis.bar(x, sampled_wins_pred[i], width=1.0, color="#008ca8", alpha=0.6)
             axis.set_xticks(x[5::10])
             axis.set_xticklabels(x[5::10])
 
@@ -1123,7 +1132,13 @@ def create_hdf5_dset(f, name, data, extendable: bool = False, dtype: str = None)
 
 
 def check_status(
-    name: str, step: str, dataset: str = None, base: str = ".", show_loss: bool = False
+    name: str,
+    step: str,
+    dataset: str = None,
+    base: str = ".",
+    show_loss: bool = False,
+    re_trained: bool = False,
+    re_trained_postfix: str = "re-trained",
 ):
     with open(os.path.join(base, "definitions-{}.json".format(name)), "r") as f:
         model_names = json.load(f)
@@ -1140,6 +1155,8 @@ def check_status(
                 model_name = parts[0]
                 repetition = parts[1]
                 postfix = "{}__{}".format(postfix, repetition)
+            if re_trained:
+                postfix = "{}{}".format(postfix, re_trained_postfix)
             filepath = os.path.join(
                 base, "models", "{}---{}{}.h5".format(model_name, step, postfix)
             )

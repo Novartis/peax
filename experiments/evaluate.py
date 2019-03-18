@@ -78,6 +78,8 @@ def evaluate(
     silent: bool = False,
     verbose: bool = False,
     incl_dtw: bool = False,
+    re_trained: bool = False,
+    re_trained_postfix: str = "re-trained",
 ):
     # Create data directory
     pathlib.Path("models").mkdir(parents=True, exist_ok=True)
@@ -119,6 +121,9 @@ def evaluate(
         model_name = parts[0]
         repetition = parts[1]
         postfix = "{}__{}".format(postfix, repetition)
+
+    if re_trained:
+        postfix = "{}{}".format(postfix, re_trained_postfix)
 
     autoencoder_filepath = os.path.join(
         base, "models", "{}---autoencoder{}.h5".format(model_name, postfix)
@@ -356,6 +361,13 @@ if __name__ == "__main__":
         action="store_true",
         help="include DTW as a metric (WARNING this is dead slow!)",
     )
+    parser.add_argument("--re-trained", action="store_true", help="if re-trained")
+    parser.add_argument(
+        "--re-trained-postfix",
+        type=str,
+        help="postfix when re-training",
+        default="re-trained",
+    )
 
     args = parser.parse_args()
 
@@ -389,4 +401,6 @@ if __name__ == "__main__":
         verbose=args.verbose,
         silent=args.silent,
         incl_dtw=args.incl_dtw,
+        re_trained=args.re_trained,
+        re_trained_postfix=args.re_trained_postfix,
     )
