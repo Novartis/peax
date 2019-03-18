@@ -1132,7 +1132,13 @@ def create_hdf5_dset(f, name, data, extendable: bool = False, dtype: str = None)
 
 
 def check_status(
-    name: str, step: str, dataset: str = None, base: str = ".", show_loss: bool = False
+    name: str,
+    step: str,
+    dataset: str = None,
+    base: str = ".",
+    show_loss: bool = False,
+    re_trained: bool = False,
+    re_trained_postfix: str = "re-trained",
 ):
     with open(os.path.join(base, "definitions-{}.json".format(name)), "r") as f:
         model_names = json.load(f)
@@ -1149,6 +1155,8 @@ def check_status(
                 model_name = parts[0]
                 repetition = parts[1]
                 postfix = "{}__{}".format(postfix, repetition)
+            if re_trained:
+                postfix = "{}{}".format(postfix, re_trained_postfix)
             filepath = os.path.join(
                 base, "models", "{}---{}{}.h5".format(model_name, step, postfix)
             )
