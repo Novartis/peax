@@ -1162,7 +1162,7 @@ def check_status(
                 repetition = parts[1]
                 postfix = "{}__{}".format(postfix, repetition)
             if re_trained:
-                postfix = "{}{}".format(postfix, re_trained_postfix)
+                postfix = "{}-{}".format(postfix, re_trained_postfix)
             filepath = os.path.join(
                 base, "models", "{}---{}{}.h5".format(model_name, step, postfix)
             )
