@@ -241,6 +241,8 @@ def evaluate(
         save_as=predictions_filepath,
         silent=silent,
         repetition=repetition,
+        re_trained=re_trained,
+        re_trained_postfix=re_trained_postfix,
     )
 
     # Plot and save an overview of the total losses
