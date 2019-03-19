@@ -147,7 +147,8 @@ def evaluate_model(
             k_data = K.variable(batch)
             k_pred = K.variable(batch_prediction)
 
-        print("Evaluate {} keras metrics".format(len(keras_metrics)))
+        if verbose:
+            print("Evaluate {} keras metrics".format(len(keras_metrics)))
 
         t1 = time.time()
         for metric in keras_metrics:
@@ -161,7 +162,8 @@ def evaluate_model(
                 )
             )
 
-        print("Evaluate {} numpy metrics".format(len(numpy_metrics)))
+        if verbose:
+            print("Evaluate {} numpy metrics".format(len(numpy_metrics)))
 
         t1 = time.time()
 
@@ -1134,14 +1136,18 @@ def create_hdf5_dset(f, name, data, extendable: bool = False, dtype: str = None)
 def check_status(
     name: str,
     step: str,
+    model_name: str = None,
     dataset: str = None,
     base: str = ".",
     show_loss: bool = False,
     re_trained: bool = False,
     re_trained_postfix: str = "re-trained",
 ):
-    with open(os.path.join(base, "definitions-{}.json".format(name)), "r") as f:
-        model_names = json.load(f)
+    if model_name is not None:
+        model_names = [model_name]
+    else:
+        with open(os.path.join(base, "definitions-{}.json".format(name)), "r") as f:
+            model_names = json.load(f)
 
     not_found = []
     outdated = []
