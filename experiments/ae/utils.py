@@ -901,6 +901,8 @@ def plot_windows(
     repetition: str = None,
     custom_postfix: str = None,
     batch_size: int = 10240,
+    re_trained: bool = False,
+    re_trained_postfix: str = "re-trained",
 ):
     with h5py.File(os.path.join(base, "data", "{}.h5".format(dataset)), "r") as f:
         data_type = "data_{}".format(ds_type)
@@ -952,6 +954,9 @@ def plot_windows(
 
             if custom_postfix is not None:
                 postfix = "{}-{}".format(postfix, custom_postfix)
+
+            if re_trained:
+                postfix = "{}-{}".format(postfix, re_trained_postfix)
 
             autoencoder_filepath = os.path.join(
                 base, "models", "{}---autoencoder{}.h5".format(model_name, postfix)
