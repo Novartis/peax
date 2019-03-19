@@ -123,7 +123,7 @@ def evaluate(
         postfix = "{}__{}".format(postfix, repetition)
 
     if re_trained:
-        postfix = "{}{}".format(postfix, re_trained_postfix)
+        postfix = "{}-{}".format(postfix, re_trained_postfix)
 
     autoencoder_filepath = os.path.join(
         base, "models", "{}---autoencoder{}.h5".format(model_name, postfix)
@@ -142,7 +142,9 @@ def evaluate(
     )
 
     if not pathlib.Path(autoencoder_filepath).is_file():
-        sys.stderr.write("Autoencoder needs to be available\n")
+        sys.stderr.write(
+            "Autoencoder not available:\n{}\n".format(autoencoder_filepath)
+        )
         return
 
     if pathlib.Path(evaluation_filepath).is_file() and not clear:

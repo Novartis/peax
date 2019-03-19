@@ -24,6 +24,7 @@ dependencies:
   - flask-cors
   - ipython
   - ipywidgets
+  - pandas=0.23.4
   - pywget
   - bokeh
   - pydot
@@ -35,6 +36,8 @@ dependencies:
   # A bug in matplotlib: https://github.com/matplotlib/matplotlib/issues/12601
   - matplotlib>=3.0.2
   - requests
+  - tsfresh
+  - tslearn
   - pip
   - pip:
       - pysam==0.15
