@@ -14,6 +14,9 @@ limitations under the License.
 import numpy as np
 import itertools
 import operator
+import os
+import sys
+import warnings
 
 from contextlib import contextmanager
 
@@ -23,6 +26,16 @@ from scipy.spatial.distance import cdist
 from scipy.stats import norm
 from sklearn.preprocessing import MinMaxScaler
 from typing import Callable, List
+
+# Stupid Keras things is a smart way to always print. See:
+# https://github.com/keras-team/keras/issues/1406
+stderr = sys.stderr
+sys.stderr = open(os.devnull, "w")
+import keras
+from keras.layers import Input
+from keras.models import Model
+
+sys.stderr = stderr
 
 
 def compare_lists(
@@ -107,6 +120,52 @@ def normalize(data, percentile: float = 99.9):
     data_norm[np.where(data_norm > cutoff[1])] = cutoff[1]
 
     return MinMaxScaler().fit_transform(data_norm)
+
+
+def load_model(filepath: str, silent: bool = False):
+    if silent:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            model = keras.models.load_model(filepath)
+    else:
+        model = keras.models.load_model(filepath)
+
+    return model
+
+
+def get_encoder(autoencoder):
+    # Find embedding layer
+    embedding_layer_idx = None
+    for i, layer in enumerate(autoencoder.layers):
+        if layer.name == "embed":
+            embedding_layer_idx = i
+
+    # Create encoder
+    inputs = autoencoder.input
+    encoded = inputs
+    for i in range(1, embedding_layer_idx + 1):
+        encoded = autoencoder.layers[i](encoded)
+
+    return Model(inputs, encoded)
+
+
+def get_decoder(autoencoder):
+    # Find embedding layer
+    embedding_layer = None
+    embedding_layer_idx = None
+    for i, layer in enumerate(autoencoder.layers):
+        if layer.name == "embed":
+            embedding_layer = layer
+            embedding_layer_idx = i
+
+    embedding = embedding_layer.output_shape[1]
+
+    encoded_input = Input(shape=(embedding,), name="input")
+    decoded_input = encoded_input
+    for i in range(embedding_layer_idx + 1, len(autoencoder.layers)):
+        decoded_input = autoencoder.layers[i](decoded_input)
+
+    return Model(encoded_input, decoded_input)
 
 
 def get_search_target_windows(

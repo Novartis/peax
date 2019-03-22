@@ -28,6 +28,7 @@ class Datasets:
         self.datasets_by_id = {}
         self.datasets_by_type = {}
         self.chromsizes = None
+        self.coords = None
         self._cache_filename = None
         self._total_len_windows = -1
         self._total_len_encoded = -1
@@ -68,7 +69,10 @@ class Datasets:
             self.chromsizes = dataset.chromsizes
             self.chromsizes_cum = np.cumsum(self.chromsizes) - self.chromsizes
 
-        if not chromsizes.equals(self.chromsizes, dataset.chromsizes):
+        if self.coords is None:
+            self.coords = dataset.coords
+
+        if not chromsizes.equals(self.chromsizes, dataset.chromsizes, self.coords):
             raise ValueError(
                 "Incorrect coordinates: all datasets need to have the same coordinates."
             )

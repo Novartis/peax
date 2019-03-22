@@ -11,7 +11,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-SUPPORTED_CHROMOSOMES = [
+SUPPORTED_CHROMOSOMES_HUMAN = [
     "chr1",
     "chr2",
     "chr3",
@@ -35,9 +35,39 @@ SUPPORTED_CHROMOSOMES = [
     "chr21",
     "chr22",
     "chrX",
-    "chrY",
     "chrM",
 ]
+
+SUPPORTED_CHROMOSOMES_MOUSE = [
+    "chr1",
+    "chr2",
+    "chr3",
+    "chr4",
+    "chr5",
+    "chr6",
+    "chr7",
+    "chr8",
+    "chr9",
+    "chr10",
+    "chr11",
+    "chr12",
+    "chr13",
+    "chr14",
+    "chr15",
+    "chr16",
+    "chr17",
+    "chr18",
+    "chr19",
+    "chrX",
+    "chrM",
+]
+
+SUPPORTED_CHROMOSOMES = {
+    "hg19": SUPPORTED_CHROMOSOMES_HUMAN,
+    "grch38": SUPPORTED_CHROMOSOMES_HUMAN,
+    "mm9": SUPPORTED_CHROMOSOMES_MOUSE,
+    "mm10": SUPPORTED_CHROMOSOMES_MOUSE,
+}
 
 hg19 = {
     "chr1": {"size": 249250621},
@@ -155,8 +185,9 @@ all = {
 }
 
 
-def equals(cs1, cs2):
-    for chrom in SUPPORTED_CHROMOSOMES:
+def equals(cs1, cs2, coords):
+
+    for chrom in SUPPORTED_CHROMOSOMES[coords]:
         if cs1[chrom] != cs2[chrom]:
             return False
     return True

@@ -50,6 +50,10 @@ CHROMS = [
     "chrX",
 ]
 
+CHANNELS = 1
+
+INPUT_DIM = 3
+
 COORDS = "hg19"
 
 STEP_FREQ = 2
@@ -201,7 +205,7 @@ ENCODINGS_TRACK = {
 GENE_ANNOTATION_TRACK = {
     "server": "//higlass.io/api/v1",
     "tilesetUid": "???",
-    "uid": "gene-annotations-hg19",
+    "uid": "gene-annotations",
     "type": "horizontal-gene-annotations",
     "height": 24,
     "options": {
@@ -232,9 +236,9 @@ GENE_ANNOTATION_TRACK_MM10["tilesetUid"] = "QDutvmyiSrec5nX4pA5WGQ"
 
 CHROM_TRACK = {
     "chromInfoPath": "???",
-    "uid": "chrom-labels-???",
+    "uid": "chrom-labels",
     "type": "horizontal-chromosome-labels",
-    "name": "Chromosome Labels (???)",
+    "name": "Chromosome Labels",
     "height": 10,
     "options": {
         "fontSize": 8,

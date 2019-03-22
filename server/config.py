@@ -4,7 +4,7 @@ from typing import Dict, List, TypeVar
 from server.chromsizes import all as all_chromsizes
 from server.dataset import Dataset
 from server.datasets import Datasets
-from server.defaults import CACHE_DIR, CACHING, CHROMS, COORDS, DB_PATH, STEP_FREQ, MIN_CLASSIFICATIONS
+from server.defaults import CACHE_DIR, CHANNELS, CACHING, CHROMS, COORDS, DB_PATH, INPUT_DIM, STEP_FREQ, MIN_CLASSIFICATIONS
 from server.encoder import Autoencoder, Encoder
 from server.encoders import Encoders
 from server.exceptions import InvalidConfig
@@ -35,11 +35,13 @@ class Config:
     def config(self, config_file):
         keys = set(config_file.keys())
         for encoder in config_file["encoders"]:
+            encoder.setdefault('channels', CHANNELS)
+            encoder.setdefault('input_dim', INPUT_DIM)
+
             try:
                 self.add(
                     Autoencoder(
-                        encoder_filepath=encoder["encoder"],
-                        decoder_filepath=encoder["decoder"],
+                        autoencoder_filepath=encoder["autoencoder"],
                         content_type=encoder["content_type"],
                         window_size=encoder["window_size"],
                         resolution=encoder["resolution"],
@@ -49,17 +51,31 @@ class Config:
                     )
                 )
             except KeyError:
-                self.add(
-                    Encoder(
-                        encoder_filepath=encoder["encoder"],
-                        content_type=encoder["content_type"],
-                        window_size=encoder["window_size"],
-                        resolution=encoder["resolution"],
-                        channels=encoder["channels"],
-                        input_dim=encoder["input_dim"],
-                        latent_dim=encoder["latent_dim"],
+                try:
+                    self.add(
+                        Autoencoder(
+                            encoder_filepath=encoder["encoder"],
+                            decoder_filepath=encoder["decoder"],
+                            content_type=encoder["content_type"],
+                            window_size=encoder["window_size"],
+                            resolution=encoder["resolution"],
+                            channels=encoder["channels"],
+                            input_dim=encoder["input_dim"],
+                            latent_dim=encoder["latent_dim"],
+                        )
                     )
-                )
+                except KeyError:
+                    self.add(
+                        Encoder(
+                            encoder_filepath=encoder["encoder"],
+                            content_type=encoder["content_type"],
+                            window_size=encoder["window_size"],
+                            resolution=encoder["resolution"],
+                            channels=encoder["channels"],
+                            input_dim=encoder["input_dim"],
+                            latent_dim=encoder["latent_dim"],
+                        )
+                    )
 
         for ds in config_file["datasets"]:
             self.add(
@@ -68,6 +84,7 @@ class Config:
                     content_type=ds["content_type"],
                     id=ds["id"],
                     name=ds["name"],
+                    coords=config_file["coords"],
                 )
             )
 

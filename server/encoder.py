@@ -11,9 +11,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import keras
 import numpy as np
 import os
+
+from server.utils import load_model, get_encoder, get_decoder
 
 
 class Encoder:
@@ -40,13 +41,23 @@ class Encoder:
 
     @property
     def encoder_filename(self):
-        return os.path.basename(self.encoder_filepath)
+        if self.encoder_filepath is not None:
+            return os.path.basename(self.encoder_filepath)
+        else:
+            return os.path.basename(self.autoencoder_filepath)
 
     @property
     def encoder(self):
         # Lazy load model
-        if not self._encoder:
-            self._encoder = keras.models.load_model(self.encoder_filepath)
+        if self._encoder is None:
+            if self.encoder_filepath is not None:
+                self._encoder = load_model(self.encoder_filepath, silent=True)
+            else:
+                if self._autoencoder is None:
+                    self._autoencoder = load_model(
+                        self.autoencoder_filepath, silent=True
+                    )
+                self._encoder = get_encoder(self._autoencoder)
         return self._encoder
 
     def encode(self, data: np.ndarray) -> np.ndarray:
@@ -67,14 +78,15 @@ class Encoder:
 class Autoencoder(Encoder):
     def __init__(
         self,
-        encoder_filepath: str,
-        decoder_filepath: str,
         content_type: str,
         window_size: int,
         resolution: int,
         channels: int,
         input_dim: int,
         latent_dim: int,
+        autoencoder_filepath: str = None,
+        encoder_filepath: str = None,
+        decoder_filepath: str = None,
     ):
         super(Autoencoder, self).__init__(
             encoder_filepath,
@@ -85,8 +97,11 @@ class Autoencoder(Encoder):
             input_dim,
             latent_dim,
         )
-        self.decoder_filepath = decoder_filepath
 
+        self.autoencoder_filepath = autoencoder_filepath
+        self._autoencoder = None
+
+        self.decoder_filepath = decoder_filepath
         self._decoder = None
 
     @property
@@ -96,8 +111,15 @@ class Autoencoder(Encoder):
     @property
     def decoder(self):
         # Lazy load model
-        if not self._decoder:
-            self._decoder = keras.models.load_model(self.decoder_filepath)
+        if self._decoder is None:
+            if self.decoder_filepath is not None:
+                self._decoder = load_model(self.decoder_filepath, silent=True)
+            else:
+                if self._autoencoder is None:
+                    self._autoencoder = load_model(
+                        self.autoencoder_filepath, silent=True
+                    )
+                self._decoder = get_decoder(self._autoencoder)
         return self._decoder
 
     def autoencode(self, data: np.ndarray) -> np.ndarray:

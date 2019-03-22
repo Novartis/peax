@@ -34,6 +34,7 @@ class Dataset:
         fill: str = None,
         height: int = None,
         chromsizes=None,
+        coords: str = None,
         clear_cache: bool = False,
     ):
         self.filepath = filepath
@@ -47,6 +48,7 @@ class Dataset:
         self.height = height
         self.chromsizes = chromsizes
         self.clear_cache = clear_cache
+        self.coords = coords
 
         self._cache = None
 
