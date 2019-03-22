@@ -1,0 +1,37 @@
+{
+  "encoders": [
+    {
+      "autoencoder": "experiments/models/final/cf-128-192-288-432--ck-3-5-7-9--du-1024-256--do-0-0-0-0-0-0--e-10--rl-0--o-adadelta--lr-1.0--lrd-0.001--l-bce--m---bn-0-0-0-0-0-0--bni-0--pw-8--sw-logn--swz-0.0---autoencoder-encode-dnase_w-12000_f-2_r-100-2019-02-16-re-trained.h5",
+      "content_type": "dnase-seq-12kb",
+      "window_size": 12000,
+      "resolution": 100,
+      "latent_dim": 10
+    },
+    {
+      "autoencoder": "experiments/models/final/cf-128-192-288-432--ck-3-5-7-9--du-1024-256--do-0-0-0-0-0-0--e-10--rl-0--o-adadelta--lr-1.0--lrd-0.001--l-bce--m---bn-0-0-0-0-0-0--bni-0--pw-8--sw-logn--swz-0.0---autoencoder-roadmap-chip_w-12000_f-3_r-100-re-trained.h5",
+      "content_type": "histone-mark-chip-seq-12kb",
+      "window_size": 12000,
+      "resolution": 100,
+      "latent_dim": 10
+    }
+  ],
+  "datasets": [
+    {
+      "filepath": "examples/data/ENCFF641OPE.bigWig",
+      "content_type": "dnase-seq-12kb",
+      "id": "encode-e11-5-limb-dnase-rdns",
+      "name": "e11.5 limb DNase rdn signal"
+    },
+    {
+      "filepath": "examples/data/ENCFF336LAW.bigWig",
+      "content_type": "histone-mark-chip-seq-12kb",
+      "id": "encode-e11-5-limb-chip-h3k27ac-fc",
+      "name": "e11.5 limb H3K27ac fc"
+    }
+  ],
+  "coords": "mm10",
+  "chroms": ["chr19"],
+  "step_freq": 3,
+  "min_classifications": 20,
+  "db_path": "examples/search-e11-5-limb.db"
+}
