@@ -130,7 +130,11 @@ class Datasets:
 
         for encoder in encoders:
             try:
+                if verbose:
+                    print("Prepare all datasets just for you...")
+
                 for dataset in self.get_by_type(encoder.content_type):
+
                     ds_total_num_windows, ds_chrom_num_windows = dataset.prepare(
                         config, encoder, clear=clear, verbose=verbose
                     )
@@ -140,6 +144,9 @@ class Datasets:
 
                     if chrom_num_windows is None:
                         chrom_num_windows = ds_chrom_num_windows
+
+                    if verbose:
+                        print("Make sure that all windows are correctly prepared...")
 
                     # Check that all datasets have the same number of windows
                     assert (
@@ -173,6 +180,9 @@ class Datasets:
 
         try:
             with h5py.File(self.cache_filepath, mode) as f:
+                if verbose:
+                    print("Concatenate and save windows...")
+
                 w = f.create_dataset(
                     "windows",
                     (total_num_windows, self.total_len_windows),
@@ -271,6 +281,9 @@ class Datasets:
                     raise
             else:
                 raise
+
+        if verbose:
+            print("All datasets have been prepared! Thanks for waiting.")
 
     @contextmanager
     def prepared_data(self):

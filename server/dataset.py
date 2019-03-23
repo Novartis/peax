@@ -97,6 +97,9 @@ class Dataset:
     def prepare(
         self, config, encoder, clear: bool = False, verbose: bool = False
     ) -> int:
+        if verbose:
+            print("Prepare {}...".format(self.name))
+
         assert (
             self.content_type == encoder.content_type
         ), "Content type of the encoder must match the dataset's content type"
@@ -174,8 +177,15 @@ class Dataset:
 
                 pos = 0
                 pos_ae = 0
+
+                if verbose:
+                    print("Prepare chromosomes: {}...".format(", ".join(config.chroms)))
+
                 for chromosome in config.chroms:
                     chr_str = str(chromosome)
+
+                    if verbose:
+                        print("Extract windows...")
 
                     # Extract the windows
                     windows = bigwig.chunk(
@@ -206,6 +216,9 @@ class Dataset:
                         # 3. sample dim  (== 1 because each window just has 1 dim)
                         windows = windows.reshape(*windows.shape, encoder.channels)
 
+                    if verbose:
+                        print("Encode windows...")
+
                     encoding = encoder.encode(windows)
 
                     # Data is organized by chromosomes. Currently interchromosomal
@@ -215,8 +228,16 @@ class Dataset:
 
                     pos += num_windows
 
-                    if hasattr(encoder, "autoencode"):
-                        autoencoding = encoder.autoencode(windows)
+                    if hasattr(encoder, "decode"):
+                        if verbose:
+                            print(
+                                "Decode encoded windows, i.e., get the reconstructions..."
+                            )
+
+                        autoencoding = encoder.decode(encoding)
+
+                        if verbose:
+                            print("Merge interleaved reconstructed windows...")
 
                         # Merge interleaved autoencoded windows to one continuous track
                         autoencoding = utils.merge_interleaved_mat(

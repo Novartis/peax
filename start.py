@@ -65,6 +65,8 @@ except FileNotFoundError:
     )
     raise
 
+verbose = args.verbose or args.debug
+
 # Create a config object
 config = Config(config_file)
 
@@ -77,9 +79,7 @@ if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
     clear_db = False
 
 # Create app instance
-app = server.create(
-    config, clear_cache=clear_cache, clear_db=clear_db, verbose=args.verbose
-)
+app = server.create(config, clear_cache=clear_cache, clear_db=clear_db, verbose=verbose)
 
 
 def remove_cache(config):
