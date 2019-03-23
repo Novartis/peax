@@ -50,10 +50,6 @@ CHROMS = [
     "chrX",
 ]
 
-CHANNELS = 1
-
-INPUT_DIM = 3
-
 COORDS = "hg19"
 
 STEP_FREQ = 2

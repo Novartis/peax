@@ -1,10 +1,11 @@
+import json
 import pathlib
 from typing import Dict, List, TypeVar
 
 from server.chromsizes import all as all_chromsizes
 from server.dataset import Dataset
 from server.datasets import Datasets
-from server.defaults import CACHE_DIR, CHANNELS, CACHING, CHROMS, COORDS, DB_PATH, INPUT_DIM, STEP_FREQ, MIN_CLASSIFICATIONS
+from server.defaults import CACHE_DIR, CACHING, CHROMS, COORDS, DB_PATH, STEP_FREQ, MIN_CLASSIFICATIONS
 from server.encoder import Autoencoder, Encoder
 from server.encoders import Encoders
 from server.exceptions import InvalidConfig
@@ -35,8 +36,25 @@ class Config:
     def config(self, config_file):
         keys = set(config_file.keys())
         for encoder in config_file["encoders"]:
-            encoder.setdefault('channels', CHANNELS)
-            encoder.setdefault('input_dim', INPUT_DIM)
+            if 'from_file' in encoder:
+                try:
+                    with open(encoder['from_file'], "r") as f:
+                        encoder_config = json.load(f)[encoder['content_type']]
+                except FileNotFoundError:
+                    print(
+                        "You specified that the encoder config is provided in another "
+                        "file that does not exist. Make sure that `from_file` points "
+                        "to a valid encoder definition file."
+                    )
+                    raise
+                except KeyError:
+                    print(
+                        "No predefined encoder of type {} found".format(encoder['content_type'])
+                    )
+                    raise
+
+                for key in encoder_config:
+                    encoder.setdefault(key, encoder_config[key])
 
             try:
                 self.add(
