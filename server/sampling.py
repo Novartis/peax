@@ -158,29 +158,22 @@ def seeds_by_dim(
 
 
 def sample_by_dist_density(
-    data: np.ndarray,
     selected: np.ndarray,
-    target: np.ndarray,
+    dist_to_target: np.ndarray,
+    knn_density: np.ndarray,
     n: int = 5,
     d: float = 0.5,
     dist_metric: str = "euclidean",
 ):
-    # Select regions
-    sdata = data[selected]
     indices = np.where(selected)[0]
-    try:
-        dist = cdist(sdata, target.reshape((1, target.size)), dist_metric).flatten()
-    except ValueError:
-        dist = cdist(sdata, target.reshape((1, target.size))).flatten()
 
-    # Calculate the point density of using the pairwise (pw) distances of the
-    # k nearest neighbors
-    pw_knn_density = utils.knn_density(sdata)
+    dist_selected = dist_to_target[selected]
+    knn_density_selected = knn_density[selected]
 
     # Get the distance at half of the popuation
-    centered_dist = np.abs(dist - np.median(dist))
+    centered_dist = np.abs(dist_selected - np.median(dist_selected))
     centered_knn_density = (centered_dist / np.max(centered_dist)) / (
-        pw_knn_density / np.max(pw_knn_density)
+        knn_density_selected / np.max(knn_density_selected)
     )
 
     centered_knn_density_sorted_idx = np.argsort(centered_knn_density)
@@ -189,9 +182,9 @@ def sample_by_dist_density(
 
 
 def sample_by_uncertainty_density(
-    data: np.ndarray,
     selected: np.ndarray,
-    target: np.ndarray,
+    dist_to_target: np.ndarray,
+    knn_density: np.ndarray,
     p_y: np.ndarray,
     n: int = 5,
     k: int = 5,
@@ -199,7 +192,6 @@ def sample_by_uncertainty_density(
     dist_metric: str = "euclidean",
 ):
     # Select regions
-    sdata = data[selected]
     indices = np.where(selected)[0]
 
     # Convert the class probabilities into probabilities of uncertainty
@@ -208,18 +200,14 @@ def sample_by_uncertainty_density(
     # p = 1:   1 - abs(1   - 0.5) * 2 == 0
     p_uncertain = 1 - np.abs(p_y[selected] - 0.5) * 2
 
-    # Calculate the point density of using the pairwise (pw) distances of the
-    # k nearest neighborse
-    pw_knn_density = utils.knn_density(sdata, k=k)
-
     # Normalize
-    pw_knn_density /= np.max(pw_knn_density)
+    knn_density /= np.max(knn_density)
     # Weight density: a value of 0.5 downweights the importants by scaling
     # the relative density closer to 1
-    pw_knn_density = pw_knn_density * d_weight + (1 - d_weight)
+    knn_density = knn_density * d_weight + (1 - d_weight)
 
     # Combine uncertainty and density
-    uncertain_knn_density = p_uncertain * pw_knn_density
+    uncertain_knn_density = p_uncertain * knn_density
 
     # Sort descending
     uncertain_knn_density_sorted_idx = np.argsort(uncertain_knn_density)[::-1]

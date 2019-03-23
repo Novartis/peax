@@ -18,6 +18,7 @@ import os
 import re
 
 from contextlib import contextmanager, suppress
+from scipy.spatial.distance import cdist
 
 from server import chromsizes, utils
 
@@ -32,6 +33,7 @@ class Datasets:
         self._cache_filename = None
         self._total_len_windows = -1
         self._total_len_encoded = -1
+        self.computed_dist_to_target = False
 
     def __iter__(self):
         return iter(self.datasets)
@@ -123,6 +125,44 @@ class Datasets:
         with suppress(FileNotFoundError):
             os.remove(self.cache_filepath)
 
+    def compute_encodings_dist(
+        self,
+        target: np.ndarray,
+        dist_metric: str = "euclidean",
+        batch_size: int = 10000,
+        verbose: bool = False,
+    ):
+        encodings = self.encodings[:]
+
+        with h5py.File(self.cache_filepath, "r+") as f:
+            if verbose:
+                print(
+                    "Compute distance of encoded windows to the encoded target",
+                    end="",
+                    flush=True,
+                )
+
+            N = encodings.shape[0]
+            encodings = f["encodings"][:]
+            target = target.reshape((1, -1))
+
+            dist = None
+            for batch_start in np.arange(0, N, batch_size):
+                if verbose:
+                    print(".", end="", flush=True)
+
+                try:
+                    batch_dist = cdist(encodings, target, dist_metric).flatten()
+                except ValueError:
+                    batch_dist = cdist(encodings, target).flatten()
+
+                if dist is None:
+                    dist = batch_dist
+                else:
+                    dist = np.concatenate((dist, batch_dist))
+
+            f["encodings_dist"][:] = dist
+
     def prepare(self, encoders, config, clear: bool = False, verbose: bool = False):
         # Used for assertion checking
         total_num_windows = None
@@ -202,6 +242,12 @@ class Datasets:
                     (total_num_windows, self.total_len_encoded),
                     dtype=np.float32,
                 )
+                f.create_dataset(
+                    "encodings_dist", (total_num_windows,), dtype=np.float32
+                )
+                e_knn_density = f.create_dataset(
+                    "encodings_knn_density", (total_num_windows,), dtype=np.float32
+                )
 
                 # Metadata
                 w.attrs["total_len_windows"] = self._total_len_windows
@@ -251,6 +297,9 @@ class Datasets:
                 pos_chrom_from = 0
                 pos_chrom_to = 0
 
+                if verbose:
+                    print("Compute per-chromosome statistics...")
+
                 for i, chromosome in enumerate(config.chroms):
                     pos_chrom_to = pos_chrom_from + chrom_num_windows[i]
 
@@ -268,6 +317,12 @@ class Datasets:
 
                     # Write to disk
                     f.flush()
+
+                if verbose:
+                    print("Compute the encoded windows' knn density...")
+
+                e_knn_density[:] = utils.knn_density(e[:])
+
         except OSError as error:
             # When `clear` is `False` and the data is already prepared then we expect to
             # see error number 17 as we opened the file in `w-` mode.
@@ -319,3 +374,11 @@ class DatasetsCache:
     @property
     def encodings(self):
         return self.cache["encodings"]
+
+    @property
+    def encodings_dist(self):
+        return self.cache["encodings_dist"]
+
+    @property
+    def encodings_knn_density(self):
+        return self.cache["encodings_knn_density"]

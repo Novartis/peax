@@ -24,6 +24,7 @@ from contextlib import contextmanager
 from scipy.ndimage.interpolation import zoom
 from scipy.spatial.distance import cdist
 from scipy.stats import norm
+from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import MinMaxScaler
 from typing import Callable, List
 
@@ -445,27 +446,16 @@ def knn_density(
     dist_metric: str = "euclidean",
     summary: Callable[[np.ndarray], np.float64] = np.mean,
 ):
-    N = data.shape[0]
+    knn = NearestNeighbors(n_neighbors=k + 1, algorithm="auto").fit(data)
+    dist, _ = knn.kneighbors(data)
 
-    # Compute the pairwise distance
+    # Since the nearest neighbor is the identity we exclude the first columm
+    dist = dist[:, 1:]
+
     try:
-        pw_dist = cdist(data, data, dist_metric)
-    except ValueError:
-        pw_dist = cdist(data, data)
-
-    # Get the selection for the k nearest neighbors
-    selection = (
-        np.repeat(np.arange(N), k),
-        np.argpartition(pw_dist, k, axis=0)[:k, :].T.flatten(),
-    )
-
-    pw_k_dist = pw_dist[selection].reshape((N, k)).T
-
-    # Compute the summary density of the knn
-    try:
-        return summary(pw_k_dist, axis=0)
+        return summary(dist, axis=1)
     except Exception:
-        out = np.zeros(pw_k_dist.shape[0])
+        out = np.zeros(dist.shape[0])
         out[:] = np.nan
         return out
 

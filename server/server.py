@@ -273,11 +273,11 @@ def create(
             num_windows = dsc.encodings.shape[0]
 
             # Array determining which data points should be used
-            data_idx = np.ones(num_windows).astype(bool)
+            data_selection = np.ones(num_windows).astype(bool)
 
             # Remove the windows overlapping the target window (nt = no target)
             if np.max(remove_windows) >= 0 and np.min(remove_windows) < num_windows:
-                data_idx[remove_windows.astype(int)] = False
+                data_selection[remove_windows.astype(int)] = False
 
             # Get classifications as already classified windows should be ignored
             classifications = np.array(
@@ -290,17 +290,24 @@ def create(
             ).astype(int)
 
             # Remove already classified windows
-            data_idx[classifications] = False
+            data_selection[classifications] = False
 
+        if datasets.computed_dist_to_target:
+            datasets.compute_encodings_dist(data_selection, target, verbose=verbose)
+
+        with datasets.cache() as dsc:
             classifier = classifiers.get(search_id, default=None)
-            encodings = dsc.encodings[:]
+
+            encodings_dist = dsc.encodings_dist[:]
+            encodings_knn_density = dsc.encodings_knn_density[:]
 
             if classifier:
+                encodings = dsc.encodings[:]
                 _, p_y = classifier.predict(encodings)
 
             if classifications.size > 0 and classifier is not None:
                 seeds = sampling.sample_by_uncertainty_density(
-                    encodings, data_idx, target, p_y[:, 0]
+                    data_selection, encodings_dist, encodings_knn_density, p_y[:, 0]
                 )
 
             elif classifications.size > 0 and classifier is None:
@@ -316,8 +323,10 @@ def create(
 
             else:
                 # Remove empty windows (ne = no empty)
-                data_idx[np.where((dsc.windows_max[:] < 0.1))] = False
-                seeds = sampling.sample_by_dist_density(encodings, data_idx, target)
+                data_selection[np.where((dsc.windows_max[:] < 0.1))] = False
+                seeds = sampling.sample_by_dist_density(
+                    data_selection, encodings_dist, encodings_knn_density
+                )
 
             assert np.unique(seeds).size == seeds.size, "Do not return duplicated seeds"
 
