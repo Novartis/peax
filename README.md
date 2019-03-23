@@ -1,17 +1,15 @@
-# Peax: a pattern explorer for epigenomic data
+# Peax: a visual pattern explorer for epigenomic data
 
-**Peax is still under active development! If you like to give it a try, please choose one of the [pre-releases](https://github.com/Novartis/peax/releases). If you run into trouble please contact [@flekschas](https://twitter.com/flekschas). He's happy to help. We're trying to stabelize the development soon.**
+**Peax is still under active development! If you like to give it a try, please choose one of the [pre-releases](https://github.com/Novartis/peax/releases). If you run into trouble please contact [@flekschas](https://twitter.com/flekschas). He's happy to help while we're working hard to release a stabelize version soon.**
 
 ![Peax's UI](teaser.png)
 
-> Epigenomic data expresses a rich body of diverse patterns, but
-  extracting patterns genome wide is limited, as specialized algorithms
-  are required or the expressiveness is low. Peax is a tool
-  for interactive concept learning and exploration of epigenomic
-  patterns based on unsupervised featurization with autoencoders.
-  Genomic regions are manually labeled for actively learning feature
-  weights to build custom classifiers based on your notion of
-  interestingness.
+> Epigenomic data expresses a rich body of diverse patterns that help to identify
+> regulatory elements like promoter, enhancers, etc. But finding these patterns reliably
+> genome wide is challenging. Peax is a tool for interactive visual pattern search and
+> exploration of epigenomic patterns based on unsupervised representation learning with
+> convolutional autoencoders. Genomic regions are manually labeled for actively learning
+> feature weights to build custom classifiers based on your notion of interestingness.
 
 ## Installation
 
@@ -22,7 +20,9 @@ make install
 
 _Do not fear, `make install` is just a convenience function for setting up conda and installing npm packages._
 
-**Note:** If you're a macOS user you might need to [brew](https://brew.sh) install `libpng` and `openssl` for the [pybbi](https://github.com/nvictus/pybbi) package. Also see [here](https://github.com/nvictus/pybbi/issues/2).
+**Notes:**
+
+- If you're a macOS user you might need to [brew](https://brew.sh) install `libpng` and `openssl` for the [pybbi](https://github.com/nvictus/pybbi) package (see [here](https://github.com/nvictus/pybbi/issues/2)) and `xz` for pysam (if you see an error related to `lzma.h`).
 
 ## Overview
 
@@ -83,7 +83,7 @@ The main parts to adjust are `encoders` and `datasets`. `encoders` is a list of
 (auto)encoder definitions for different datatypes. The required format for `encoders` is as follows:
 
 | Field        | Description                                                                                                                                   | Defaults | Dtype |
-|--------------|-----------------------------------------------------------------------------------------------------------------------------------------------|----------|-------|
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
 | encoder      | Relative path to your pickled encoder model. (hdf5 file)                                                                                      |          | str   |
 | decoder      | Relative path to your pickled decoder model. (hdf5 file)                                                                                      |          | str   |
 | content_type | Unique string describing the content this autoencoder can handle. Data tracks with the same content type will be encoded by this autoencoder. |          | str   |
@@ -111,7 +111,7 @@ The main parts to adjust are `encoders` and `datasets`. `encoders` is a list of
 Datasets require the following format:
 
 | Field        | Description                                                                                                                                                       | Dtype |
-|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------|
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
 | filepath     | Relative path to your track data file (bigWig or bigBed).                                                                                                         | str   |
 | content_type | Unique string describing the content this dataset. If you want to search for patterns in this track you need to have an autoencoder with a matching content type. | str   |
 | id           | A unique string identifying your track. (Optional)                                                                                                                | str   |
@@ -160,7 +160,6 @@ optional arguments:
 ```
 
 The `hostname` defaults to `localhost` and the `port` of the backend server defaults to `5000`.
-
 
 ## Development
 
