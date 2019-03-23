@@ -30,6 +30,7 @@ const Message = props => (
       <Icon iconId={getIcon(props.type)} />
     )}
     <p>{props.msg ? props.msg : props.children}</p>
+    <div>{props.msg && props.children && props.children}</div>
   </div>
 );
 
