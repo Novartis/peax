@@ -258,7 +258,7 @@ class SearchRightBarInfo extends React.Component {
       respProj.status === 404 ? 'Projection not computed.' : false;
 
     let isError =
-      !isNotFound && numDiffLenghts > 1 ? 'Data is correpted! RUN!1!' : false;
+      !isNotFound && numDiffLenghts > 1 ? 'Data is corrupted!' : false;
 
     isError =
       !isError &&
@@ -346,6 +346,9 @@ class SearchRightBarInfo extends React.Component {
                   className="search-projection"
                   element={this.state.canvas}
                   isError={this.state.isError}
+                  isErrorNodes={
+                    <Button onClick={this.newProjection}>{'Re-compute'}</Button>
+                  }
                   isLoading={this.state.isLoading}
                   isNotFound={this.state.isNotFound}
                 />
@@ -371,7 +374,7 @@ class SearchRightBarInfo extends React.Component {
               </ul>
             )}
             {!!this.state.points.length && (
-              <ul className="no-list-style compact-list right-bar-v-padding">
+              <ul className="r no-list-style compact-list right-bar-v-padding">
                 <li className="flex-c flex-jc-sb">
                   <ButtonRadio
                     className="full-w"
