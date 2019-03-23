@@ -123,6 +123,8 @@ class Autoencoder(Encoder):
         return self._decoder
 
     def autoencode(self, data: np.ndarray) -> np.ndarray:
+        if self._autoencoder is not None:
+            return self._autoencoder.predict(data)
         return self.decode(self.encode(data))
 
     def decode(self, data: np.ndarray) -> np.ndarray:
