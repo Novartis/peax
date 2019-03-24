@@ -292,17 +292,19 @@ def create(
             # Remove already classified windows
             data_selection[classifications] = False
 
-        if datasets.computed_dist_to_target:
-            datasets.compute_encodings_dist(data_selection, target, verbose=verbose)
+            computed_dist_to_target = dsc.computed_dist_to_target
+
+        if not computed_dist_to_target:
+            datasets.compute_encodings_dist(target, verbose=verbose)
 
         with datasets.cache() as dsc:
             classifier = classifiers.get(search_id, default=None)
 
+            encodings = dsc.encodings[:]
             encodings_dist = dsc.encodings_dist[:]
             encodings_knn_density = dsc.encodings_knn_density[:]
 
             if classifier:
-                encodings = dsc.encodings[:]
                 _, p_y = classifier.predict(encodings)
 
             if classifications.size > 0 and classifier is not None:
@@ -325,7 +327,7 @@ def create(
                 # Remove empty windows (ne = no empty)
                 data_selection[np.where((dsc.windows_max[:] < 0.1))] = False
                 seeds = sampling.sample_by_dist_density(
-                    data_selection, encodings_dist, encodings_knn_density
+                    encodings, data_selection, encodings_dist, encodings_knn_density
                 )
 
             assert np.unique(seeds).size == seeds.size, "Do not return duplicated seeds"

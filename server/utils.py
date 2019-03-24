@@ -123,6 +123,11 @@ def normalize(data, percentile: float = 99.9):
     return MinMaxScaler().fit_transform(data_norm)
 
 
+def normalize_simple(data: np.ndarray):
+    data -= np.min(data)
+    return data / np.max(data)
+
+
 def load_model(filepath: str, silent: bool = False):
     if silent:
         with warnings.catch_warnings():
