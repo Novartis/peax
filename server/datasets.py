@@ -33,7 +33,6 @@ class Datasets:
         self._cache_filename = None
         self._total_len_windows = -1
         self._total_len_encoded = -1
-        self.computed_dist_to_target = False
 
     def __iter__(self):
         return iter(self.datasets)
@@ -132,8 +131,6 @@ class Datasets:
         batch_size: int = 10000,
         verbose: bool = False,
     ):
-        encodings = self.encodings[:]
-
         with h5py.File(self.cache_filepath, "r+") as f:
             if verbose:
                 print(
@@ -142,8 +139,8 @@ class Datasets:
                     flush=True,
                 )
 
-            N = encodings.shape[0]
             encodings = f["encodings"][:]
+            N = encodings.shape[0]
             target = target.reshape((1, -1))
 
             dist = None
@@ -151,10 +148,12 @@ class Datasets:
                 if verbose:
                     print(".", end="", flush=True)
 
+                encodings_batch = encodings[batch_start : batch_start + batch_size]
+
                 try:
-                    batch_dist = cdist(encodings, target, dist_metric).flatten()
+                    batch_dist = cdist(encodings_batch, target, dist_metric).flatten()
                 except ValueError:
-                    batch_dist = cdist(encodings, target).flatten()
+                    batch_dist = cdist(encodings_batch, target).flatten()
 
                 if dist is None:
                     dist = batch_dist
@@ -378,6 +377,10 @@ class DatasetsCache:
     @property
     def encodings_dist(self):
         return self.cache["encodings_dist"]
+
+    @property
+    def computed_dist_to_target(self):
+        return np.sum(self.cache["encodings_dist"]) > 0
 
     @property
     def encodings_knn_density(self):
