@@ -38,6 +38,7 @@ dependencies:
   - requests
   - tsfresh
   - tslearn
+  - statsmodels
   - pip
   - pip:
       - pysam==0.15
