@@ -112,13 +112,9 @@ class Search extends React.Component {
       minMaxSource: null,
       minMaxValues: {},
       pageClassifications: 0,
-      pageClassificationsTotal: null,
       pageResults: 0,
-      pageResultsTotal: null,
       pageSeeds: 0,
-      pageSeedsTotal: null,
       pageSelection: 0,
-      pageSelectionTotal: null,
       progress: {},
       results: [],
       resultsProbs: [],
@@ -372,9 +368,6 @@ class Search extends React.Component {
       isLoadingClassifications: false,
       isErrorClassifications,
       classifications,
-      pageClassificationsTotal: Math.ceil(
-        classifications.length / PER_PAGE_ITEMS
-      ),
       windows
     });
   }
@@ -412,8 +405,7 @@ class Search extends React.Component {
       isLoadingSelection: false,
       isErrorSelection,
       selection,
-      pageSelection: 0,
-      pageSelectionTotal: Math.ceil(selection.length / PER_PAGE_ITEMS)
+      pageSelection: 0
     });
   }
 
@@ -457,8 +449,7 @@ class Search extends React.Component {
         isErrorResults,
         results: predictions.results,
         resultsPredictionHistogram: predictions.predictionHistogram,
-        resultsPredictionProbBorder: predictions.predictionProbBorder,
-        pageResultsTotal: Math.ceil(predictions.results.length / PER_PAGE_ITEMS)
+        resultsPredictionProbBorder: predictions.predictionProbBorder
       });
     }
   }
@@ -850,17 +841,20 @@ class Search extends React.Component {
 
     const numItems = this.state[data].length;
 
-    if (
-      data === 'seeds' &&
-      currentNumSeeds / (PER_PAGE_ITEMS * (currentPage + 2)) < 1
-    ) {
-      await this.setState({ [loadingProp]: true });
+    if (data === 'seeds') {
+      if (currentNumSeeds / (PER_PAGE_ITEMS * (currentPage + 1)) >= 1) {
+        // Go to the next page as usual
+        this.setState({ [pageProp]: currentPage + 1, [loadingProp]: false });
+      } else {
+        // Load new samples
+        await this.setState({ [loadingProp]: true });
 
-      // Re-train classifier and get new seeds once the training is done
-      await this.onTrainingStart(this.onTrainingCheckSeeds);
+        // Re-train classifier and get new seeds once the training is done
+        await this.onTrainingStart(this.onTrainingCheckSeeds);
 
-      this.setState({ [loadingProp]: false });
-    } else if (numItems / (PER_PAGE_ITEMS * (currentPage + 1)) > 1) {
+        this.setState({ [loadingProp]: false });
+      }
+    } else if (numItems / (PER_PAGE_ITEMS * (currentPage + 1)) >= 1) {
       this.setState({ [pageProp]: currentPage + 1, [loadingProp]: false });
     }
   }
@@ -1258,7 +1252,6 @@ class Search extends React.Component {
                   onTrainingStart={this.onTrainingStart}
                   onTrainingCheck={this.onTrainingCheck}
                   page={this.state.pageResults}
-                  pageTotal={this.state.pageResultsTotal}
                   predictionProbBorder={this.state.predictionProbBorder}
                   results={this.state.results}
                   resultsPredictionHistogram={
@@ -1292,7 +1285,6 @@ class Search extends React.Component {
                   onTrainingStart={this.onTrainingStart}
                   onTrainingCheck={this.onTrainingCheck}
                   page={this.state.pageClassifications}
-                  pageTotal={this.state.pageClassificationsTotal}
                   results={this.state.classifications}
                   searchInfo={this.state.searchInfo}
                   windows={this.state.windows}
@@ -1318,7 +1310,6 @@ class Search extends React.Component {
                   onTrainingStart={this.onTrainingStart}
                   onTrainingCheck={this.onTrainingCheck}
                   page={this.state.pageSelection}
-                  pageTotal={this.state.pageSelectionTotal}
                   results={this.state.selection}
                   searchInfo={this.state.searchInfo}
                   windows={this.state.windows}

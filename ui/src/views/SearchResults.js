@@ -282,7 +282,6 @@ SearchResults.propTypes = {
   onTrainingStart: PropTypes.func.isRequired,
   onTrainingCheck: PropTypes.func.isRequired,
   page: PropTypes.number,
-  pageTotal: PropTypes.number,
   predictionProbBorder: PropTypes.number.isRequired,
   results: PropTypes.array.isRequired,
   resultsPredictionHistogram: PropTypes.array,
