@@ -307,12 +307,18 @@ def create(
             if classifier:
                 _, p_y = classifier.predict(encodings)
 
-            if classifications.size > 0 and classifier is not None:
+            if (
+                classifications.size >= config.min_classifications
+                and classifier is not None
+            ):
                 seeds = sampling.sample_by_uncertainty_density(
                     data_selection, encodings_dist, encodings_knn_density, p_y[:, 0]
                 )
 
-            elif classifications.size > 0 and classifier is None:
+            elif (
+                classifications.size >= config.min_classifications
+                and classifier is None
+            ):
                 # We need to train the classifier first
                 classifier = classifiers.new(search_id)
                 return jsonify(
@@ -324,15 +330,22 @@ def create(
                 )
 
             else:
-                # Remove empty windows (ne = no empty)
+                # Remove almost empty windows
                 data_selection[np.where((dsc.windows_max[:] < 0.1))] = False
+
                 seeds = sampling.sample_by_dist_density(
                     encodings, data_selection, encodings_dist, encodings_knn_density
                 )
 
             assert np.unique(seeds).size == seeds.size, "Do not return duplicated seeds"
 
-            return jsonify({"results": seeds.tolist()})
+            return jsonify(
+                {
+                    "results": seeds.tolist(),
+                    "minClassifications": config.min_classifications,
+                    "isInitial": classifications.size < config.min_classifications,
+                }
+            )
 
     @app.route("/api/v1/predictions/", methods=["GET"])
     def predictions():
