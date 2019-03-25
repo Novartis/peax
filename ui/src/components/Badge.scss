@@ -1,5 +1,5 @@
-@import "../styles/colors";
-@import "../styles/transitions";
+@import '../styles/colors';
+@import '../styles/transitions';
 
 .badge {
   min-width: 1.5em;
@@ -7,7 +7,7 @@
   text-align: center;
   color: $gray-medium;
   border-radius: 0.25rem;
-  background: $gray-lighter;
+  background: $gray-lightest;
   transition: color $fast-transition $easing,
     background $fast-transition $easing;
 }
