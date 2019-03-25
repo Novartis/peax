@@ -398,7 +398,13 @@ def create(
         window_ids_pos[sorted_idx]
         p_y_pos[sorted_idx]
 
+        # Windows that are considered positive hits given the threshold
         results = []
+        # False negatives: windows that are manually labeled as positive but are not
+        # considered positive hits by the classifier
+        conflicts_fn = []
+        # Windows that manually labeled as negative but are considered positive
+        conflicts_fp = []
 
         # Get manual classifications
         classifications = db.get_classifications(search_id)
@@ -419,20 +425,31 @@ def create(
                     "classification"
                 ]
 
+                if result["classification"] == -1:
+                    conflicts_fp.append(result)
+
             results_hashed[window_id] = len(results)
             results.append(result)
 
+        # Windows that have been manually labeled as positive but are not considered
+        # to be positive hits.
         for i, c in enumerate(classifications):
             if c["classification"] == 1 and c["windowId"] not in results_hashed:
-                result = {
-                    "windowId": window_id,
-                    "probability": p_y[window_id],
-                    "classification": None,
-                }
+                conflicts_fn.append(
+                    {
+                        "windowId": c["windowId"],
+                        "probability": p_y[c["windowId"]][1],
+                        "classification": 1,
+                    }
+                )
+
+        print(conflicts_fn)
 
         return jsonify(
             {
                 "results": results,
+                "conflictsFn": conflicts_fn,
+                "conflictsFp": conflicts_fp,
                 "predictionProbBorder": border,
                 "predictionHistogram": np.histogram(p_y[:, 1], 40)[0].tolist(),
             }
