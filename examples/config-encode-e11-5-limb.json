@@ -32,6 +32,5 @@
   "coords": "mm10",
   "chroms": ["chr19"],
   "step_freq": 3,
-  "min_classifications": 20,
   "db_path": "examples/search-e11-5-limb.db"
 }

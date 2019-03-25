@@ -21,6 +21,5 @@
   ],
   "chroms": ["chr21"],
   "step_freq": 2,
-  "min_classifications": 20,
   "db_path": "examples/search-chip-seq-12kb.db"
 }

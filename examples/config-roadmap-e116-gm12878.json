@@ -38,6 +38,5 @@
   "coords": "grch38",
   "chroms": ["chr21"],
   "step_freq": 4,
-  "min_classifications": 10,
-  "db_path": "examples/search-h1.db"
+  "db_path": "examples/search-roadmap-e116-gm12878.db"
 }
