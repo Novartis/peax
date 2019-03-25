@@ -117,6 +117,8 @@ class Search extends React.Component {
       pageSelection: 0,
       progress: {},
       results: [],
+      resultsConflictsFp: [],
+      resultsConflictsFn: [],
       resultsProbs: [],
       resultsPredictionHistogram: [],
       resultsPredictionProbBorder: null,
@@ -360,6 +362,7 @@ class Search extends React.Component {
     classifications.forEach(({ windowId, classification }) => {
       windows[windowId] = {
         classification: numToClassif(classification),
+        classificationNumerical: classification,
         classificationPending: false
       };
     });
@@ -386,18 +389,11 @@ class Search extends React.Component {
       ? "Could't load classifications."
       : false;
 
-    const classificationById = this.state.classifications.reduce(
-      (index, classification) => {
-        index[classification.windowId] = classification.classification;
-        return index;
-      },
-      {}
-    );
-
     const selection = isErrorSelection
       ? []
       : this.props.selectedRegions.map(windowId => ({
-          classification: classificationById[windowId] || 0,
+          classification:
+            this.state.windows[windowId].classificationNumerical || 0,
           windowId
         }));
 
@@ -448,6 +444,8 @@ class Search extends React.Component {
         isLoadingResults: false,
         isErrorResults,
         results: predictions.results,
+        resultsConflictsFp: predictions.conflictsFp,
+        resultsConflictsFn: predictions.conflictsFn,
         resultsPredictionHistogram: predictions.predictionHistogram,
         resultsPredictionProbBorder: predictions.predictionProbBorder
       });
@@ -1254,6 +1252,8 @@ class Search extends React.Component {
                   page={this.state.pageResults}
                   predictionProbBorder={this.state.predictionProbBorder}
                   results={this.state.results}
+                  resultsConflictsFp={this.state.resultsConflictsFp}
+                  resultsConflictsFn={this.state.resultsConflictsFn}
                   resultsPredictionHistogram={
                     this.state.resultsPredictionHistogram
                   }
