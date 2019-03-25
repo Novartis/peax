@@ -41,6 +41,7 @@ import {
 // Utils
 import {
   api,
+  classifToNum,
   Deferred,
   inputToNum,
   Logger,
@@ -384,6 +385,33 @@ class Search extends React.Component {
     });
 
     await this.loadClassifications();
+    await this.loadResults();
+
+    const index = this.state.results.reduce((idx, win) => {
+      idx[win.windowId] = {
+        classification: win.classification,
+        probability: win.probability
+      };
+      return idx;
+    }, {});
+
+    this.state.resultsConflictsFn.reduce((idx, fn) => {
+      idx[fn.windowId] = {
+        classification: fn.classification,
+        probability: fn.probability,
+        conflict: 'fn'
+      };
+      return idx;
+    }, index);
+
+    this.state.resultsConflictsFp.reduce((idx, fp) => {
+      idx[fp.windowId] = {
+        classification: fp.classification,
+        probability: fp.probability,
+        conflict: 'fp'
+      };
+      return idx;
+    }, index);
 
     const isErrorSelection = this.state.isErrorClassifications
       ? "Could't load classifications."
@@ -393,7 +421,17 @@ class Search extends React.Component {
       ? []
       : this.props.selectedRegions.map(windowId => ({
           classification:
-            this.state.windows[windowId].classificationNumerical || 0,
+            typeof this.state.windows[windowId] !== 'undefined'
+              ? this.state.windows[windowId].classificationNumerical
+              : 0,
+          probability:
+            typeof index[windowId] !== 'undefined'
+              ? index[windowId].probability
+              : undefined,
+          conflict:
+            typeof index[windowId] !== 'undefined'
+              ? index[windowId].conflict
+              : undefined,
           windowId
         }));
 
@@ -717,6 +755,7 @@ class Search extends React.Component {
           [windowId]: win =>
             update(win || {}, {
               classification: { $set: classif },
+              classificationNumerical: { $set: classifToNum(classif) },
               classificationPending: { $set: true }
             })
         })
@@ -735,6 +774,9 @@ class Search extends React.Component {
           [windowId]: {
             classification: {
               $set: response.status === 200 ? classif : oldClassif
+            },
+            classificationNumerical: {
+              $set: classifToNum(response.status === 200 ? classif : oldClassif)
             },
             classificationPending: { $set: false }
           }

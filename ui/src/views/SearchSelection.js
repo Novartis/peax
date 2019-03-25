@@ -91,6 +91,8 @@ class SearchSelection extends React.Component {
       .map(win => ({
         classification: numToClassif(win.classification),
         classificationChangeHandler: this.props.classificationChangeHandler,
+        classificationProb: win.probability,
+        conflict: win.conflict,
         dataTracks: this.props.dataTracks,
         normalizationSource: this.props.normalizationSource,
         normalizeBy: this.props.normalizeBy,
