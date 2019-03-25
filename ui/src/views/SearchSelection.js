@@ -1,3 +1,4 @@
+import { boundMethod } from 'autobind-decorator';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -12,12 +13,13 @@ import SubTopBottomBarButtons from '../components/SubTopBottomBarButtons';
 import ToolTip from '../components/ToolTip';
 
 // Actions
-import { setSearchSelection } from '../actions';
+import { setSearchSelection, setSearchTab } from '../actions';
 
 // Configs
 import {
   BUTTON_RADIO_CLASSIFICATION_OPTIONS,
-  BUTTON_RADIO_SORT_ORDER_OPTIONS
+  BUTTON_RADIO_SORT_ORDER_OPTIONS,
+  TAB_RESULTS
 } from '../configs/search';
 
 // Utils
@@ -66,6 +68,12 @@ class SearchSelection extends React.Component {
     this.props.onPage(0);
   }
 
+  @boundMethod
+  async clearSelectionAndGoToResults() {
+    this.props.clearSelection();
+    this.props.setTab(TAB_RESULTS);
+  }
+
   render() {
     const sortOrder = this.state.sortOrder === 'desc' ? -1 : 1;
 
@@ -104,7 +112,7 @@ class SearchSelection extends React.Component {
               <ButtonIcon
                 icon="cross"
                 iconSmaller
-                onClick={this.props.clearSelection}
+                onClick={this.clearSelectionAndGoToResults}
               >
                 Clear
               </ButtonIcon>
@@ -210,6 +218,7 @@ SearchSelection.propTypes = {
   results: PropTypes.array,
   searchInfo: PropTypes.object.isRequired,
   selectedRegions: PropTypes.array.isRequired,
+  setTab: PropTypes.func.isRequired,
   windows: PropTypes.object
 };
 
@@ -218,7 +227,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  clearSelection: () => dispatch(setSearchSelection([]))
+  clearSelection: () => dispatch(setSearchSelection([])),
+  setTab: tab => dispatch(setSearchTab(tab))
 });
 
 export default connect(
