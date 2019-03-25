@@ -311,8 +311,12 @@ def create(
                 classifications.size >= config.min_classifications
                 and classifier is not None
             ):
-                seeds = sampling.sample_by_uncertainty_density(
-                    data_selection, encodings_dist, encodings_knn_density, p_y[:, 0]
+                seeds = sampling.sample_by_uncertainty_dist_density(
+                    encodings,
+                    data_selection,
+                    encodings_dist,
+                    encodings_knn_density,
+                    p_y[:, 0],
                 )
 
             elif (

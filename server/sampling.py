@@ -278,35 +278,100 @@ def sample_by_dist_density(
     return selected_idx[all_samples]
 
 
+def maximize_pairwise_distance(
+    data: np.ndarray,
+    selection: np.ndarray,
+    ranking: np.ndarray,
+    n: int,
+    dist_metric: str = "euclidean",
+):
+    subsamples = np.zeros(n).astype(np.uint32) - 1
+    subselection_mask = np.zeros(selection.size).astype(np.bool)
+
+    subsamples[0] = selection[0]
+    subselection_mask[0] = True
+
+    for i in range(1, n):
+        # Get all the windows in the current level that have not been sampeled yet
+        remaining_wins_idx = selection[~subselection_mask]
+        remaining_wins = data[remaining_wins_idx]
+        sampled_wins = data[subsamples[:i]]
+
+        if i == 1:
+            sampled_wins = sampled_wins.reshape((1, -1))
+
+        # Get the normalized summed distance of the remaining windows to the
+        # already sampled windows
+        dist = np.sum(
+            utils.normalize(cdist(remaining_wins, sampled_wins, dist_metric)), axis=1
+        )
+
+        # Select the window that is farthest away from the already sampled windows
+        # and is in the most dense areas
+        rel_idx = np.where(~subselection_mask)[0][
+            np.argsort(
+                utils.normalize_simple(np.max(dist) - dist)
+                + utils.normalize_simple(ranking[~subselection_mask])
+            )[0]
+        ]
+        subselection_mask[rel_idx] = True
+        subsamples[i] = selection[rel_idx]
+
+    return subsamples
+
+
 def sample_by_uncertainty_dist_density(
+    data: np.ndarray,
     selected: np.ndarray,
     dist_to_target: np.ndarray,
-    knn_density: np.ndarray,
+    knn_dist: np.ndarray,
     p_y: np.ndarray,
-    n: int = 5,
+    n: int = 10,
     k: int = 5,
-    d_weight: float = 0.5,
+    knn_dist_weight: float = 0.5,
+    dist_to_target_weight: float = 0.5,
     dist_metric: str = "euclidean",
 ):
     # Select regions
     indices = np.where(selected)[0]
 
     # Convert the class probabilities into probabilities of uncertainty
-    # p = 0:   1 - abs(0   - 0.5) * 2 == 0
-    # p = 0.5: 1 - abs(0.5 - 0.5) * 2 == 1
-    # p = 1:   1 - abs(1   - 0.5) * 2 == 0
-    p_uncertain = 1 - np.abs(p_y[selected] - 0.5) * 2
+    # p = 0:   abs(0   - 0.5) * 2 == 1
+    # p = 0.5: abs(0.5 - 0.5) * 2 == 0
+    # p = 1:   abs(1   - 0.5) * 2 == 1
+    p_certain = np.abs(p_y[selected] - 0.5) * 2
 
-    # Normalize
-    knn_density /= np.max(knn_density)
+    # Normalize knn-density
+    knn_dist_norm_selected = utils.normalize_simple(knn_dist[selected])
     # Weight density: a value of 0.5 downweights the importants by scaling
     # the relative density closer to 1
-    knn_density = knn_density * d_weight + (1 - d_weight)
+    knn_dist_norm_selected_weighted = knn_dist_norm_selected * knn_dist_weight + (
+        1 - knn_dist_weight
+    )
+
+    # Normalize distance to target
+    dist_to_target_norm_selected = utils.normalize_simple(dist_to_target[selected])
+    dist_to_target_norm_selected_weighted = (
+        dist_to_target_norm_selected * dist_to_target_weight
+        + (1 - dist_to_target_weight)
+    )
 
     # Combine uncertainty and density
-    uncertain_knn_density = p_uncertain * knn_density
+    uncertain_knn_dist = (
+        p_certain
+        * knn_dist_norm_selected_weighted
+        * dist_to_target_norm_selected_weighted
+    )
 
     # Sort descending
-    uncertain_knn_density_sorted_idx = np.argsort(uncertain_knn_density)[::-1]
+    uncertain_knn_dist_sorted_idx = np.argsort(uncertain_knn_dist)
 
-    return indices[uncertain_knn_density_sorted_idx][:n]
+    # Subsample by maximizing the pairwise distance
+    subsample = maximize_pairwise_distance(
+        data,
+        indices[uncertain_knn_dist_sorted_idx][: n * 5],
+        np.sort(uncertain_knn_dist)[: n * 5],
+        n,
+    )
+
+    return subsample
