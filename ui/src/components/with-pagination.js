@@ -15,7 +15,10 @@ const withPagination = Component => {
   const Pagination = ({
     list,
     isLoadingMore,
+    isMoreLoadable,
+    onLoadMore,
     onPage,
+    textLoadMore,
     textNext,
     textPrev,
     page,
@@ -99,11 +102,25 @@ const withPagination = Component => {
             {isLoadingMore && <Spinner height="1em" width="1em" />}
           </Button>
         )}
+        {page + 1 === pageTotal && isMoreLoadable && (
+          <Button
+            className={`with-pagination-next-prev has-spinner ${
+              isLoadingMore ? 'is-spinning' : ''
+            }`}
+            onClick={onLoadMore}
+            isDisabled={isLoadingMore}
+          >
+            <span className="text">{textLoadMore}</span>
+            {isLoadingMore && <Spinner height="1em" width="1em" />}
+          </Button>
+        )}
       </footer>
     </div>
   );
 
   Pagination.defaultProps = {
+    isMoreLoadable: false,
+    textLoadMore: 'Load More',
     textNext: 'Next',
     textPrev: 'Prev'
   };
@@ -113,9 +130,12 @@ const withPagination = Component => {
     pageTotal: PropTypes.number,
     list: PropTypes.array,
     isLoadingMore: PropTypes.bool,
+    isMoreLoadable: PropTypes.bool,
     itemsPerPage: PropTypes.number,
+    textLoadMore: PropTypes.string,
     textNext: PropTypes.string,
     textPrev: PropTypes.string,
+    onLoadMore: PropTypes.func,
     onPage: PropTypes.func
   };
 

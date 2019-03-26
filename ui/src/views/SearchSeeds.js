@@ -91,6 +91,7 @@ class SearchSeeds extends React.Component {
             isError={this.props.isError}
             isLoading={this.props.isLoading}
             isEmpty={'No samples found!'}
+            isMoreLoadable={true}
             isTraining={this.props.isTraining === true}
             isTrainingNodes={isTraining(this.props.onTrainingCheck)}
             itemsPerPage={this.props.itemsPerPage}
@@ -111,7 +112,9 @@ class SearchSeeds extends React.Component {
             pageTotal={Math.ceil(
               Object.keys(this.props.results).length / this.props.itemsPerPage
             )}
+            onLoadMore={this.props.onLoadMore}
             onPage={this.props.onPage}
+            textLoadMore="Train & Load More"
           />
         </div>
       </div>
@@ -142,6 +145,7 @@ SearchSeeds.propTypes = {
   ]),
   normalizeBy: PropTypes.object,
   onNormalize: PropTypes.func.isRequired,
+  onLoadMore: PropTypes.func.isRequired,
   onPage: PropTypes.func.isRequired,
   onTrainingCheck: PropTypes.func.isRequired,
   onTrainingStart: PropTypes.func.isRequired,

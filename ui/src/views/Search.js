@@ -886,13 +886,7 @@ class Search extends React.Component {
         // Go to the next page as usual
         this.setState({ [pageProp]: currentPage + 1, [loadingProp]: false });
       } else {
-        // Load new samples
-        await this.setState({ [loadingProp]: true });
-
-        // Re-train classifier and get new seeds once the training is done
-        await this.onTrainingStart(this.onTrainingCheckSeeds);
-
-        this.setState({ [loadingProp]: false });
+        this.onLoadMoreSeeds();
       }
     } else if (numItems / (PER_PAGE_ITEMS * (currentPage + 1)) >= 1) {
       this.setState({ [pageProp]: currentPage + 1, [loadingProp]: false });
@@ -903,6 +897,17 @@ class Search extends React.Component {
     const pageProp = `page${data[0].toUpperCase()}${data.slice(1)}`;
     const currentPage = this.state[pageProp];
     this.setState({ [pageProp]: Math.max(0, currentPage - 1) });
+  }
+
+  @boundMethod
+  async onLoadMoreSeeds() {
+    // Activate loading state
+    await this.setState({ isLoadingMoreSeeds: true });
+
+    // Re-train classifier and get new seeds once the training is done
+    await this.onTrainingStart(this.onTrainingCheckSeeds);
+
+    this.setState({ isLoadingMoreSeeds: false });
   }
 
   @boundMethod
@@ -958,6 +963,7 @@ class Search extends React.Component {
   async onTrainingStart(checker = this.onTrainingCheck) {
     const trainingInfo = await api.newClassifier(this.id);
 
+    // Most likely the labels haven't changed
     if (trainingInfo.status === 409) {
       showInfo(this.props.pubSub, trainingInfo.body.error);
       return;
@@ -1258,6 +1264,7 @@ class Search extends React.Component {
                   normalizationSource={this.state.minMaxSource}
                   normalizeBy={this.state.minMaxValues}
                   onNormalize={this.onNormalize}
+                  onLoadMore={this.onLoadMoreSeeds}
                   onPage={this.onPageSeeds}
                   onTrainingStart={this.onTrainingStart}
                   onTrainingCheck={this.onTrainingCheck}
