@@ -188,6 +188,7 @@ class SearchResults extends React.Component {
             ) && (
               <li>
                 <DropDownMenu
+                  className="warning"
                   items={this.conflicts}
                   trigger={`${this.props.resultsConflictsFp.length +
                     this.props.resultsConflictsFn.length} conflicts`}

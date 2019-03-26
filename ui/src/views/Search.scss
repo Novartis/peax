@@ -120,6 +120,16 @@
         cursor: default;
       }
     }
+
+    .drop-down-menu.warning .drop-down-trigger .button-icon {
+      color: $pink-dark;
+      background: $pink-light;
+
+      &.is-active {
+        color: $white;
+        background: $pink-dark;
+      }
+    }
   }
 
   .searches-metadata,
