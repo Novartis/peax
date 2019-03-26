@@ -245,7 +245,7 @@ CHROM_TRACK = {
 }
 
 CHROM_TRACK_HG19 = copy.deepcopy(CHROM_TRACK)
-CHROM_TRACK_HG19["tilesetUid"] = "cudYroNtTHuThTzuKS7okA"
+CHROM_TRACK_HG19["tilesetUid"] = "N12wVGG9SPiTkk03yUayUw"
 CHROM_TRACK_HG19["uid"] = "chrom-labels-hg19"
 CHROM_TRACK_HG19["name"] = "Chromosome Labels (hg19)"
 
