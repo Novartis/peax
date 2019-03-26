@@ -12,7 +12,7 @@ import DropDownTrigger from './DropDownTrigger';
 import './DropDownMenu.scss';
 
 const DropDownMenu = props => (
-  <DropDown className="drop-down-menu">
+  <DropDown className={`drop-down-menu ${props.className}`}>
     <DropDownTrigger>
       {props.triggerIcon ? (
         <ButtonIcon icon={props.triggerIcon}>{props.trigger}</ButtonIcon>
@@ -51,6 +51,7 @@ DropDownMenu.defaultProps = {
 };
 
 DropDownMenu.propTypes = {
+  className: PropTypes.str,
   disabled: PropTypes.bool,
   id: PropTypes.string,
   items: PropTypes.array.isRequired,
