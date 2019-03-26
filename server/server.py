@@ -1026,8 +1026,10 @@ def create(
                 info[uuid] = {"error": "No such tileset with uid: {}".format(uuid)}
 
             # Remove coords and chromsizes from the info dictionary
-            del info[uuid]["coords"]
-            del info[uuid]["chromsizes"]
+            if "coords" in info[uuid]:
+                del info[uuid]["coords"]
+            if "chromsizes" in info[uuid]:
+                del info[uuid]["chromsizes"]
 
         return jsonify(info)
 
