@@ -21,6 +21,7 @@ from contextlib import contextmanager, suppress
 
 from server import bigwig
 from server import utils
+from server.chromsizes import get as get_chromsizes
 
 
 class Dataset:
@@ -52,8 +53,8 @@ class Dataset:
 
         self._cache = None
 
-        if not self.chromsizes:
-            self.chromsizes = bigwig.get_chromsizes(self.filepath)
+        if self.chromsizes is None:
+            self.chromsizes = get_chromsizes(self.coords, self.filepath)
 
     @property
     def is_autoencoded(self):
@@ -88,6 +89,8 @@ class Dataset:
             "content_type": self.content_type,
             idKey: "{}|ae".format(self.id) if autoencodings else self.id,
             "name": self.name,
+            "coords": self.coords,
+            "chromsizes": self.chromsizes,
         }
 
     def remove_cache(self):
@@ -104,7 +107,8 @@ class Dataset:
             self.content_type == encoder.content_type
         ), "Content type of the encoder must match the dataset's content type"
 
-        self.chromsizes = bigwig.get_chromsizes(self.filepath)
+        if self.chromsizes is None:
+            self.chromsizes = get_chromsizes(self.coords, self.filepath)
 
         mode = "w" if clear else "w-"
         step_size = encoder.window_size // config.step_freq

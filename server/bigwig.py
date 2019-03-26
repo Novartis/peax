@@ -137,7 +137,7 @@ def get_tile(bwpath, zoom_level, start_pos, end_pos, chromsizes=None):
     return np.concatenate(arrays)
 
 
-def tiles(bwpath, tile_ids):
+def tiles(bwpath, tile_ids, chromsizes=None):
     """Generate tiles from a bigwig file.
 
     Parameters
@@ -160,9 +160,9 @@ def tiles(bwpath, tile_ids):
         zoom_level = tile_position[0]
         tile_pos = tile_position[1]
 
-        # this doesn't combine multiple consequetive ids, which
-        # would speed things up
-        chromsizes = get_chromsizes(bwpath)
+        if chromsizes is None:
+            chromsizes = get_chromsizes(bwpath)
+
         max_depth = get_quadtree_depth(chromsizes)
         tile_size = TILE_SIZE * 2 ** (max_depth - zoom_level)
         start_pos = tile_pos * tile_size

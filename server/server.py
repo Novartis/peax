@@ -910,28 +910,32 @@ def create(
             return jsonify(chromsizes.all)
 
         try:
-            data = chromsizes.all[id]
+            chromsize = chromsizes.all[id]
         except KeyError:
             return jsonify({"error": "Not found"}), 404
 
+        out = {}
+        for chrom in chromsize.keys():  # dictionaries in py3.6+ are ordered!
+            out[chrom] = {"size": chromsize[chrom]}
+
         if incl_cum:
             cum = 0
-            for chrom in data.keys():  # dictionaries in py3.6+ are ordered!
-                data[chrom]["offset"] = cum
-                cum += data[chrom]["size"]
+            for chrom in chromsize.keys():  # dictionaries in py3.6+ are ordered!
+                out[chrom]["offset"] = cum
+                cum += out[chrom]["size"]
 
         if res_type == "json":
-            return jsonify(data)
+            return jsonify(out)
 
         elif res_type == "csv":
             if incl_cum:
                 return "\n".join(
                     "{}\t{}\t{}".format(chrom, row["size"], row["offset"])
-                    for chrom, row in data.items()
+                    for chrom, row in out.items()
                 )
             else:
                 return "\n".join(
-                    "{}\t{}".format(chrom, row["size"]) for chrom, row in data.items()
+                    "{}\t{}".format(chrom, row["size"]) for chrom, row in out.items()
                 )
 
         else:
@@ -1021,6 +1025,10 @@ def create(
             else:
                 info[uuid] = {"error": "No such tileset with uid: {}".format(uuid)}
 
+            # Remove coords and chromsizes from the info dictionary
+            del info[uuid]["coords"]
+            del info[uuid]["chromsizes"]
+
         return jsonify(info)
 
     @app.route("/api/v1/tiles/", methods=["GET"])
@@ -1067,7 +1075,9 @@ def create(
                     else:
                         tiles.extend(handler(tids))
                 elif bigwig.is_bigwig(filepath, filetype):
-                    tiles.extend(bigwig.tiles(filepath, tids))
+                    tiles.extend(
+                        bigwig.tiles(filepath, tids, ts.get("chromsizes", None))
+                    )
                 elif filetype == "cooler":
                     tiles.extend(cooler.tiles(filepath, tids))
                 elif filetype == "__autoencoding__":
