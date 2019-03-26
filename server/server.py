@@ -32,6 +32,7 @@ from server import (
     view_config,
 )
 from server.classifiers import Classifiers
+from server.exceptions import LabelsDidNotChange, TooFewLabels
 from server.progresses import Progresses
 from server.database import DB
 from server.projectors import Projectors
@@ -75,7 +76,11 @@ def create(
 
         # Set up classifiers
         classifiers = Classifiers(
-            db, encodings, window_size=encoders.window_size, abs_offset=abs_offset
+            db,
+            encodings,
+            window_size=encoders.window_size,
+            abs_offset=abs_offset,
+            min_classifications=config.min_classifications,
         )
 
         # Set up progresses
@@ -599,10 +604,29 @@ def create(
 
         elif request.method == "POST":
             # Compare classifications to last classifier
-            classifier = classifiers.new(search_id)
 
-            if classifier is None:
-                return (jsonify({"error": "Classifications did not change"}), 409)
+            try:
+                classifier = classifiers.new(search_id)
+            except LabelsDidNotChange:
+                return (
+                    jsonify(
+                        {
+                            "error": "Labels did not change. There's no need to train the classifier again."
+                        }
+                    ),
+                    409,
+                )
+            except TooFewLabels as e:
+                return (
+                    jsonify(
+                        {
+                            "error": "Too few labels to train a classifier. Label another {} windows.".format(
+                                e["min_classifications"] - e["num_labels"]
+                            )
+                        }
+                    ),
+                    409,
+                )
 
             return jsonify(
                 {
