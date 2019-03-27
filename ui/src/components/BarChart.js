@@ -92,7 +92,11 @@ class BarChart extends React.Component {
     this.xAxis = g =>
       g
         .attr('transform', `translate(0,${this.height - this.margin.bottom})`)
-        .call(axisBottom(this.xScale).tickSizeOuter(0));
+        .call(
+          axisBottom(this.xScale)
+            .ticks(5)
+            .tickSizeOuter(0)
+        );
 
     this.xAxisMiddle = g =>
       g
