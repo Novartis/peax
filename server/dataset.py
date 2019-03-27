@@ -80,18 +80,27 @@ class Dataset:
         finally:
             cache.close()
 
-    def export(self, use_uuid: bool = False, autoencodings: bool = False):
+    def export(
+        self,
+        use_uuid: bool = False,
+        autoencodings: bool = False,
+        ignore_chromsizes: bool = False,
+    ):
         # Only due to some weirdness in HiGlass
         idKey = "uuid" if use_uuid else "id"
-        return {
+        out = {
             "filepath": None if autoencodings else self.filepath,
             "filetype": "__autoencoding__" if autoencodings else self.filetype,
             "content_type": self.content_type,
             idKey: "{}|ae".format(self.id) if autoencodings else self.id,
             "name": self.name,
             "coords": self.coords,
-            "chromsizes": self.chromsizes,
         }
+
+        if not ignore_chromsizes:
+            out["chromsizes"] = self.chromsizes
+
+        return out
 
     def remove_cache(self):
         with suppress(FileNotFoundError):

@@ -242,10 +242,10 @@ class Config:
         else:
             raise InvalidConfig("Unknown settings: {}".format(key))
 
-    def export(self):
+    def export(self, ignore_chromsizes: bool = False):
         return {
             "encoders": self.encoders.export(),
-            "datasets": self.datasets.export(),
+            "datasets": self.datasets.export(ignore_chromsizes=ignore_chromsizes),
             "chroms": self.chroms,
             "step_freq": self.step_freq,
             "min_classifications": self.min_classifications,
