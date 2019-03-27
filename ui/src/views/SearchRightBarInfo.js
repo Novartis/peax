@@ -66,7 +66,9 @@ class SearchRightBarInfo extends React.Component {
       scatterplot: null,
       selected: [],
       settingsUmapMinDist: 0.1,
-      settingsUmapNN: 5
+      settingsUmapNN: 5,
+      umapMinDist: 0.1,
+      umapNN: 5
     };
 
     this.onChangeColorEncoding = compose(this.onChangeState('colorEncoding'));
@@ -210,12 +212,21 @@ class SearchRightBarInfo extends React.Component {
 
     this.setState({ isLoading: true, isError: false, isNotFound: false });
 
-    const resp = await api.newProjection(this.props.searchInfo.id);
+    const resp = await api.newProjection(
+      this.props.searchInfo.id,
+      this.state.settingsUmapMinDist,
+      this.state.settingsUmapNN
+    );
     const isError = resp.status !== 200 ? "Couldn't project data." : false;
+
+    await this.setState({
+      umapMinDist: this.state.settingsUmapMinDist,
+      umapNN: this.state.settingsUmapNN
+    });
 
     const checkProjectionTimer = isError
       ? null
-      : setInterval(this.checkProjection.bind(this), PROJECTION_CHECK_INTERVAL);
+      : setInterval(this.checkProjection, PROJECTION_CHECK_INTERVAL);
 
     this.setState({
       isError,
@@ -223,8 +234,13 @@ class SearchRightBarInfo extends React.Component {
     });
   }
 
+  @boundMethod
   async checkProjection() {
-    const resp = await api.newProjection(this.props.searchInfo.id);
+    const resp = await api.newProjection(
+      this.props.searchInfo.id,
+      this.state.umapMinDist,
+      this.state.umapNN
+    );
     const isError = resp.status !== 200 ? "Couldn't project data." : false;
     const projection = isError ? {} : resp.body;
 
@@ -273,13 +289,25 @@ class SearchRightBarInfo extends React.Component {
     const probabilities = isNotFound || isError ? [] : respProbs.body.results;
     const projection = isNotFound || isError ? [] : respProj.body.projection;
     const points = this.prepareProjection(projection, classes, probabilities);
+    const umapMinDist =
+      isNotFound || isError
+        ? this.state.umapMinDist
+        : respProj.body.projectorSettings.min_dist;
+    const umapNN =
+      isNotFound || isError
+        ? this.state.umapNN
+        : respProj.body.projectorSettings.n_neighbors;
 
     this.setState({
       isNotFound,
       isError,
       isInit: true,
       isLoading: false,
-      points
+      points,
+      umapMinDist,
+      umapNN,
+      settingsUmapMinDist: umapMinDist,
+      settingsUmapNN: umapNN
     });
   }
 
@@ -410,7 +438,6 @@ class SearchRightBarInfo extends React.Component {
             <ul className="no-list-style compact-list">
               <li>
                 <LabeledSlider
-                  disabled={true}
                   id="search-projection-settings-nn"
                   info="https://umap-learn.readthedocs.io/en/latest/parameters.html#n-neighbors"
                   label="Near. Neigh."
@@ -423,7 +450,6 @@ class SearchRightBarInfo extends React.Component {
               </li>
               <li>
                 <LabeledSlider
-                  disabled={true}
                   id="search-projection-settings-min-dist"
                   info="https://umap-learn.readthedocs.io/en/latest/parameters.html#min-dist"
                   label="Min. Dist."
@@ -456,7 +482,10 @@ class SearchRightBarInfo extends React.Component {
               />
             </li>
             <li className="flex-c flex-v">
-              <span className="label">Prediction prob. change</span>
+              <span className="label">
+                Change in the <abbr title="prediction">pred.</abbr>{' '}
+                <abbr title="probability">prob.</abbr>
+              </span>
               <BarChart
                 x={this.props.progress.numLabels}
                 y={this.props.progress.predictionProbaChangeAll}
@@ -465,9 +494,7 @@ class SearchRightBarInfo extends React.Component {
               />
             </li>
             <li className="flex-c flex-v">
-              <span className="label">
-                Convergence (top) / divergence (bottom)
-              </span>
+              <span className="label">Converge (↑) / diverge (↓)</span>
               <BarChart
                 x={this.props.progress.numLabels}
                 y={this.props.progress.convergenceAll}
