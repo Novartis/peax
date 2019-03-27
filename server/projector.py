@@ -18,11 +18,7 @@ from io import BytesIO
 from sklearn.externals import joblib
 
 DEFAULT_PROJECTOR = umap.UMAP
-DEFAULT_PROJECTOR_SETTINGS = {
-    "n_neighbors": 5,
-    "min_dist": 0.1,
-    "metric": "euclidean",
-}
+DEFAULT_PROJECTOR_SETTINGS = {"n_neighbors": 5, "min_dist": 0.1, "metric": "euclidean"}
 
 
 def normalize(projection):
@@ -37,7 +33,6 @@ def normalize(projection):
 
 
 def fitted(ctx, callback=None):
-
     def wrapped(*args):
         ctx.is_fitted = True
         ctx.is_fitting = False
@@ -48,7 +43,6 @@ def fitted(ctx, callback=None):
 
 
 def projected(ctx, callback=None):
-
     def wrapped(projection):
         ctx.projection = normalize(projection)
         if callback is not None:
@@ -65,13 +59,8 @@ def threaded(fn, *args, **kwargs):
 
 
 class Projector:
-
     def __init__(
-        self,
-        search_id: int,
-        projector_id: int,
-        projector=DEFAULT_PROJECTOR,
-        **kwargs
+        self, search_id: int, projector_id: int, projector=DEFAULT_PROJECTOR, **kwargs
     ):
         self.search_id = search_id
         self.projector_id = projector_id
@@ -116,7 +105,7 @@ class Projector:
                 (self.projector.fit, X),
                 {"y": y, "callback": fitted(self, callback)},
             )
-        except Exception as e:
+        except Exception:
             self.is_fitted = False
             self.is_fitting = False
 
@@ -125,7 +114,7 @@ class Projector:
             try:
                 self.projector = joblib.load(b)
                 self.is_fitted = True
-            except EOFError as e:
+            except EOFError:
                 # Projector model seems to be broken.
                 self.is_fitted = False
 
