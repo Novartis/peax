@@ -18,7 +18,7 @@ class BarChart extends React.Component {
 
     this.width = 240;
     this.height = 48;
-    this.margin = { top: 12, right: 0, bottom: 18, left: 24 };
+    this.margin = { top: 12, right: 0, bottom: 18, left: 32 };
 
     this.isChartInit = false;
     this.isChartPrepared = false;

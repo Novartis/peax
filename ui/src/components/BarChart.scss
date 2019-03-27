@@ -12,10 +12,6 @@
     stroke: #ddd;
   }
 
-  .connecting-lines {
-    fill: #999;
-  }
-
   .base-bars {
     fill: adjust-color($blue, $saturation: -20%, $lightness: 50%);
   }
@@ -35,5 +31,25 @@
 
   .primary-bars-bottom {
     fill: $pink-dark;
+  }
+
+  [class^='x-axis'] {
+    .domain {
+      color: $gray-light;
+    }
+
+    .tick {
+      color: $gray-light;
+
+      text {
+        color: $gray-medium;
+      }
+    }
+  }
+
+  [class^='y-axis'] {
+    .tick {
+      color: $gray-light;
+    }
   }
 }

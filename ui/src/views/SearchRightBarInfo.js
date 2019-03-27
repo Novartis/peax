@@ -490,6 +490,7 @@ class SearchRightBarInfo extends React.Component {
                 x={this.props.progress.numLabels}
                 y={this.props.progress.predictionProbaChangeAll}
                 y2={this.props.progress.predictionProbaChangeLabels}
+                yMax={0.5}
                 parentWidth={this.props.rightBarWidth}
               />
             </li>
