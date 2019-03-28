@@ -116,9 +116,12 @@ def plot_loss_to_file(
     epochs: int = math.inf,
     dataset_name: str = None,
     base: str = ".",
+    title: str = None,
 ):
     postfix = "-{}".format(dataset_name) if dataset_name is not None else ""
-    postfix = "{}__{}".format(postfix, repetition) if repetition is not None else ""
+    postfix = (
+        "{}__{}".format(postfix, repetition) if repetition is not None else postfix
+    )
 
     filepath = os.path.join(
         base, "models", "{}---train-loss{}.png".format(model_name, postfix)
@@ -135,9 +138,14 @@ def plot_loss_to_file(
 
     fig, ax = plt.subplots()
     fig.set_size_inches(3 + 0.175 * real_epochs, 4)
-    sns.lineplot(data=df, ax=ax)
-    ax.set_xticks(np.arange(real_epochs))
+    #     sns.lineplot(data=df, ax=ax)
+    ax.plot(loss[:real_epochs], color="#0f5d92", label="Training loss")
+    ax.plot(val_loss[:real_epochs], color="#cc168c", label="Validation loss")
+    ax.set_xticks(np.arange(0, real_epochs, 2))
     ax.set(xlabel="epochs", ylabel="loss")
+    if title is not None:
+        ax.set_title(title, fontsize=18, fontweight="bold")
+    fig.legend(loc="upper right", bbox_to_anchor=(0.79, 0.9))
     fig.savefig(filepath, bbox_inches="tight")
 
 
