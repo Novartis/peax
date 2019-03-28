@@ -891,6 +891,7 @@ def plot_windows(
     model_name: str = None,
     ds_type: str = "train",
     with_peaks: bool = True,
+    window_ids: list = None,
     num: int = 10,
     min_signal: float = 0,
     max_signal: float = math.inf,
@@ -901,6 +902,11 @@ def plot_windows(
     repetition: str = None,
     custom_postfix: str = None,
     batch_size: int = 10240,
+    no_legend: bool = False,
+    no_peak_coloring: bool = False,
+    no_title: bool = False,
+    plot_reconst_separately: bool = False,
+    diff: bool = False,
     re_trained: bool = False,
     re_trained_postfix: str = "re-trained",
 ):
@@ -912,33 +918,35 @@ def plot_windows(
             sys.stderr.write("Dataset type not available: {}\n".format(ds_type))
             return
 
-        N = f[data_type].shape[0]
-        L = f[data_type].shape[1]
+        N, L, _ = f[data_type].shape
         total_signal = None
 
-        for batch_start in np.arange(0, N, batch_size):
-            batch_data = np.squeeze(
-                f[data_type][batch_start : batch_start + batch_size], axis=2
-            )
+        if window_ids is not None:
+            selected_window_ids = np.array(window_ids)
+        else:
+            for batch_start in np.arange(0, N, batch_size):
+                batch_data = np.squeeze(
+                    f[data_type][batch_start : batch_start + batch_size], axis=2
+                )
 
-            batch_total_signal = np.sum(batch_data, axis=1)
+                batch_total_signal = np.sum(batch_data, axis=1)
 
-            if total_signal is None:
-                total_signal = batch_total_signal
-            else:
-                total_signal = np.concatenate((total_signal, batch_total_signal))
+                if total_signal is None:
+                    total_signal = batch_total_signal
+                else:
+                    total_signal = np.concatenate((total_signal, batch_total_signal))
 
-        gt_min_signal = total_signal > min_signal
-        st_max_signal = total_signal < max_signal
+            gt_min_signal = total_signal > min_signal
+            st_max_signal = total_signal < max_signal
 
-        num_windows_to_be_sampled = np.sum(gt_min_signal & st_max_signal)
+            num_windows_to_be_sampled = np.sum(gt_min_signal & st_max_signal)
 
-        choices = np.random.choice(num_windows_to_be_sampled, num, replace=False)
+            choices = np.random.choice(num_windows_to_be_sampled, num, replace=False)
 
-        selected_window_ids = np.arange(N)[gt_min_signal & st_max_signal][choices]
+            selected_window_ids = np.arange(N)[gt_min_signal & st_max_signal][choices]
 
-        sampled_wins = np.zeros((N, L, 1))
-        sampled_peaks = np.zeros(N)
+        sampled_wins = np.zeros((selected_window_ids.shape[0], L, 1))
+        sampled_peaks = np.zeros(selected_window_ids.shape[0])
 
         for i, idx in enumerate(selected_window_ids):
             sampled_wins[i] = f[data_type][idx]
@@ -974,14 +982,34 @@ def plot_windows(
             )
             sampled_encodings = sampled_encodings.squeeze(axis=2)
 
-        cols = max(math.floor(math.sqrt(num) * 3 / 5), 1)
-        rows = math.ceil(num / cols)
+        real_num = sampled_wins.shape[0]
+
+        cols = max(math.floor(math.sqrt(real_num) * 3 / 5), 1)
+        rows = math.ceil(real_num / cols)
 
         x = np.arange(L)
 
-        fig, axes = plt.subplots(
-            rows, cols, figsize=(8 * cols, 1.25 * rows), sharex=True
-        )
+        if plot_reconst_separately:
+            fig, axes = plt.subplots(
+                (rows * 3) - 1,
+                cols,
+                figsize=(6 * cols, 2 * rows),
+                sharex=True,
+                gridspec_kw=dict(
+                    height_ratios=([1, 1, 0.75] * (rows - 1) + [1, 1]),
+                    wspace=0.2,
+                    hspace=0,
+                ),
+            )
+        else:
+            fig, axes = plt.subplots(
+                rows,
+                cols,
+                figsize=(6 * cols, 2 * rows),
+                sharex=True,
+                gridspec_kw=dict(wspace=0.2, hspace=0.75),
+            )
+
         fig.patch.set_facecolor("white")
 
         from matplotlib.patches import Patch
@@ -992,43 +1020,103 @@ def plot_windows(
             Patch(facecolor="green", label="Prediction (w/ peak annotation)"),
         ]
 
-        sampled_window_idx = np.arange(N)[gt_min_signal & st_max_signal][choices]
+        def get_axis(r, c):
+            if axes.ndim == 1:
+                return axes[r]
+            return axes[r, c]
 
         i = 0
         for c in np.arange(cols):
             for r in np.arange(rows):
-                if i >= num:
+                if i >= real_num:
                     break
 
                 primary_color = "green" if sampled_peaks[i] == 1 else "mediumblue"
                 secondary_color = "gray"
+
+                if no_peak_coloring:
+                    primary_color = "#0E689D"
+
                 ground_truth_color = secondary_color if model_name else primary_color
                 prediction_color = primary_color
 
-                axes[r, c].bar(x, sampled_wins[i], width=1.0, color=ground_truth_color)
-                if model_name:
-                    axes[r, c].bar(
-                        x,
-                        sampled_encodings[i],
-                        width=1.0,
-                        color=prediction_color,
-                        alpha=0.5,
-                    )
-                axes[r, c].set_xticks(x[5::10])
-                axes[r, c].set_xticklabels(x[5::10])
+                if plot_reconst_separately:
+                    axis = get_axis(r * 3, c)
+                    axis.bar(x, sampled_wins[i], width=1.0, color="#000000")
+                    axis.spines["top"].set_color("silver")
+                    axis.spines["right"].set_color("silver")
+                    axis.spines["bottom"].set_color("silver")
+                    axis.spines["left"].set_color("silver")
+                    axis.set_ylim(0, 1)
+                    axis.set_xticks([], [])
+                    axis.set_yticks([], [])
+                    if not no_title:
+                        axis.set_title(selected_window_ids[i])
 
-                axes[r, c].spines["top"].set_color("silver")
-                axes[r, c].spines["right"].set_color("silver")
-                axes[r, c].spines["bottom"].set_color("silver")
-                axes[r, c].spines["left"].set_color(primary_color)
-                axes[r, c].spines["left"].set_linewidth(4)
-                axes[r, c].tick_params(axis="x", colors=secondary_color)
-                axes[r, c].tick_params(axis="y", colors=secondary_color)
-                axes[r, c].set_ylim(0, 1)
-                axes[r, c].set_title(sampled_window_idx[i])
+                    axis = get_axis(r * 3 + 1, c)
+                    axis.bar(x, sampled_encodings[i], width=1.0, color="#0E689D")
+                    axis.spines["top"].set_color("silver")
+                    axis.spines["right"].set_color("silver")
+                    axis.spines["bottom"].set_color("silver")
+                    axis.spines["left"].set_color("silver")
+                    axis.set_ylim(0, 1)
+                    axis.set_xticks([], [])
+                    axis.set_yticks([], [])
+
+                    if r < rows - 1:
+                        axis = get_axis(r * 3 + 2, c)
+                        axis.spines["top"].set_color("silver")
+                        axis.spines["right"].set_visible(False)
+                        axis.spines["bottom"].set_visible(False)
+                        axis.spines["left"].set_visible(False)
+                        axis.set_xticks([], [])
+                        axis.set_yticks([], [])
+
+                else:
+                    axis = get_axis(r, c)
+
+                    if diff and model_name:
+                        sampled_win_min_vales = np.minimum(
+                            sampled_wins[i], sampled_encodings[i]
+                        )
+                        axis.bar(x, sampled_wins[i], width=1.0, color="#0f5d92")
+                        axis.bar(x, sampled_encodings[i], width=1.0, color="#cc168c")
+                        axis.bar(x, sampled_win_min_vales, width=1.0, color="#ffffff")
+                    else:
+                        axis.bar(
+                            x, sampled_wins[i], width=1.0, color=ground_truth_color
+                        )
+                        if model_name:
+                            axis.bar(
+                                x,
+                                sampled_encodings[i],
+                                width=1.0,
+                                color=prediction_color,
+                                alpha=0.5,
+                            )
+                    axis.set_xticks(x[5::10])
+                    axis.set_xticklabels(x[5::10])
+
+                    axis.spines["top"].set_color("silver")
+                    axis.spines["right"].set_color("silver")
+                    axis.spines["bottom"].set_color("silver")
+                    axis.spines["left"].set_color(
+                        "silver" if no_peak_coloring else primary_color
+                    )
+                    axis.spines["left"].set_linewidth(1 if no_peak_coloring else 4)
+                    axis.tick_params(axis="x", colors=secondary_color)
+                    axis.tick_params(axis="y", colors=secondary_color)
+                    axis.set_ylim(0, 1)
+                    if not no_title:
+                        axis.set_title(selected_window_ids[i])
+                    axis.set_xticks([], [])
+                    axis.set_yticks([], [])
+
                 i += 1
 
-        fig.legend(handles=legend_elements, loc="lower center")
+        if not no_legend:
+            fig.legend(handles=legend_elements, loc="lower center")
+
         fig.tight_layout()
 
         if save_as is not None:
@@ -1036,9 +1124,9 @@ def plot_windows(
 
         return (
             # Window indices
-            sampled_window_idx,
+            selected_window_ids,
             # Total signal of the windows
-            total_signal[gt_min_signal & st_max_signal][choices],
+            np.sum(sampled_wins, axis=1),
             # Max signal in the window
             np.max(sampled_wins, axis=1),
         )
