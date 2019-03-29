@@ -179,7 +179,7 @@ class Datasets:
         for encoder in encoders:
             try:
                 if verbose:
-                    print("Prepare all datasets just for you...")
+                    print("Prepare all datasets just for you...", flush=True)
 
                 for dataset in self.get_by_type(encoder.content_type):
 
@@ -194,7 +194,10 @@ class Datasets:
                         chrom_num_windows = ds_chrom_num_windows
 
                     if verbose:
-                        print("Make sure that all windows are correctly prepared...")
+                        print(
+                            "Make sure that all windows are correctly prepared...",
+                            flush=True,
+                        )
 
                     # Check that all datasets have the same number of windows
                     assert (
@@ -202,8 +205,8 @@ class Datasets:
                     ), "The total number of windows should be the same for all datasets"
 
                     # Check that all datasets have the same number of windows
-                    assert utils.compare_lists(
-                        chrom_num_windows, ds_chrom_num_windows
+                    assert ds_chrom_num_windows.equals(
+                        chrom_num_windows
                     ), "The number of windows per chromosome should be the same for all datasets"
 
             except KeyError:
@@ -274,29 +277,16 @@ class Datasets:
 
                     with dataset.cache() as dataset_cache:
 
-                        pos_chrom_from = 0
-                        pos_chrom_to = 0
+                        w[:, pos_window_from:pos_window_to] = np.squeeze(
+                            dataset_cache.windows
+                        )
 
-                        for chromosome in config.chroms:
-                            pos_chrom_to = (
-                                pos_chrom_from
-                                + dataset_cache.num_windows_by_chrom(chromosome, config)
-                            )
+                        e[:, pos_encoded_from:pos_encoded_to] = np.squeeze(
+                            dataset_cache.encodings
+                        )
 
-                            w[
-                                pos_chrom_from:pos_chrom_to,
-                                pos_window_from:pos_window_to,
-                            ] = np.squeeze(dataset_cache.windows)
-
-                            e[
-                                pos_chrom_from:pos_chrom_to,
-                                pos_encoded_from:pos_encoded_to,
-                            ] = np.squeeze(dataset_cache.encodings)
-
-                            pos_chrom_from = pos_chrom_to
-
-                            # Write to disk
-                            f.flush()
+                        # Write to disk
+                        f.flush()
 
                     pos_window_from = pos_window_to
                     pos_encoded_from = pos_encoded_to

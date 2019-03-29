@@ -347,12 +347,12 @@ def merge_interleaved_mat(m: np.ndarray, step_freq: int, kernel: np.ndarray = No
     # I.e., including binning, so 12Kb at 100 bins = 120 bin windows
     SZ = np.int(m.shape[1] / step_freq)
     # Out length
-    N = M + ((step_freq - 1) * SZ)
+    # N = M + ((step_freq - 1) * SZ)
     # Out matrix
-    o = np.zeros((N, step_freq))
+    o = np.zeros((M, step_freq))
     o[:] = np.nan
     # Kernel matrix
-    k = np.zeros((N, step_freq))
+    k = np.zeros((M, step_freq))
     k[:] = np.nan
     long_k = np.tile(kernel, M)
 
@@ -362,8 +362,8 @@ def merge_interleaved_mat(m: np.ndarray, step_freq: int, kernel: np.ndarray = No
 
         j = i * SZ
 
-        o[:, i][j : min(j + M, N)] = LCE[: min(M, N - j)]
-        k[:, i][j : min(j + M, N)] = long_k[: min(M, N - j)]
+        o[:, i][j:M] = LCE[: M - j]
+        k[:, i][j:M] = long_k[: M - j]
 
     # Normalize kernels
     k /= np.nansum(k, axis=1).reshape(k.shape[0], -1)

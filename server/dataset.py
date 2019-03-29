@@ -110,7 +110,7 @@ class Dataset:
         self, config, encoder, clear: bool = False, verbose: bool = False
     ) -> int:
         if verbose:
-            print("Prepare {}...".format(self.name))
+            print("Prepare {}...".format(self.name), flush=True)
 
         assert (
             self.content_type == encoder.content_type
@@ -138,7 +138,7 @@ class Dataset:
             )
             num_windows_per_chrom.append(num_windows)
             total_num_windows += num_windows
-            res_size = int(self.chromsizes[chromosome] // encoder.resolution)
+            res_size = int(num_windows * (step_size // encoder.resolution))
             res_size_per_chrom.append(res_size)
             total_res_sizes += res_size
 
@@ -186,19 +186,22 @@ class Dataset:
                     a.attrs["file_name"] = encoder.encoder_filename
 
                 if verbose:
-                    print("Extract windows for {}".format(self.id))
+                    print("Extract windows for {}".format(self.id), flush=True)
 
                 pos = 0
                 pos_ae = 0
 
                 if verbose:
-                    print("Prepare chromosomes: {}...".format(", ".join(config.chroms)))
+                    print(
+                        "Prepare chromosomes: {}...".format(", ".join(config.chroms)),
+                        flush=True,
+                    )
 
                 for chromosome in config.chroms:
                     chr_str = str(chromosome)
 
                     if verbose:
-                        print("Extract windows...")
+                        print("Extract windows...", flush=True)
 
                     # Extract the windows
                     windows = bigwig.chunk(
@@ -230,7 +233,7 @@ class Dataset:
                         windows = windows.reshape(*windows.shape, encoder.channels)
 
                     if verbose:
-                        print("Encode windows...")
+                        print("Encode windows...", flush=True)
 
                     encoding = encoder.encode(windows)
 
@@ -244,13 +247,16 @@ class Dataset:
                     if hasattr(encoder, "decode"):
                         if verbose:
                             print(
-                                "Decode encoded windows, i.e., get the reconstructions..."
+                                "Decode encoded windows, i.e., get the reconstructions...",
+                                flush=True,
                             )
 
                         autoencoding = encoder.decode(encoding)
 
                         if verbose:
-                            print("Merge interleaved reconstructed windows...")
+                            print(
+                                "Merge interleaved reconstructed windows...", flush=True
+                            )
 
                         # Merge interleaved autoencoded windows to one continuous track
                         autoencoding = utils.merge_interleaved_mat(
