@@ -228,7 +228,7 @@ class Classifiers:
 
     def new(self, search_id: int):
         # Get previous classifier
-        prev_classifier = self.get(search_id)
+        prev_classifier = self.get(search_id, default=None)
         prev_classif = None
         if prev_classifier is not None:
             prev_classif = prev_classifier.serialized_classifications
