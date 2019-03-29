@@ -138,7 +138,7 @@ class Dataset:
             )
             num_windows_per_chrom.append(num_windows)
             total_num_windows += num_windows
-            res_size = int(num_windows * (step_size // encoder.resolution))
+            res_size = int(self.chromsizes[chromosome] // encoder.resolution)
             res_size_per_chrom.append(res_size)
             total_res_sizes += res_size
 
@@ -147,6 +147,10 @@ class Dataset:
         )
 
         chrom_res_sizes = pd.Series(res_size_per_chrom, index=config.chroms, dtype=int)
+
+        print("--------")
+        print("total_res_sizes", total_res_sizes)
+        print(chrom_res_sizes)
 
         self._cache_filepath = os.path.join(config.cache_dir, self.cache_filename)
 
@@ -267,7 +271,9 @@ class Dataset:
                             ),
                         )
 
-                        a[pos_ae : pos_ae + autoencoding.shape[0]] = autoencoding
+                        a_len = min(chrom_res_sizes[chr_str], autoencoding.shape[0])
+
+                        a[pos_ae : pos_ae + a_len] = autoencoding[:a_len]
 
                         pos_ae += chrom_res_sizes[chr_str]
 
