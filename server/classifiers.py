@@ -217,7 +217,6 @@ class Classifiers:
         if classifier_ids is None:
             return None
 
-        print("wurst puller")
         for classifier_id in classifier_ids:
             self.evaluate(search_id, classifier_id, update=update, no_threading=True)
 
