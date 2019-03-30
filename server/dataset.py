@@ -148,10 +148,6 @@ class Dataset:
 
         chrom_res_sizes = pd.Series(res_size_per_chrom, index=config.chroms, dtype=int)
 
-        print("--------")
-        print("total_res_sizes", total_res_sizes)
-        print(chrom_res_sizes)
-
         self._cache_filepath = os.path.join(config.cache_dir, self.cache_filename)
 
         ascii_chroms = [n.encode("ascii", "ignore") for n in config.chroms]
