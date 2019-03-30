@@ -83,7 +83,7 @@ def prediction_change(p0: np.ndarray, p1: np.ndarray, border: float = 0.5) -> fl
 
 
 def convergence(
-    x0: np.ndarray, x1: np.ndarray, x2: np.ndarray, decimals: int = 3
+    x0: np.ndarray, x1: np.ndarray, x2: np.ndarray, decimals: int = 2
 ) -> float:
     """Convergence score
 
