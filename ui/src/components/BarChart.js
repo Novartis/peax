@@ -242,9 +242,10 @@ class BarChart extends React.Component {
     this.baseBarsG
       .selectAll('rect')
       .data(this.data)
-      .join('rect')
-      .attr('x', d => this.xScale(d.x) - this.props.barWidth / 2)
+      .enter()
+      .append('rect')
       .attr('y', yScale(0))
+      .attr('x', d => this.xScale(d.x) - this.props.barWidth / 2)
       .attr('width', this.props.barWidth)
       .transition(t)
       .attr('y', d => yScale(d.y))
@@ -254,10 +255,12 @@ class BarChart extends React.Component {
       this.baseBarsBottomG
         .selectAll('rect')
         .data(this.data)
-        .join('rect')
+        .enter()
+        .append('rect')
         .attr('x', d => this.xScale(d.x) - this.props.barWidth / 2)
         .attr('y', this.yScaleBottom(0))
         .attr('width', this.props.barWidth)
+        .attr('height', 0)
         .transition(t)
         .attr('height', d => this.yScaleBottom(d.y3) - this.yScaleBottom(0));
     }
@@ -266,10 +269,12 @@ class BarChart extends React.Component {
       this.primaryBarsG
         .selectAll('rect')
         .data(this.data)
-        .join('rect')
+        .enter()
+        .append('rect')
         .attr('x', d => this.xScale(d.x) - this.props.barWidthSecondary / 2)
         .attr('y', yScale(0))
         .attr('width', this.props.barWidthSecondary)
+        .attr('height', 0)
         .transition(t)
         .attr('y', d => yScale(d.y2))
         .attr('height', d => yScale(0) - yScale(d.y2) + 1);
@@ -278,10 +283,12 @@ class BarChart extends React.Component {
         this.primaryBarsBottomG
           .selectAll('rect')
           .data(this.data)
-          .join('rect')
+          .enter()
+          .append('rect')
           .attr('x', d => this.xScale(d.x) - this.props.barWidthSecondary / 2)
           .attr('y', this.yScaleBottom(0))
           .attr('width', this.props.barWidthSecondary)
+          .attr('height', 0)
           .transition(t)
           .attr('height', d => this.yScaleBottom(d.y4) - this.yScaleBottom(0));
       }
