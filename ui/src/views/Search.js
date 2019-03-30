@@ -937,7 +937,8 @@ class Search extends React.Component {
     // Update state
     await this.setState({
       isErrorProgress,
-      isComputingProgress: progressInfo.isComputing,
+      isComputingProgress: false,
+      isLoadingProgress: false,
       progressCheckTimerId: null
     });
 
