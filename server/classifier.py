@@ -39,8 +39,17 @@ def train_threading(fit, train_X, train_y, done):
     done()
 
 
-def evaluate_threading(fn, X, X_train, prev_classifier, prev_prev_classifier, done):
-    fn(X, X_train, prev_classifier, prev_prev_classifier)
+def evaluate_threading(
+    fn,
+    X,
+    X_train,
+    prev_classifier,
+    prev_train,
+    prev_prev_classifier,
+    prev_prev_train,
+    done,
+):
+    fn(X, X_train, prev_classifier, prev_train, prev_prev_train, prev_prev_classifier)
     done()
 
 
@@ -48,7 +57,7 @@ class Classifier:
     def __init__(self, search_id: int, classifier_id: int, **kwargs):
         self.search_id = search_id
         self.classifier_id = classifier_id
-        self.model = RandomForestClassifier(n_estimators=100, n_jobs=-1)
+        self.model = RandomForestClassifier(n_estimators=250, n_jobs=-1)
 
         try:
             self.unpredictability_all = kwargs["unpredictability_all"]
@@ -196,6 +205,8 @@ class Classifier:
         self.is_evaluated = False
         self.is_evaluating = True
         try:
+            fn, X, X_train, prev_classifier, prev_prev_classifier, done
+
             _thread.start_new_thread(
                 evaluate_threading,
                 (
