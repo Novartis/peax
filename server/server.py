@@ -21,6 +21,7 @@ from flask import Flask
 from flask import request, jsonify, send_from_directory
 from flask_cors import CORS
 from hgtiles import cooler
+from scipy.spatial.distance import cdist
 
 from server import (
     bigwig,
@@ -31,7 +32,7 @@ from server import (
     vector,
     view_config,
 )
-from server.classifiers import Classifiers
+from server.classifiers import Classifiers, ClassifierNotFound
 from server.exceptions import LabelsDidNotChange, TooFewLabels
 from server.progresses import Progresses
 from server.database import DB
@@ -297,17 +298,27 @@ def create(
             # Remove already classified windows
             data_selection[classifications] = False
 
-            computed_dist_to_target = dsc.computed_dist_to_target
-
-        if not computed_dist_to_target:
-            datasets.compute_encodings_dist(target, verbose=verbose)
-
         with datasets.cache() as dsc:
             classifier = classifiers.get(search_id, default=None)
 
             encodings = dsc.encodings[:]
-            encodings_dist = dsc.encodings_dist[:]
             encodings_knn_density = dsc.encodings_knn_density[:]
+
+            # Compute distance to target
+            N = encodings.shape[0]
+            target = target.reshape((1, -1))
+            batch_size = 10000
+
+            encodings_dist = None
+            for batch_start in np.arange(0, N, batch_size):
+                encodings_batch = encodings[batch_start : batch_start + batch_size]
+
+                batch_dist = cdist(encodings_batch, target, "euclidean").flatten()
+
+                if encodings_dist is None:
+                    encodings_dist = batch_dist
+                else:
+                    encodings_dist = np.concatenate((encodings_dist, batch_dist))
 
             if classifier:
                 _, p_y = classifier.predict(encodings)
@@ -400,8 +411,6 @@ def create(
         p_y_pos = p_y[positive]
 
         sorted_idx = np.argsort(p_y_pos[:, 1])[::-1]
-        window_ids_pos[sorted_idx]
-        p_y_pos[sorted_idx]
 
         # Windows that are considered positive hits given the threshold
         results = []
@@ -566,9 +575,9 @@ def create(
             return jsonify({"info": "Classifier{} been deleted.".format(msg)})
 
         elif request.method == "GET":
-            clf = classifiers.get(search_id, classifier_id)
-
-            if clf is None:
+            try:
+                clf = classifiers.get(search_id, classifier_id)
+            except ClassifierNotFound:
                 return (
                     jsonify(
                         {
@@ -863,6 +872,7 @@ def create(
             options = parts[2]
 
         search_info = db.get_search(search_id)
+        step_size = encoders.window_size // config.step_freq
 
         if utils.is_int(search_id, True):
             incl_predictions = search_info["classifiers"] > 0 and options.find("p") >= 0
@@ -870,9 +880,7 @@ def create(
             incl_selections = options.find("s") >= 0
 
             if window_id is not None and utils.is_int(window_id, True):
-                info = db.get_search(search_id)
-                if info is not None:
-                    step_size = encoders.window_size // config.step_freq
+                if search_info is not None:
                     target_from_rel = step_size * int(window_id)
                     target_to_rel = target_from_rel + encoders.window_size
                     target_abs = list(
@@ -900,18 +908,78 @@ def create(
                     )
 
             else:
-                info = db.get_search(search_id)
-                if info is not None:
-                    return jsonify(
-                        view_config.build(
-                            datasets,
-                            config,
-                            search_info=info,
-                            incl_predictions=incl_predictions,
-                            incl_autoencodings=incl_autoencodings,
-                            incl_selections=incl_selections,
+                if search_info is not None:
+                    if config.variable_target:
+                        classifier = classifiers.get(search_id, default=None)
+                        classifications = np.array(
+                            list(
+                                map(
+                                    lambda classif: int(classif["windowId"]),
+                                    db.get_classifications(search_id),
+                                )
+                            )
+                        ).astype(int)
+
+                        if classifier:
+                            # Select a variable target
+                            _, p_y = classifier.predict(encodings)
+
+                            window_idx_highest_p = np.argsort(p_y[:, 1])[::-1][0]
+
+                            target_from_rel = step_size * int(window_idx_highest_p)
+                            target_to_rel = target_from_rel + encoders.window_size
+                            target_abs = list(
+                                map(
+                                    int,
+                                    bigwig.chr2abs(
+                                        datasets.chromsizes,
+                                        config.chroms[
+                                            0
+                                        ],  # First chrom defines the offset
+                                        target_from_rel,
+                                        target_to_rel,
+                                    ),
+                                )
+                            )
+                            return jsonify(
+                                view_config.build(
+                                    datasets,
+                                    config,
+                                    search_info=search_info,
+                                    domain=target_abs,
+                                    incl_predictions=incl_predictions,
+                                    incl_autoencodings=incl_autoencodings,
+                                    incl_selections=incl_selections,
+                                )
+                            )
+
+                        else:
+                            if classifications.size and classifier is None:
+                                # We need to train the classifier first
+                                classifiers.new(search_id)
+
+                            # Show the default overview
+                            return jsonify(
+                                view_config.build(
+                                    datasets,
+                                    config,
+                                    incl_predictions=incl_predictions,
+                                    incl_autoencodings=incl_autoencodings,
+                                    incl_selections=incl_selections,
+                                )
+                            )
+
+                    else:
+                        return jsonify(
+                            view_config.build(
+                                datasets,
+                                config,
+                                search_info=search_info,
+                                incl_predictions=incl_predictions,
+                                incl_autoencodings=incl_autoencodings,
+                                incl_selections=incl_selections,
+                            )
                         )
-                    )
 
         return (jsonify({"error": "Unknown view config with id: {}".format(id)}), 404)
 

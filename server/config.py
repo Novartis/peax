@@ -29,6 +29,7 @@ class Config:
         self.db_path = DB_PATH
         self.cache_dir = CACHE_DIR
         self.caching = CACHING
+        self.variable_target = False
 
         # Set file
         self.file = config_file
@@ -182,6 +183,14 @@ class Config:
             raise InvalidConfig("Step frequency must be larger than zero")
 
     @property
+    def variable_target(self):
+        return self._variable_target
+
+    @variable_target.setter
+    def variable_target(self, value: bool):
+        self._variable_target = bool(value)
+
+    @property
     def min_classifications(self):
         return self._min_classifications
 
@@ -238,6 +247,9 @@ class Config:
 
         elif key == "caching":
             self.caching = value
+
+        elif key == "variable_target":
+            self.variable_target = value
 
         else:
             raise InvalidConfig("Unknown settings: {}".format(key))
