@@ -1,0 +1,20 @@
+{
+  "encoders": [
+    {
+      "content_type": "dnase-seq-3kb",
+      "from_file": "examples/autoencoders.json"
+    }
+  ],
+  "datasets": [
+    {
+      "filepath": "examples/data/ENCFF158GBQ.bigWig",
+      "content_type": "dnase-seq-3kb",
+      "id": "encode-gm12878-2011-dnase-seq-rdn-signal",
+      "name": "Encode GM12878 DNase rdn"
+    }
+  ],
+  "coords": "hg19",
+  "chroms": ["chr21"],
+  "step_freq": 2,
+  "db_path": "examples/search-example-3kb.db"
+}

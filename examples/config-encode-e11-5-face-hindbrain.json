@@ -1,0 +1,27 @@
+{
+  "encoders": [
+    {
+      "content_type": "dnase-seq-3kb",
+      "from_file": "examples/autoencoders.json"
+    }
+  ],
+  "datasets": [
+    {
+      "filepath": "examples/data/ENCFF373NJX.bigWig",
+      "content_type": "dnase-seq-3kb",
+      "id": "encode-e11-5-face-dnase-rdns",
+      "name": "e11.5 face DNase rdn signal"
+    },
+    {
+      "filepath": "examples/data/ENCFF943PHW.bigWig",
+      "content_type": "dnase-seq-3kb",
+      "id": "encode-e11-5-hindbrain-dnase-rdns",
+      "name": "e11.5 hindbrain DNase rdn signal"
+    }
+  ],
+  "coords": "mm10",
+  "chroms": ["chr10"],
+  "step_freq": 2,
+  "variable_target": true,
+  "db_path": "examples/search-e11-5-face-hindbrain.db"
+}

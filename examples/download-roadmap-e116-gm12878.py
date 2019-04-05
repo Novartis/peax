@@ -23,6 +23,20 @@ if module_path not in sys.path:
 
 from download import download_file
 
+pathlib.Path("models").mkdir(parents=True, exist_ok=True)
+
+download_file(
+    "https://zenodo.org/record/2609763/files/dnase_w-12000_r-100.h5?download=1",
+    "dnase_w-12000_r-100.h5",
+    dir="models"
+)
+
+download_file(
+    "https://zenodo.org/record/2609763/files/chip_w-12000_r-100.h5?download=1",
+    "chip_w-12000_r-100.h5",
+    dir="models"
+)
+
 pathlib.Path("data").mkdir(parents=True, exist_ok=True)
 
 download_dir = "data"

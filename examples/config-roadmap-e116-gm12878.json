@@ -2,11 +2,11 @@
   "encoders": [
     {
       "content_type": "dnase-seq-3kb",
-      "from_file": "examples/encoders.json"
+      "from_file": "examples/autoencoders.json"
     },
     {
       "content_type": "histone-mark-chip-seq-3kb",
-      "from_file": "examples/encoders.json"
+      "from_file": "examples/autoencoders.json"
     }
   ],
   "datasets": [

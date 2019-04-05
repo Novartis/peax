@@ -21,7 +21,21 @@ module_path = os.path.abspath(os.path.join("../experiments"))
 if module_path not in sys.path:
     sys.path.append(module_path)
 
-from download import download_encode_file
+from download import download_file, download_encode_file
+
+pathlib.Path("models").mkdir(parents=True, exist_ok=True)
+
+download_file(
+    "https://zenodo.org/record/2609763/files/dnase_w-3000_r-25.h5?download=1",
+    "dnase_w-3000_r-25.h5",
+    dir="models"
+)
+
+download_file(
+    "https://zenodo.org/record/2609763/files/chip_w-3000_r-25.h5?download=1",
+    "chip_w-3000_r-25.h5",
+    dir="models"
+)
 
 pathlib.Path("data").mkdir(parents=True, exist_ok=True)
 
@@ -30,17 +44,17 @@ download_dir = "data"
 # e11.5 midbrain DNase-seq read-depth normalized signal
 download_encode_file("ENCFF641OPE.bigWig")
 
-# e11.5 midbrain DNase-seq narrow peaks
-download_encode_file("ENCFF688HSB.bigBed")
+# # e11.5 midbrain DNase-seq narrow peaks
+# download_encode_file("ENCFF688HSB.bigBed")
 
-# e11.5 midbrain DNase-seq broad peaks
-download_encode_file("ENCFF543GDG.bigBed")
+# # e11.5 midbrain DNase-seq broad peaks
+# download_encode_file("ENCFF543GDG.bigBed")
 
 # e11.5 midbrain ChIP-seq H3K27ac fold change over control
 download_encode_file("ENCFF336LAW.bigWig")
 
-# e11.5 midbrain ChIP-seq H3K27ac narrow peaks
-download_encode_file("ENCFF542UPZ.bigBed")
+# # e11.5 midbrain ChIP-seq H3K27ac narrow peaks
+# download_encode_file("ENCFF542UPZ.bigBed")
 
-# e11.5 midbrain ChIP-seq H3K27ac broad peaks
-download_encode_file("ENCFF473ALP.bigBed")
+# # e11.5 midbrain ChIP-seq H3K27ac broad peaks
+# download_encode_file("ENCFF473ALP.bigBed")
