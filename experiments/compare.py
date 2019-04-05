@@ -21,7 +21,7 @@ def compare(
     verbose: bool = False,
     silent: bool = False,
 ):
-    postfix = "-{}".format(dataset_name) if dataset_name is not None else ""
+    main_postfix = "-{}".format(dataset_name) if dataset_name is not None else ""
 
     total_loss = None
     total_times = None
@@ -42,6 +42,7 @@ def compare(
 
     for model_name in model_names:
         repetition = None
+        postfix = main_postfix
         if len(model_name.split("__")) > 1:
             parts = model_name.split("__")
             model_name = parts[0]
@@ -53,10 +54,15 @@ def compare(
         )
 
         with h5py.File(filepath, "r") as f:
-            loss = f["total_loss"][:]
+            tmp = f["total_loss"][:]
             if columns is None:
                 columns = f["total_loss_metrics"][()].split(",")
-            loss = np.mean(loss, axis=0).reshape(1, loss.shape[1])
+
+            tmp = np.mean(tmp, axis=0).reshape(1, tmp.shape[1])
+
+            loss = np.zeros((1, 9))
+            loss[:] = np.nan
+            loss[:, : tmp.shape[1]] = np.mean(tmp, axis=0).reshape(1, tmp.shape[1])
 
             if total_loss is None:
                 total_loss = loss
