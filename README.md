@@ -7,9 +7,9 @@
 > Epigenomic data expresses a rich body of diverse patterns that help to identify
 > regulatory elements like promoter, enhancers, etc. But finding these patterns reliably
 > genome wide is challenging. Peax is a tool for interactive visual pattern search and
-> exploration of epigenomic patterns based on unsupervised representation learning with
-> convolutional autoencoders. Genomic regions are manually labeled for actively learning
-> feature weights to build custom classifiers based on your notion of interestingness.
+> exploration of epigenomic patterns based on unsupervised representation learning with a
+> convolutional autoencoder. The visual search is driven by manually labeled genomic
+> regions for actively learning a classifier to reflect your notion of interestingness.
 
 ## Installation
 
@@ -26,48 +26,47 @@ _Do not fear, `make install` is just a convenience function for setting up conda
 
 ## Overview
 
-Peax consists of four main parts:
+Peax consists of three main parts:
 
-1. A python module for creating an autoencoder. [[/ae](ae)]
-2. A set of example notebooks exemplifying the creating of autoencoders. [[/notebooks](notebooks)]
-3. A Flask-based server application for serving genomic and autoencoded data on the web. [[/server](server)].
-4. A React-based user interface for exploring, visualizing, and interactively labeling genomic regions. [[/ui](ui)].
+1. A server application for serving genomic and autoencoded data on the web. [[/server](server)].
+2. A user interface for exploring, visualizing, and interactively labeling genomic regions. [[/ui](ui)].
+3. A set of examples showing how to configure Peax and build your own. [[/examples](examples)]
 
-## Getting started
+#### Autoencoders
 
-### Quick start
+To get you started quickly we also provide 6 autoencoders trained on 3 kb,
+12 kb, and 120 kb window sizes (with 25, 100, and 1000 bp binning) on DNase-seq
+and histone mark ChIP-seq data.
 
-Peax comes with 2 example autoencoders for which we provide convenience scripts
-to get you started as quickly as possible.
+You can find the autoencoder at [zenodo.org/record/2609763](https://zenodo.org/record/2609763).
 
-1. ChIP-seq encoder for 12Kb genomic windows at 100bp binning.
+#### Preprint
 
-   ```bash
-   make example-12kb
-   ```
+Lekschas et al., 2019, [Peax: Interactive Visual Pattern Search in Sequential Data Using Unsupervised Deep Representation Learning](https://www.biorxiv.org/content/10.1101/597518v1)
 
-2. DNase-seq encoder for 2.4Kb genomic windows at 100bp binning
+bioRxiv, doi: [10.1101/597518](10.1101/597518)
 
-   ```bash
-   make example-2_4kb
-   ```
+## Quick start
+
+Peax comes with [6 autoencoders](#autoencoders) for DNase-seq and histone mark
+ChIP-seq data and several example configurations for which we provide
+convenience scripts to get you started as quickly as possible.
+
+For instance, run one of the following commands to start Peax with a DNase-seq
+track for 3 kb, 12 kb, and 120 kb genomic windows.
+
+```bash
+make example-3kb
+make example-12kb
+make example-120kb
+```
 
 The convenience scripts will download test ENCODE tracks and use the matching
-configuration to start the server.
+configuration to start the server. More examples are described in [`/examples`](examples).
 
-_Note: if you need to run Peax on a hostname or port other than `localhost:5000` you need to [manually start Peax](#start-peax) using the respective configs which you can find in the [Makefile](Makefile)._
+## Get Started
 
-### Slow start
-
-#### Build an autoencoder
-
-_Note: right now only Keras-based autoencoders are supported._
-
-First you need to create an autoencoder for your datasets's content types. The
-design of the autoencoder is entirely up to you. To get started take a look at
-the [notebooks](/notebooks) that we provide.
-
-After creating your autoencoder save its model as an HDF5 file.
+In the following we describe how you can configure Peax for your own data.
 
 #### Configure Peax with your data
 
@@ -79,11 +78,62 @@ The fastest way to get started is to copy the example config:
 cp config.json.sample config.json
 ```
 
+The config file has 6 top level properties:
+
+| Field     | Description                                                                                                                                                                                 | Dtype |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| encoders  | List of encoders.                                                                                                                                                                           | list  |
+| datasets  | List of tracks.                                                                                                                                                                             | list  |
+| coords    | Genome coordinates. Peax currently supports hg19, hg28, mm9, and mm10                                                                                                                       | str   |
+| chroms    | Chromosomes to to be searched. If omitted all chromosomes will be prepared for searching.                                                                                                   | list  |
+| step_freq | Step frequency of the sliding window approach. E.g., given an encoder with window size 12 kb, a step frequency of 6 means that every 2 kb a 12 kb window will be extracted from the bigWig. | int   |
+| db_path   | Relative path to the sqlite db for storing searches.                                                                                                                                        | str   |
+
 The main parts to adjust are `encoders` and `datasets`. `encoders` is a list of
-(auto)encoder definitions for different datatypes. The required format for `encoders` is as follows:
+(auto)encoder definitions for different datatypes.T here are two ways to
+configure an (auto)encoder: (a) point to a pre-defined autoencoder or (b)
+configure from scratch.
+
+Assuming you want to use a predefined autoencoder all you have to do is
+
+| Field        | Description                                                         | Dtype |
+| ------------ | ------------------------------------------------------------------- | ----- |
+| content_type | Unique string identifying the autoencoder in the configuration file | str   |
+| from_file    | Relative path to the encoder configuration file.                    | str   |
+
+**Example:**
+
+```json
+{
+  "content_type": "histone-mark-chip-seq-3kb",
+  "from_file": "examples/encoders.json"
+}
+```
+
+The encoder configuration file is a dictionary with the top level keys acting
+as the identifier and need to match `content_type` above. Given the example
+from above the file could look like this:
+
+```json
+{
+  "histone-mark-chip-seq-3kb": {
+    //...
+  },
+  "dnase-seq-3kb": {
+    //...
+  }
+}
+```
+
+See `[encoders.json](encoders.json)` for an example. The specific definition if an
+autoencoder is the same as described in the following.
+
+To configure an autoencoder from scratch you need to provide a dictionary with
+the following required format:
 
 | Field        | Description                                                                                                                                   | Defaults | Dtype |
 | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
+| autoencoder  | Relative path to your pickled autoencoder model. (hdf5 file)                                                                                  |          | str   |
 | encoder      | Relative path to your pickled encoder model. (hdf5 file)                                                                                      |          | str   |
 | decoder      | Relative path to your pickled decoder model. (hdf5 file)                                                                                      |          | str   |
 | content_type | Unique string describing the content this autoencoder can handle. Data tracks with the same content type will be encoded by this autoencoder. |          | str   |
@@ -93,13 +143,16 @@ The main parts to adjust are `encoders` and `datasets`. `encoders` is a list of
 | input_dim    | Number of input dimensions for Keras. For 1D data these are 3: samples, data length (which is `window_size` / `resolution`), channels.        | 3        | int   |
 | channels     | Number of channels of the input data. This is normally 1.                                                                                     | 1        | int   |
 
+_Note that if you have specified an `autoencoder` you do not need to provide
+separate `encoder` and `decoder` models._
+
 **Example:**
 
 ```json
 {
   "encoder": "path/to/my-12kb-chip-seq-encoder.h5",
   "decoder": "path/to/my-12kb-chip-seq-decoder.h5",
-  "content_type": "chip-seq-pval",
+  "content_type": "histone-mark-chip-seq",
   "window_size": 12000,
   "resolution": 100,
   "channels": 1,
@@ -112,7 +165,7 @@ Datasets require the following format:
 
 | Field        | Description                                                                                                                                                       | Dtype |
 | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
-| filepath     | Relative path to your track data file (bigWig or bigBed).                                                                                                         | str   |
+| filepath     | Relative path to the data file (bigWig or bigBed).                                                                                                                | str   |
 | content_type | Unique string describing the content this dataset. If you want to search for patterns in this track you need to have an autoencoder with a matching content type. | str   |
 | id           | A unique string identifying your track. (Optional)                                                                                                                | str   |
 | name         | A human readable name to be shown in HiGlass. (Optional)                                                                                                          | str   |
@@ -121,8 +174,8 @@ Datasets require the following format:
 
 ```json
 {
-  "filepath": "data/chip-seq/my-fancy-gm12878-chip-seq-h3k27c-track.bigWig",
-  "content_type": "chip-seq-pval",
+  "filepath": "data/chip-seq/my-fancy-gm12878-chip-seq-h3k27ac-fc-signal.bigWig",
+  "content_type": "histone-mark-chip-seq",
   "uuid": "my-fancy-gm12878-chip-seq-h3k27c-track",
   "name": "My Fancy GM12878 ChIP-Seq H3k27c Track"
 }
@@ -130,36 +183,51 @@ Datasets require the following format:
 
 #### Start Peax
 
-Finally, start the Peax server to run the application:
+First, start the Peax server to serve your data:
 
 ```bash
-./start.py
+python start.py
 ```
 
-Start supports the following options:
+then start the user interface application with a separate terminal:
+
 
 ```bash
-usage: start.py [-h] [--config CONFIG] [--clear] [--debug] [--host HOST]
-usage: start.py [-h] [--config CONFIG] [--clear] [--clear-cache]
-                [--clear-cache-after] [--clear-db] [--debug] [--host HOST]
-                [--port PORT] [--verbose]
+cd ui && npm run start
+```
+
+The `start.py` script supports the following options:
+
+```bash
+usage: start.py [-h] [-c CONFIG] [--clear] [--clear-cache]
+                [--clear-cache-at-exit] [--clear-db] [-d] [--host HOST]
+                [--port PORT] [-v]
 
 Peak Explorer CLI
 
 optional arguments:
-  -h, --help           show this help message and exit
-  --config CONFIG      path to your JSON config file
-  --clear              clears the cache and database on startup
-  --clear-cache        clears the cache on startup
-  --clear-cache-after  clears the cache on shutdown
-  --clear-db           clears the database on startup
-  --debug              turn on debug mode
-  --host HOST          customize the hostname
-  --port PORT          customize the port
-  --verbose            turn verbose logging on
+  -h, --help            show this help message and exit
+  -c CONFIG, --config CONFIG
+                        path to your JSON config file
+  --clear               clears the cache and database on startup
+  --clear-cache         clears the cache on startup
+  --clear-cache-at-exit
+                        clear the cache on shutdown
+  --clear-db            clears the database on startup
+  -d, --debug           turn on debug mode
+  --host HOST           customize the hostname
+  --port PORT           customize the port
+  -v, --verbose         turn verbose logging on
 ```
 
 The `hostname` defaults to `localhost` and the `port` of the backend server defaults to `5000`.
+
+In order to speed up subsequend user interaction, Peax initially prepapres all
+the data and caches that data under `/cache`. You can always remove this
+directory manually or clear the cache on startup or at exist using the `--clear`
+as specified above.
+
+---
 
 ## Development
 
