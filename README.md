@@ -41,9 +41,8 @@ You can find the autoencoder at [zenodo.org/record/2609763](https://zenodo.org/r
 
 ## Preprint
 
-Lekschas et al., 2019, [Peax: Interactive Visual Pattern Search in Sequential Data Using Unsupervised Deep Representation Learning](https://www.biorxiv.org/content/10.1101/597518v1)
-
-bioRxiv, doi: [10.1101/597518](10.1101/597518)
+Lekschas et al., [Peax: Interactive Visual Pattern Search in Sequential Data Using Unsupervised Deep Representation Learning](https://www.biorxiv.org/content/10.1101/597518v1),
+_bioRxiv_, 2019, doi: [10.1101/597518](10.1101/597518).
 
 ## Quick start
 
