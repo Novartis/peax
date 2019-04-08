@@ -13,6 +13,7 @@ limitations under the License.
 
 import os
 import h5py
+import hashlib
 import numpy as np
 import pandas as pd
 import re
@@ -65,12 +66,17 @@ class Dataset:
         return os.path.basename(self.filepath)
 
     @property
-    def cache_filename(self):
-        return "{}.hdf5".format(os.path.splitext(self.filename)[0])
-
-    @property
     def cache_filepath(self):
         return self._cache_filepath
+
+    def get_cache_filename(self, window_size: int, step_freq: int, chroms: list):
+        md5 = hashlib.md5()
+        md5.update(":".join(chroms).encode())
+        chroms_hash = md5.hexdigest()
+
+        return "{}_w-{}_f-{}_chr-{}.hdf5".format(
+            os.path.splitext(self.filename)[0], window_size, step_freq, chroms_hash[:6]
+        )
 
     @contextmanager
     def cache(self):
@@ -148,7 +154,12 @@ class Dataset:
 
         chrom_res_sizes = pd.Series(res_size_per_chrom, index=config.chroms, dtype=int)
 
-        self._cache_filepath = os.path.join(config.cache_dir, self.cache_filename)
+        # chroms + encoder.window_size + config.step_freq
+        cache_filename = self.get_cache_filename(
+            encoder.window_size, config.step_freq, config.chroms
+        )
+
+        self._cache_filepath = os.path.join(config.cache_dir, cache_filename)
 
         ascii_chroms = [n.encode("ascii", "ignore") for n in config.chroms]
 
