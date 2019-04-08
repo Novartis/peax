@@ -14,7 +14,7 @@
     }
   ],
   "coords": "hg19",
-  "chroms": ["chr21"],
-  "step_freq": 2,
+  "chroms": ["chr20", "chr21"],
+  "step_freq": 3,
   "db_path": "examples/search-example-12kb.db"
 }
