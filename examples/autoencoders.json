@@ -21,7 +21,7 @@
     "autoencoder": "examples/models/dnase_w-120000_r-1000.h5",
     "content_type": "dnase-seq-120kb",
     "window_size": 120000,
-    "resolution": 100,
+    "resolution": 1000,
     "latent_dim": 10,
     "channels": 1,
     "input_dim": 3
