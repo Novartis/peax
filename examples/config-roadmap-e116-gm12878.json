@@ -35,8 +35,8 @@
       "name": "GM12878 H3K4me3 fc"
     }
   ],
-  "coords": "grch38",
-  "chroms": ["chr21"],
-  "step_freq": 4,
+  "coords": "hg19",
+  "chroms": ["chr20", "chr21"],
+  "step_freq": 2,
   "db_path": "examples/search-roadmap-e116-gm12878.db"
 }
