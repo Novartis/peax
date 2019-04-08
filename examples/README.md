@@ -55,4 +55,4 @@ binning.
 
 Please see our preprint for a detailed description of the training and parameter settings:
 
-> Lekschas et al., 2019, [Peax: Interactive Visual Pattern Search in Sequential Data Using Unsupervised Deep Representation Learning](https://www.biorxiv.org/content/10.1101/597518v1)
+> Lekschas et al., [Peax: Interactive Visual Pattern Search in Sequential Data Using Unsupervised Deep Representation Learning](https://www.biorxiv.org/content/10.1101/597518v1), _bioRxiv_, 2019, doi: [10.1101/597518](https://doi.org/10.1101/597518).
