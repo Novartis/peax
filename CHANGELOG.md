@@ -1,3 +1,12 @@
+### v0.3.0
+
+- Support multitrack search
+- Update active learning sampling strategies
+- Make windows selectable
+- Visualize the progress of the actively-learned classifier
+- Update and expand examples to use our newly trained autoencoders
+- Tons of bug fixes and performance improvements
+
 ### v0.2.0
 
 - Represent datasets and encoders as classes rather than loose collections of `dict`s
