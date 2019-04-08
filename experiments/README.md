@@ -4,7 +4,7 @@ This directory contains several notebooks and code how we trained the six convol
 autoencoder models for DNase and histone mark ChIP-seq data. This part is
 supplement to the descriptions in our manuscript:
 
-Lekschas _et al._, 2019. [Peax: Interactive Visual Pattern Search in Sequential Data
+> Lekschas et al. [Peax: Interactive Visual Pattern Search in Sequential Data
 Using Unsupervised Deep Representation Learning](https://www.biorxiv.org/content/10.1101/597518v1).
-bioRxiv, doi: [10.1101/597518](10.1101/597518).
+_bioRxiv_, 2019, doi: [10.1101/597518](10.1101/597518).
 
