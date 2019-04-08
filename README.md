@@ -7,8 +7,8 @@
 > Epigenomic data expresses a rich body of diverse patterns that help to identify
 > regulatory elements like promoter, enhancers, etc. But finding these patterns reliably
 > genome wide is challenging. Peax is a tool for interactive visual pattern search and
-> exploration of epigenomic patterns based on unsupervised representation learning with a
-> convolutional autoencoder. The visual search is driven by manually labeled genomic
+> exploration of epigenomic patterns based on unsupervised representation learning with
+> convolutional autoencoders. The visual search is driven by manually labeled genomic
 > regions for actively learning a classifier to reflect your notion of interestingness.
 
 ## Installation
@@ -32,15 +32,14 @@ Peax consists of three main parts:
 2. A user interface for exploring, visualizing, and interactively labeling genomic regions. [[/ui](ui)].
 3. A set of examples showing how to configure Peax and build your own. [[/examples](examples)]
 
-#### Autoencoders
+## Data
 
-To get you started quickly we also provide 6 autoencoders trained on 3 kb,
-12 kb, and 120 kb window sizes (with 25, 100, and 1000 bp binning) on DNase-seq
-and histone mark ChIP-seq data.
+We provide 6 autoencoders trained on 3 kb, 12 kb, and 120 kb window sizes (with 25,
+100, and 1000 bp binning) on DNase-seq and histone mark ChIP-seq data.
 
 You can find the autoencoder at [zenodo.org/record/2609763](https://zenodo.org/record/2609763).
 
-#### Preprint
+## Preprint
 
 Lekschas et al., 2019, [Peax: Interactive Visual Pattern Search in Sequential Data Using Unsupervised Deep Representation Learning](https://www.biorxiv.org/content/10.1101/597518v1)
 
@@ -55,13 +54,19 @@ convenience scripts to get you started as quickly as possible.
 For instance, run one of the following commands to start Peax with a DNase-seq
 track for 3 kb, 12 kb, and 120 kb genomic windows.
 
-```bash
-make example-3kb
-make example-12kb
-make example-120kb
-```
+| Command              | Window Size | Step Freq. | Chromosomes |
+| -------------------- | ----------- | ---------- | ----------- |
+| `make example-3kb`   | 3 kb        | 2          | 21          |
+| `make example-12kb`  | 12 kb       | 3          | 20-21       |
+| `make example-120kb` | 120 kb      | 6          | 17-21       |
 
-The convenience scripts will download test ENCODE tracks and use the matching
+**Note:** The first time Peax is started it will precompute the datasets for
+exploration. This can take a few minutes depending on your hardware. Also, these demos
+will only prepare the above mentioned chromosomes, so don't try to search for patterns
+on another chromosome. It won't work! For your own data you can freely configure this
+of course.
+
+The scripts will download test ENCODE tracks and use the matching
 configuration to start the server. More examples are described in [`/examples`](examples).
 
 ## Get Started
@@ -183,20 +188,19 @@ Datasets require the following format:
 
 #### Start Peax
 
-First, start the Peax server to serve your data:
+First, start the Peax server to serve your data.
+
+**Note:** The first time you run Peax on a new dataset all the data will be prepared!
+Depending on your machine this can take some time. If you want to track the progress
+activate the debugging mode using `-d`.
 
 ```bash
 python start.py
 ```
 
-then start the user interface application with a separate terminal:
+Now go to [http://localhost:5000](http://localhost:5000).
 
-
-```bash
-cd ui && npm run start
-```
-
-The `start.py` script supports the following options:
+To `start.py` script supports the following options:
 
 ```bash
 usage: start.py [-h] [-c CONFIG] [--clear] [--clear-cache]
@@ -220,7 +224,8 @@ optional arguments:
   -v, --verbose         turn verbose logging on
 ```
 
-The `hostname` defaults to `localhost` and the `port` of the backend server defaults to `5000`.
+The `hostname` defaults to `localhost` and the `port` of the backend server defaults
+to `5000`.
 
 In order to speed up subsequend user interaction, Peax initially prepapres all
 the data and caches that data under `/cache`. You can always remove this
@@ -235,25 +240,33 @@ Handy commands to keep in mind:
 
 - `make install` installs the conda environment and npm packages and builds the UI
 - `make update` updates the conda environment and npm packages and rebuilds the UI
-- `make build` rebuild the UI
+- `make build` builds the UI
 - `./start.py` starts the Flask server application for serving data
 - [/ui]: `npm install` installs and updates all the needed packages for the frontend
 - [/ui]: `npm build` creates the production built of the frontend
 - [/ui]: `npm start` starts a dev server with hot reloading for the frontend
 
-To start developing on the server and the ui in parallel, first start the backend server application using `./start.py` and then start the frontend server application from `./ui` using `npm start`. Both server's watch the source code, so whenever you change something the servers will reload.
+To start developing on the server and the ui in parallel, first start the backend server
+application using `./start.py` and then start the frontend server application from
+`./ui` using `npm start`. Both server's watch the source code, so whenever you make
+changes to the source code the servers will reload.
 
 ### Configuration
 
-There are 2 types of configuration files. The [backend server configuration](#configure-peax-with-your-data) defines the datasets to explore and is described in detail [above](#configure-peax-with-your-data).
+There are 2 types of configuration files. The [backend server configuration](#configure-peax-with-your-data)
+defines the datasets to explore and is described in detail [above](#configure-peax-with-your-data).
 
-Additionally, the frontend application can be configured to talk to a different backend server and port if needed. Get started by copying the example configuration:
+Additionally, the frontend application can be configured to talk to a different backend
+server and port if needed. Get started by copying the example configuration:
 
 ```bash
 cd ui && cp config.json.sample config.json
 ```
 
-By default the `server` is dynamically set to the hostname of the server running the frontend application. I.e., it is assumed that the backend server application is running on the same host as the frontend application. The `port` of the server defaults to `5000`.
+By default the `server` is dynamically set to the hostname of the server running the
+frontend application. I.e., it is assumed that the backend server application is
+running on the same host as the frontend application. The `port` of the server
+defaults to `5000`.
 
 ### Start the backend and frontend apps
 
@@ -262,7 +275,7 @@ applications.
 
 ```bash
 # Backend server
-./start.py --debug
+./start.py --debug --config path/to/your/config.json
 
 # Frontend server
 cd ui && npm start
