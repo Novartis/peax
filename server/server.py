@@ -99,11 +99,11 @@ def create(
 
     @app.route("/")
     def view_root():
-        return send_from_directory("ui/build", "index.html")
+        return send_from_directory("../ui/build", "index.html")
 
     @app.route("/<path:filename>")
     def view_root_files(filename):
-        return send_from_directory("ui/build", filename)
+        return send_from_directory("../ui/build", filename)
 
     ####################
     # SEARCH ENDPOINTS #
