@@ -1,6 +1,6 @@
 # Peax: a visual pattern explorer for epigenomic data
 
-**Peax is still under active development! If you like to give it a try, please choose one of the [pre-releases](https://github.com/Novartis/peax/releases). If you run into trouble please contact [@flekschas](https://twitter.com/flekschas). He's happy to help while we're working hard to release a stabelize version soon.**
+**__Note__**: Peax is still under active development! If you like to give it a try, please choose one of the [pre-releases](https://github.com/Novartis/peax/releases). Contact [@flekschas](https://twitter.com/flekschas) in case you run into trouble. He's happy to help while we're working hard towards a stable release.**
 
 ![Peax's UI](teaser.png)
 
@@ -10,6 +10,7 @@
 > exploration of epigenomic patterns based on unsupervised representation learning with
 > convolutional autoencoders. The visual search is driven by manually labeled genomic
 > regions for actively learning a classifier to reflect your notion of interestingness.
+> More at [peax.lekschas.de](http://peax.lekschas.de).
 
 ## Installation
 
@@ -120,12 +121,8 @@ from above the file could look like this:
 
 ```json
 {
-  "histone-mark-chip-seq-3kb": {
-    //...
-  },
-  "dnase-seq-3kb": {
-    //...
-  }
+  "histone-mark-chip-seq-3kb": {},
+  "dnase-seq-3kb": {}
 }
 ```
 
