@@ -1,6 +1,6 @@
 # Peax: a visual pattern explorer for epigenomic data
 
-**__Note__**: Peax is still under active development! If you like to give it a try, please choose one of the [pre-releases](https://github.com/Novartis/peax/releases). Contact [@flekschas](https://twitter.com/flekschas) in case you run into trouble. He's happy to help while we're working hard towards a stable release.**
+**__Note__**: Peax is still under active development! If you like to give it a try, please choose one of the [pre-releases](https://github.com/Novartis/peax/releases). Contact [@flekschas](https://twitter.com/flekschas) in case you run into trouble. He's happy to help while we're working hard towards a stable release.
 
 ![Peax's UI](teaser.png)
 
