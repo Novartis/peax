@@ -837,7 +837,7 @@ def create(
 
     @app.route("/version.txt", methods=["GET"])
     def version():
-        return "SERVER_VERSION: 0.1.0-flask"
+        return "SERVER_VERSION: 0.3.0-flask"
 
     @app.route("/api/v1/viewconfs/", methods=["GET"])
     def view_configs():
