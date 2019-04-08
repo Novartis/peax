@@ -21,22 +21,48 @@ const About = () => (
           <span>Summary</span>
         </h3>
         <p className="abstract">
-          Epigenomic data expresses a rich body of diverse patterns, but
-          extracting patterns genome wide is limited, as specialized algorithms
-          are required or the expressiveness is low. Peax is a tool for
-          interactive concept learning and exploration of epigenomic patterns
-          based on unsupervised featurization with autorencoders. Genomic
-          regions are manually labeled for actively learning feature weights to
-          build a custom classifiers based on a researchers notion of
-          interstingness.
+          Epigenomic data expresses a rich body of diverse patterns that help to
+          identify regulatory elements like promoter, enhancers, etc. But
+          finding these patterns reliably genome wide is challenging. Peax is a
+          tool for interactive visual pattern search and exploration of
+          epigenomic patterns based on unsupervised representation learning with
+          convolutional autoencoders. The visual search is driven by manually
+          labeled genomic regions for actively learning a classifier to reflect
+          your notion of interestingness.
+        </p>
+
+        <h3 id="preprint" className="iconized underlined anchored">
+          <a href="#preprint" className="hidden-anchor">
+            <Icon iconId="link" />
+          </a>
+          <Icon iconId="document" />
+          <span>Preprint</span>
+        </h3>
+        <p>
+          <strong>
+            Peax: Interactive Visual Pattern Search in Sequential Data Using
+            Unsupervised Deep Representation Learning
+          </strong>
+          <br />
+          Fritz Lekschas, Brant Peterson, Daniel Haehn, Eric Ma, Nils
+          Gehlenborg, and Hanspeter Pfister
+          <br />
+          <em>bioRxiv</em>, 2019, doi:{' '}
+          <a
+            href="https://doi.org/10.1101/597518"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            10.1101/597518
+          </a>
         </p>
 
         <h3 id="abstract" className="iconized underlined anchored">
           <a href="#abstract" className="hidden-anchor">
             <Icon iconId="link" />
           </a>
-          <Icon iconId="person" />
-          <span>Authors</span>
+          <Icon iconId="people" />
+          <span>People</span>
         </h3>
 
         <ol className="no-list-style authors">
@@ -82,10 +108,7 @@ const About = () => (
             </ul>
           </li>
           <li className="flex-c flex-v">
-            <span className="name">
-              Brant Peterson
-              <span className="badge role">Concept</span>
-            </span>
+            <span className="name">Brant Peterson</span>
             <span className="affiliation">
               Novartis Institutes for BioMedical Research
             </span>
@@ -261,13 +284,13 @@ const About = () => (
             <Icon iconId="link" />
           </a>
           <Icon iconId="code" />
-          Source Code
+          Code &amp; Data
         </h3>
 
         <ul className="no-list-style large-spacing iconized">
           <li className="iconized">
             <Icon iconId="github" />
-            <span className="m-r-0-5">Repo:</span>
+            <span className="m-r-0-5">Source code:</span>
             <a
               href="https://github.com/novartis/peax"
               target="_blank"
@@ -276,9 +299,21 @@ const About = () => (
               github.com/novartis/peax
             </a>
           </li>
+          <li className="iconized">
+            <Icon iconId="data" />
+            <span className="m-r-0-5">Trained autoencoders:</span>
+            <a
+              href="https://doi.org/10.5281/zenodo.2609763"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              doi.org/10.5281/zenodo.2609763
+            </a>
+          </li>
         </ul>
 
-        <p>Peax uses and adopts the following open source component:</p>
+        <br />
+        <p>Peax is based on and using the following open source tools:</p>
 
         <ul className="no-list-style large-spacing iconized">
           <li className="iconized">
