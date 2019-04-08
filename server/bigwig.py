@@ -243,33 +243,36 @@ def chunk(
     normalize: bool = True,
     percentile: float = 99.9,
     verbose: bool = False,
+    chromsizes=None,
     print_per_chrom: callable = None,
 ):
-    chrom_sizes = bbi.chromsizes(bigwig)
+    if chromsizes is None:
+        chromsizes = bbi.chromsizes(bigwig)
+
     base_bins = np.ceil(window_size / resolution).astype(int)
 
     num_total_windows = 0
     bins = np.ceil(window_size / resolution).astype(int)
 
     for chrom in chroms:
-        chrom_size = chrom_sizes[chrom]
+        chromsize = chromsizes[chrom]
         num_total_windows += (
-            np.ceil((chrom_size - window_size) / step_size).astype(int) + 1
+            np.ceil((chromsize - window_size) / step_size).astype(int) + 1
         )
 
     values = np.zeros((num_total_windows, base_bins))
 
     start = 0
     for chrom in chroms:
-        if chrom not in chrom_sizes:
-            print("Skipping chrom (not in bigWig file):", chrom, chrom_sizes[chrom])
+        if chrom not in chromsizes:
+            print("Skipping chrom (not in bigWig file):", chrom, chromsizes[chrom])
             continue
 
-        chrom_size = chrom_sizes[chrom]
-        num_windows = np.ceil((chrom_size - window_size) / step_size).astype(int) + 1
+        chromsize = chromsizes[chrom]
+        num_windows = np.ceil((chromsize - window_size) / step_size).astype(int) + 1
 
-        start_bps = np.arange(0, chrom_size - window_size + step_size, step_size)
-        end_bps = np.arange(window_size, chrom_size + step_size, step_size)
+        start_bps = np.arange(0, chromsize - window_size + step_size, step_size)
+        end_bps = np.arange(window_size, chromsize + step_size, step_size)
 
         end = start + num_windows
 

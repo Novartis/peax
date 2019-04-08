@@ -221,6 +221,7 @@ class Dataset:
                         encoder.resolution,
                         step_size,
                         [chromosome],
+                        chromsizes=self.chromsizes,
                         verbose=verbose,
                     )
                     num_windows, num_bins = windows.shape
