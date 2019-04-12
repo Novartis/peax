@@ -21,7 +21,7 @@ def compare(
     verbose: bool = False,
     silent: bool = False,
 ):
-    postfix = "-{}".format(dataset_name) if dataset_name is not None else ""
+    main_postfix = "-{}".format(dataset_name) if dataset_name is not None else ""
 
     total_loss = None
     total_times = None
@@ -42,6 +42,7 @@ def compare(
 
     for model_name in model_names:
         repetition = None
+        postfix = main_postfix
         if len(model_name.split("__")) > 1:
             parts = model_name.split("__")
             model_name = parts[0]
@@ -103,6 +104,10 @@ def compare(
     num_models = np.min((total_loss.shape[0], num_models))
 
     fig, axes = plt.subplots(num_models, 1, figsize=(10, 3 * num_models), sharex=True)
+    
+    if num_models == 1:
+        axes = [axes]
+    
     for i, ax in enumerate(axes):
         ax.bar(columns, total_loss[ordered_models][i])
         ax.set_xlabel("Metrics")
