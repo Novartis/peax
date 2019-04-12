@@ -138,13 +138,12 @@ def plot_loss_to_file(
 
     fig, ax = plt.subplots()
     fig.set_size_inches(3 + 0.175 * real_epochs, 4)
-    #     sns.lineplot(data=df, ax=ax)
-    ax.plot(loss[:real_epochs], color="#0f5d92", label="Training loss")
-    ax.plot(val_loss[:real_epochs], color="#cc168c", label="Validation loss")
+    ax.plot(loss[:real_epochs], color='#0f5d92', label='Training loss')
+    ax.plot(val_loss[:real_epochs], color='#cc168c', label='Validation loss')
     ax.set_xticks(np.arange(0, real_epochs, 2))
     ax.set(xlabel="epochs", ylabel="loss")
     if title is not None:
-        ax.set_title(title, fontsize=18, fontweight="bold")
+        ax.set_title(title, fontsize=18, fontweight='bold')
     fig.legend(loc="upper right", bbox_to_anchor=(0.79, 0.9))
     fig.savefig(filepath, bbox_inches="tight")
 

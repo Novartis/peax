@@ -981,26 +981,39 @@ def plot_windows(
                 sampled_wins.reshape(sampled_wins.shape[0], sampled_wins.shape[1], 1)
             )
             sampled_encodings = sampled_encodings.squeeze(axis=2)
-
+            
         real_num = sampled_wins.shape[0]
 
         cols = max(math.floor(math.sqrt(real_num) * 3 / 5), 1)
         rows = math.ceil(real_num / cols)
 
         x = np.arange(L)
-
+        
         if plot_reconst_separately:
-            fig, axes = plt.subplots(
-                (rows * 3) - 1,
-                cols,
-                figsize=(6 * cols, 2 * rows),
-                sharex=True,
-                gridspec_kw=dict(
-                    height_ratios=([1, 1, 0.75] * (rows - 1) + [1, 1]),
-                    wspace=0.2,
-                    hspace=0,
-                ),
-            )
+            if diff:
+                fig, axes = plt.subplots(
+                    (rows * 4) - 1,
+                    cols,
+                    figsize=(6 * cols, 3 * rows),
+                    sharex=True,
+                    gridspec_kw=dict(
+                        height_ratios=([1,1,1,0.6] * (rows - 1) + [1,1,1]),
+                        wspace=0.2,
+                        hspace=0
+                    )
+                )
+            else:
+                fig, axes = plt.subplots(
+                    (rows * 3) - 1,
+                    cols,
+                    figsize=(6 * cols, 2 * rows),
+                    sharex=True,
+                    gridspec_kw=dict(
+                        height_ratios=([1,1,0.75] * (rows - 1) + [1,1]),
+                        wspace=0.2,
+                        hspace=0
+                    )
+                )
         else:
             fig, axes = plt.subplots(
                 rows,
@@ -1033,12 +1046,127 @@ def plot_windows(
 
                 primary_color = "green" if sampled_peaks[i] == 1 else "mediumblue"
                 secondary_color = "gray"
-
+                
                 if no_peak_coloring:
                     primary_color = "#0E689D"
-
+                    
                 ground_truth_color = secondary_color if model_name else primary_color
                 prediction_color = primary_color
+                
+                if plot_reconst_separately:
+                    if diff:
+                        axis = get_axis(r * 4, c)
+                        axis.bar(x, sampled_wins[i], width=1.0, color="#000000")
+                        axis.spines["top"].set_color("silver")
+                        axis.spines["right"].set_color("silver")
+                        axis.spines["bottom"].set_color("silver")
+                        axis.spines["left"].set_color("silver")
+                        axis.set_ylim(0, 1)
+                        axis.set_xticks([], [])
+                        axis.set_yticks([], [])
+                        if not no_title:
+                            axis.set_title(selected_window_ids[i])
+
+                        axis = get_axis(r * 4 + 1, c)
+                        axis.bar(x, sampled_encodings[i], width=1.0, color="#0E689D")
+                        axis.spines["top"].set_color("silver")
+                        axis.spines["right"].set_color("silver")
+                        axis.spines["bottom"].set_color("silver")
+                        axis.spines["left"].set_color("silver")
+                        axis.set_ylim(0, 1)
+                        axis.set_xticks([], [])
+                        axis.set_yticks([], [])
+                        
+                        axis = get_axis(r * 4 + 2, c)
+                        sampled_win_min_vales = np.minimum(sampled_wins[i], sampled_encodings[i])
+                        axis.bar(x, sampled_wins[i], width=1.0, color="#0E689D")
+                        axis.bar(x, sampled_encodings[i], width=1.0, color="#cc168c")
+                        axis.bar(x, sampled_win_min_vales, width=1.0, color="#ffffff")
+                        axis.spines["top"].set_color("silver")
+                        axis.spines["right"].set_color("silver")
+                        axis.spines["bottom"].set_color("silver")
+                        axis.spines["left"].set_color("silver")
+                        axis.set_ylim(0, 1)
+                        axis.set_xticks([], [])
+                        axis.set_yticks([], [])
+
+                        if r < rows - 1:
+                            axis = get_axis(r * 4 + 3, c)
+                            axis.spines["top"].set_color("silver")
+                            axis.spines["right"].set_visible(False)
+                            axis.spines["bottom"].set_visible(False)
+                            axis.spines["left"].set_visible(False)
+                            axis.set_xticks([], [])
+                            axis.set_yticks([], [])
+                            
+                    else:
+                        axis = get_axis(r * 3, c)
+                        axis.bar(x, sampled_wins[i], width=1.0, color="#000000")
+                        axis.spines["top"].set_color("silver")
+                        axis.spines["right"].set_color("silver")
+                        axis.spines["bottom"].set_color("silver")
+                        axis.spines["left"].set_color("silver")
+                        axis.set_ylim(0, 1)
+                        axis.set_xticks([], [])
+                        axis.set_yticks([], [])
+                        if not no_title:
+                            axis.set_title(selected_window_ids[i])
+
+                        axis = get_axis(r * 3 + 1, c)
+                        axis.bar(x, sampled_encodings[i], width=1.0, color="#0E689D")
+                        axis.spines["top"].set_color("silver")
+                        axis.spines["right"].set_color("silver")
+                        axis.spines["bottom"].set_color("silver")
+                        axis.spines["left"].set_color("silver")
+                        axis.set_ylim(0, 1)
+                        axis.set_xticks([], [])
+                        axis.set_yticks([], [])
+
+                        if r < rows - 1:
+                            axis = get_axis(r * 3 + 2, c)
+                            axis.spines["top"].set_color("silver")
+                            axis.spines["right"].set_visible(False)
+                            axis.spines["bottom"].set_visible(False)
+                            axis.spines["left"].set_visible(False)
+                            axis.set_xticks([], [])
+                            axis.set_yticks([], [])
+
+                else:
+                    axis = get_axis(r, c)
+
+                    if diff and model_name:
+                        sampled_win_min_vales = np.minimum(
+                            sampled_wins[i],
+                            sampled_encodings[i],
+                        )
+                        axis.bar(x, sampled_wins[i], width=1.0, color="#0f5d92")
+                        axis.bar(x, sampled_encodings[i], width=1.0, color="#cc168c")
+                        axis.bar(x, sampled_win_min_vales, width=1.0, color="#ffffff")
+                    else:
+                        axis.bar(x, sampled_wins[i], width=1.0, color=ground_truth_color)
+                        if model_name:
+                            axis.bar(
+                                x,
+                                sampled_encodings[i],
+                                width=1.0,
+                                color=prediction_color,
+                                alpha=0.5,
+                            )
+                    axis.set_xticks(x[5::10])
+                    axis.set_xticklabels(x[5::10])
+
+                    axis.spines["top"].set_color("silver")
+                    axis.spines["right"].set_color("silver")
+                    axis.spines["bottom"].set_color("silver")
+                    axis.spines["left"].set_color("silver" if no_peak_coloring else primary_color)
+                    axis.spines["left"].set_linewidth(1 if no_peak_coloring else 4)
+                    axis.tick_params(axis="x", colors=secondary_color)
+                    axis.tick_params(axis="y", colors=secondary_color)
+                    axis.set_ylim(0, 1)
+                    if not no_title:
+                        axis.set_title(selected_window_ids[i])
+                    axis.set_xticks([], [])
+                    axis.set_yticks([], [])
 
                 if plot_reconst_separately:
                     axis = get_axis(r * 3, c)
