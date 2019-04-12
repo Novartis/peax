@@ -15,6 +15,8 @@ import _thread
 import numpy as np
 from server import utils
 from server.classifier import Classifier
+from server.defaults import MIN_CLASSIFICATIONS
+from server.exceptions import LabelsDidNotChange, TooFewLabels
 
 
 def get_labels(classifier, search_target_windows):
@@ -32,12 +34,20 @@ class ClassifierNotFound(Exception):
 
 
 class Classifiers:
-    def __init__(self, db, data, window_size: int, abs_offset: int):
+    def __init__(
+        self,
+        db,
+        data,
+        window_size: int,
+        abs_offset: int,
+        min_classifications: int = MIN_CLASSIFICATIONS,
+    ):
         self.classifiers = {}
         self.db = db
         self.data = data
         self.window_size = window_size
         self.abs_offset = abs_offset
+        self.min_classifications = min_classifications
 
     def delete(self, search_id: int, classifier_id: int = None):
         self.db.delete_classifier(search_id, classifier_id)
@@ -207,7 +217,6 @@ class Classifiers:
         if classifier_ids is None:
             return None
 
-        print("wurst puller")
         for classifier_id in classifier_ids:
             self.evaluate(search_id, classifier_id, update=update, no_threading=True)
 
@@ -219,7 +228,7 @@ class Classifiers:
 
     def new(self, search_id: int):
         # Get previous classifier
-        prev_classifier = self.get(search_id)
+        prev_classifier = self.get(search_id, default=None)
         prev_classif = None
         if prev_classifier is not None:
             prev_classif = prev_classifier.serialized_classifications
@@ -242,7 +251,16 @@ class Classifiers:
 
         # Compare new classifications with old classifications
         if new_classif == prev_classif:
-            return None
+            raise LabelsDidNotChange()
+
+        # Do not train a classifier if less than the minimum of labels are available
+        if classifications.size < self.min_classifications:
+            raise TooFewLabels(
+                {
+                    "num_labels": classifications.size,
+                    "min_classifications": self.min_classifications,
+                }
+            )
 
         # Create a DB entry
         classifier_id = self.db.create_classifier(search_id, classif=new_classif)

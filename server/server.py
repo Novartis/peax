@@ -21,6 +21,7 @@ from flask import Flask
 from flask import request, jsonify, send_from_directory
 from flask_cors import CORS
 from hgtiles import cooler
+from scipy.spatial.distance import cdist
 
 from server import (
     bigwig,
@@ -31,7 +32,8 @@ from server import (
     vector,
     view_config,
 )
-from server.classifiers import Classifiers
+from server.classifiers import Classifiers, ClassifierNotFound
+from server.exceptions import LabelsDidNotChange, TooFewLabels
 from server.progresses import Progresses
 from server.database import DB
 from server.projectors import Projectors
@@ -75,7 +77,11 @@ def create(
 
         # Set up classifiers
         classifiers = Classifiers(
-            db, encodings, window_size=encoders.window_size, abs_offset=abs_offset
+            db,
+            encodings,
+            window_size=encoders.window_size,
+            abs_offset=abs_offset,
+            min_classifications=config.min_classifications,
         )
 
         # Set up progresses
@@ -93,11 +99,11 @@ def create(
 
     @app.route("/")
     def view_root():
-        return send_from_directory("ui/build", "index.html")
+        return send_from_directory("../ui/build", "index.html")
 
     @app.route("/<path:filename>")
     def view_root_files(filename):
-        return send_from_directory("ui/build", filename)
+        return send_from_directory("../ui/build", filename)
 
     ####################
     # SEARCH ENDPOINTS #
@@ -273,11 +279,11 @@ def create(
             num_windows = dsc.encodings.shape[0]
 
             # Array determining which data points should be used
-            data_idx = np.ones(num_windows).astype(bool)
+            data_selection = np.ones(num_windows).astype(bool)
 
             # Remove the windows overlapping the target window (nt = no target)
             if np.max(remove_windows) >= 0 and np.min(remove_windows) < num_windows:
-                data_idx[remove_windows.astype(int)] = False
+                data_selection[remove_windows.astype(int)] = False
 
             # Get classifications as already classified windows should be ignored
             classifications = np.array(
@@ -290,20 +296,49 @@ def create(
             ).astype(int)
 
             # Remove already classified windows
-            data_idx[classifications] = False
+            data_selection[classifications] = False
 
+        with datasets.cache() as dsc:
             classifier = classifiers.get(search_id, default=None)
+
             encodings = dsc.encodings[:]
+            encodings_knn_density = dsc.encodings_knn_density[:]
+
+            # Compute distance to target
+            N = encodings.shape[0]
+            target = target.reshape((1, -1))
+            batch_size = 10000
+
+            encodings_dist = None
+            for batch_start in np.arange(0, N, batch_size):
+                encodings_batch = encodings[batch_start : batch_start + batch_size]
+
+                batch_dist = cdist(encodings_batch, target, "euclidean").flatten()
+
+                if encodings_dist is None:
+                    encodings_dist = batch_dist
+                else:
+                    encodings_dist = np.concatenate((encodings_dist, batch_dist))
 
             if classifier:
                 _, p_y = classifier.predict(encodings)
 
-            if classifications.size > 0 and classifier is not None:
-                seeds = sampling.sample_by_uncertainty_density(
-                    encodings, data_idx, target, p_y[:, 0]
+            if (
+                classifications.size >= config.min_classifications
+                and classifier is not None
+            ):
+                seeds = sampling.sample_by_uncertainty_dist_density(
+                    encodings,
+                    data_selection,
+                    encodings_dist,
+                    encodings_knn_density,
+                    p_y[:, 0],
                 )
 
-            elif classifications.size > 0 and classifier is None:
+            elif (
+                classifications.size >= config.min_classifications
+                and classifier is None
+            ):
                 # We need to train the classifier first
                 classifier = classifiers.new(search_id)
                 return jsonify(
@@ -315,13 +350,22 @@ def create(
                 )
 
             else:
-                # Remove empty windows (ne = no empty)
-                data_idx[np.where((dsc.windows_max[:] < 0.1))] = False
-                seeds = sampling.sample_by_dist_density(encodings, data_idx, target)
+                # Remove almost empty windows
+                data_selection[np.where((dsc.windows_max[:] < 0.1))] = False
+
+                seeds = sampling.sample_by_dist_density(
+                    encodings, data_selection, encodings_dist, encodings_knn_density
+                )
 
             assert np.unique(seeds).size == seeds.size, "Do not return duplicated seeds"
 
-            return jsonify({"results": seeds.tolist()})
+            return jsonify(
+                {
+                    "results": seeds.tolist(),
+                    "minClassifications": config.min_classifications,
+                    "isInitial": classifications.size < config.min_classifications,
+                }
+            )
 
     @app.route("/api/v1/predictions/", methods=["GET"])
     def predictions():
@@ -367,10 +411,14 @@ def create(
         p_y_pos = p_y[positive]
 
         sorted_idx = np.argsort(p_y_pos[:, 1])[::-1]
-        window_ids_pos[sorted_idx]
-        p_y_pos[sorted_idx]
 
+        # Windows that are considered positive hits given the threshold
         results = []
+        # False negatives: windows that are manually labeled as positive but are not
+        # considered positive hits by the classifier
+        conflicts_fn = []
+        # Windows that manually labeled as negative but are considered positive
+        conflicts_fp = []
 
         # Get manual classifications
         classifications = db.get_classifications(search_id)
@@ -391,20 +439,31 @@ def create(
                     "classification"
                 ]
 
+                if result["classification"] == -1:
+                    conflicts_fp.append(result)
+
             results_hashed[window_id] = len(results)
             results.append(result)
 
+        # Windows that have been manually labeled as positive but are not considered
+        # to be positive hits.
         for i, c in enumerate(classifications):
             if c["classification"] == 1 and c["windowId"] not in results_hashed:
-                result = {
-                    "windowId": window_id,
-                    "probability": p_y[window_id],
-                    "classification": None,
-                }
+                conflicts_fn.append(
+                    {
+                        "windowId": c["windowId"],
+                        "probability": p_y[c["windowId"]][1],
+                        "classification": 1,
+                    }
+                )
+
+        print(conflicts_fn)
 
         return jsonify(
             {
                 "results": results,
+                "conflictsFn": conflicts_fn,
+                "conflictsFp": conflicts_fp,
                 "predictionProbBorder": border,
                 "predictionHistogram": np.histogram(p_y[:, 1], 40)[0].tolist(),
             }
@@ -516,9 +575,9 @@ def create(
             return jsonify({"info": "Classifier{} been deleted.".format(msg)})
 
         elif request.method == "GET":
-            clf = classifiers.get(search_id, classifier_id)
-
-            if clf is None:
+            try:
+                clf = classifiers.get(search_id, classifier_id)
+            except ClassifierNotFound:
                 return (
                     jsonify(
                         {
@@ -554,10 +613,29 @@ def create(
 
         elif request.method == "POST":
             # Compare classifications to last classifier
-            classifier = classifiers.new(search_id)
 
-            if classifier is None:
-                return (jsonify({"error": "Classifications did not change"}), 409)
+            try:
+                classifier = classifiers.new(search_id)
+            except LabelsDidNotChange:
+                return (
+                    jsonify(
+                        {
+                            "error": "Labels did not change. There's no need to train the classifier again."
+                        }
+                    ),
+                    409,
+                )
+            except TooFewLabels as e:
+                return (
+                    jsonify(
+                        {
+                            "error": "Too few labels to train a classifier. Label another {} windows.".format(
+                                e["min_classifications"] - e["num_labels"]
+                            )
+                        }
+                    ),
+                    409,
+                )
 
             return jsonify(
                 {
@@ -759,7 +837,7 @@ def create(
 
     @app.route("/version.txt", methods=["GET"])
     def version():
-        return "SERVER_VERSION: 0.1.0-flask"
+        return "SERVER_VERSION: 0.3.0-flask"
 
     @app.route("/api/v1/viewconfs/", methods=["GET"])
     def view_configs():
@@ -794,6 +872,7 @@ def create(
             options = parts[2]
 
         search_info = db.get_search(search_id)
+        step_size = encoders.window_size // config.step_freq
 
         if utils.is_int(search_id, True):
             incl_predictions = search_info["classifiers"] > 0 and options.find("p") >= 0
@@ -801,9 +880,7 @@ def create(
             incl_selections = options.find("s") >= 0
 
             if window_id is not None and utils.is_int(window_id, True):
-                info = db.get_search(search_id)
-                if info is not None:
-                    step_size = encoders.window_size // config.step_freq
+                if search_info is not None:
                     target_from_rel = step_size * int(window_id)
                     target_to_rel = target_from_rel + encoders.window_size
                     target_abs = list(
@@ -831,18 +908,78 @@ def create(
                     )
 
             else:
-                info = db.get_search(search_id)
-                if info is not None:
-                    return jsonify(
-                        view_config.build(
-                            datasets,
-                            config,
-                            search_info=info,
-                            incl_predictions=incl_predictions,
-                            incl_autoencodings=incl_autoencodings,
-                            incl_selections=incl_selections,
+                if search_info is not None:
+                    if config.variable_target:
+                        classifier = classifiers.get(search_id, default=None)
+                        classifications = np.array(
+                            list(
+                                map(
+                                    lambda classif: int(classif["windowId"]),
+                                    db.get_classifications(search_id),
+                                )
+                            )
+                        ).astype(int)
+
+                        if classifier:
+                            # Select a variable target
+                            _, p_y = classifier.predict(encodings)
+
+                            window_idx_highest_p = np.argsort(p_y[:, 1])[::-1][0]
+
+                            target_from_rel = step_size * int(window_idx_highest_p)
+                            target_to_rel = target_from_rel + encoders.window_size
+                            target_abs = list(
+                                map(
+                                    int,
+                                    bigwig.chr2abs(
+                                        datasets.chromsizes,
+                                        config.chroms[
+                                            0
+                                        ],  # First chrom defines the offset
+                                        target_from_rel,
+                                        target_to_rel,
+                                    ),
+                                )
+                            )
+                            return jsonify(
+                                view_config.build(
+                                    datasets,
+                                    config,
+                                    search_info=search_info,
+                                    domain=target_abs,
+                                    incl_predictions=incl_predictions,
+                                    incl_autoencodings=incl_autoencodings,
+                                    incl_selections=incl_selections,
+                                )
+                            )
+
+                        else:
+                            if classifications.size and classifier is None:
+                                # We need to train the classifier first
+                                classifiers.new(search_id)
+
+                            # Show the default overview
+                            return jsonify(
+                                view_config.build(
+                                    datasets,
+                                    config,
+                                    incl_predictions=incl_predictions,
+                                    incl_autoencodings=incl_autoencodings,
+                                    incl_selections=incl_selections,
+                                )
+                            )
+
+                    else:
+                        return jsonify(
+                            view_config.build(
+                                datasets,
+                                config,
+                                search_info=search_info,
+                                incl_predictions=incl_predictions,
+                                incl_autoencodings=incl_autoencodings,
+                                incl_selections=incl_selections,
+                            )
                         )
-                    )
 
         return (jsonify({"error": "Unknown view config with id: {}".format(id)}), 404)
 
@@ -865,28 +1002,32 @@ def create(
             return jsonify(chromsizes.all)
 
         try:
-            data = chromsizes.all[id]
+            chromsize = chromsizes.all[id]
         except KeyError:
             return jsonify({"error": "Not found"}), 404
 
+        out = {}
+        for chrom in chromsize.keys():  # dictionaries in py3.6+ are ordered!
+            out[chrom] = {"size": chromsize[chrom]}
+
         if incl_cum:
             cum = 0
-            for chrom in data.keys():  # dictionaries in py3.6+ are ordered!
-                data[chrom]["offset"] = cum
-                cum += data[chrom]["size"]
+            for chrom in chromsize.keys():  # dictionaries in py3.6+ are ordered!
+                out[chrom]["offset"] = cum
+                cum += out[chrom]["size"]
 
         if res_type == "json":
-            return jsonify(data)
+            return jsonify(out)
 
         elif res_type == "csv":
             if incl_cum:
                 return "\n".join(
                     "{}\t{}\t{}".format(chrom, row["size"], row["offset"])
-                    for chrom, row in data.items()
+                    for chrom, row in out.items()
                 )
             else:
                 return "\n".join(
-                    "{}\t{}".format(chrom, row["size"]) for chrom, row in data.items()
+                    "{}\t{}".format(chrom, row["size"]) for chrom, row in out.items()
                 )
 
         else:
@@ -976,6 +1117,12 @@ def create(
             else:
                 info[uuid] = {"error": "No such tileset with uid: {}".format(uuid)}
 
+            # Remove coords and chromsizes from the info dictionary
+            if "coords" in info[uuid]:
+                del info[uuid]["coords"]
+            if "chromsizes" in info[uuid]:
+                del info[uuid]["chromsizes"]
+
         return jsonify(info)
 
     @app.route("/api/v1/tiles/", methods=["GET"])
@@ -1022,7 +1169,9 @@ def create(
                     else:
                         tiles.extend(handler(tids))
                 elif bigwig.is_bigwig(filepath, filetype):
-                    tiles.extend(bigwig.tiles(filepath, tids))
+                    tiles.extend(
+                        bigwig.tiles(filepath, tids, ts.get("chromsizes", None))
+                    )
                 elif filetype == "cooler":
                     tiles.extend(cooler.tiles(filepath, tids))
                 elif filetype == "__autoencoding__":

@@ -127,10 +127,10 @@ class Projectors:
 
         # Change `0` to `-1` as `-1` is the standard encoding in sklearn for
         # unlabeled
-        classifications[:, 1][unclassified] = -1
+        classifications[unclassified, 1] = -1
 
         # Change `-1` to `0`
-        classifications[:, 1][uninteresting] = 0
+        classifications[uninteresting, 1] = 0
 
         total_classification = np.zeros(N)
         total_classification[:] = -1

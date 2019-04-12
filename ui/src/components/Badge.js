@@ -7,7 +7,8 @@ import './Badge.scss';
 const classNames = props => {
   let className = 'badge';
 
-  let level = 'poor';
+  let level = '';
+  if (props.value > props.levelNeutral) level = 'poor';
   if (props.value >= props.levelOkay) level = 'okay';
   if (props.value >= props.levelGood) level = 'good';
 
@@ -22,6 +23,7 @@ const Badge = props => <div className={classNames(props)}>{props.value}</div>;
 
 Badge.defaultProps = {
   isBordered: false,
+  levelNeutral: 0,
   levelPoor: 3,
   levelOkay: 6,
   levelGood: 9,
@@ -30,6 +32,7 @@ Badge.defaultProps = {
 
 Badge.propTypes = {
   isBordered: PropTypes.bool,
+  levelNeutral: PropTypes.number,
   levelPoor: PropTypes.number,
   levelOkay: PropTypes.number,
   levelGood: PropTypes.number,

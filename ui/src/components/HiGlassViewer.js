@@ -107,7 +107,11 @@ class HiGlassViewer extends React.Component {
     viewConf = this.state.viewConfigStatic,
     doNotSetState = false
   ) {
-    if (!this.props.isStatic || !this.props.viewConfigAdjustments.length)
+    if (
+      !viewConf ||
+      !this.props.isStatic ||
+      !this.props.viewConfigAdjustments.length
+    )
       return viewConf;
 
     if (

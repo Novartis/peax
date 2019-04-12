@@ -1,6 +1,7 @@
 export { default as api } from './api';
 export { default as withArray } from './with-array';
 export { default as camelToConst } from './camel-to-const';
+export { default as classifToNum } from './classif-to-num';
 export { default as cookie } from './cookie';
 export { default as debounce } from './debounce';
 export { default as deepClone } from './deep-clone';

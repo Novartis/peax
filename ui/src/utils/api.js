@@ -88,8 +88,10 @@ const getProgress = async searchId =>
     .then(mergeJsonResponse)
     .catch(mergeError);
 
-const newProjection = async searchId =>
-  fetch(`${server}/projection/?s=${searchId}`, { method: 'put' })
+const newProjection = async (searchId, minDist = 0.1, nn = 5) =>
+  fetch(`${server}/projection/?s=${searchId}&md=${minDist}&nn=${nn}`, {
+    method: 'put'
+  })
     .then(mergeJsonResponse)
     .catch(mergeError);
 

@@ -18,6 +18,7 @@ import os
 import re
 
 from contextlib import contextmanager, suppress
+from scipy.spatial.distance import cdist
 
 from server import chromsizes, utils
 
@@ -28,6 +29,7 @@ class Datasets:
         self.datasets_by_id = {}
         self.datasets_by_type = {}
         self.chromsizes = None
+        self.coords = None
         self._cache_filename = None
         self._total_len_windows = -1
         self._total_len_encoded = -1
@@ -68,7 +70,10 @@ class Datasets:
             self.chromsizes = dataset.chromsizes
             self.chromsizes_cum = np.cumsum(self.chromsizes) - self.chromsizes
 
-        if not chromsizes.equals(self.chromsizes, dataset.chromsizes):
+        if self.coords is None:
+            self.coords = dataset.coords
+
+        if not chromsizes.equals(self.chromsizes, dataset.chromsizes, self.coords):
             raise ValueError(
                 "Incorrect coordinates: all datasets need to have the same coordinates."
             )
@@ -81,9 +86,18 @@ class Datasets:
         except KeyError:
             self.datasets_by_type[dataset.content_type] = [dataset]
 
-    def export(self, use_uuid: bool = False, autoencodings: bool = False):
+    def export(
+        self,
+        use_uuid: bool = False,
+        autoencodings: bool = False,
+        ignore_chromsizes: bool = False,
+    ):
         return [
-            dataset.export(use_uuid=use_uuid, autoencodings=autoencodings)
+            dataset.export(
+                use_uuid=use_uuid,
+                autoencodings=autoencodings,
+                ignore_chromsizes=ignore_chromsizes,
+            )
             for dataset in self.datasets
             if not autoencodings or dataset.is_autoencoded
         ]
@@ -119,6 +133,44 @@ class Datasets:
         with suppress(FileNotFoundError):
             os.remove(self.cache_filepath)
 
+    def compute_encodings_dist(
+        self,
+        target: np.ndarray,
+        dist_metric: str = "euclidean",
+        batch_size: int = 10000,
+        verbose: bool = False,
+    ):
+        with h5py.File(self.cache_filepath, "r+") as f:
+            if verbose:
+                print(
+                    "Compute distance of encoded windows to the encoded target",
+                    end="",
+                    flush=True,
+                )
+
+            encodings = f["encodings"][:]
+            N = encodings.shape[0]
+            target = target.reshape((1, -1))
+
+            dist = None
+            for batch_start in np.arange(0, N, batch_size):
+                if verbose:
+                    print(".", end="", flush=True)
+
+                encodings_batch = encodings[batch_start : batch_start + batch_size]
+
+                try:
+                    batch_dist = cdist(encodings_batch, target, dist_metric).flatten()
+                except ValueError:
+                    batch_dist = cdist(encodings_batch, target).flatten()
+
+                if dist is None:
+                    dist = batch_dist
+                else:
+                    dist = np.concatenate((dist, batch_dist))
+
+            f["encodings_dist"][:] = dist
+
     def prepare(self, encoders, config, clear: bool = False, verbose: bool = False):
         # Used for assertion checking
         total_num_windows = None
@@ -126,7 +178,11 @@ class Datasets:
 
         for encoder in encoders:
             try:
+                if verbose:
+                    print("Prepare all datasets just for you...", flush=True)
+
                 for dataset in self.get_by_type(encoder.content_type):
+
                     ds_total_num_windows, ds_chrom_num_windows = dataset.prepare(
                         config, encoder, clear=clear, verbose=verbose
                     )
@@ -137,14 +193,20 @@ class Datasets:
                     if chrom_num_windows is None:
                         chrom_num_windows = ds_chrom_num_windows
 
+                    if verbose:
+                        print(
+                            "Make sure that all windows are correctly prepared...",
+                            flush=True,
+                        )
+
                     # Check that all datasets have the same number of windows
                     assert (
                         total_num_windows == ds_total_num_windows
                     ), "The total number of windows should be the same for all datasets"
 
                     # Check that all datasets have the same number of windows
-                    assert utils.compare_lists(
-                        chrom_num_windows, ds_chrom_num_windows
+                    assert ds_chrom_num_windows.equals(
+                        chrom_num_windows
                     ), "The number of windows per chromosome should be the same for all datasets"
 
             except KeyError:
@@ -169,6 +231,9 @@ class Datasets:
 
         try:
             with h5py.File(self.cache_filepath, mode) as f:
+                if verbose:
+                    print("Concatenate and save windows...")
+
                 w = f.create_dataset(
                     "windows",
                     (total_num_windows, self.total_len_windows),
@@ -188,6 +253,12 @@ class Datasets:
                     (total_num_windows, self.total_len_encoded),
                     dtype=np.float32,
                 )
+                f.create_dataset(
+                    "encodings_dist", (total_num_windows,), dtype=np.float32
+                )
+                e_knn_density = f.create_dataset(
+                    "encodings_knn_density", (total_num_windows,), dtype=np.float32
+                )
 
                 # Metadata
                 w.attrs["total_len_windows"] = self._total_len_windows
@@ -206,29 +277,16 @@ class Datasets:
 
                     with dataset.cache() as dataset_cache:
 
-                        pos_chrom_from = 0
-                        pos_chrom_to = 0
+                        w[:, pos_window_from:pos_window_to] = np.squeeze(
+                            dataset_cache.windows
+                        )
 
-                        for chromosome in config.chroms:
-                            pos_chrom_to = (
-                                pos_chrom_from
-                                + dataset_cache.num_windows_by_chrom(chromosome, config)
-                            )
+                        e[:, pos_encoded_from:pos_encoded_to] = np.squeeze(
+                            dataset_cache.encodings
+                        )
 
-                            w[
-                                pos_chrom_from:pos_chrom_to,
-                                pos_window_from:pos_window_to,
-                            ] = np.squeeze(dataset_cache.windows)
-
-                            e[
-                                pos_chrom_from:pos_chrom_to,
-                                pos_encoded_from:pos_encoded_to,
-                            ] = np.squeeze(dataset_cache.encodings)
-
-                            pos_chrom_from = pos_chrom_to
-
-                            # Write to disk
-                            f.flush()
+                        # Write to disk
+                        f.flush()
 
                     pos_window_from = pos_window_to
                     pos_encoded_from = pos_encoded_to
@@ -236,6 +294,9 @@ class Datasets:
                 # Compute simple stats to speed up online calculation down the road
                 pos_chrom_from = 0
                 pos_chrom_to = 0
+
+                if verbose:
+                    print("Compute per-chromosome statistics...")
 
                 for i, chromosome in enumerate(config.chroms):
                     pos_chrom_to = pos_chrom_from + chrom_num_windows[i]
@@ -254,6 +315,12 @@ class Datasets:
 
                     # Write to disk
                     f.flush()
+
+                if verbose:
+                    print("Compute the encoded windows' knn density...")
+
+                e_knn_density[:] = utils.knn_density(e[:])
+
         except OSError as error:
             # When `clear` is `False` and the data is already prepared then we expect to
             # see error number 17 as we opened the file in `w-` mode.
@@ -267,6 +334,9 @@ class Datasets:
                     raise
             else:
                 raise
+
+        if verbose:
+            print("All datasets have been prepared! Thanks for waiting.")
 
     @contextmanager
     def prepared_data(self):
@@ -302,3 +372,15 @@ class DatasetsCache:
     @property
     def encodings(self):
         return self.cache["encodings"]
+
+    @property
+    def encodings_dist(self):
+        return self.cache["encodings_dist"]
+
+    @property
+    def computed_dist_to_target(self):
+        return np.sum(self.cache["encodings_dist"]) > 0
+
+    @property
+    def encodings_knn_density(self):
+        return self.cache["encodings_knn_density"]

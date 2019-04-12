@@ -41,6 +41,7 @@ import {
 // Utils
 import {
   api,
+  classifToNum,
   Deferred,
   inputToNum,
   Logger,
@@ -112,15 +113,13 @@ class Search extends React.Component {
       minMaxSource: null,
       minMaxValues: {},
       pageClassifications: 0,
-      pageClassificationsTotal: null,
       pageResults: 0,
-      pageResultsTotal: null,
       pageSeeds: 0,
-      pageSeedsTotal: null,
       pageSelection: 0,
-      pageSelectionTotal: null,
       progress: {},
       results: [],
+      resultsConflictsFp: [],
+      resultsConflictsFn: [],
       resultsProbs: [],
       resultsPredictionHistogram: [],
       resultsPredictionProbBorder: null,
@@ -364,6 +363,7 @@ class Search extends React.Component {
     classifications.forEach(({ windowId, classification }) => {
       windows[windowId] = {
         classification: numToClassif(classification),
+        classificationNumerical: classification,
         classificationPending: false
       };
     });
@@ -372,9 +372,6 @@ class Search extends React.Component {
       isLoadingClassifications: false,
       isErrorClassifications,
       classifications,
-      pageClassificationsTotal: Math.ceil(
-        classifications.length / PER_PAGE_ITEMS
-      ),
       windows
     });
   }
@@ -388,23 +385,53 @@ class Search extends React.Component {
     });
 
     await this.loadClassifications();
+    await this.loadResults();
+
+    const index = this.state.results.reduce((idx, win) => {
+      idx[win.windowId] = {
+        classification: win.classification,
+        probability: win.probability
+      };
+      return idx;
+    }, {});
+
+    this.state.resultsConflictsFn.reduce((idx, fn) => {
+      idx[fn.windowId] = {
+        classification: fn.classification,
+        probability: fn.probability,
+        conflict: 'fn'
+      };
+      return idx;
+    }, index);
+
+    this.state.resultsConflictsFp.reduce((idx, fp) => {
+      idx[fp.windowId] = {
+        classification: fp.classification,
+        probability: fp.probability,
+        conflict: 'fp'
+      };
+      return idx;
+    }, index);
 
     const isErrorSelection = this.state.isErrorClassifications
       ? "Could't load classifications."
       : false;
 
-    const classificationById = this.state.classifications.reduce(
-      (index, classification) => {
-        index[classification.windowId] = classification.classification;
-        return index;
-      },
-      {}
-    );
-
     const selection = isErrorSelection
       ? []
       : this.props.selectedRegions.map(windowId => ({
-          classification: classificationById[windowId] || 0,
+          classification:
+            typeof this.state.windows[windowId] !== 'undefined'
+              ? this.state.windows[windowId].classificationNumerical
+              : 0,
+          probability:
+            typeof index[windowId] !== 'undefined'
+              ? index[windowId].probability
+              : undefined,
+          conflict:
+            typeof index[windowId] !== 'undefined'
+              ? index[windowId].conflict
+              : undefined,
           windowId
         }));
 
@@ -412,8 +439,7 @@ class Search extends React.Component {
       isLoadingSelection: false,
       isErrorSelection,
       selection,
-      pageSelection: 0,
-      pageSelectionTotal: Math.ceil(selection.length / PER_PAGE_ITEMS)
+      pageSelection: 0
     });
   }
 
@@ -456,9 +482,10 @@ class Search extends React.Component {
         isLoadingResults: false,
         isErrorResults,
         results: predictions.results,
+        resultsConflictsFp: predictions.conflictsFp,
+        resultsConflictsFn: predictions.conflictsFn,
         resultsPredictionHistogram: predictions.predictionHistogram,
-        resultsPredictionProbBorder: predictions.predictionProbBorder,
-        pageResultsTotal: Math.ceil(predictions.results.length / PER_PAGE_ITEMS)
+        resultsPredictionProbBorder: predictions.predictionProbBorder
       });
     }
   }
@@ -728,6 +755,7 @@ class Search extends React.Component {
           [windowId]: win =>
             update(win || {}, {
               classification: { $set: classif },
+              classificationNumerical: { $set: classifToNum(classif) },
               classificationPending: { $set: true }
             })
         })
@@ -746,6 +774,9 @@ class Search extends React.Component {
           [windowId]: {
             classification: {
               $set: response.status === 200 ? classif : oldClassif
+            },
+            classificationNumerical: {
+              $set: classifToNum(response.status === 200 ? classif : oldClassif)
             },
             classificationPending: { $set: false }
           }
@@ -850,17 +881,14 @@ class Search extends React.Component {
 
     const numItems = this.state[data].length;
 
-    if (
-      data === 'seeds' &&
-      currentNumSeeds / (PER_PAGE_ITEMS * (currentPage + 2)) < 1
-    ) {
-      await this.setState({ [loadingProp]: true });
-
-      // Re-train classifier and get new seeds once the training is done
-      await this.onTrainingStart(this.onTrainingCheckSeeds);
-
-      this.setState({ [loadingProp]: false });
-    } else if (numItems / (PER_PAGE_ITEMS * (currentPage + 1)) > 1) {
+    if (data === 'seeds') {
+      if (currentNumSeeds / (PER_PAGE_ITEMS * (currentPage + 1)) >= 1) {
+        // Go to the next page as usual
+        this.setState({ [pageProp]: currentPage + 1, [loadingProp]: false });
+      } else {
+        this.onLoadMoreSeeds();
+      }
+    } else if (numItems / (PER_PAGE_ITEMS * (currentPage + 1)) >= 1) {
       this.setState({ [pageProp]: currentPage + 1, [loadingProp]: false });
     }
   }
@@ -869,6 +897,17 @@ class Search extends React.Component {
     const pageProp = `page${data[0].toUpperCase()}${data.slice(1)}`;
     const currentPage = this.state[pageProp];
     this.setState({ [pageProp]: Math.max(0, currentPage - 1) });
+  }
+
+  @boundMethod
+  async onLoadMoreSeeds() {
+    // Activate loading state
+    await this.setState({ isLoadingMoreSeeds: true });
+
+    // Re-train classifier and get new seeds once the training is done
+    await this.onTrainingStart(this.onTrainingCheckSeeds);
+
+    this.setState({ isLoadingMoreSeeds: false });
   }
 
   @boundMethod
@@ -898,7 +937,8 @@ class Search extends React.Component {
     // Update state
     await this.setState({
       isErrorProgress,
-      isComputingProgress: progressInfo.isComputing,
+      isComputingProgress: false,
+      isLoadingProgress: false,
       progressCheckTimerId: null
     });
 
@@ -924,6 +964,7 @@ class Search extends React.Component {
   async onTrainingStart(checker = this.onTrainingCheck) {
     const trainingInfo = await api.newClassifier(this.id);
 
+    // Most likely the labels haven't changed
     if (trainingInfo.status === 409) {
       showInfo(this.props.pubSub, trainingInfo.body.error);
       return;
@@ -1224,6 +1265,7 @@ class Search extends React.Component {
                   normalizationSource={this.state.minMaxSource}
                   normalizeBy={this.state.minMaxValues}
                   onNormalize={this.onNormalize}
+                  onLoadMore={this.onLoadMoreSeeds}
                   onPage={this.onPageSeeds}
                   onTrainingStart={this.onTrainingStart}
                   onTrainingCheck={this.onTrainingCheck}
@@ -1258,9 +1300,10 @@ class Search extends React.Component {
                   onTrainingStart={this.onTrainingStart}
                   onTrainingCheck={this.onTrainingCheck}
                   page={this.state.pageResults}
-                  pageTotal={this.state.pageResultsTotal}
                   predictionProbBorder={this.state.predictionProbBorder}
                   results={this.state.results}
+                  resultsConflictsFp={this.state.resultsConflictsFp}
+                  resultsConflictsFn={this.state.resultsConflictsFn}
                   resultsPredictionHistogram={
                     this.state.resultsPredictionHistogram
                   }
@@ -1292,7 +1335,6 @@ class Search extends React.Component {
                   onTrainingStart={this.onTrainingStart}
                   onTrainingCheck={this.onTrainingCheck}
                   page={this.state.pageClassifications}
-                  pageTotal={this.state.pageClassificationsTotal}
                   results={this.state.classifications}
                   searchInfo={this.state.searchInfo}
                   windows={this.state.windows}
@@ -1318,7 +1360,6 @@ class Search extends React.Component {
                   onTrainingStart={this.onTrainingStart}
                   onTrainingCheck={this.onTrainingCheck}
                   page={this.state.pageSelection}
-                  pageTotal={this.state.pageSelectionTotal}
                   results={this.state.selection}
                   searchInfo={this.state.searchInfo}
                   windows={this.state.windows}

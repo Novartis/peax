@@ -116,11 +116,15 @@ def build(
         view_config["views"][0]["tracks"]["top"].append(combined_track_config)
 
     # Add gene annotation track
-    gene_annotation_track = (
-        defaults.GENE_ANNOTATION_TRACK_HG38
-        if config.coords == "grch38"
-        else defaults.GENE_ANNOTATION_TRACK_HG19
-    )
+    if config.coords == "grch38":
+        gene_annotation_track = defaults.GENE_ANNOTATION_TRACK_HG38
+    elif config.coords == "mm9":
+        gene_annotation_track = defaults.GENE_ANNOTATION_TRACK_MM9
+    elif config.coords == "mm10":
+        gene_annotation_track = defaults.GENE_ANNOTATION_TRACK_MM10
+    else:
+        gene_annotation_track = defaults.GENE_ANNOTATION_TRACK_HG19
+
     gene_annotation_track_config = copy.deepcopy(gene_annotation_track)
 
     combined_track_config = copy.deepcopy(defaults.COMBINED_TRACK)
@@ -158,11 +162,14 @@ def build(
         if region is not None:
             anno_track_config["options"]["regions"].append(region)
 
-        chrom_track = (
-            defaults.CHROM_TRACK_HG38
-            if config.coords == "grch38"
-            else defaults.CHROM_TRACK_HG19
-        )
+        if config.coords == "grch38":
+            chrom_track = defaults.CHROM_TRACK_HG38
+        elif config.coords == "mm9":
+            chrom_track = defaults.CHROM_TRACK_MM9
+        elif config.coords == "mm10":
+            chrom_track = defaults.CHROM_TRACK_MM10
+        else:
+            chrom_track = defaults.CHROM_TRACK_HG19
 
         # Add the chrom labels to the last track
         combined_track_config["contents"].extend([anno_track_config, chrom_track])
@@ -245,11 +252,14 @@ def build(
             )
 
             if datasets.size() == 1:
-                chrom_track = (
-                    defaults.CHROM_TRACK_HG38
-                    if config.coords == "grch38"
-                    else defaults.CHROM_TRACK_HG19
-                )
+                if config.coords == "grch38":
+                    chrom_track = defaults.CHROM_TRACK_HG38
+                elif config.coords == "mm9":
+                    chrom_track = defaults.CHROM_TRACK_MM9
+                elif config.coords == "mm10":
+                    chrom_track = defaults.CHROM_TRACK_MM10
+                else:
+                    chrom_track = defaults.CHROM_TRACK_HG19
 
                 # Add the chrom labels to the last track
                 combined_track_config["contents"].append(chrom_track)

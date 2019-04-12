@@ -13,6 +13,7 @@ limitations under the License.
 
 import os
 import h5py
+import hashlib
 import numpy as np
 import pandas as pd
 import re
@@ -21,6 +22,7 @@ from contextlib import contextmanager, suppress
 
 from server import bigwig
 from server import utils
+from server.chromsizes import get as get_chromsizes
 
 
 class Dataset:
@@ -34,6 +36,7 @@ class Dataset:
         fill: str = None,
         height: int = None,
         chromsizes=None,
+        coords: str = None,
         clear_cache: bool = False,
     ):
         self.filepath = filepath
@@ -47,11 +50,12 @@ class Dataset:
         self.height = height
         self.chromsizes = chromsizes
         self.clear_cache = clear_cache
+        self.coords = coords
 
         self._cache = None
 
-        if not self.chromsizes:
-            self.chromsizes = bigwig.get_chromsizes(self.filepath)
+        if self.chromsizes is None:
+            self.chromsizes = get_chromsizes(self.coords, self.filepath)
 
     @property
     def is_autoencoded(self):
@@ -62,12 +66,17 @@ class Dataset:
         return os.path.basename(self.filepath)
 
     @property
-    def cache_filename(self):
-        return "{}.hdf5".format(os.path.splitext(self.filename)[0])
-
-    @property
     def cache_filepath(self):
         return self._cache_filepath
+
+    def get_cache_filename(self, window_size: int, step_freq: int, chroms: list):
+        md5 = hashlib.md5()
+        md5.update(":".join(chroms).encode())
+        chroms_hash = md5.hexdigest()
+
+        return "{}_w-{}_f-{}_chr-{}.hdf5".format(
+            os.path.splitext(self.filename)[0], window_size, step_freq, chroms_hash[:6]
+        )
 
     @contextmanager
     def cache(self):
@@ -77,16 +86,27 @@ class Dataset:
         finally:
             cache.close()
 
-    def export(self, use_uuid: bool = False, autoencodings: bool = False):
+    def export(
+        self,
+        use_uuid: bool = False,
+        autoencodings: bool = False,
+        ignore_chromsizes: bool = False,
+    ):
         # Only due to some weirdness in HiGlass
         idKey = "uuid" if use_uuid else "id"
-        return {
+        out = {
             "filepath": None if autoencodings else self.filepath,
             "filetype": "__autoencoding__" if autoencodings else self.filetype,
             "content_type": self.content_type,
             idKey: "{}|ae".format(self.id) if autoencodings else self.id,
             "name": self.name,
+            "coords": self.coords,
         }
+
+        if not ignore_chromsizes:
+            out["chromsizes"] = self.chromsizes
+
+        return out
 
     def remove_cache(self):
         with suppress(FileNotFoundError):
@@ -95,11 +115,15 @@ class Dataset:
     def prepare(
         self, config, encoder, clear: bool = False, verbose: bool = False
     ) -> int:
+        if verbose:
+            print("Prepare {}...".format(self.name), flush=True)
+
         assert (
             self.content_type == encoder.content_type
         ), "Content type of the encoder must match the dataset's content type"
 
-        self.chromsizes = bigwig.get_chromsizes(self.filepath)
+        if self.chromsizes is None:
+            self.chromsizes = get_chromsizes(self.coords, self.filepath)
 
         mode = "w" if clear else "w-"
         step_size = encoder.window_size // config.step_freq
@@ -130,7 +154,12 @@ class Dataset:
 
         chrom_res_sizes = pd.Series(res_size_per_chrom, index=config.chroms, dtype=int)
 
-        self._cache_filepath = os.path.join(config.cache_dir, self.cache_filename)
+        # chroms + encoder.window_size + config.step_freq
+        cache_filename = self.get_cache_filename(
+            encoder.window_size, config.step_freq, config.chroms
+        )
+
+        self._cache_filepath = os.path.join(config.cache_dir, cache_filename)
 
         ascii_chroms = [n.encode("ascii", "ignore") for n in config.chroms]
 
@@ -168,12 +197,22 @@ class Dataset:
                     a.attrs["file_name"] = encoder.encoder_filename
 
                 if verbose:
-                    print("Extract windows for {}".format(self.id))
+                    print("Extract windows for {}".format(self.id), flush=True)
 
                 pos = 0
                 pos_ae = 0
+
+                if verbose:
+                    print(
+                        "Prepare chromosomes: {}...".format(", ".join(config.chroms)),
+                        flush=True,
+                    )
+
                 for chromosome in config.chroms:
                     chr_str = str(chromosome)
+
+                    if verbose:
+                        print("Extract windows...", flush=True)
 
                     # Extract the windows
                     windows = bigwig.chunk(
@@ -182,6 +221,7 @@ class Dataset:
                         encoder.resolution,
                         step_size,
                         [chromosome],
+                        chromsizes=self.chromsizes,
                         verbose=verbose,
                     )
                     num_windows, num_bins = windows.shape
@@ -204,6 +244,9 @@ class Dataset:
                         # 3. sample dim  (== 1 because each window just has 1 dim)
                         windows = windows.reshape(*windows.shape, encoder.channels)
 
+                    if verbose:
+                        print("Encode windows...", flush=True)
+
                     encoding = encoder.encode(windows)
 
                     # Data is organized by chromosomes. Currently interchromosomal
@@ -213,8 +256,19 @@ class Dataset:
 
                     pos += num_windows
 
-                    if hasattr(encoder, "autoencode"):
-                        autoencoding = encoder.autoencode(windows)
+                    if hasattr(encoder, "decode"):
+                        if verbose:
+                            print(
+                                "Decode encoded windows, i.e., get the reconstructions...",
+                                flush=True,
+                            )
+
+                        autoencoding = encoder.decode(encoding)
+
+                        if verbose:
+                            print(
+                                "Merge interleaved reconstructed windows...", flush=True
+                            )
 
                         # Merge interleaved autoencoded windows to one continuous track
                         autoencoding = utils.merge_interleaved_mat(
@@ -225,7 +279,9 @@ class Dataset:
                             ),
                         )
 
-                        a[pos_ae : pos_ae + autoencoding.shape[0]] = autoencoding
+                        a_len = min(chrom_res_sizes[chr_str], autoencoding.shape[0])
+
+                        a[pos_ae : pos_ae + a_len] = autoencoding[:a_len]
 
                         pos_ae += chrom_res_sizes[chr_str]
 

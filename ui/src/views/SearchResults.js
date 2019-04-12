@@ -1,3 +1,4 @@
+import { boundMethod } from 'autobind-decorator';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -6,6 +7,7 @@ import { connect } from 'react-redux';
 import Button from '../components/Button';
 import ButtonIcon from '../components/ButtonIcon';
 import ButtonRadio from '../components/ButtonRadio';
+import DropDownMenu from '../components/DropDownMenu';
 import DropDownSlider from '../components/DropDownSlider';
 import HiglassResultList from '../components/HiglassResultList';
 import SubTopBar from '../components/SubTopBar';
@@ -13,13 +15,14 @@ import SubTopBottomBarButtons from '../components/SubTopBottomBarButtons';
 import ToolTip from '../components/ToolTip';
 
 // Actions
-import { setSearchTab } from '../actions';
+import { setSearchSelection, setSearchTab } from '../actions';
 
 // Configs
 import {
   BUTTON_RADIO_CLASSIFICATION_OPTIONS,
   BUTTON_RADIO_SORT_ORDER_OPTIONS,
-  TAB_SEEDS
+  TAB_SEEDS,
+  TAB_SELECTION
 } from '../configs/search';
 
 // Utils
@@ -62,8 +65,22 @@ class SearchResults extends React.Component {
       sortOrder: 'desc'
     };
 
-    // Bound methods
-    this.goToSeedsBound = this.goToSeeds.bind(this);
+    this.conflicts = [
+      {
+        name: 'False positives',
+        description:
+          'Windows labeled as uninteresting/negative that are predicted to be positive by the classifier',
+        getNumber: () => this.props.resultsConflictsFp.length,
+        onClick: () => this.onSelectConflicts('fp')
+      },
+      {
+        name: 'False negatives',
+        description:
+          'Windows labeled as interesting/positive that are not predicted to be positive by the classifier',
+        getNumber: () => this.props.resultsConflictsFn.length,
+        onClick: () => this.onSelectConflicts('fb')
+      }
+    ];
   }
 
   componentDidUpdate(prevProps) {
@@ -84,8 +101,23 @@ class SearchResults extends React.Component {
     this.props.onPage(0);
   }
 
+  @boundMethod
   async goToSeeds() {
     this.props.setTab(TAB_SEEDS);
+  }
+
+  @boundMethod
+  async onSelectConflicts(type) {
+    const conflicts =
+      type === 'fp'
+        ? this.props.resultsConflictsFp
+        : this.props.resultsConflictsFn;
+
+    if (conflicts.length === 0) return;
+
+    await this.props.setSelection(conflicts.map(conflict => conflict.windowId));
+
+    this.props.setTab(TAB_SELECTION);
   }
 
   render() {
@@ -150,6 +182,20 @@ class SearchResults extends React.Component {
                   )}
                 </li>
               )}
+            {!!(
+              this.props.resultsConflictsFp.length ||
+              this.props.resultsConflictsFn.length
+            ) && (
+              <li>
+                <DropDownMenu
+                  className="warning"
+                  items={this.conflicts}
+                  trigger={`${this.props.resultsConflictsFp.length +
+                    this.props.resultsConflictsFn.length} conflicts`}
+                  triggerIcon="warning"
+                />
+              </li>
+            )}
           </SubTopBottomBarButtons>
           <SubTopBottomBarButtons className="flex-c flex-a-c flex-jc-e no-list-style">
             <li>
@@ -229,7 +275,7 @@ class SearchResults extends React.Component {
             isError={this.props.isError}
             isLoading={this.props.isLoading}
             isNotReady={this.props.isReady === false}
-            isNotReadyNodes={isNotReady(this.goToSeedsBound)}
+            isNotReadyNodes={isNotReady(this.goToSeeds)}
             isNotTrained={this.props.isTrained === false}
             isNotTrainedNodes={isNotTrained(this.props.onTrainingStart)}
             isTraining={this.props.isTraining === true}
@@ -282,19 +328,22 @@ SearchResults.propTypes = {
   onTrainingStart: PropTypes.func.isRequired,
   onTrainingCheck: PropTypes.func.isRequired,
   page: PropTypes.number,
-  pageTotal: PropTypes.number,
   predictionProbBorder: PropTypes.number.isRequired,
   results: PropTypes.array.isRequired,
+  resultsConflictsFp: PropTypes.array.isRequired,
+  resultsConflictsFn: PropTypes.array.isRequired,
   resultsPredictionHistogram: PropTypes.array,
   resultsPredictionProbBorder: PropTypes.number,
   searchInfo: PropTypes.object,
-  setTab: PropTypes.func,
+  setSelection: PropTypes.func.isRequired,
+  setTab: PropTypes.func.isRequired,
   windows: PropTypes.object
 };
 
 const mapStateToProps = (/* state */) => ({});
 
 const mapDispatchToProps = dispatch => ({
+  setSelection: selection => dispatch(setSearchSelection(selection)),
   setTab: tab => dispatch(setSearchTab(tab))
 });
 

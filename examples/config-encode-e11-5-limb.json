@@ -1,0 +1,30 @@
+{
+  "encoders": [
+    {
+      "content_type": "dnase-seq-3kb",
+      "from_file": "examples/autoencoders.json"
+    },
+    {
+      "content_type": "histone-mark-chip-seq-3kb",
+      "from_file": "examples/autoencoders.json"
+    }
+  ],
+  "datasets": [
+    {
+      "filepath": "examples/data/ENCFF641OPE.bigWig",
+      "content_type": "dnase-seq-3kb",
+      "id": "encode-e11-5-limb-dnase-rdns",
+      "name": "e11.5 limb DNase rdn signal"
+    },
+    {
+      "filepath": "examples/data/ENCFF336LAW.bigWig",
+      "content_type": "histone-mark-chip-seq-3kb",
+      "id": "encode-e11-5-limb-chip-h3k27ac-fc",
+      "name": "e11.5 limb H3K27ac fc"
+    }
+  ],
+  "coords": "mm10",
+  "chroms": ["chr12"],
+  "step_freq": 2,
+  "db_path": "examples/search-e11-5-limb.db"
+}

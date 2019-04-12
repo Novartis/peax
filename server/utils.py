@@ -14,6 +14,9 @@ limitations under the License.
 import numpy as np
 import itertools
 import operator
+import os
+import sys
+import warnings
 
 from contextlib import contextmanager
 
@@ -21,8 +24,19 @@ from contextlib import contextmanager
 from scipy.ndimage.interpolation import zoom
 from scipy.spatial.distance import cdist
 from scipy.stats import norm
+from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import MinMaxScaler
 from typing import Callable, List
+
+# Stupid Keras things is a smart way to always print. See:
+# https://github.com/keras-team/keras/issues/1406
+stderr = sys.stderr
+sys.stderr = open(os.devnull, "w")
+import keras
+from keras.layers import Input
+from keras.models import Model
+
+sys.stderr = stderr
 
 
 def compare_lists(
@@ -69,7 +83,7 @@ def prediction_change(p0: np.ndarray, p1: np.ndarray, border: float = 0.5) -> fl
 
 
 def convergence(
-    x0: np.ndarray, x1: np.ndarray, x2: np.ndarray, decimals: int = 3
+    x0: np.ndarray, x1: np.ndarray, x2: np.ndarray, decimals: int = 2
 ) -> float:
     """Convergence score
 
@@ -107,6 +121,57 @@ def normalize(data, percentile: float = 99.9):
     data_norm[np.where(data_norm > cutoff[1])] = cutoff[1]
 
     return MinMaxScaler().fit_transform(data_norm)
+
+
+def normalize_simple(data: np.ndarray):
+    data -= np.min(data)
+    return data / np.max(data)
+
+
+def load_model(filepath: str, silent: bool = False):
+    if silent:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            model = keras.models.load_model(filepath)
+    else:
+        model = keras.models.load_model(filepath)
+
+    return model
+
+
+def get_encoder(autoencoder):
+    # Find embedding layer
+    embedding_layer_idx = None
+    for i, layer in enumerate(autoencoder.layers):
+        if layer.name == "embed":
+            embedding_layer_idx = i
+
+    # Create encoder
+    inputs = autoencoder.input
+    encoded = inputs
+    for i in range(1, embedding_layer_idx + 1):
+        encoded = autoencoder.layers[i](encoded)
+
+    return Model(inputs, encoded)
+
+
+def get_decoder(autoencoder):
+    # Find embedding layer
+    embedding_layer = None
+    embedding_layer_idx = None
+    for i, layer in enumerate(autoencoder.layers):
+        if layer.name == "embed":
+            embedding_layer = layer
+            embedding_layer_idx = i
+
+    embedding = embedding_layer.output_shape[1]
+
+    encoded_input = Input(shape=(embedding,), name="input")
+    decoded_input = encoded_input
+    for i in range(embedding_layer_idx + 1, len(autoencoder.layers)):
+        decoded_input = autoencoder.layers[i](decoded_input)
+
+    return Model(encoded_input, decoded_input)
 
 
 def get_search_target_windows(
@@ -282,12 +347,12 @@ def merge_interleaved_mat(m: np.ndarray, step_freq: int, kernel: np.ndarray = No
     # I.e., including binning, so 12Kb at 100 bins = 120 bin windows
     SZ = np.int(m.shape[1] / step_freq)
     # Out length
-    N = M + ((step_freq - 1) * SZ)
+    # N = M + ((step_freq - 1) * SZ)
     # Out matrix
-    o = np.zeros((N, step_freq))
+    o = np.zeros((M, step_freq))
     o[:] = np.nan
     # Kernel matrix
-    k = np.zeros((N, step_freq))
+    k = np.zeros((M, step_freq))
     k[:] = np.nan
     long_k = np.tile(kernel, M)
 
@@ -297,8 +362,8 @@ def merge_interleaved_mat(m: np.ndarray, step_freq: int, kernel: np.ndarray = No
 
         j = i * SZ
 
-        o[:, i][j : min(j + M, N)] = LCE[: min(M, N - j)]
-        k[:, i][j : min(j + M, N)] = long_k[: min(M, N - j)]
+        o[:, i][j:M] = LCE[: M - j]
+        k[:, i][j:M] = long_k[: M - j]
 
     # Normalize kernels
     k /= np.nansum(k, axis=1).reshape(k.shape[0], -1)
@@ -386,27 +451,16 @@ def knn_density(
     dist_metric: str = "euclidean",
     summary: Callable[[np.ndarray], np.float64] = np.mean,
 ):
-    N = data.shape[0]
+    knn = NearestNeighbors(n_neighbors=k + 1, algorithm="auto").fit(data)
+    dist, _ = knn.kneighbors(data)
 
-    # Compute the pairwise distance
+    # Since the nearest neighbor is the identity we exclude the first columm
+    dist = dist[:, 1:]
+
     try:
-        pw_dist = cdist(data, data, dist_metric)
-    except ValueError:
-        pw_dist = cdist(data, data)
-
-    # Get the selection for the k nearest neighbors
-    selection = (
-        np.repeat(np.arange(N), k),
-        np.argpartition(pw_dist, k, axis=0)[:k, :].T.flatten(),
-    )
-
-    pw_k_dist = pw_dist[selection].reshape((N, k)).T
-
-    # Compute the summary density of the knn
-    try:
-        return summary(pw_k_dist, axis=0)
+        return summary(dist, axis=1)
     except Exception:
-        out = np.zeros(pw_k_dist.shape[0])
+        out = np.zeros(dist.shape[0])
         out[:] = np.nan
         return out
 

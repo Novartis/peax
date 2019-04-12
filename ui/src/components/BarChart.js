@@ -18,7 +18,7 @@ class BarChart extends React.Component {
 
     this.width = 240;
     this.height = 48;
-    this.margin = { top: 12, right: 0, bottom: 18, left: 24 };
+    this.margin = { top: 12, right: 0, bottom: 18, left: 32 };
 
     this.isChartInit = false;
     this.isChartPrepared = false;
@@ -92,7 +92,11 @@ class BarChart extends React.Component {
     this.xAxis = g =>
       g
         .attr('transform', `translate(0,${this.height - this.margin.bottom})`)
-        .call(axisBottom(this.xScale).tickSizeOuter(0));
+        .call(
+          axisBottom(this.xScale)
+            .ticks(5)
+            .tickSizeOuter(0)
+        );
 
     this.xAxisMiddle = g =>
       g
@@ -235,51 +239,74 @@ class BarChart extends React.Component {
       .duration(750)
       .ease(easeCubic);
 
-    this.baseBarsG
-      .selectAll('rect')
-      .data(this.data)
-      .join('rect')
-      .attr('x', d => this.xScale(d.x) - this.props.barWidth / 2)
+    let join = this.baseBarsG.selectAll('rect').data(this.data);
+
+    join
+      .enter()
+      .append('rect')
       .attr('y', yScale(0))
+      .attr('x', d => this.xScale(d.x) - this.props.barWidth / 2)
       .attr('width', this.props.barWidth)
       .transition(t)
       .attr('y', d => yScale(d.y))
       .attr('height', d => yScale(0) - yScale(d.y));
 
+    join
+      .transition(t)
+      .attr('x', d => this.xScale(d.x) - this.props.barWidth / 2);
+
     if (this.props.diverging) {
-      this.baseBarsBottomG
-        .selectAll('rect')
-        .data(this.data)
-        .join('rect')
+      join = this.baseBarsBottomG.selectAll('rect').data(this.data);
+
+      join
+        .enter()
+        .append('rect')
         .attr('x', d => this.xScale(d.x) - this.props.barWidth / 2)
         .attr('y', this.yScaleBottom(0))
         .attr('width', this.props.barWidth)
+        .attr('height', 0)
         .transition(t)
         .attr('height', d => this.yScaleBottom(d.y3) - this.yScaleBottom(0));
+
+      join
+        .transition(t)
+        .attr('x', d => this.xScale(d.x) - this.props.barWidth / 2);
     }
 
     if (this.hasY2) {
-      this.primaryBarsG
-        .selectAll('rect')
-        .data(this.data)
-        .join('rect')
+      join = this.primaryBarsG.selectAll('rect').data(this.data);
+
+      join
+        .enter()
+        .append('rect')
         .attr('x', d => this.xScale(d.x) - this.props.barWidthSecondary / 2)
         .attr('y', yScale(0))
         .attr('width', this.props.barWidthSecondary)
+        .attr('height', 0)
         .transition(t)
         .attr('y', d => yScale(d.y2))
         .attr('height', d => yScale(0) - yScale(d.y2) + 1);
 
+      join
+        .transition(t)
+        .attr('x', d => this.xScale(d.x) - this.props.barWidthSecondary / 2);
+
       if (this.props.diverging) {
-        this.primaryBarsBottomG
-          .selectAll('rect')
-          .data(this.data)
-          .join('rect')
+        join = this.primaryBarsBottomG.selectAll('rect').data(this.data);
+
+        join
+          .enter()
+          .append('rect')
           .attr('x', d => this.xScale(d.x) - this.props.barWidthSecondary / 2)
           .attr('y', this.yScaleBottom(0))
           .attr('width', this.props.barWidthSecondary)
+          .attr('height', 0)
           .transition(t)
           .attr('height', d => this.yScaleBottom(d.y4) - this.yScaleBottom(0));
+
+        join
+          .transition(t)
+          .attr('x', d => this.xScale(d.x) - this.props.barWidthSecondary / 2);
       }
     }
 

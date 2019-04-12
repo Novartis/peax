@@ -1,0 +1,67 @@
+@import '../styles/colors';
+@import '../styles/transitions';
+
+.drop-down-menu {
+  .drop-down-content {
+    z-index: 10;
+    width: 16rem;
+    margin-top: 0.2rem;
+    margin-left: 50%;
+    // padding: 0.25rem 0.5rem 0.5rem 0.5rem;
+    border-radius: 0.25rem;
+    background: $white;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 6px 0 rgba(0, 0, 0, 0.075);
+    transform: translate(-50%, 0);
+
+    &:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      margin: -0.5rem 0 0 -0.5rem;
+      display: block;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0 0.5rem 0.625rem 0.5rem;
+      border-color: transparent transparent $white transparent;
+    }
+  }
+
+  .drop-down-menu-item {
+    margin: 0 0 0.25rem 0;
+    padding: 0 0.25rem;
+    background: none;
+    border-radius: 0;
+
+    &:first-child {
+      margin-top: 0.25rem;
+    }
+
+    .badge {
+      box-shadow: 0 0 0 1px $white;
+    }
+
+    &:hover,
+    &:focus {
+      color: $black;
+      background: $gray-lightest;
+
+      .badge {
+        background: $gray-lighter;
+
+        &.badge-level-poor {
+          background: $pink-light;
+        }
+      }
+    }
+  }
+
+  .description {
+    margin: 0.125rem 0 0.75rem;
+  }
+
+  li:last-child .description {
+    margin-bottom: 0;
+  }
+}

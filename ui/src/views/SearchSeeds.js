@@ -45,12 +45,29 @@ class SearchSeeds extends React.Component {
       <div className="full-dim search-tab-wrapper">
         <SubTopBar>
           <SubTopBottomBarButtons className="flex-c flex-a-c no-list-style">
-            {this.props.searchInfo.classifications ? (
+            {this.props.searchInfo.classifications >=
+              this.props.searchInfo.config.min_classifications && (
               <li>
-                Classified {this.props.searchInfo.classifications} regions.
+                Labeled {this.props.searchInfo.classifications} regions so far.
               </li>
-            ) : (
-              <li>Start classifying regions!</li>
+            )}
+            {this.props.searchInfo.classifications > 0 &&
+              this.props.searchInfo.classifications <
+                this.props.searchInfo.config.min_classifications && (
+                <li>
+                  Label another{' '}
+                  {this.props.searchInfo.config.min_classifications -
+                    this.props.searchInfo.classifications}{' '}
+                  ({this.props.searchInfo.classifications} already labeled)
+                  regions to train a classifier.
+                </li>
+              )}
+            {this.props.searchInfo.classifications === 0 && (
+              <li>
+                Start labeling at least{' '}
+                {this.props.searchInfo.config.min_classifications} regions to
+                train a classifier.
+              </li>
             )}
           </SubTopBottomBarButtons>
           <SubTopBottomBarButtons className="flex-c flex-a-c flex-jc-e no-list-style">
@@ -73,7 +90,8 @@ class SearchSeeds extends React.Component {
           <HiglassResultList
             isError={this.props.isError}
             isLoading={this.props.isLoading}
-            isEmpty={'No seeds found!'}
+            isEmpty={'No samples found!'}
+            isMoreLoadable={true}
             isTraining={this.props.isTraining === true}
             isTrainingNodes={isTraining(this.props.onTrainingCheck)}
             itemsPerPage={this.props.itemsPerPage}
@@ -91,8 +109,12 @@ class SearchSeeds extends React.Component {
               windows: this.props.windows
             }))}
             page={this.props.page}
-            pageTotal={this.props.pageTotal}
+            pageTotal={Math.ceil(
+              Object.keys(this.props.results).length / this.props.itemsPerPage
+            )}
+            onLoadMore={this.props.onLoadMore}
             onPage={this.props.onPage}
+            textLoadMore="Train & Load More"
           />
         </div>
       </div>
@@ -123,6 +145,7 @@ SearchSeeds.propTypes = {
   ]),
   normalizeBy: PropTypes.object,
   onNormalize: PropTypes.func.isRequired,
+  onLoadMore: PropTypes.func.isRequired,
   onPage: PropTypes.func.isRequired,
   onTrainingCheck: PropTypes.func.isRequired,
   onTrainingStart: PropTypes.func.isRequired,

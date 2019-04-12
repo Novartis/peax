@@ -1,0 +1,42 @@
+{
+  "encoders": [
+    {
+      "content_type": "dnase-seq-3kb",
+      "from_file": "examples/autoencoders.json"
+    },
+    {
+      "content_type": "histone-mark-chip-seq-3kb",
+      "from_file": "examples/autoencoders.json"
+    }
+  ],
+  "datasets": [
+    {
+      "filepath": "examples/data/E116-DNase.fc.signal.bigWig",
+      "content_type": "dnase-seq-3kb",
+      "id": "roadmap-epigenomics-gm12878-e116-dnase-fc",
+      "name": "GM12878 DNase fc"
+    },
+    {
+      "filepath": "examples/data/E116-H3K27ac.fc.signal.bigWig",
+      "content_type": "histone-mark-chip-seq-3kb",
+      "id": "roadmap-epigenomics-gm12878-e116-h3k27ac-fc",
+      "name": "GM12878 H3K27ac fc"
+    },
+    {
+      "filepath": "examples/data/E116-H3K4me1.fc.signal.bigWig",
+      "content_type": "histone-mark-chip-seq-3kb",
+      "id": "roadmap-epigenomics-gm12878-e116-h3k4me1-fc",
+      "name": "GM12878 H3K4me1 fc"
+    },
+    {
+      "filepath": "examples/data/E116-H3K4me3.fc.signal.bigWig",
+      "content_type": "histone-mark-chip-seq-3kb",
+      "id": "roadmap-epigenomics-gm12878-e116-h3k4me3-fc",
+      "name": "GM12878 H3K4me3 fc"
+    }
+  ],
+  "coords": "hg19",
+  "chroms": ["chr20", "chr21"],
+  "step_freq": 2,
+  "db_path": "examples/search-roadmap-e116-gm12878.db"
+}

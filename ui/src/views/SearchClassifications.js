@@ -202,7 +202,6 @@ SearchClassifications.propTypes = {
   onTrainingCheck: PropTypes.func.isRequired,
   onTrainingStart: PropTypes.func.isRequired,
   page: PropTypes.number,
-  pageTotal: PropTypes.number,
   results: PropTypes.array,
   searchInfo: PropTypes.object.isRequired,
   windows: PropTypes.object

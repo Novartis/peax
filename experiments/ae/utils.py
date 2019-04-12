@@ -1020,12 +1020,9 @@ def plot_windows(
                 cols,
                 figsize=(6 * cols, 2 * rows),
                 sharex=True,
-                gridspec_kw=dict(
-                    wspace=0.2,
-                    hspace=0.75
-                )
+                gridspec_kw=dict(wspace=0.2, hspace=0.75),
             )
-            
+
         fig.patch.set_facecolor("white")
 
         from matplotlib.patches import Patch
@@ -1171,11 +1168,83 @@ def plot_windows(
                     axis.set_xticks([], [])
                     axis.set_yticks([], [])
 
+                if plot_reconst_separately:
+                    axis = get_axis(r * 3, c)
+                    axis.bar(x, sampled_wins[i], width=1.0, color="#000000")
+                    axis.spines["top"].set_color("silver")
+                    axis.spines["right"].set_color("silver")
+                    axis.spines["bottom"].set_color("silver")
+                    axis.spines["left"].set_color("silver")
+                    axis.set_ylim(0, 1)
+                    axis.set_xticks([], [])
+                    axis.set_yticks([], [])
+                    if not no_title:
+                        axis.set_title(selected_window_ids[i])
+
+                    axis = get_axis(r * 3 + 1, c)
+                    axis.bar(x, sampled_encodings[i], width=1.0, color="#0E689D")
+                    axis.spines["top"].set_color("silver")
+                    axis.spines["right"].set_color("silver")
+                    axis.spines["bottom"].set_color("silver")
+                    axis.spines["left"].set_color("silver")
+                    axis.set_ylim(0, 1)
+                    axis.set_xticks([], [])
+                    axis.set_yticks([], [])
+
+                    if r < rows - 1:
+                        axis = get_axis(r * 3 + 2, c)
+                        axis.spines["top"].set_color("silver")
+                        axis.spines["right"].set_visible(False)
+                        axis.spines["bottom"].set_visible(False)
+                        axis.spines["left"].set_visible(False)
+                        axis.set_xticks([], [])
+                        axis.set_yticks([], [])
+
+                else:
+                    axis = get_axis(r, c)
+
+                    if diff and model_name:
+                        sampled_win_min_vales = np.minimum(
+                            sampled_wins[i], sampled_encodings[i]
+                        )
+                        axis.bar(x, sampled_wins[i], width=1.0, color="#0f5d92")
+                        axis.bar(x, sampled_encodings[i], width=1.0, color="#cc168c")
+                        axis.bar(x, sampled_win_min_vales, width=1.0, color="#ffffff")
+                    else:
+                        axis.bar(
+                            x, sampled_wins[i], width=1.0, color=ground_truth_color
+                        )
+                        if model_name:
+                            axis.bar(
+                                x,
+                                sampled_encodings[i],
+                                width=1.0,
+                                color=prediction_color,
+                                alpha=0.5,
+                            )
+                    axis.set_xticks(x[5::10])
+                    axis.set_xticklabels(x[5::10])
+
+                    axis.spines["top"].set_color("silver")
+                    axis.spines["right"].set_color("silver")
+                    axis.spines["bottom"].set_color("silver")
+                    axis.spines["left"].set_color(
+                        "silver" if no_peak_coloring else primary_color
+                    )
+                    axis.spines["left"].set_linewidth(1 if no_peak_coloring else 4)
+                    axis.tick_params(axis="x", colors=secondary_color)
+                    axis.tick_params(axis="y", colors=secondary_color)
+                    axis.set_ylim(0, 1)
+                    if not no_title:
+                        axis.set_title(selected_window_ids[i])
+                    axis.set_xticks([], [])
+                    axis.set_yticks([], [])
+
                 i += 1
 
         if not no_legend:
             fig.legend(handles=legend_elements, loc="lower center")
-            
+
         fig.tight_layout()
 
         if save_as is not None:

@@ -1,10 +1,25 @@
 {
   "short_name": "Peax",
-  "name": "Interactive concept learning and visual exploration of epigenomic patterns.",
+  "name": "Peax: a visual pattern explorer for epigenomic data",
   "icons": [
     {
       "src": "favicon.ico",
-      "sizes": "192x192",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "favicon.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "touchicon.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "tileicon.png",
+      "sizes": "152x152",
       "type": "image/png"
     }
   ],

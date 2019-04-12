@@ -177,108 +177,130 @@ class HiglassResult extends React.Component {
     }
 
     return (
-      <div
-        className={className}
-        onMouseEnter={this.onEnter}
-        onMouseLeave={this.onLeave}
-      >
-        <aside className={classNameInfoSideBar}>
-          {this.props.isInfoSideBar && (
-            <ButtonIcon
-              className="higlass-result-info-panel-toggler"
-              icon="info"
-              iconOnly={true}
-              onClick={this.onToggleInfoSideBar}
-            />
-          )}
-          <ButtonIcon
-            className="higlass-result-selector"
-            icon={this.isSelected ? 'circle-nested' : 'circle-hollow'}
-            iconOnly={true}
-            isActive={this.isSelected}
-            onClick={this.onSelect}
-          />
-          <ButtonIcon
-            className="higlass-result-normalizer"
-            icon="ratio"
-            iconOnly={true}
-            isActive={this.state.isMinMaxValuesByTarget}
-            isIconMirrorOnFocus={true}
-            onClick={this.onNormalize}
-          />
-          {this.props.isInfoSideBar && (
-            <div className="full-dim higlass-result-info-panel-content">
-              <ul className="no-list-style">
-                {this.props.classificationProb && (
-                  <li>
-                    <label className="label">
-                      Classification <abbr title="Probability">prob</abbr>
-                    </label>
-                    <div className="value">{this.props.classificationProb}</div>
-                  </li>
-                )}
-              </ul>
-            </div>
-          )}
-        </aside>
-        <HiGlassViewer
-          api={this.onApi}
-          height={this.props.viewHeight}
-          isGlobalMousePosition
-          isNotEditable
-          isStatic
-          isZoomFixed
-          pixelPrecise
-          viewConfigId={this.viewId}
-        />
-        <div className="higlass-class-probability-wrapper">
-          {!!this.props.classificationProb && (
-            <div className="higlass-class-probability">
-              <div
-                className="higlass-class-probability-bar"
-                style={{
-                  bottom: `${this.props.classificationProb * 100}%`,
-                  backgroundColor: getColor(this.props.classificationProb)
-                }}
+      <div>
+        {this.props.conflict === 'fn' && (
+          <div className="conflict conflict-fn">
+            <strong>Potential false negative</strong>
+            <p>
+              Window labeled positive but the prediction probability is only{' '}
+              <span className="prob">{this.props.classificationProb}</span>!
+            </p>
+          </div>
+        )}
+        {this.props.conflict === 'fp' && (
+          <div className="conflict conflict-fp">
+            <strong>Potential false positive</strong>
+            <p>
+              Window labeled negative but the prediction probability is{' '}
+              <span className="prob">{this.props.classificationProb}</span>!
+            </p>
+          </div>
+        )}
+        <div
+          className={className}
+          onMouseEnter={this.onEnter}
+          onMouseLeave={this.onLeave}
+        >
+          <aside className={classNameInfoSideBar}>
+            {this.props.isInfoSideBar && (
+              <ButtonIcon
+                className="higlass-result-info-panel-toggler"
+                icon="info"
+                iconOnly={true}
+                onClick={this.onToggleInfoSideBar}
               />
-              <div
-                className="flex-c higlass-class-probability-label"
-                style={{
-                  bottom: `${this.props.classificationProb * 100}%`
-                }}
-              >
+            )}
+            <ButtonIcon
+              className="higlass-result-selector"
+              icon={this.isSelected ? 'circle-nested' : 'circle-hollow'}
+              iconOnly={true}
+              isActive={this.isSelected}
+              onClick={this.onSelect}
+            />
+            <ButtonIcon
+              className="higlass-result-normalizer"
+              icon="ratio"
+              iconOnly={true}
+              isActive={this.state.isMinMaxValuesByTarget}
+              isIconMirrorOnFocus={true}
+              onClick={this.onNormalize}
+            />
+            {this.props.isInfoSideBar && (
+              <div className="full-dim higlass-result-info-panel-content">
+                <ul className="no-list-style">
+                  {this.props.classificationProb && (
+                    <li>
+                      <label className="label">
+                        Classification <abbr title="Probability">prob</abbr>
+                      </label>
+                      <div className="value">
+                        {this.props.classificationProb}
+                      </div>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            )}
+          </aside>
+          <HiGlassViewer
+            api={this.onApi}
+            height={this.props.viewHeight}
+            isGlobalMousePosition
+            isNotEditable
+            isStatic
+            isZoomFixed
+            pixelPrecise
+            viewConfigId={this.viewId}
+          />
+          <div className="higlass-class-probability-wrapper">
+            {!!this.props.classificationProb && (
+              <div className="higlass-class-probability">
                 <div
-                  className="higlass-class-probability-label-prob"
+                  className="higlass-class-probability-bar"
                   style={{
-                    color: getFontColor(this.props.classificationProb),
+                    bottom: `${this.props.classificationProb * 100}%`,
                     backgroundColor: getColor(this.props.classificationProb)
                   }}
-                >
-                  {this.props.classificationProb}
-                </div>
-                <div
-                  className="higlass-class-probability-label-arrow"
-                  style={{
-                    borderLeftColor: getColor(this.props.classificationProb)
-                  }}
                 />
+                <div
+                  className="flex-c higlass-class-probability-label"
+                  style={{
+                    bottom: `${this.props.classificationProb * 100}%`
+                  }}
+                >
+                  <div
+                    className="higlass-class-probability-label-prob"
+                    style={{
+                      color: getFontColor(this.props.classificationProb),
+                      backgroundColor: getColor(this.props.classificationProb)
+                    }}
+                  >
+                    {this.props.classificationProb}
+                  </div>
+                  <div
+                    className="higlass-class-probability-label-arrow"
+                    style={{
+                      borderLeftColor: getColor(this.props.classificationProb)
+                    }}
+                  />
+                </div>
               </div>
-            </div>
-          )}
-          <ButtonRadio
-            isVertical={true}
-            name={`search-${this.props.windowId}-classify`}
-            onClick={this.props.classificationChangeHandler(
-              this.props.windowId
             )}
-            options={BUTTON_RADIO_CLASSIFICATION_OPTIONS}
-            selection={
-              (this.props.windows[this.props.windowId] &&
-                this.props.windows[this.props.windowId].classification) ||
-              this.props.classification
-            }
-            defaultSelection="neutral"
-          />
+            <ButtonRadio
+              isVertical={true}
+              name={`search-${this.props.windowId}-classify`}
+              onClick={this.props.classificationChangeHandler(
+                this.props.windowId
+              )}
+              options={BUTTON_RADIO_CLASSIFICATION_OPTIONS}
+              selection={
+                (this.props.windows[this.props.windowId] &&
+                  this.props.windows[this.props.windowId].classification) ||
+                this.props.classification
+              }
+              defaultSelection="neutral"
+            />
+          </div>
         </div>
       </div>
     );
@@ -300,6 +322,7 @@ HiglassResult.propTypes = {
   classification: PropTypes.string,
   classificationProb: PropTypes.number,
   classificationChangeHandler: PropTypes.func.isRequired,
+  conflict: PropTypes.string,
   dataTracks: PropTypes.array,
   hover: PropTypes.number.isRequired,
   isInfoSideBar: PropTypes.bool,

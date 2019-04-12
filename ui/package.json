@@ -1,7 +1,7 @@
 {
   "name": "peax",
   "description": "The peak and pattern explorer for 1D and 2D genomic data",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
   "license": "MIT",
   "repository": {
@@ -17,7 +17,7 @@
     "d3-scale": "2.2.2",
     "d3-selection": "1.4.0",
     "d3-transition": "1.2.0",
-    "higlass": "1.5.0",
+    "higlass": "1.5.2",
     "history": "4.7.2",
     "immutability-helper": "2.8.1",
     "key-pressed": "flekschas/key-pressed",

@@ -54,7 +54,7 @@ COORDS = "hg19"
 
 STEP_FREQ = 2
 
-MIN_CLASSIFICATIONS = 20
+MIN_CLASSIFICATIONS = 15
 
 TILE_SIZE = 1024
 
@@ -201,7 +201,7 @@ ENCODINGS_TRACK = {
 GENE_ANNOTATION_TRACK = {
     "server": "//higlass.io/api/v1",
     "tilesetUid": "???",
-    "uid": "gene-annotations-hg19",
+    "uid": "gene-annotations",
     "type": "horizontal-gene-annotations",
     "height": 24,
     "options": {
@@ -231,10 +231,10 @@ GENE_ANNOTATION_TRACK_MM10 = copy.deepcopy(GENE_ANNOTATION_TRACK)
 GENE_ANNOTATION_TRACK_MM10["tilesetUid"] = "QDutvmyiSrec5nX4pA5WGQ"
 
 CHROM_TRACK = {
-    "chromInfoPath": "???",
-    "uid": "chrom-labels-???",
+    "uid": "chrom-labels",
     "type": "horizontal-chromosome-labels",
-    "name": "Chromosome Labels (???)",
+    "server": "//higlass.io/api/v1",
+    "name": "Chromosome Labels",
     "height": 10,
     "options": {
         "fontSize": 8,
@@ -245,30 +245,22 @@ CHROM_TRACK = {
 }
 
 CHROM_TRACK_HG19 = copy.deepcopy(CHROM_TRACK)
-CHROM_TRACK_HG19[
-    "chromInfoPath"
-] = "http://localhost:5000/api/v1/chrom-sizes/?id=hg19&type=csv"
+CHROM_TRACK_HG19["tilesetUid"] = "N12wVGG9SPiTkk03yUayUw"
 CHROM_TRACK_HG19["uid"] = "chrom-labels-hg19"
 CHROM_TRACK_HG19["name"] = "Chromosome Labels (hg19)"
 
 CHROM_TRACK_HG38 = copy.deepcopy(CHROM_TRACK)
-CHROM_TRACK_HG38[
-    "chromInfoPath"
-] = "http://localhost:5000/api/v1/chrom-sizes/?id=hg38&type=csv"
+CHROM_TRACK_HG38["tilesetUid"] = "NyITQvZsS_mOFNlz5C2LJg"
 CHROM_TRACK_HG38["uid"] = "chrom-labels-hg38"
 CHROM_TRACK_HG38["name"] = "Chromosome Labels (hg38)"
 
 CHROM_TRACK_MM9 = copy.deepcopy(CHROM_TRACK)
-CHROM_TRACK_MM9[
-    "chromInfoPath"
-] = "http://localhost:5000/api/v1/chrom-sizes/?id=mm9&type=csv"
+CHROM_TRACK_MM9["tilesetUid"] = "WAVhNHYxQVueq6KulwgWiQ"
 CHROM_TRACK_MM9["uid"] = "chrom-labels-mm9"
 CHROM_TRACK_MM9["name"] = "Chromosome Labels (mm9)"
 
 CHROM_TRACK_MM10 = copy.deepcopy(CHROM_TRACK)
-CHROM_TRACK_MM10[
-    "chromInfoPath"
-] = "http://localhost:5000/api/v1/chrom-sizes/?id=mm10&type=csv"
+CHROM_TRACK_MM10["tilesetUid"] = "EtrWT0VtScixmsmwFSd7zg"
 CHROM_TRACK_MM10["uid"] = "chrom-labels-mm10"
 CHROM_TRACK_MM10["name"] = "Chromosome Labels (mm10)"
 

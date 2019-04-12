@@ -156,26 +156,16 @@ class Home extends React.Component {
   }
 
   keyDownHandler(event) {
-    if (event.keyCode === 83) {
+    if (event.keyCode === 83 && !event.ctrlKey && !event.metaKey) {
       // S
       event.preventDefault();
-
-      if (event.ctrlKey || event.metaKey) {
-        // CMD + S
-        this.downloadViewConfig();
-      } else {
-        // S
-        this.props.setMouseTool(SELECT);
-      }
+      this.props.setMouseTool(SELECT);
     }
 
-    if (event.keyCode === 90) {
+    if (event.keyCode === 90 && !event.ctrlKey && !event.metaKey) {
       // Z
       event.preventDefault();
-
-      if (!event.ctrlKey && !event.metaKey) {
-        this.props.setMouseTool(PAN_ZOOM);
-      }
+      this.props.setMouseTool(PAN_ZOOM);
     }
   }
 
@@ -219,7 +209,7 @@ class Home extends React.Component {
           <div className="flex-c">
             <p className="column-1-2 m-r-1 home-info-intro">
               Peax is a tool to visually search and explore peaks or other kind
-              of patterns in 1D and 2D epigenomic tracks.
+              of patterns in 1D epigenomic tracks like DNase-seq and ChIP-seq.
             </p>
             <div className="column-1-2 m-l-1 flex-c flex-v home-info-actions">
               <ol className="no-list-style">

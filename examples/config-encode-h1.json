@@ -1,0 +1,38 @@
+{
+  "encoders": [
+    {
+      "content_type": "histone-mark-chip-seq-12kb",
+      "from_file": "examples/autoencoders.json"
+    }
+  ],
+  "datasets": [
+    {
+      "filepath": "examples/data/ENCFF117WXM.bigWig",
+      "content_type": "histone-mark-chip-seq-12kb",
+      "id": "encode-h1-hesc-encsr794ofw-2013-dnase-seq-rdn-signal",
+      "name": "H1 DNase rdn signal"
+    },
+    {
+      "filepath": "examples/data/ENCFF593OAZ.bigWig",
+      "content_type": "histone-mark-chip-seq-12kb",
+      "id": "encode-h1-hesc-encsr271tfs-2013-chip-seq-h3k4me1-fc",
+      "name": "H1 H3K4me1 fc"
+    },
+    {
+      "filepath": "examples/data/ENCFF623ZAW.bigWig",
+      "content_type": "histone-mark-chip-seq-12kb",
+      "id": "encode-h1-hesc-encsr443yas-2013-chip-seq-h3k4me3-fc",
+      "name": "H1 H3K4me3 fc"
+    },
+    {
+      "filepath": "examples/data/ENCFF986PCY.bigWig",
+      "content_type": "histone-mark-chip-seq-12kb",
+      "id": "encode-h1-hesc-encsr880suy-2013-chip-seq-h3k27ac-fc",
+      "name": "H1 H3K27ac fc"
+    }
+  ],
+  "coords": "grch38",
+  "chroms": ["chr21"],
+  "step_freq": 4,
+  "db_path": "examples/search-h1.db"
+}

@@ -1,3 +1,4 @@
+import json
 import pathlib
 from typing import Dict, List, TypeVar
 
@@ -28,6 +29,7 @@ class Config:
         self.db_path = DB_PATH
         self.cache_dir = CACHE_DIR
         self.caching = CACHING
+        self.variable_target = False
 
         # Set file
         self.file = config_file
@@ -35,11 +37,30 @@ class Config:
     def config(self, config_file):
         keys = set(config_file.keys())
         for encoder in config_file["encoders"]:
+            if 'from_file' in encoder:
+                try:
+                    with open(encoder['from_file'], "r") as f:
+                        encoder_config = json.load(f)[encoder['content_type']]
+                except FileNotFoundError:
+                    print(
+                        "You specified that the encoder config is provided in another "
+                        "file that does not exist. Make sure that `from_file` points "
+                        "to a valid encoder definition file."
+                    )
+                    raise
+                except KeyError:
+                    print(
+                        "No predefined encoder of type {} found".format(encoder['content_type'])
+                    )
+                    raise
+
+                for key in encoder_config:
+                    encoder.setdefault(key, encoder_config[key])
+
             try:
                 self.add(
                     Autoencoder(
-                        encoder_filepath=encoder["encoder"],
-                        decoder_filepath=encoder["decoder"],
+                        autoencoder_filepath=encoder["autoencoder"],
                         content_type=encoder["content_type"],
                         window_size=encoder["window_size"],
                         resolution=encoder["resolution"],
@@ -49,17 +70,31 @@ class Config:
                     )
                 )
             except KeyError:
-                self.add(
-                    Encoder(
-                        encoder_filepath=encoder["encoder"],
-                        content_type=encoder["content_type"],
-                        window_size=encoder["window_size"],
-                        resolution=encoder["resolution"],
-                        channels=encoder["channels"],
-                        input_dim=encoder["input_dim"],
-                        latent_dim=encoder["latent_dim"],
+                try:
+                    self.add(
+                        Autoencoder(
+                            encoder_filepath=encoder["encoder"],
+                            decoder_filepath=encoder["decoder"],
+                            content_type=encoder["content_type"],
+                            window_size=encoder["window_size"],
+                            resolution=encoder["resolution"],
+                            channels=encoder["channels"],
+                            input_dim=encoder["input_dim"],
+                            latent_dim=encoder["latent_dim"],
+                        )
                     )
-                )
+                except KeyError:
+                    self.add(
+                        Encoder(
+                            encoder_filepath=encoder["encoder"],
+                            content_type=encoder["content_type"],
+                            window_size=encoder["window_size"],
+                            resolution=encoder["resolution"],
+                            channels=encoder["channels"],
+                            input_dim=encoder["input_dim"],
+                            latent_dim=encoder["latent_dim"],
+                        )
+                    )
 
         for ds in config_file["datasets"]:
             self.add(
@@ -68,6 +103,7 @@ class Config:
                     content_type=ds["content_type"],
                     id=ds["id"],
                     name=ds["name"],
+                    coords=config_file["coords"],
                 )
             )
 
@@ -147,6 +183,14 @@ class Config:
             raise InvalidConfig("Step frequency must be larger than zero")
 
     @property
+    def variable_target(self):
+        return self._variable_target
+
+    @variable_target.setter
+    def variable_target(self, value: bool):
+        self._variable_target = bool(value)
+
+    @property
     def min_classifications(self):
         return self._min_classifications
 
@@ -204,13 +248,16 @@ class Config:
         elif key == "caching":
             self.caching = value
 
+        elif key == "variable_target":
+            self.variable_target = value
+
         else:
             raise InvalidConfig("Unknown settings: {}".format(key))
 
-    def export(self):
+    def export(self, ignore_chromsizes: bool = False):
         return {
             "encoders": self.encoders.export(),
-            "datasets": self.datasets.export(),
+            "datasets": self.datasets.export(ignore_chromsizes=ignore_chromsizes),
             "chroms": self.chroms,
             "step_freq": self.step_freq,
             "min_classifications": self.min_classifications,

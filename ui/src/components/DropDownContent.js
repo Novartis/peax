@@ -5,7 +5,9 @@ import React from 'react';
 import './DropDownContent.scss';
 
 const DropDownContent = props => (
-  <div className="flex-c flex-v drop-down-content">{props.children}</div>
+  <div className="drop-down-content">
+    <div className="flex-c flex-v">{props.children}</div>
+  </div>
 );
 
 DropDownContent.propTypes = {

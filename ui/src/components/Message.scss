@@ -1,4 +1,4 @@
-@import "../styles/colors";
+@import '../styles/colors';
 
 .message {
   position: relative;
@@ -20,6 +20,12 @@
   &.message-error {
     color: $pink-dark;
     background: $pink-light;
+
+    .button {
+      padding: 0.25rem 0.375rem;
+      font-size: 0.9em;
+      background: transparentize($pink-dark, 0.85);
+    }
   }
 
   .icon {

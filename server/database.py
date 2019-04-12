@@ -276,7 +276,9 @@ class DB:
             # We need the curser as the connection doesn't feature `lastrowid`
             c = conn.cursor()
 
-            str_config = json.dumps(config.export(), sort_keys=True)
+            str_config = json.dumps(
+                config.export(ignore_chromsizes=True), sort_keys=True
+            )
             c.execute(
                 "INSERT INTO search (target_from, target_to, config) "
                 "VALUES (?, ?, ?)",

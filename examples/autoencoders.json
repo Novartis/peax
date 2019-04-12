@@ -1,0 +1,56 @@
+{
+  "dnase-seq-3kb": {
+    "autoencoder": "examples/models/dnase_w-3000_r-25.h5",
+    "content_type": "dnase-seq-3kb",
+    "window_size": 3000,
+    "resolution": 25,
+    "latent_dim": 10,
+    "channels": 1,
+    "input_dim": 3
+  },
+  "dnase-seq-12kb": {
+    "autoencoder": "examples/models/dnase_w-12000_r-100.h5",
+    "content_type": "dnase-seq-12kb",
+    "window_size": 12000,
+    "resolution": 100,
+    "latent_dim": 10,
+    "channels": 1,
+    "input_dim": 3
+  },
+  "dnase-seq-120kb": {
+    "autoencoder": "examples/models/dnase_w-120000_r-1000.h5",
+    "content_type": "dnase-seq-120kb",
+    "window_size": 120000,
+    "resolution": 1000,
+    "latent_dim": 10,
+    "channels": 1,
+    "input_dim": 3
+  },
+  "histone-mark-chip-seq-3kb": {
+    "autoencoder": "examples/models/chip_w-3000_r-25.h5",
+    "content_type": "histone-mark-chip-seq-3kb",
+    "window_size": 3000,
+    "resolution": 25,
+    "latent_dim": 10,
+    "channels": 1,
+    "input_dim": 3
+  },
+  "histone-mark-chip-seq-12kb": {
+    "autoencoder": "examples/models/chip_w-12000_r-100.h5",
+    "content_type": "histone-mark-chip-seq-12kb",
+    "window_size": 12000,
+    "resolution": 100,
+    "latent_dim": 10,
+    "channels": 1,
+    "input_dim": 3
+  },
+  "histone-mark-chip-seq-120kb": {
+    "autoencoder": "examples/models/chip_w-120000_r-1000.h5",
+    "content_type": "histone-mark-chip-seq-120kb",
+    "window_size": 120000,
+    "resolution": 1000,
+    "latent_dim": 10,
+    "channels": 1,
+    "input_dim": 3
+  }
+}

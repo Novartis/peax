@@ -1,0 +1,30 @@
+{
+  "encoders": [
+    {
+      "content_type": "dnase-seq-3kb",
+      "from_file": "examples/autoencoders.json"
+    },
+    {
+      "content_type": "histone-mark-chip-seq-3kb",
+      "from_file": "examples/autoencoders.json"
+    }
+  ],
+  "datasets": [
+    {
+      "filepath": "examples/data/ENCFF906WCV.bigWig",
+      "content_type": "dnase-seq-3kb",
+      "id": "encode-e11-5-midbrain-dnase-rdns",
+      "name": "e11.5 midbrain DNase rdn signal"
+    },
+    {
+      "filepath": "examples/data/ENCFF847OYS.bigWig",
+      "content_type": "histone-mark-chip-seq-3kb",
+      "id": "encode-e11-5-midbrain-chip-h3k27ac-fc",
+      "name": "e11.5 midbrain H3K27ac fc"
+    }
+  ],
+  "coords": "mm10",
+  "chroms": ["chr1", "chr2"],
+  "step_freq": 2,
+  "db_path": "examples/search-e11-5-midbrain.db"
+}
