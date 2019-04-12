@@ -434,6 +434,133 @@ def prepare_dnase(
     )
 
 
+def prepare_dnase_only(
+    dataset,
+    settings,
+    data_dir,
+    chromosomes,
+    window_size,
+    step_size,
+    print_progress: callable = None,
+    verbose: bool = False,
+    silent: bool = False,
+):
+    tqdm = utils.get_tqdm()
+
+    filename_signal = "{}.bigWig".format(dataset["rdn_signal"])
+    filepath_signal = os.path.join(data_dir, filename_signal)
+    filename_narrow_peaks = "{}.bigBed".format(dataset["narrow_peaks"])
+    filepath_narrow_peaks = os.path.join(data_dir, filename_narrow_peaks)
+    filename_broad_peaks = "{}.bigBed".format(dataset["broad_peaks"])
+    filepath_broad_peaks = os.path.join(data_dir, filename_broad_peaks)
+
+    files_are_available = [
+        pathlib.Path(filepath_signal).is_file(),
+        pathlib.Path(filepath_narrow_peaks).is_file(),
+        pathlib.Path(filepath_broad_peaks).is_file(),
+    ]
+
+    assert all(files_are_available), "Not all data files are available"
+
+    # 0. Sanity check
+    chrom_sizes_signal = bigwig.get_chromsizes(filepath_signal)
+    chrom_sizes_narrow_peaks = bigwig.get_chromsizes(filepath_narrow_peaks)
+    chrom_sizes_broad_peaks = bigwig.get_chromsizes(filepath_broad_peaks)
+
+    signal_has_all_chroms = [chrom in chrom_sizes_signal for chrom in chromosomes]
+    narrow_peaks_has_all_chroms = [
+        chrom in chrom_sizes_narrow_peaks for chrom in chromosomes
+    ]
+    broad_peaks_has_all_chroms = [
+        chrom in chrom_sizes_broad_peaks for chrom in chromosomes
+    ]
+
+    assert all(signal_has_all_chroms), "Signal should have all chromosomes"
+    assert all(narrow_peaks_has_all_chroms), "Narrow peaks should have all chromosomes"
+    assert all(broad_peaks_has_all_chroms), "Broad peaks should have all chromosomes"
+
+    print_per_chrom = None
+    pbar = None
+
+    # 1. Extract the windows, narrow peaks, and broad peaks per chromosome
+    if verbose:
+        print("Extract windows from {}".format(filename_signal), end="", flush=True)
+        print_per_chrom = print_progress
+    elif not silent:
+        pbar = tqdm(
+            total=len(chromosomes) * 3,
+            leave=False,
+            desc="Chromosomes",
+            unit="chromosome",
+        )
+
+        def update_pbar():
+            pbar.update(1)
+
+        print_per_chrom = update_pbar
+
+    data = bigwig.chunk(
+        filepath_signal,
+        window_size,
+        settings["resolution"],
+        step_size,
+        chromosomes,
+        verbose=verbose,
+        print_per_chrom=print_per_chrom,
+    )
+
+    if verbose:
+        print(
+            "\nExtract narrow peaks from {}".format(filename_narrow_peaks),
+            end="",
+            flush=True,
+        )
+
+    narrow_peaks = utils.chunk_beds_binary(
+        filepath_narrow_peaks,
+        window_size,
+        step_size,
+        chromosomes,
+        verbose=verbose,
+        print_per_chrom=print_per_chrom,
+    )
+
+    if verbose:
+        print(
+            "\nExtract broad peaks from {}".format(filename_broad_peaks),
+            end="",
+            flush=True,
+        )
+
+    broad_peaks = utils.chunk_beds_binary(
+        filepath_broad_peaks,
+        window_size,
+        step_size,
+        chromosomes,
+        verbose=verbose,
+        print_per_chrom=print_per_chrom,
+    )
+
+    if pbar is not None:
+        pbar.close()
+
+    # 4. Under-sampling: remove the majority of empty windows
+    if verbose:
+        print("\nSelect windows to balance peaky and non-peaky ratio")
+
+    selected_windows = utils.filter_windows_by_peaks(
+        data,
+        narrow_peaks,
+        broad_peaks,
+        incl_pctl_total_signal=settings["incl_pctl_total_signal"],
+        incl_pct_no_signal=settings["incl_pct_no_signal"],
+        peak_ratio=settings["peak_ratio"],
+        verbose=verbose,
+    )
+
+    return (data, (narrow_peaks + broad_peaks).flatten(), selected_windows)
+
+
 def prepare(
     dtype: str,
     datasets: dict,
