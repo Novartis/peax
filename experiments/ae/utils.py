@@ -66,9 +66,13 @@ def train(
     )
 
 
-def predict(encoder, decoder, test, validator=None):
-    encoded = encoder.predict(test.reshape(test.shape[0], test.shape[1], 1))
-    decoded = decoder.predict(encoded)
+def predict(encoder, decoder, test, autoencoder=None, validator=None):
+    if autoencoder is not None:
+        encoded = None
+        decoded = autoencoder.predict(test.reshape(test.shape[0], test.shape[1], 1))
+    else:
+        encoded = encoder.predict(test.reshape(test.shape[0], test.shape[1], 1))
+        decoded = decoder.predict(encoded)
 
     loss = None
     if validator is not None:
@@ -790,7 +794,7 @@ def get_tqdm(is_keras: bool = False):
             return tqdm
 
 
-def get_models(ae_filepath: str, silent: bool = True):
+def get_models(ae_filepath: str, loss_fn: str = None, silent: bool = True):
     """Get encoder, decoder, and autoencoder from stored file
 
     This method loads the autoencoder model and creates the related encoder and decoder
@@ -815,6 +819,10 @@ def get_models(ae_filepath: str, silent: bool = True):
     if matches is not None:
         loss = matches.group(1)
         loss = get_loss(matches.group(1))
+        if hasattr(loss, "__name__"):
+            custom_objects = {loss.__name__: loss}
+    elif loss_fn is not None:
+        loss = get_loss(loss_fn)
         if hasattr(loss, "__name__"):
             custom_objects = {loss.__name__: loss}
     else:
@@ -1267,6 +1275,10 @@ def plot_windows_from_data(
     num: int = 10,
     window_ids: list = None,
     predictions: np.ndarray = None,
+    plot_pred_separately: bool = False,
+    diff: bool = False,
+    no_title: bool = False,
+    save_as: str = None,
 ):
     if window_ids is not None:
         num = len(window_ids)
@@ -1296,39 +1308,160 @@ def plot_windows_from_data(
     rows = math.ceil(num / cols)
 
     x = np.arange(data.shape[1])
-
-    fig, axes = plt.subplots(rows, cols, figsize=(8 * cols, 1.25 * rows), sharex=True)
+    
+    if plot_pred_separately:
+        if diff:
+            fig, axes = plt.subplots(
+                (rows * 4) - 1,
+                cols,
+                figsize=(6 * cols, 3 * rows),
+                sharex=True,
+                gridspec_kw=dict(
+                    height_ratios=([1,1,1,0.6] * (rows - 1) + [1,1,1]),
+                    wspace=0.2,
+                    hspace=0
+                )
+            )
+        else:
+            fig, axes = plt.subplots(
+                (rows * 3) - 1,
+                cols,
+                figsize=(6 * cols, 2 * rows),
+                sharex=True,
+                gridspec_kw=dict(
+                    height_ratios=([1,1,0.75] * (rows - 1) + [1,1]),
+                    wspace=0.2,
+                    hspace=0
+                )
+            )
+    else:
+        fig, axes = plt.subplots(
+            rows,
+            cols,
+            figsize=(8 * cols, 1.25 * rows),
+            sharex=True,
+            gridspec_kw=dict(wspace=0.2, hspace=0.75),
+        )
+        
     fig.patch.set_facecolor("white")
+    
+    def get_axis(r, c):
+        if axes.ndim == 1:
+            return axes[r]
+        return axes[r, c]
 
     i = 0
     for c in np.arange(cols):
         for r in np.arange(rows):
             if i >= num:
                 break
+                
+            if predictions is not None and plot_pred_separately:
+                if diff:
+                    axis = get_axis(r * 4, c)
+                    axis.bar(x, sampled_wins[i], width=1.0, color="#000000")
+                    axis.spines["top"].set_color("silver")
+                    axis.spines["right"].set_color("silver")
+                    axis.spines["bottom"].set_color("silver")
+                    axis.spines["left"].set_color("silver")
+                    axis.set_ylim(0, 1)
+                    axis.set_xticks([], [])
+                    axis.set_yticks([], [])
+                    if not no_title:
+                        axis.set_title(selected_window_ids[i])
 
-            axis = axes[r] if cols == 1 else axes[r, c]
+                    axis = get_axis(r * 4 + 1, c)
+                    axis.bar(x, sampled_wins_pred[i], width=1.0, color="#0E689D")
+                    axis.spines["top"].set_color("silver")
+                    axis.spines["right"].set_color("silver")
+                    axis.spines["bottom"].set_color("silver")
+                    axis.spines["left"].set_color("silver")
+                    axis.set_ylim(0, 1)
+                    axis.set_xticks([], [])
+                    axis.set_yticks([], [])
 
-            if predictions is None:
-                axis.bar(x, sampled_wins[i], width=1.0, color="#008ca8")
+                    axis = get_axis(r * 4 + 2, c)
+                    sampled_win_min_vales = np.minimum(sampled_wins[i], sampled_wins_pred[i])
+                    axis.bar(x, sampled_wins[i], width=1.0, color="#0E689D")
+                    axis.bar(x, sampled_wins_pred[i], width=1.0, color="#cc168c")
+                    axis.bar(x, sampled_win_min_vales, width=1.0, color="#ffffff")
+                    axis.spines["top"].set_color("silver")
+                    axis.spines["right"].set_color("silver")
+                    axis.spines["bottom"].set_color("silver")
+                    axis.spines["left"].set_color("silver")
+                    axis.set_ylim(0, 1)
+                    axis.set_xticks([], [])
+                    axis.set_yticks([], [])
+
+                    if r < rows - 1:
+                        axis = get_axis(r * 4 + 3, c)
+                        axis.spines["top"].set_color("silver")
+                        axis.spines["right"].set_visible(False)
+                        axis.spines["bottom"].set_visible(False)
+                        axis.spines["left"].set_visible(False)
+                        axis.set_xticks([], [])
+                        axis.set_yticks([], [])
+
+                else:
+                    axis = get_axis(r * 3, c)
+                    axis.bar(x, sampled_wins[i], width=1.0, color="#000000")
+                    axis.spines["top"].set_color("silver")
+                    axis.spines["right"].set_color("silver")
+                    axis.spines["bottom"].set_color("silver")
+                    axis.spines["left"].set_color("silver")
+                    axis.set_ylim(0, 1)
+                    axis.set_xticks([], [])
+                    axis.set_yticks([], [])
+                    if not no_title:
+                        axis.set_title(selected_window_ids[i])
+
+                    axis = get_axis(r * 3 + 1, c)
+                    axis.bar(x, sampled_wins_pred[i], width=1.0, color="#0E689D")
+                    axis.spines["top"].set_color("silver")
+                    axis.spines["right"].set_color("silver")
+                    axis.spines["bottom"].set_color("silver")
+                    axis.spines["left"].set_color("silver")
+                    axis.set_ylim(0, 1)
+                    axis.set_xticks([], [])
+                    axis.set_yticks([], [])
+
+                    if r < rows - 1:
+                        axis = get_axis(r * 3 + 2, c)
+                        axis.spines["top"].set_color("silver")
+                        axis.spines["right"].set_visible(False)
+                        axis.spines["bottom"].set_visible(False)
+                        axis.spines["left"].set_visible(False)
+                        axis.set_xticks([], [])
+                        axis.set_yticks([], [])
+            
             else:
-                axis.bar(x, sampled_wins[i], width=1.0, color="#808080")
-                axis.bar(x, sampled_wins_pred[i], width=1.0, color="#008ca8", alpha=0.6)
-            axis.set_xticks(x[5::10])
-            axis.set_xticklabels(x[5::10])
+                axis = get_axis(r, c)
 
-            axis.spines["top"].set_color("silver")
-            axis.spines["right"].set_color("silver")
-            axis.spines["bottom"].set_color("silver")
-            axis.spines["left"].set_color("silver")
-            axis.tick_params(axis="x", colors="silver")
-            axis.tick_params(axis="y", colors="silver")
-            axis.set_ylim(0, 1)
-            axis.set_title(sampled_window_idx[i])
-            axis.set_xticks([], [])
-            axis.set_yticks([], [])
+                if predictions is None:
+                    axis.bar(x, sampled_wins[i], width=1.0, color="#0E689D")
+                else:
+                    axis.bar(x, sampled_wins[i], width=1.0, color="#808080")
+                    axis.bar(x, sampled_wins_pred[i], width=1.0, color="#0E689D", alpha=0.6)
+                axis.set_xticks(x[5::10])
+                axis.set_xticklabels(x[5::10])
+
+                axis.spines["top"].set_color("silver")
+                axis.spines["right"].set_color("silver")
+                axis.spines["bottom"].set_color("silver")
+                axis.spines["left"].set_color("silver")
+                axis.tick_params(axis="x", colors="silver")
+                axis.tick_params(axis="y", colors="silver")
+                axis.set_ylim(0, 1)
+                if not no_title:
+                    axis.set_title(sampled_window_idx[i])
+                axis.set_xticks([], [])
+                axis.set_yticks([], [])
             i += 1
 
     fig.tight_layout()
+
+    if save_as is not None:
+        fig.savefig(save_as, bbox_inches="tight")
 
 
 def create_hdf5_dset(f, name, data, extendable: bool = False, dtype: str = None):
