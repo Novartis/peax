@@ -212,7 +212,7 @@ GENE_ANNOTATION_TRACK = {
         "showMousePosition": True,
         "mousePositionColor": "black",
         "fontSize": 8,
-        "geneAnnoHeight": 8,
+        "geneAnnotationHeight": 8,
         "geneLabelPosition": "inside",
         "geneStrandSpacing": 2,
     },

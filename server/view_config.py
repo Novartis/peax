@@ -137,9 +137,9 @@ def build(
         anno_track_config["options"]["regions"].append(region)
 
     if default:
-        gene_annotation_track_config["height"] *= 2
-        gene_annotation_track_config["options"]["fontSize"] = 10
-        gene_annotation_track_config["options"]["geneAnnoHeight"] = 10
+        gene_annotation_track_config["height"] *= 3.5
+        gene_annotation_track_config["options"]["fontSize"] = 12
+        gene_annotation_track_config["options"]["geneAnnotationHeight"] = 12
         gene_annotation_track_config["options"]["geneLabelPosition"] = "outside"
         gene_annotation_track_config["options"]["geneStrandSpacing"] = 3
 
@@ -170,6 +170,11 @@ def build(
             chrom_track = defaults.CHROM_TRACK_MM10
         else:
             chrom_track = defaults.CHROM_TRACK_HG19
+
+        if default:
+            chrom_track["height"] = 24
+            chrom_track["options"]["fontSize"] = 12
+            chrom_track["options"]["fontIsLeftAligned"] = False
 
         # Add the chrom labels to the last track
         combined_track_config["contents"].extend([anno_track_config, chrom_track])
