@@ -5,7 +5,7 @@ channels:
   - defaults
 
 dependencies:
-  - python=3.6
+  - python=3.7
   - nodejs=10.*
   - bwa
   - samtools
@@ -24,24 +24,24 @@ dependencies:
   - flask-cors
   - ipython
   - ipywidgets
-  - pandas=0.23.4
+  - pandas
   - pywget
   - bokeh
   - pydot
   - h5py
   # We need the next line only because of a weird bug. This can probably be
   # removed in the future: https://stackoverflow.com/a/52598942/981933
-  - testpath>=0.4.2
+  - testpath==0.4.2
   - tqdm
-  # A bug in matplotlib: https://github.com/matplotlib/matplotlib/issues/12601
-  - matplotlib>=3.0.2
+  - matplotlib
   - requests
   - tsfresh
   - tslearn
   - statsmodels
   - pip
   - pip:
-      - pysam==0.15
+      - apricot-select
+      - pysam==0.15.3
       - hgtiles
       - cooler
       - negspy
