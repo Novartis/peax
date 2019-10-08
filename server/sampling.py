@@ -169,10 +169,10 @@ def sample_by_dist_density(
 ):
     """Sample by distance and density
 
-    This sampling strategy does is based on the distance of the encoded windows to the
+    This sampling strategy is based on the distance of the encoded windows to the
     encoded target window and the windows' knn-density. For `levels` number of
     increasing size it samples iteratively by density and maximum distance to already
-    sampled windows. Essentially this search strategy samples in increases radii. You
+    sampled windows. Essentially, this search strategy samples in increases radii. You
     can think of it like this:
 
     |  ....       ..   .  . |.. . . |. . .[X]  . |. ...|   ...  . .  ...|
@@ -183,9 +183,9 @@ def sample_by_dist_density(
     the number of windows for a certain level. In this examples, the
     `initial_level_size` is {4}, so the first level consists of the 4 nearest neighbors
     to the search target. The second level consists of the next 8 nearest neighbors,
-    the third level consists of the next 16 nearest neighbors etc. Within these levels
-    the algorithm iteratively samples the densest windows that are furthest away from
-    the already sampled windows. E.g. In level zero the left sample is selected because
+    the third level consists of the next 16 nearest neighbors, etc. Within these levels
+    the algorithm iteratively samples the densest windows that are farthest away from
+    the already sampled windows. E.g., in level zero the left sample is selected because
     it's close to other windows but the second sample is selected because it's far away
     from the first sample while the other available windows are too close to the already
     sampled window.
@@ -244,7 +244,7 @@ def sample_by_dist_density(
         selection_mask[samples[0]] = True
 
         for s in range(1, level_sample_size):
-            # Get all the windows in the current level that have not been sampeled yet
+            # Get all the windows in the current level that have not been sampled yet
             remaining_wins_idx = rel_wins_idx[~selection_mask]
             remaining_wins = sdata[remaining_wins_idx]
             sampled_wins = sdata[samples[:s]]
