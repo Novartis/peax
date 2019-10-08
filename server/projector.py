@@ -114,7 +114,7 @@ class Projector:
             try:
                 self.projector = joblib.load(b)
                 self.is_fitted = True
-            except EOFError:
+            except (RuntimeError, EOFError):
                 # Projector model seems to be broken.
                 self.is_fitted = False
 
