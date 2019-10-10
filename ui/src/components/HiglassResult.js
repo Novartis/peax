@@ -249,7 +249,8 @@ class HiglassResult extends React.Component {
             isNotEditable
             isStatic
             isZoomFixed
-            pixelPrecise
+            isPixelPrecise
+            useCanvas
             viewConfigId={this.viewId}
           />
           <div className="higlass-class-probability-wrapper">
