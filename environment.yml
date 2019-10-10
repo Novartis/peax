@@ -45,6 +45,7 @@ dependencies:
       - hgtiles
       - cooler
       - negspy
+      - numba
       - pybbi
       - keras-tqdm
       - forestci

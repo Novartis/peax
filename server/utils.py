@@ -415,6 +415,11 @@ def unserialize_classif(serialized_classif):
     return np.frombuffer(serialized_classif, dtype=np.int)
 
 
+def impact(data, impact=1.0):
+    impact = min(1, max(0, impact))
+    return impact * data + (1 - impact)
+
+
 def get_target_window_idx(
     target_from: int,
     target_to: int,

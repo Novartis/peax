@@ -15,6 +15,9 @@ import numpy as np
 from scipy.spatial.distance import cdist
 from server import utils
 
+from numba import njit
+from numba import prange
+
 
 def random_sampling(data: np.ndarray, num_samples: int = 20):
     try:
@@ -280,44 +283,104 @@ def sample_by_dist_density(
 
 def maximize_pairwise_distance(
     data: np.ndarray,
-    selection: np.ndarray,
-    ranking: np.ndarray,
+    ranked_candidates: np.ndarray,
+    rank_values: np.ndarray,
     n: int,
     dist_metric: str = "euclidean",
+    dist_aggregator: callable = np.mean,
 ):
-    subsamples = np.zeros(n).astype(np.uint32) - 1
-    subselection_mask = np.zeros(selection.size).astype(np.bool)
+    samples = np.zeros(n).astype(np.uint32) - 1
+    mask = np.zeros(ranked_candidates.size).astype(np.bool)
 
-    subsamples[0] = selection[0]
-    subselection_mask[0] = True
+    samples[0] = ranked_candidates[0]
+    mask[0] = True
 
-    for i in range(1, n):
-        # Get all the windows in the current level that have not been sampeled yet
-        remaining_wins_idx = selection[~subselection_mask]
+    d = cdist(data[ranked_candidates], data[ranked_candidates], dist_metric)
+    d = d.max() - d
+    d -= d.min()
+    d /= d.max()
+    d *= utils.normalize_simple(rank_values)
+
+    for i in np.arange(1, n):
+        # Get all the windows in the current level that have not been sampled yet
+        remaining_wins_idx = ranked_candidates[~mask]
         remaining_wins = data[remaining_wins_idx]
-        sampled_wins = data[subsamples[:i]]
+        sampled_wins = data[samples[:i]]
 
         if i == 1:
             sampled_wins = sampled_wins.reshape((1, -1))
 
         # Get the normalized summed distance of the remaining windows to the
         # already sampled windows
-        dist = np.sum(
+        dist = dist_aggregator(
             utils.normalize(cdist(remaining_wins, sampled_wins, dist_metric)), axis=1
+        )
+
+        dist_rank_sorted = np.argsort(
+            utils.normalize_simple(np.max(dist) - dist)
+            + utils.normalize_simple(rank_values[~mask])
         )
 
         # Select the window that is farthest away from the already sampled windows
         # and is in the most dense areas
-        rel_idx = np.where(~subselection_mask)[0][
-            np.argsort(
-                utils.normalize_simple(np.max(dist) - dist)
-                + utils.normalize_simple(ranking[~subselection_mask])
-            )[0]
-        ]
-        subselection_mask[rel_idx] = True
-        subsamples[i] = selection[rel_idx]
+        rel_idx = np.where(~mask)[0][dist_rank_sorted[0]]
+        mask[rel_idx] = True
+        samples[i] = ranked_candidates[rel_idx]
 
-    return subsamples
+    return samples
+
+
+@njit(
+    "int64(float64[:,:], float64[:], float64[:], boolean[:])", nogil=True, parallel=True
+)
+def compute_gains(X, gains, current_values, mask):
+    for idx in prange(X.shape[0]):
+        if mask[idx] == 1:
+            continue
+
+        gains[idx] = np.maximum(X[idx], current_values).sum()
+
+    return np.argmax(gains)
+
+
+def weighted_facility_locator(
+    data: np.ndarray,
+    ranked_candidates: np.ndarray,
+    rank_values: np.ndarray,
+    n: int,
+    dist_metric: str = "euclidean",
+):
+    num_candidates = ranked_candidates.shape[0]
+    samples = np.zeros(n).astype(np.uint32) - 1
+    mask = np.zeros(num_candidates).astype(np.bool)
+
+    samples[0] = ranked_candidates[0]
+    mask[0] = True
+
+    d = cdist(data[ranked_candidates], data[ranked_candidates], dist_metric)
+    d = d.max() - d
+    d /= d.max()
+    d *= utils.normalize_simple(rank_values).reshape((-1, 1))
+
+    current_values = np.zeros(num_candidates, dtype="float64")
+
+    for i in np.arange(1, n):
+        gains = np.zeros(num_candidates, dtype="float64")
+
+        compute_gains(d, gains, current_values, mask)
+
+        gains -= current_values.sum()
+
+        best_candidate_idx = gains.argmax()
+
+        current_values = np.maximum(d[best_candidate_idx], current_values).astype(
+            "float64"
+        )
+
+        samples[i] = ranked_candidates[best_candidate_idx]
+        mask[best_candidate_idx] = True
+
+    return samples
 
 
 def sample_by_uncertainty_dist_density(
@@ -336,41 +399,49 @@ def sample_by_uncertainty_dist_density(
     indices = np.where(selected)[0]
 
     # Convert the class probabilities into probabilities of uncertainty
-    # p = 0:   abs(0   - 0.5) * 2 == 1
-    # p = 0.5: abs(0.5 - 0.5) * 2 == 0
-    # p = 1:   abs(1   - 0.5) * 2 == 1
-    p_certain = np.abs(p_y[selected] - 0.5) * 2
+    # p = 0:   1 - abs(0   - 0.5) * 2 == 0
+    # p = 0.5: 1 - abs(0.5 - 0.5) * 2 == 1
+    # p = 1:   1 - abs(1   - 0.5) * 2 == 0
+    p_uncertain = 1 - np.abs(p_y[selected] - 0.5) * 2
 
     # Normalize knn-density
     knn_dist_norm_selected = utils.normalize_simple(knn_dist[selected])
-    # Weight density: a value of 0.5 downweights the importants by scaling
+    # Weight density: a value of 0.5 down-weights the importance by scaling
     # the relative density closer to 1
-    knn_dist_norm_selected_weighted = knn_dist_norm_selected * knn_dist_weight + (
-        1 - knn_dist_weight
+    knn_dist_norm_selected_weighted = utils.impact(
+        knn_dist_norm_selected, knn_dist_weight
+    )
+    knn_dist_norm_selected_weighted = (
+        knn_dist_norm_selected_weighted.max() - knn_dist_norm_selected_weighted
     )
 
     # Normalize distance to target
     dist_to_target_norm_selected = utils.normalize_simple(dist_to_target[selected])
+    dist_to_target_norm_selected_weighted = utils.impact(
+        dist_to_target_norm_selected, dist_to_target_weight
+    )
     dist_to_target_norm_selected_weighted = (
-        dist_to_target_norm_selected * dist_to_target_weight
-        + (1 - dist_to_target_weight)
+        dist_to_target_norm_selected_weighted.max()
+        - dist_to_target_norm_selected_weighted
     )
 
-    # Combine uncertainty and density
-    uncertain_knn_dist = (
-        p_certain
-        * knn_dist_norm_selected_weighted
-        * dist_to_target_norm_selected_weighted
+    # Combine uncertainty, knn distance, and distance to target
+    # The value is in [0, 2]
+    uncertain_knn_dist = p_uncertain * (
+        p_uncertain
+        + knn_dist_norm_selected_weighted
+        + dist_to_target_norm_selected_weighted
     )
+    uncertain_knn_dist /= uncertain_knn_dist.max()
 
-    # Sort descending
-    uncertain_knn_dist_sorted_idx = np.argsort(uncertain_knn_dist)
+    # Sort descending (highest is best!)
+    uncertain_knn_dist_sorted_idx = np.argsort(uncertain_knn_dist)[::-1]
 
     # Subsample by maximizing the pairwise distance
     subsample = maximize_pairwise_distance(
         data,
-        indices[uncertain_knn_dist_sorted_idx][: n * 5],
-        np.sort(uncertain_knn_dist)[: n * 5],
+        indices[uncertain_knn_dist_sorted_idx][: n * 10],
+        uncertain_knn_dist[uncertain_knn_dist_sorted_idx][: n * 10],
         n,
     )
 
