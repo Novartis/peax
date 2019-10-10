@@ -115,9 +115,13 @@ class HiGlassLauncher extends React.Component {
 
     if (this.props.isNotEditable) options.editable = false;
 
-    if (this.props.pixelPrecise) {
+    if (this.props.isPixelPrecise) {
       options.bounded = false;
       options.pixelPreciseMarginPadding = true;
+    }
+
+    if (this.props.useCanvas) {
+      options.renderer = 'canvas';
     }
 
     const className = !this.props.autoExpand ? 'full-dim' : 'rel';
@@ -150,13 +154,14 @@ class HiGlassLauncher extends React.Component {
 HiGlassLauncher.defaultProps = {
   disableTrackMenu: false,
   isGlobalMousePosition: false,
+  isPixelPrecise: false,
   isZoomFixed: false,
   options: {
     bounded: true,
     horizontalMargin: 0,
     verticalMargin: 0
   },
-  pixelPrecise: false
+  useCanvas: false
 };
 
 HiGlassLauncher.propTypes = {
@@ -166,12 +171,13 @@ HiGlassLauncher.propTypes = {
   isGlobalMousePosition: PropTypes.bool,
   isNotEditable: PropTypes.bool,
   isPadded: PropTypes.bool,
+  isPixelPrecise: PropTypes.bool,
   isZoomFixed: PropTypes.bool,
+  mouseTool: PropTypes.string,
   onError: PropTypes.func.isRequired,
   options: PropTypes.object,
-  mouseTool: PropTypes.string,
-  pixelPrecise: PropTypes.bool,
   setViewConfig: PropTypes.func,
+  useCanvas: PropTypes.bool,
   viewConfig: PropTypes.object
 };
 

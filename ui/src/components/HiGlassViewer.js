@@ -202,7 +202,8 @@ class HiGlassViewer extends React.Component {
                 isPadded={this.props.isPadded}
                 isNotEditable={this.props.isNotEditable}
                 isZoomFixed={this.props.isZoomFixed}
-                pixelPrecise={this.props.pixelPrecise}
+                isPixelPrecise={this.props.isPixelPrecise}
+                useCanvas={this.props.useCanvas}
               />
             ) : (
               <HiGlassLoader
@@ -213,7 +214,8 @@ class HiGlassViewer extends React.Component {
                 isPadded={this.props.isPadded}
                 isNotEditable={this.props.isNotEditable}
                 isZoomFixed={this.props.isZoomFixed}
-                pixelPrecise={this.props.pixelPrecise}
+                isPixelPrecise={this.props.isPixelPrecise}
+                useCanvas={this.props.useCanvas}
               />
             ))}
         </div>
@@ -229,7 +231,8 @@ HiGlassViewer.defaultProps = {
   isPadded: false,
   isStatic: false,
   isZoomFixed: false,
-  pixelPrecise: false,
+  isPixelPrecise: false,
+  useCanvas: false,
   viewConfigAdjustments: []
 };
 
@@ -245,9 +248,10 @@ HiGlassViewer.propTypes = {
   isPadded: PropTypes.bool,
   isStatic: PropTypes.bool,
   isZoomFixed: PropTypes.bool,
-  pixelPrecise: PropTypes.bool,
+  isPixelPrecise: PropTypes.bool,
   pubSub: PropTypes.object.isRequired,
   setViewConfig: PropTypes.func.isRequired,
+  useCanvas: PropTypes.bool,
   viewConfig: PropTypes.object,
   viewConfigId: PropTypes.string,
   viewConfigAdjustments: PropTypes.array
