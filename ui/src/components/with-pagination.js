@@ -11,7 +11,7 @@ import { range } from '../utils';
 const getCurrentPage = (list, page = 0, itemsPerPage = 10) =>
   list.slice(page * itemsPerPage, (page + 1) * itemsPerPage);
 
-const withPagination = Component => {
+const withPagination = () => Component => {
   const Pagination = ({
     list,
     isLoadingMore,

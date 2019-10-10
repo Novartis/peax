@@ -81,7 +81,7 @@ const HiglassResultsList = compose(
   withEither(isTraining, IsTrainingMsg),
   withEither(isNotTrained, IsNotTrainedMsg),
   withEither(isEmpty, IsEmptyMsg),
-  withPagination,
+  withPagination(),
   withList(getKey)
 )(HiglassResult);
 
