@@ -24,7 +24,7 @@
     "lodash-es": "4.17.11",
     "mouse-position": "2.1.0",
     "mouse-pressed": "1.0.0",
-    "pixi.js": "5.1.5",
+    "pixi.js-legacy": "5.1.5",
     "prop-types": "15.6.2",
     "pub-sub-es": "1.2.1",
     "react": "16.6.3",
