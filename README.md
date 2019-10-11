@@ -237,7 +237,7 @@ Handy commands to keep in mind:
 - `make install` installs the conda environment and npm packages and builds the UI
 - `make update` updates the conda environment and npm packages and rebuilds the UI
 - `make build` builds the UI
-- `./start.py` starts the Flask server application for serving data
+- `python start.py` starts the Flask server application for serving data
 - [/ui]: `npm install` installs and updates all the needed packages for the frontend
 - [/ui]: `npm build` creates the production built of the frontend
 - [/ui]: `npm start` starts a dev server with hot reloading for the frontend
