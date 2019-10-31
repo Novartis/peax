@@ -1,4 +1,4 @@
-import createHistory from 'history/createBrowserHistory';
+import * as history from 'history';
 import { routerMiddleware } from 'react-router-redux';
 import { applyMiddleware, compose, createStore } from 'redux';
 import { enableBatching } from 'redux-batched-actions';
@@ -29,12 +29,12 @@ const config = {
   keyPrefix: prefix
 };
 
-const history = createHistory();
+const browserHistory = history.createBrowserHistory();
 
 const middleware = [
   autoRehydrate(),
   applyMiddleware(thunk),
-  applyMiddleware(routerMiddleware(history))
+  applyMiddleware(routerMiddleware(browserHistory))
 ];
 
 if (process.env.NODE_ENV === 'development') {
@@ -110,4 +110,4 @@ const createState = () => {
   };
 };
 
-export { configureStore, history, createState };
+export { configureStore, browserHistory as history, createState };
