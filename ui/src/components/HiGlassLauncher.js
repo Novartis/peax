@@ -101,7 +101,7 @@ class HiGlassLauncher extends React.Component {
   /* -------------------------------- Render -------------------------------- */
 
   render() {
-    const options = Object.assign({}, DEFAULT_OPTIONS, this.props.options);
+    const options = { ...DEFAULT_OPTIONS, ...this.props.options };
 
     if (this.props.enableAltMouseTools) {
       options.mouseTool = this.props.mouseTool;

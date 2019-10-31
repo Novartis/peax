@@ -66,6 +66,8 @@ import {
 
 const logger = Logger('Search');
 
+const baseUrl = 'http://localhost:5000/api/v1';
+
 const resizeTrigger = () =>
   requestNextAnimationFrame(() => {
     window.dispatchEvent(new Event('resize'));
@@ -278,9 +280,7 @@ class Search extends React.Component {
         searchInfo.status !== 200 ? "Couldn't load search info." : false;
       searchInfo = isError ? null : searchInfo.body;
       this.chromInfo = ChromosomeInfo(
-        `http://localhost:5000/api/v1/chrom-sizes/?id=${
-          searchInfo.coords
-        }&type=csv`
+        `${baseUrl}/chrom-sizes/?id=${searchInfo.coords}&type=csv`
       );
     } else {
       searchInfosAll = await api.getAllSearchInfos();
@@ -359,7 +359,7 @@ class Search extends React.Component {
       ? []
       : classifications.body.results;
 
-    const windows = Object.assign({}, this.state.windows);
+    const windows = { ...this.state.windows };
     classifications.forEach(({ windowId, classification }) => {
       windows[windowId] = {
         classification: numToClassif(classification),

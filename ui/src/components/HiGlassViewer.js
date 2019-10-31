@@ -122,7 +122,7 @@ class HiGlassViewer extends React.Component {
       return viewConf;
     }
 
-    const newViewConf = Object.assign({}, viewConf);
+    const newViewConf = { ...viewConf };
 
     this.props.viewConfigAdjustments.forEach(adjustment =>
       objectSet(newViewConf, adjustment.key, adjustment.value)

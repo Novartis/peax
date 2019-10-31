@@ -31,9 +31,8 @@ class ContentWrapper extends React.Component {
   }
 
   render() {
-    let className = `flex-c flex-v full-mdim content-wrapper ${
-      this.props.name
-    }`;
+    // prettier-ignore
+    let className = `flex-c flex-v full-mdim content-wrapper ${this.props.name}`;
 
     className += this.props.isFullDimOnly ? ' oh' : '';
     className += this.props.bottomBar ? ' content-wrapper-bottom-bar' : '';
