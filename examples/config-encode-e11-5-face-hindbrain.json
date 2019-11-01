@@ -23,5 +23,6 @@
   "chroms": ["chr10"],
   "step_freq": 2,
   "variable_target": true,
+  "normalize_tracks": true,
   "db_path": "examples/search-e11-5-face-hindbrain.db"
 }
