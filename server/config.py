@@ -251,6 +251,9 @@ class Config:
         elif key == "variable_target":
             self.variable_target = value
 
+        elif key == "normalize_tracks":
+            self.normalize_tracks = value
+
         else:
             raise InvalidConfig("Unknown settings: {}".format(key))
 

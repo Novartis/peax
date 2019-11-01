@@ -274,6 +274,19 @@ def build(
             if viewport is not None:
                 view_config["views"][0]["initialXDomain"] = viewport
 
+        if config.normalize_tracks:
+            view_config["valueScaleLocks"]["locksByViewUid"][
+                f"view1.{dataset.id}"
+            ] = "a"
+            if "a" not in view_config["valueScaleLocks"]["locksDict"]:
+                view_config["valueScaleLocks"]["locksDict"]["a"] = {
+                    "ignoreOffScreenValues": True
+                }
+            view_config["valueScaleLocks"]["locksDict"]["a"][f"view1.{dataset.id}"] = {
+                "view": "view1",
+                "track": dataset.id,
+            }
+
     return view_config
 
 

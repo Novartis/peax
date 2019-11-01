@@ -274,16 +274,9 @@ VIEW_CONFIG = {
             "uid": "view1",
             "initialXDomain": [0, 3095677412],
             "genomePositionSearchBoxVisible": False,
-            "tracks": {"top": [], "left": [], "center": [], "right": [], "bottom": []},
-            "layout": {
-                "w": 12,
-                "h": 12,
-                "x": 0,
-                "y": 0,
-                "i": "view1",
-                "moved": False,
-                "static": False,
-            },
+            "tracks": {"top": []},
+            "layout": {"w": 12, "h": 12, "x": 0, "y": 0},
         }
     ],
+    "valueScaleLocks": {"locksByViewUid": {}, "locksDict": {}},
 }
