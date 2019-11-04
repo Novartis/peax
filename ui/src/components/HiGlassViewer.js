@@ -47,12 +47,19 @@ class HiGlassViewer extends React.Component {
     this.loadViewConfig();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     if (this.props.viewConfigId !== prevProps.viewConfigId) {
       this.loadViewConfig();
     }
     if (this.props.viewConfigAdjustments !== prevProps.viewConfigAdjustments) {
       this.adjustViewConfig();
+    }
+    if (
+      this.state.isLoading === false &&
+      prevState.isLoading === true &&
+      this.props.onLoaded
+    ) {
+      this.props.onLoaded();
     }
   }
 
@@ -84,15 +91,6 @@ class HiGlassViewer extends React.Component {
     });
 
     fetchViewConfig(viewConfigId || defaultViewConfigId)
-      .catch(() => {
-        logger.warn('View config is not available locally!');
-
-        // Try loading config from HiGlass.io
-        return fetchViewConfig(
-          viewConfigId || defaultViewConfigId,
-          '//higlass.io'
-        );
-      })
       .then(this.setViewConfig.bind(this))
       .catch(error => {
         logger.error('Could not load or parse config.', error);
@@ -195,6 +193,7 @@ class HiGlassViewer extends React.Component {
               <HiGlassLauncher
                 api={this.props.api}
                 autoExpand={this.props.autoExpand}
+                containerPadding={this.props.containerPadding}
                 enableAltMouseTools={this.props.enableAltMouseTools}
                 onError={this.onError.bind(this)}
                 viewConfig={this.state.viewConfigStatic}
@@ -203,11 +202,15 @@ class HiGlassViewer extends React.Component {
                 isNotEditable={this.props.isNotEditable}
                 isZoomFixed={this.props.isZoomFixed}
                 isPixelPrecise={this.props.isPixelPrecise}
+                sizeMode={this.props.sizeMode}
                 useCanvas={this.props.useCanvas}
+                viewMargin={this.props.viewMargin}
+                viewPadding={this.props.viewPadding}
               />
             ) : (
               <HiGlassLoader
                 api={this.props.api}
+                containerPadding={this.props.containerPadding}
                 enableAltMouseTools={this.props.enableAltMouseTools}
                 onError={this.onError.bind(this)}
                 isGlobalMousePosition={this.props.isGlobalMousePosition}
@@ -215,7 +218,10 @@ class HiGlassViewer extends React.Component {
                 isNotEditable={this.props.isNotEditable}
                 isZoomFixed={this.props.isZoomFixed}
                 isPixelPrecise={this.props.isPixelPrecise}
+                sizeMode={this.props.sizeMode}
                 useCanvas={this.props.useCanvas}
+                viewMargin={this.props.viewMargin}
+                viewPadding={this.props.viewPadding}
               />
             ))}
         </div>
@@ -240,6 +246,7 @@ HiGlassViewer.propTypes = {
   api: PropTypes.func,
   autoExpand: PropTypes.bool,
   className: PropTypes.string,
+  containerPadding: PropTypes.oneOfType([PropTypes.number, PropTypes.array]),
   enableAltMouseTools: PropTypes.bool,
   hasSubTopBar: PropTypes.bool,
   height: PropTypes.number,
@@ -249,12 +256,17 @@ HiGlassViewer.propTypes = {
   isStatic: PropTypes.bool,
   isZoomFixed: PropTypes.bool,
   isPixelPrecise: PropTypes.bool,
+  isScrollable: PropTypes.bool,
+  onLoaded: PropTypes.func,
   pubSub: PropTypes.object.isRequired,
   setViewConfig: PropTypes.func.isRequired,
+  sizeMode: PropTypes.string,
   useCanvas: PropTypes.bool,
   viewConfig: PropTypes.object,
   viewConfigId: PropTypes.string,
-  viewConfigAdjustments: PropTypes.array
+  viewConfigAdjustments: PropTypes.array,
+  viewMargin: PropTypes.oneOfType([PropTypes.number, PropTypes.array]),
+  viewPadding: PropTypes.oneOfType([PropTypes.number, PropTypes.array])
 };
 
 const mapStateToProps = state => ({

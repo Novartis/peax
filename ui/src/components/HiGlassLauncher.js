@@ -124,6 +124,38 @@ class HiGlassLauncher extends React.Component {
       options.renderer = 'canvas';
     }
 
+    if (this.props.sizeMode) {
+      options.sizeMode = this.props.sizeMode;
+    }
+
+    if (this.props.containerPadding) {
+      const [paddingX, paddingY] = Array.isArray(this.props.containerPadding)
+        ? this.props.containerPadding
+        : new Array(2).fill(this.props.containerPadding);
+      options.containerPaddingX = paddingX;
+      options.containerPaddingY = paddingY;
+    }
+
+    if (this.props.viewMargin) {
+      const [top, right, bottom, left] = Array.isArray(this.props.viewMargin)
+        ? this.props.viewMargin
+        : new Array(4).fill(this.props.viewMargin);
+      options.viewMarginTop = top;
+      options.viewMarginRight = right;
+      options.viewMarginBottom = bottom;
+      options.viewMarginLeft = left;
+    }
+
+    if (this.props.viewPadding) {
+      const [top, right, bottom, left] = Array.isArray(this.props.viewPadding)
+        ? this.props.viewPadding
+        : new Array(4).fill(this.props.viewPadding);
+      options.viewPaddingTop = top;
+      options.viewPaddingRight = right;
+      options.viewPaddingBottom = bottom;
+      options.viewPaddingLeft = left;
+    }
+
     const className = !this.props.autoExpand ? 'full-dim' : 'rel';
 
     let classNameHgLauncher = 'higlass-launcher twbs';
@@ -155,6 +187,7 @@ HiGlassLauncher.defaultProps = {
   disableTrackMenu: false,
   isGlobalMousePosition: false,
   isPixelPrecise: false,
+  isScrollable: false,
   isZoomFixed: false,
   options: {
     bounded: true,
@@ -167,6 +200,7 @@ HiGlassLauncher.defaultProps = {
 HiGlassLauncher.propTypes = {
   api: PropTypes.func,
   autoExpand: PropTypes.bool,
+  containerPadding: PropTypes.oneOfType([PropTypes.number, PropTypes.array]),
   enableAltMouseTools: PropTypes.bool,
   isGlobalMousePosition: PropTypes.bool,
   isNotEditable: PropTypes.bool,
@@ -177,8 +211,11 @@ HiGlassLauncher.propTypes = {
   onError: PropTypes.func.isRequired,
   options: PropTypes.object,
   setViewConfig: PropTypes.func,
+  sizeMode: PropTypes.string,
   useCanvas: PropTypes.bool,
-  viewConfig: PropTypes.object
+  viewConfig: PropTypes.object,
+  viewMargin: PropTypes.oneOfType([PropTypes.number, PropTypes.array]),
+  viewPadding: PropTypes.oneOfType([PropTypes.number, PropTypes.array])
 };
 
 export default HiGlassLauncher;
