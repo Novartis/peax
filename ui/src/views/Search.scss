@@ -87,8 +87,63 @@
   }
 
   .search-results {
+    .higlass-list-single-higlass-instance {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 2.3rem;
+      left: 0;
+
+      .higlass-list-single-higlass-instance-list-wrapper {
+        position: absolute;
+        z-index: 3;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        overflow-x: visible;
+        overflow-y: auto;
+
+        > .list {
+          position: relative;
+        }
+      }
+
+      .higlass-list-single-higlass-instance-list-wrapper::-webkit-scrollbar {
+        width: 1.5rem;
+      }
+
+      .higlass-list-single-higlass-instance-list-wrapper::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .higlass-list-single-higlass-instance-list-wrapper::-webkit-scrollbar-thumb {
+        border: 0.5rem solid rgba(0, 0, 0, 0);
+        border-radius: 1rem;
+        background: $gray-lighter-rgba;
+        background-clip: padding-box;
+      }
+
+      .higlass-list-single-higlass-instance-list-wrapper:hover::-webkit-scrollbar-thumb {
+        background: $gray-medium-rgba;
+        background-clip: padding-box;
+      }
+
+      .higlass-scroll-container {
+        overflow: hidden;
+      }
+    }
+
     .with-pagination {
-      margin: 0.25rem 0 0.5rem 0;
+      // margin: 0.25rem 0 0.5rem 0;
+    }
+
+    .with-pagination-actions {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.9);
     }
 
     .with-pagination-next-prev {

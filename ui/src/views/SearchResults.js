@@ -9,7 +9,7 @@ import ButtonIcon from '../components/ButtonIcon';
 import ButtonRadio from '../components/ButtonRadio';
 import DropDownMenu from '../components/DropDownMenu';
 import DropDownSlider from '../components/DropDownSlider';
-import HiglassResultList from '../components/HiglassResultList';
+import HiglassResultListSingleHiGlass from '../components/HiglassResultListSingleHiGlass';
 import SubTopBar from '../components/SubTopBar';
 import SubTopBottomBarButtons from '../components/SubTopBottomBarButtons';
 import ToolTip from '../components/ToolTip';
@@ -146,6 +146,7 @@ class SearchResults extends React.Component {
         normalizeBy: this.props.normalizeBy,
         onNormalize: this.props.onNormalize,
         searchId: this.props.searchInfo.id,
+        valueScalesLocked: this.props.searchInfo.valueScalesLocked,
         viewHeight: this.props.searchInfo.viewHeight,
         windowId: win.windowId,
         windows: this.props.windows
@@ -271,7 +272,7 @@ class SearchResults extends React.Component {
           </SubTopBottomBarButtons>
         </SubTopBar>
         <div ref={this.getResultsWrapperBound} className="search-tab-content">
-          <HiglassResultList
+          <HiglassResultListSingleHiGlass
             isError={this.props.isError}
             isLoading={this.props.isLoading}
             isNotReady={this.props.isReady === false}

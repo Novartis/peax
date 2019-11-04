@@ -58,9 +58,9 @@
 
   .higlass-class-probability {
     position: absolute;
-    top: 0;
+    top: 0.5rem;
     right: 3rem;
-    bottom: 0;
+    bottom: 0.5rem;
     width: 0.25rem;
 
     .higlass-class-probability-bar {
@@ -106,6 +106,14 @@
       background: $gray-light;
       pointer-events: none;
     }
+  }
+
+  .higlass-mouse-move-container {
+    position: absolute;
+    top: 0;
+    right: 3rem;
+    bottom: 0;
+    left: 1.5rem;
   }
 
   .higlass-class-probability-wrapper:hover .higlass-class-probability-label {
@@ -193,15 +201,23 @@
 .list-item .higlass-result {
   margin: 0.5rem;
   border-radius: 0.25rem;
-  box-shadow: 0 0 0 1px $gray-lightest;
+  box-shadow: 0 0 0 1px $gray-lightest, 0 0 0 5px white;
   transition: box-shadow $fast-transition $easing;
 
   &.is-hovered {
-    box-shadow: 0 0 0 1px $primary;
+    box-shadow: 0 0 0 1px $primary, 0 0 0 5px white;
   }
 
   &.is-selected {
-    box-shadow: 0 0 0 2px $primary;
+    box-shadow: 0 0 0 2px $primary, 0 0 0 5px white;
+  }
+
+  &.single-higlass-instance {
+    margin: 0.5rem 2px 0.5rem 0.5rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
 }
 

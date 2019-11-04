@@ -10,6 +10,7 @@ export { default as Deferred } from './deferred';
 export { default as downloadAsFile } from './download-as-file';
 export { default as downloadAsJson } from './download-as-json';
 export { default as flatten } from './flatten';
+export { default as forwardEvent } from './forward-event';
 export { default as getServer } from './get-server';
 export { default as hasParent } from './has-parent';
 export { default as inputToNum } from './input-to-num';
