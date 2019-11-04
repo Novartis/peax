@@ -1,4 +1,4 @@
-export const PER_PAGE_ITEMS = 5;
+export const PER_PAGE_ITEMS = 10;
 
 export const RIGHT_BAR_MIN_WIDTH = 192;
 
