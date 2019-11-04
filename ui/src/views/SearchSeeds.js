@@ -3,7 +3,7 @@ import React from 'react';
 
 // Components
 import Button from '../components/Button';
-import HiglassResultList from '../components/HiglassResultList';
+import HiglassResultListSingleHiGlass from '../components/HiglassResultListSingleHiGlass';
 import SubTopBar from '../components/SubTopBar';
 import SubTopBottomBarButtons from '../components/SubTopBottomBarButtons';
 
@@ -87,7 +87,7 @@ class SearchSeeds extends React.Component {
           ref={this.getResultsWrapperBound}
           className="search-tab-content search-results"
         >
-          <HiglassResultList
+          <HiglassResultListSingleHiGlass
             isError={this.props.isError}
             isLoading={this.props.isLoading}
             isEmpty={'No samples found!'}

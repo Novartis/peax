@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import Button from '../components/Button';
 import ButtonIcon from '../components/ButtonIcon';
 import ButtonRadio from '../components/ButtonRadio';
-import HiglassResultList from '../components/HiglassResultList';
+import HiglassResultListSingleHiGlass from '../components/HiglassResultListSingleHiGlass';
 import SubTopBar from '../components/SubTopBar';
 import SubTopBottomBarButtons from '../components/SubTopBottomBarButtons';
 import ToolTip from '../components/ToolTip';
@@ -173,7 +173,7 @@ class SearchSelection extends React.Component {
           </SubTopBottomBarButtons>
         </SubTopBar>
         <div ref={this.getResultsWrapperBound} className="search-tab-content">
-          <HiglassResultList
+          <HiglassResultListSingleHiGlass
             isError={this.props.isError}
             isLoading={this.props.isLoading}
             isTraining={this.props.isTraining === true}
