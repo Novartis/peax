@@ -860,126 +860,134 @@ def create(
                 view_configs[info["id"]] = view_config.build(datasets, config, info)
             return jsonify(view_configs)
 
-        parts = view_id.split(".")
+        view_configs = []
+        windows = view_id.split()
+        for window in windows:
+            parts = window.split(".")
 
-        with utils.suppress_with_default(IndexError, default=None) as search_id:
-            search_id = parts[0]
+            with utils.suppress_with_default(IndexError, default=None) as search_id:
+                search_id = parts[0]
 
-        with utils.suppress_with_default(IndexError, default=None) as window_id:
-            window_id = parts[1]
+            with utils.suppress_with_default(IndexError, default=None) as window_id:
+                window_id = parts[1]
 
-        with utils.suppress_with_default(IndexError, default="") as options:
-            options = parts[2]
+            with utils.suppress_with_default(IndexError, default="") as options:
+                options = parts[2]
 
-        search_info = db.get_search(search_id)
-        step_size = encoders.window_size // config.step_freq
+            search_info = db.get_search(search_id)
+            step_size = encoders.window_size // config.step_freq
 
-        if utils.is_int(search_id, True):
-            incl_predictions = search_info["classifiers"] > 0 and options.find("p") >= 0
-            incl_autoencodings = options.find("e") >= 0
-            incl_selections = options.find("s") >= 0
+            if utils.is_int(search_id, True):
+                incl_predictions = (
+                    search_info["classifiers"] > 0 and options.find("p") >= 0
+                )
+                incl_autoencodings = options.find("e") >= 0
+                incl_selections = options.find("s") >= 0
 
-            if window_id is not None and utils.is_int(window_id, True):
-                if search_info is not None:
-                    target_from_rel = step_size * int(window_id)
-                    target_to_rel = target_from_rel + encoders.window_size
-                    target_abs = list(
-                        map(
-                            int,
-                            bigwig.chr2abs(
-                                datasets.chromsizes,
-                                config.chroms[0],  # First chrom defines the offset
-                                target_from_rel,
-                                target_to_rel,
-                            ),
+                if window_id is not None and utils.is_int(window_id, True):
+                    if search_info is not None:
+                        target_from_rel = step_size * int(window_id)
+                        target_to_rel = target_from_rel + encoders.window_size
+                        target_abs = list(
+                            map(
+                                int,
+                                bigwig.chr2abs(
+                                    datasets.chromsizes,
+                                    config.chroms[0],  # First chrom defines the offset
+                                    target_from_rel,
+                                    target_to_rel,
+                                ),
+                            )
                         )
-                    )
-                    return jsonify(
-                        view_config.build(
-                            datasets,
-                            config,
-                            search_info=search_info,
-                            domain=target_abs,
-                            incl_predictions=incl_predictions,
-                            incl_autoencodings=incl_autoencodings,
-                            incl_selections=incl_selections,
-                            hide_label=True,
-                        )
-                    )
-
-            else:
-                if search_info is not None:
-                    if config.variable_target:
-                        classifier = classifiers.get(search_id, default=None)
-                        classifications = np.array(
-                            list(
-                                map(
-                                    lambda classif: int(classif["windowId"]),
-                                    db.get_classifications(search_id),
-                                )
-                            )
-                        ).astype(int)
-
-                        if classifier:
-                            # Select a variable target
-                            _, p_y = classifier.predict(encodings)
-
-                            window_idx_highest_p = np.argsort(p_y[:, 1])[::-1][0]
-
-                            target_from_rel = step_size * int(window_idx_highest_p)
-                            target_to_rel = target_from_rel + encoders.window_size
-                            target_abs = list(
-                                map(
-                                    int,
-                                    bigwig.chr2abs(
-                                        datasets.chromsizes,
-                                        config.chroms[
-                                            0
-                                        ],  # First chrom defines the offset
-                                        target_from_rel,
-                                        target_to_rel,
-                                    ),
-                                )
-                            )
-                            return jsonify(
-                                view_config.build(
-                                    datasets,
-                                    config,
-                                    search_info=search_info,
-                                    domain=target_abs,
-                                    incl_predictions=incl_predictions,
-                                    incl_autoencodings=incl_autoencodings,
-                                    incl_selections=incl_selections,
-                                )
-                            )
-
-                        else:
-                            if classifications.size and classifier is None:
-                                # We need to train the classifier first
-                                classifiers.new(search_id)
-
-                            # Show the default overview
-                            return jsonify(
-                                view_config.build(
-                                    datasets,
-                                    config,
-                                    incl_predictions=incl_predictions,
-                                    incl_autoencodings=incl_autoencodings,
-                                    incl_selections=incl_selections,
-                                )
-                            )
-
-                    else:
-                        return jsonify(
+                        view_configs.append(
                             view_config.build(
                                 datasets,
                                 config,
                                 search_info=search_info,
+                                domain=target_abs,
                                 incl_predictions=incl_predictions,
                                 incl_autoencodings=incl_autoencodings,
                                 incl_selections=incl_selections,
+                                hide_label=True,
                             )
                         )
+
+                else:
+                    if search_info is not None:
+                        if config.variable_target:
+                            classifier = classifiers.get(search_id, default=None)
+                            classifications = np.array(
+                                list(
+                                    map(
+                                        lambda classif: int(classif["windowId"]),
+                                        db.get_classifications(search_id),
+                                    )
+                                )
+                            ).astype(int)
+
+                            if classifier:
+                                # Select a variable target
+                                _, p_y = classifier.predict(encodings)
+
+                                window_idx_highest_p = np.argsort(p_y[:, 1])[::-1][0]
+
+                                target_from_rel = step_size * int(window_idx_highest_p)
+                                target_to_rel = target_from_rel + encoders.window_size
+                                target_abs = list(
+                                    map(
+                                        int,
+                                        bigwig.chr2abs(
+                                            datasets.chromsizes,
+                                            config.chroms[
+                                                0
+                                            ],  # First chrom defines the offset
+                                            target_from_rel,
+                                            target_to_rel,
+                                        ),
+                                    )
+                                )
+                                view_configs.append(
+                                    view_config.build(
+                                        datasets,
+                                        config,
+                                        search_info=search_info,
+                                        domain=target_abs,
+                                        incl_predictions=incl_predictions,
+                                        incl_autoencodings=incl_autoencodings,
+                                        incl_selections=incl_selections,
+                                    )
+                                )
+
+                            else:
+                                if classifications.size and classifier is None:
+                                    # We need to train the classifier first
+                                    classifiers.new(search_id)
+
+                                # Show the default overview
+                                view_configs.append(
+                                    view_config.build(
+                                        datasets,
+                                        config,
+                                        incl_predictions=incl_predictions,
+                                        incl_autoencodings=incl_autoencodings,
+                                        incl_selections=incl_selections,
+                                    )
+                                )
+
+                        else:
+                            view_configs.append(
+                                view_config.build(
+                                    datasets,
+                                    config,
+                                    search_info=search_info,
+                                    incl_predictions=incl_predictions,
+                                    incl_autoencodings=incl_autoencodings,
+                                    incl_selections=incl_selections,
+                                )
+                            )
+
+        if len(view_configs) > 0:
+            return jsonify(view_config.combine(view_configs, config))
 
         return (jsonify({"error": "Unknown view config with id: {}".format(id)}), 404)
 

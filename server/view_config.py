@@ -277,17 +277,46 @@ def build(
         if config.normalize_tracks:
             view_config["valueScaleLocks"]["locksByViewUid"][
                 f"view1.{dataset.id}"
-            ] = "a"
-            if "a" not in view_config["valueScaleLocks"]["locksDict"]:
-                view_config["valueScaleLocks"]["locksDict"]["a"] = {
+            ] = "a1"
+            if "a1" not in view_config["valueScaleLocks"]["locksDict"]:
+                view_config["valueScaleLocks"]["locksDict"]["a1"] = {
                     "ignoreOffScreenValues": True
                 }
-            view_config["valueScaleLocks"]["locksDict"]["a"][f"view1.{dataset.id}"] = {
+            view_config["valueScaleLocks"]["locksDict"]["a1"][f"view1.{dataset.id}"] = {
                 "view": "view1",
                 "track": dataset.id,
             }
 
     return view_config
+
+
+def combine(view_configs, config):
+    combined_view_config = None
+
+    for index, view_config in enumerate(view_configs):
+        if combined_view_config is None:
+            combined_view_config = view_config
+        else:
+            view_id = f"view{index + 1}"
+            view_config["views"][0]["uid"] = view_id
+            combined_view_config["views"].append(view_config["views"][0])
+
+            if config.normalize_tracks:
+                for viewTrackId in view_config["valueScaleLocks"]["locksByViewUid"]:
+                    key = f"a{index + 1}"
+                    ds_id = viewTrackId.split(".")[1]
+                    combined_view_config["valueScaleLocks"]["locksByViewUid"][
+                        f"view{index + 1}.{ds_id}"
+                    ] = key
+                    if key not in combined_view_config["valueScaleLocks"]["locksDict"]:
+                        combined_view_config["valueScaleLocks"]["locksDict"][key] = {
+                            "ignoreOffScreenValues": True
+                        }
+                    combined_view_config["valueScaleLocks"]["locksDict"][key][
+                        f"{view_id}.{ds_id}"
+                    ] = {"view": view_id, "track": ds_id}
+
+    return combined_view_config
 
 
 def height(datasets, config):
