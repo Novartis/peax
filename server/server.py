@@ -170,6 +170,7 @@ def create(
                 info["dataTo"] = int(abs_ends)
                 info["windowSize"] = encoders.window_size
                 info["coords"] = config.coords
+                info["valueScalesLocked"] = config.normalize_tracks
 
             return jsonify(info)
 
