@@ -47,6 +47,9 @@ const withList = getKey => Component => {
             higlassLoaded: false
           });
           this.viewConfigId = newViewConfigId;
+          // Unset scroll position
+          higlassList.scrollTop = 0;
+          higlassScrollContainer.scrollTop = 0;
         }
       }
     }
