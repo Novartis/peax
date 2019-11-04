@@ -5,7 +5,7 @@ channels:
   - defaults
 
 dependencies:
-  - python=3.7
+  - python=3.6
   - nodejs=10.*
   - bwa
   - samtools
@@ -18,7 +18,7 @@ dependencies:
   - jupyterlab
   - scikit-learn
   - umap-learn
-  - keras
+  - keras==2.2.5
   - seaborn
   - flask
   - flask-cors
