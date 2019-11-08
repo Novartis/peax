@@ -5,7 +5,7 @@ channels:
   - defaults
 
 dependencies:
-  - python=3.6
+  - python=3.7
   - nodejs=10.*
   - bwa
   - samtools
@@ -15,15 +15,12 @@ dependencies:
   - deeptools
   - cython
   - cytoolz
-  - jupyterlab
   - scikit-learn
   - umap-learn
   - keras==2.2.5
   - seaborn
   - flask
   - flask-cors
-  - ipython
-  - ipywidgets
   - pandas
   - pywget
   - bokeh
@@ -41,9 +38,11 @@ dependencies:
   - pip
   - pip:
       - apricot-select
-      - pysam==0.15.3
-      - hgtiles
       - cooler
+      - pysam==0.15.3
+      - higlass-python==0.2.1
+      - ipywidgets==7.5.1
+      - jupyterlab==1.1.1
       - negspy
       - numba
       - pybbi
