@@ -60,6 +60,13 @@ TILE_SIZE = 1024
 
 COMBINED_TRACK = {"uid": "???", "type": "combined", "contents": []}
 
+AXIS_TRACK = {
+    "uid": "axis",
+    "type": "top-axis",
+    "height": 18,
+    "options": {"showMousePosition": True, "mousePositionColor": "#000000"},
+}
+
 ANNOTATION_TRACK = {
     "uid": "???",
     "type": "horizontal-1d-annotations",

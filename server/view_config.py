@@ -13,7 +13,7 @@ limitations under the License.
 
 import copy
 import numpy as np
-from server import bigwig, defaults
+from server import bigwig, chromsizes, defaults
 
 
 def pad_target(pos_from, pos_to, amount=0.1):
@@ -116,43 +116,47 @@ def build(
         view_config["views"][0]["tracks"]["top"].append(combined_track_config)
 
     # Add gene annotation track
-    if config.coords == "grch38":
+    if config.coords == "hg19":
+        gene_annotation_track = defaults.GENE_ANNOTATION_TRACK_HG19
+    elif config.coords == "grch38":
         gene_annotation_track = defaults.GENE_ANNOTATION_TRACK_HG38
     elif config.coords == "mm9":
         gene_annotation_track = defaults.GENE_ANNOTATION_TRACK_MM9
     elif config.coords == "mm10":
         gene_annotation_track = defaults.GENE_ANNOTATION_TRACK_MM10
     else:
-        gene_annotation_track = defaults.GENE_ANNOTATION_TRACK_HG19
+        gene_annotation_track = None
 
-    gene_annotation_track_config = copy.deepcopy(gene_annotation_track)
+    if gene_annotation_track is not None:
+        gene_annotation_track = copy.deepcopy(gene_annotation_track)
+        gene_annotation_track_config = copy.deepcopy(gene_annotation_track)
 
-    combined_track_config = copy.deepcopy(defaults.COMBINED_TRACK)
-    combined_track_config["uid"] = "gene-annotations-combined"
+        combined_track_config = copy.deepcopy(defaults.COMBINED_TRACK)
+        combined_track_config["uid"] = "gene-annotations-combined"
 
-    anno_track_config = copy.deepcopy(defaults.ANNOTATION_TRACK)
-    anno_track_config["uid"] = "gene-annotations-annotation"
+        anno_track_config = copy.deepcopy(defaults.ANNOTATION_TRACK)
+        anno_track_config["uid"] = "gene-annotations-annotation"
 
-    if region is not None:
-        anno_track_config["options"]["regions"].append(region)
+        if region is not None:
+            anno_track_config["options"]["regions"].append(region)
 
-    if default:
-        gene_annotation_track_config["height"] *= 3.5
-        gene_annotation_track_config["options"]["fontSize"] = 12
-        gene_annotation_track_config["options"]["geneAnnotationHeight"] = 12
-        gene_annotation_track_config["options"]["geneLabelPosition"] = "outside"
-        gene_annotation_track_config["options"]["geneStrandSpacing"] = 3
+        if default:
+            gene_annotation_track_config["height"] *= 3.5
+            gene_annotation_track_config["options"]["fontSize"] = 12
+            gene_annotation_track_config["options"]["geneAnnotationHeight"] = 12
+            gene_annotation_track_config["options"]["geneLabelPosition"] = "outside"
+            gene_annotation_track_config["options"]["geneStrandSpacing"] = 3
 
-    combined_track_config["height"] = gene_annotation_track_config.get("height")
+        combined_track_config["height"] = gene_annotation_track_config.get("height")
 
-    combined_track_config["contents"].extend(
-        [anno_track_config, gene_annotation_track_config]
-    )
+        combined_track_config["contents"].extend(
+            [anno_track_config, gene_annotation_track_config]
+        )
 
-    view_config["views"][0]["tracks"]["top"].append(combined_track_config)
+        view_config["views"][0]["tracks"]["top"].append(combined_track_config)
 
     # Add separate chrom track when more than 1 dataset is explored
-    if datasets.length > 1:
+    if datasets.length > 1 and config.coords in chromsizes.SUPPORTED_CHROMOSOMES:
         combined_track_config = copy.deepcopy(defaults.COMBINED_TRACK)
         combined_track_config["uid"] = "chrom-combined"
 
@@ -171,10 +175,7 @@ def build(
         else:
             chrom_track = defaults.CHROM_TRACK_HG19
 
-        if default:
-            chrom_track["height"] = 24
-            chrom_track["options"]["fontSize"] = 12
-            chrom_track["options"]["fontIsLeftAligned"] = False
+        chrom_track = copy.deepcopy(chrom_track)
 
         # Add the chrom labels to the last track
         combined_track_config["contents"].extend([anno_track_config, chrom_track])
@@ -183,15 +184,39 @@ def build(
 
         view_config["views"][0]["tracks"]["top"].append(combined_track_config)
 
+    # Add default top axis track for unknown coords
+    if config.coords not in chromsizes.SUPPORTED_CHROMOSOMES:
+        combined_track_config = copy.deepcopy(defaults.COMBINED_TRACK)
+        combined_track_config["uid"] = "axis-combined"
+
+        anno_track_config = copy.deepcopy(defaults.ANNOTATION_TRACK)
+        anno_track_config["uid"] = "axis-annotation"
+
+        if region is not None:
+            anno_track_config["options"]["regions"].append(region)
+
+        axis_track = copy.deepcopy(defaults.AXIS_TRACK)
+
+        if default:
+            axis_track["height"] = 24
+            axis_track["options"]["fontSize"] = 12
+
+        # Add the chrom labels to the last track
+        combined_track_config["contents"].extend([anno_track_config, axis_track])
+
+        combined_track_config["height"] = axis_track.get("height")
+
+        view_config["views"][0]["tracks"]["top"].append(combined_track_config)
+
     for i, dataset in enumerate(datasets):
         # Determine x-domain limits
         if not determine_x_domain:
-            chromsizes = bigwig.get_chromsizes(dataset.filepath)
-            chromcumsizes = np.cumsum(chromsizes)
+            csizes = bigwig.get_chromsizes(dataset.filepath)
+            chromcumsizes = np.cumsum(csizes)
             min_x = np.inf
             max_x = 0
             for chrom in config.chroms:
-                csz = chromsizes[chrom]
+                csz = csizes[chrom]
                 ccsz = chromcumsizes[chrom]
                 min_x = min(min_x, ccsz - csz)
                 max_x = max(max_x, ccsz)
