@@ -36,6 +36,7 @@ class Dataset:
         fill: str = None,
         height: int = None,
         chromsizes=None,
+        custom_chromosomes=None,
         coords: str = None,
         clear_cache: bool = False,
     ):
@@ -48,6 +49,7 @@ class Dataset:
         self.num_windows = -1
         self.fill = fill
         self.height = height
+        self.custom_chromosomes = custom_chromosomes
         self.chromsizes = chromsizes
         self.clear_cache = clear_cache
         self.coords = coords

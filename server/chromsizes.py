@@ -199,9 +199,13 @@ def get(coords, filepath: str = None):
     raise ValueError("No chromsizes available")
 
 
-def equals(cs1, cs2, coords):
-
-    for chrom in SUPPORTED_CHROMOSOMES[coords]:
+def equals(cs1, cs2, coords, custom_chromosomes=None):
+    chroms = (
+        custom_chromosomes
+        if custom_chromosomes is not None
+        else SUPPORTED_CHROMOSOMES[coords]
+    )
+    for chrom in chroms:
         if cs1[chrom] != cs2[chrom]:
             return False
     return True

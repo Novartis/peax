@@ -1,5 +1,7 @@
 import json
+import pandas as pd
 import pathlib
+from collections import OrderedDict
 from typing import Dict, List, TypeVar
 
 from server.chromsizes import all as all_chromsizes
@@ -30,12 +32,22 @@ class Config:
         self.cache_dir = CACHE_DIR
         self.caching = CACHING
         self.variable_target = False
+        self.normalize_tracks = False
 
         # Set file
         self.file = config_file
 
     def config(self, config_file):
         keys = set(config_file.keys())
+
+        # Custom chromsizes need to be set prior to other proerties
+        if "chromsizes" in keys:
+            self.set("chromsizes", config_file["chromsizes"])
+
+        for key in keys:
+            if key != "encoders" and key != "datasets" and key != "chromsizes":
+                self.set(key, config_file[key])
+
         for encoder in config_file["encoders"]:
             if 'from_file' in encoder:
                 try:
@@ -103,16 +115,11 @@ class Config:
                     content_type=ds["content_type"],
                     id=ds["id"],
                     name=ds["name"],
-                    coords=config_file["coords"],
+                    coords=self.coords,
+                    chromsizes=self.chromsizes,
+                    custom_chromosomes=self.custom_chromosomes,
                 )
             )
-
-        # Remove `encoders` and `datasets` keys so we can iterate over the rest
-        keys.remove("encoders")
-        keys.remove("datasets")
-
-        for key in keys:
-            self.set(key, config_file[key])
 
     def add(self, o):
         if hasattr(o, "encode") and callable(getattr(o, "encode")):
@@ -139,8 +146,8 @@ class Config:
     def file(self, value: Dict):
         if value.get("encoders") and value.get("datasets"):
             self._file = value
-            if self.file:
-                self.config(self.file)
+            if self._file:
+                self.config(self._file)
         else:
             raise InvalidConfig("Config file needs to include `encoders` and `datasets`")
 
@@ -150,7 +157,7 @@ class Config:
 
     @coords.setter
     def coords(self, value: str):
-        if value in all_chromsizes:
+        if value in all_chromsizes or self.chromsizes:
             self._coords = value
         else:
             raise InvalidConfig("Unknown coordinate system")
@@ -170,6 +177,27 @@ class Config:
             self._chroms = value
         else:
             raise InvalidConfig("Chromosomes must be a list of strings or ints")
+
+    @property
+    def chromsizes(self):
+        if self._coords in all_chromsizes:
+            return all_chromsizes[self._coords]
+        return None
+
+    @chromsizes.setter
+    def chromsizes(self, value):
+        try:
+            sizes = OrderedDict()
+            for chrom, size in value:
+                sizes[chrom] = size
+            self._chromsizes = pd.Series(sizes)
+            self._custom_chromosomes = self._chromsizes.index.values.tolist()
+        except:
+            raise InvalidConfig("Chromsizes must be a list of string-int pairs")
+
+    @property
+    def custom_chromosomes(self):
+        return self._custom_chromosomes
 
     @property
     def step_freq(self):
@@ -232,6 +260,9 @@ class Config:
     def set(self, key, value):
         if key == "chroms":
             self.chroms = value
+
+        elif key == "chromsizes":
+            self.chromsizes = value
 
         elif key == "coords":
             self.coords = value

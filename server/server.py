@@ -1013,6 +1013,9 @@ def create(
         try:
             chromsize = chromsizes.all[id]
         except KeyError:
+            chromsize = datasets.chromsizes
+
+        if chromsize is None:
             return jsonify({"error": "Not found"}), 404
 
         out = {}

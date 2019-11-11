@@ -28,6 +28,7 @@ class Datasets:
         self.datasets = []
         self.datasets_by_id = {}
         self.datasets_by_type = {}
+        self.custom_chromosomes = None
         self.chromsizes = None
         self.coords = None
         self._cache_filename = None
@@ -73,7 +74,12 @@ class Datasets:
         if self.coords is None:
             self.coords = dataset.coords
 
-        if not chromsizes.equals(self.chromsizes, dataset.chromsizes, self.coords):
+        if dataset.custom_chromosomes and self.custom_chromosomes is None:
+            self.custom_chromosomes = dataset.custom_chromosomes
+
+        if not chromsizes.equals(
+            self.chromsizes, dataset.chromsizes, self.coords, self.custom_chromosomes
+        ):
             raise ValueError(
                 "Incorrect coordinates: all datasets need to have the same coordinates."
             )
