@@ -5,6 +5,7 @@ data
 results
 models
 logs
+*.log
 *.slurm
 definitions*.json
 comparison*.png
