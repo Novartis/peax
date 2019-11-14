@@ -278,10 +278,14 @@ class Search extends React.Component {
       searchInfo = await api.getSearchInfo(this.id);
       isError =
         searchInfo.status !== 200 ? "Couldn't load search info." : false;
-      searchInfo = isError ? null : searchInfo.body;
-      this.chromInfo = ChromosomeInfo(
-        `${baseUrl}/chrom-sizes/?id=${searchInfo.coords}&type=csv`
-      );
+      if (!isError) {
+        searchInfo = searchInfo.body;
+        this.chromInfo = ChromosomeInfo(
+          `${baseUrl}/chrom-sizes/?id=${searchInfo.coords}&type=csv`
+        );
+      } else {
+        searchInfo = null;
+      }
     } else {
       searchInfosAll = await api.getAllSearchInfos();
       isError =
@@ -1103,14 +1107,10 @@ class Search extends React.Component {
   }
 
   renderError() {
-    const msg = [this.state.searchInfo, this.state.searchInfosAll].find(
-      response => response && response.status !== 200
-    ).error;
-
     return (
       <ContentWrapper name="search" isFullDimOnly={true}>
         <Content name="search" rel={true}>
-          <ErrorMsgCenter msg={msg} />
+          <ErrorMsgCenter msg={this.state.isError} />
         </Content>
       </ContentWrapper>
     );
