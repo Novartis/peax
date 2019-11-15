@@ -50,9 +50,6 @@ shapeBg <- 1
 scaleBg <- 20
 r1 <- 2
 BindLength <- 50
-BindLengthA <- 75
-BindLengthB <- 45
-BindLengthC <- 50
 MinLength <- 150
 MaxLength <- 250
 MeanLength <- 200
@@ -71,14 +68,17 @@ BindingProb <- (
 BackgroundProb <- 1-BindingProb
 BackgroundFeatureLength <- 1000
 BindingFeatureLength <- 500
-seed1 <- 1234
-seed2 <- 1235
+seedGenome <- 1111
+seedFeatures <- 1112
+seedA <- 1234
+seedB <- 1235
+seedC <- 1236
 # number of reads
 Nreads <- 1e5
 # length of reads
 LengthReads <- 50
 # generate random genome
-set.seed(seed1)
+set.seed(seedGenome)
 
 args = commandArgs(trailingOnly = TRUE)
 
@@ -288,6 +288,7 @@ class(init) <- "StateDistribution"
 ### code chunk number 13: bgEmission
 ###################################################
 backgroundFeature <- function(start, length=BackgroundFeatureLength, shape=shapeBg, scale=scaleBg){
+  # Allow switching just the seed for the background weights
   weight <- rgamma(1, shape=shapeBg, scale=scaleBg)
   params <- list(start=start, length=length, weight=weight)
   class(params) <- c("Background", "SimulatedFeature")
@@ -361,26 +362,23 @@ reconcileFeatures.TFExperiment <- function(features, ...){
   bindBCIdx <- sapply(features, inherits, "BindingBC")
   bindABCIdx <- sapply(features, inherits, "BindingABC")
 
-  if (any(bindAIdx))
-    bindLength <- features[[min(which(bindAIdx))]]$length
-  else if (any(bindBIdx))
-    bindLength <- features[[min(which(bindBIdx))]]$length
-  else if (any(bindCIdx))
-    bindLength <- features[[min(which(bindCIdx))]]$length
-  else if (any(bindABIdx))
-    bindLength <- features[[min(which(bindABIdx))]]$length
-  else if (any(bindACIdx))
-    bindLength <- features[[min(which(bindACIdx))]]$length
-  else if (any(bindBCIdx))
-    bindLength <- features[[min(which(bindBCIdx))]]$length
-  else if (any(bindABCIdx))
-    bindLength <- features[[min(which(bindABCIdx))]]$length
+  if (
+    any(bindAIdx) ||
+    any(bindBIdx) ||
+    any(bindCIdx) ||
+    any(bindABIdx) ||
+    any(bindACIdx) ||
+    any(bindBCIdx) ||
+    any(bindABCIdx)
+  )
+    bindLength <- BindLength
   else
     bindLength <- 1
 
   lapply(features, function(f) {
     if(inherits(f, "Background"))
       f$weight <- f$weight / bindLength
+
     ## The next three lines (or something to this effect)
     ## are required by all 'reconcileFeatures' implementations.
     f$overlap <- 0
@@ -416,31 +414,27 @@ if (peakDistortion == "spiky") {
   featureDensity.BindingABC <- spikify
 } else if (peakDistortion == "distorted") {
   # Inspired by
-  # https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0060002
-  featureDensity.BindingA <- function(feature, ...){
+  # https://journals.plos.org/plosone/artice?id=10.1371/journal.pone.0060002
+  featureDensity.BindingA <- function(feature, ...) {
+    # Set density to 0
+    featDens <- numeric(feature$length)
     # Right-shifted weights
-    featDens <- seq(
-      from=0,
-      to=feature$weight,
-      length.out=feature$length
-    )
+    featDens[(feature$length - 7):feature$length] <- feature$weight
     featDens
   }
-  featureDensity.BindingB <- function(feature, ...){
+  featureDensity.BindingB <- function(feature, ...) {
+    # Set density to 0
+    featDens <- numeric(feature$length)
     # Left-shifted weights
-    featDens <- seq(
-      from=feature$weight,
-      to=0,
-      length.out=feature$length
-    )
+    featDens[1:7] <- feature$weight
     featDens
   }
-  featureDensity.BindingC <- function(feature, ...){
+  featureDensity.BindingC <- function(feature, ...) {
     # Set density to 0
     featDens <- numeric(feature$length)
     # Add weight only to the very middle
     middle = floor(feature$length/2)
-    featDens[(middle - 7):(middle + 7)] <- feature$weight
+    featDens[(middle - 3):(middle + 3)] <- feature$weight
     featDens
   }
 }
@@ -462,15 +456,10 @@ fragLength <- function(x, minLength, maxLength, meanLength, ...){
 
 
 ###################################################
-### code chunk number 32: readLoc2
+### Place features
 ###################################################
-set.seed(seed2)
-
-GenerateChipSeqFastqFiles <- function(ExpNo) {
-  if(missing(ExpNo)) {
-    ExpNo = ""
-  }
-  message("Place features...")
+placeFeatures <- function(seedFeatures, seedBg) {
+  set.seed(seedFeatures)
   features <- ChIPsim::placeFeatures(
     generator,
     transition,
@@ -490,15 +479,81 @@ GenerateChipSeqFastqFiles <- function(ExpNo) {
       Background=TRUE
     ),
     control=list(
-      BindingA=list(length=BindLengthA),
-      BindingB=list(length=BindLengthB),
-      BindingC=list(length=BindLengthC),
+      BindingA=list(length=BindLength),
+      BindingB=list(length=BindLength),
+      BindingC=list(length=BindLength),
       BindingAB=list(length=BindLength),
       BindingAC=list(length=BindLength),
       BindingBC=list(length=BindLength),
       BindingABC=list(length=BindLength)
     )
   )
+  features
+}
+
+
+
+
+###################################################
+### Adjust features by target
+###################################################
+adjustFeatures <- function(originalFeatures, targets, otherTargets, seedBgWeights) {
+  set.seed(seedBgWeights)
+
+  targetName = paste("Binding", targets[1], sep="")
+
+  # Alter background weights
+  targetFeatures <- originalFeatures
+  for (i in which(sapply(targetFeatures, inherits, "Background"))) {
+    targetFeatures[[i]]$weight <- rgamma(1, shape=shapeBg, scale=scaleBg) / BindLength
+  }
+
+  # Switch combo-binding to primary target
+  targetClass = class(targetFeatures[[which(sapply(targetFeatures, inherits, targetName))[1]]])
+  for (target in targets[2:length(targets)]) {
+    for (i in which(sapply(originalFeatures, inherits, paste("Binding", target, sep="")))) {
+      # Switch to the target feature class
+      class(targetFeatures[[i]]) <- targetClass
+    }
+  }
+
+  # Overwrite other targets with background
+  for (target in otherTargets) {
+    for (i in which(sapply(targetFeatures, inherits, paste("Binding", target, sep="")))) {
+      # Overwrite both target features with background class and overwrite weights
+      class(targetFeatures[[i]]) <- class(targetFeatures[[i+1]])
+      targetFeatures[[i]]$weight <- targetFeatures[[i+1]]$weight
+    }
+  }
+
+  # Create background-only features
+  backgroundFeatures <- targetFeatures
+  for (target in targets) {
+    for (i in which(sapply(backgroundFeatures, inherits, paste("Binding", target, sep="")))) {
+      # Overwrite both target features with background class and overwrite weights
+      class(backgroundFeatures[[i]]) <- class(backgroundFeatures[[i+1]])
+      backgroundFeatures[[i]]$weight <- backgroundFeatures[[i+1]]$weight
+    }
+  }
+
+  list(target=targetFeatures, background=backgroundFeatures)
+}
+
+
+
+
+###################################################
+### code chunk number 32: readLoc2
+###################################################
+
+GenerateChipSeqFastqFiles <- function(ExpNo) {
+  if(missing(ExpNo)) {
+    ExpNo = ""
+  }
+  message("Place features...")
+  set.seed(seedFeatures)
+  features <- placeFeatures(seedFeatures, seedFeatures)
+
   bindingVec <- vector(mode="character")
   startVec <- vector(mode="numeric")
   endVec <- vector(mode="numeric")
@@ -524,94 +579,26 @@ GenerateChipSeqFastqFiles <- function(ExpNo) {
     quote = FALSE,
   )
 
-  # Baseline: the baseline consists of only background features (`0`)
-  features0 <- features
-  for (target in c("A", "B", "C", "AB", "AC", "BC", "ABC")) {
-    for (i in which(sapply(features, inherits, paste("Binding", target, sep="")))) {
-      # Overwrite both target features with background class and overwrite weights
-      class(features0[[i]]) <- class(features0[[i+1]])
-      features0[[i]]$weight <- features0[[i+1]]$weight
-    }
-  }
+  message("Adjust features...")
+  featuresA <- adjustFeatures(
+    features, c("A", "AB", "AC", "ABC"), c("B", "C", "BC"), seedA
+  )
+  featuresB <- adjustFeatures(
+    features, c("B", "AB", "BC", "ABC"), c("A", "C", "AC"), seedB
+  )
+  featuresC <- adjustFeatures(
+    features, c("C", "BC", "AC", "ABC"), c("A", "B", "AB"), seedC
+  )
 
-  # 1. target: A
-  features1 <- features
-  for (target in c("B", "C", "BC")) {
-    for (i in which(sapply(features1, inherits, paste("Binding", target, sep="")))) {
-      # Overwrite target B features with background class and overwrite weights
-      class(features1[[i]]) <- class(features1[[i+1]])
-      features1[[i]]$weight <- features1[[i+1]]$weight
-    }
-  }
-  targetAClass = class(features[[which(sapply(features, inherits, "BindingA"))[1]]])
-  for (target in c("AB", "AC", "ABC")) {
-    for (i in which(sapply(features1, inherits, paste("Binding", target, sep="")))) {
-      # Switch AB features to A features
-      class(features1[[i]]) <- targetAClass
-    }
-  }
-  for(i in 1:length(features1)) {
-    bindingVec[i] <- class(features1[[i]])[1]
-    # Stupid one-indexed R language...
-    startVec[i] <- features1[[i]]$start - 1
-    endVec[i] <- features1[[i]]$start + features1[[i]]$length - 1
-    weightVec[i] <- features1[[i]]$weight
-  }
 
-  # 2. target: B
-  features2 <- features
-  for (target in c("A", "C", "AC")) {
-    for (i in which(sapply(features2, inherits, paste("Binding", target, sep="")))) {
-      # Overwrite target A features with background class and overwrite weights
-      class(features2[[i]]) <- class(features2[[i+1]])
-      features2[[i]]$weight <- features2[[i+1]]$weight
-    }
-  }
-  targetBClass = class(features[[which(sapply(features, inherits, "BindingB"))[1]]])
-  for (target in c("AB", "BC", "ABC")) {
-    for (i in which(sapply(features2, inherits, paste("Binding", target, sep="")))) {
-      # Switch AB features to B features
-      class(features2[[i]]) <- targetBClass
-    }
-  }
-  for(i in 1:length(features2)) {
-    bindingVec[i] <- class(features2[[i]])[1]
-    # Stupid one-indexed R language...
-    startVec[i] <- features2[[i]]$start - 1
-    endVec[i] <- features2[[i]]$start + features2[[i]]$length - 1
-    weightVec[i] <- features2[[i]]$weight
-  }
 
-  # 3. target: C
-  features3 <- features
-  for (target in c("A", "B", "AB")) {
-    for (i in which(sapply(features3, inherits, paste("Binding", target, sep="")))) {
-      # Overwrite target A features with background class and overwrite weights
-      class(features3[[i]]) <- class(features3[[i+1]])
-      features3[[i]]$weight <- features3[[i+1]]$weight
-    }
-  }
-  targetCClass = class(features[[which(sapply(features, inherits, "BindingC"))[1]]])
-  for (target in c("AC", "BC", "ABC")) {
-    for (i in which(sapply(features3, inherits, paste("Binding", target, sep="")))) {
-      # Switch AB features to B features
-      class(features3[[i]]) <- targetCClass
-    }
-  }
-  for(i in 1:length(features3)) {
-    bindingVec[i] <- class(features3[[i]])[1]
-    # Stupid one-indexed R language...
-    startVec[i] <- features3[[i]]$start - 1
-    endVec[i] <- features3[[i]]$start + features3[[i]]$length - 1
-    weightVec[i] <- features3[[i]]$weight
-  }
+  message("")
+  message("Generate reads for target A:")
+  set.seed(seedA)
 
   message("Densify features...")
-  dens0 <- ChIPsim::feat2dens(features0, length=chrLen)
-  dens1 <- ChIPsim::feat2dens(features1, length=chrLen)
-  dens2 <- ChIPsim::feat2dens(features2, length=chrLen)
-  dens3 <- ChIPsim::feat2dens(features3, length=chrLen)
-
+  dens0 <- ChIPsim::feat2dens(featuresA$background, length=chrLen)
+  dens1 <- ChIPsim::feat2dens(featuresA$target, length=chrLen)
   readDens0 <- ChIPsim::bindDens2readDens(
     dens0,
     fragLength,
@@ -623,23 +610,7 @@ GenerateChipSeqFastqFiles <- function(ExpNo) {
   readDens1 <- ChIPsim::bindDens2readDens(
     dens1,
     fragLength,
-    bind=BindLengthA,
-    minLength=MinLength,
-    maxLength=MaxLength,
-    meanLength=MeanLength
-  )
-  readDens2 <- ChIPsim::bindDens2readDens(
-    dens2,
-    fragLength,
-    bind=BindLengthB,
-    minLength=MinLength,
-    maxLength=MaxLength,
-    meanLength=MeanLength
-  )
-  readDens3 <- ChIPsim::bindDens2readDens(
-    dens3,
-    fragLength,
-    bind=BindLengthC,
+    bind=BindLength,
     minLength=MinLength,
     maxLength=MaxLength,
     meanLength=MeanLength
@@ -647,11 +618,7 @@ GenerateChipSeqFastqFiles <- function(ExpNo) {
 
   message("Sample reads...")
   readLoc0 <- ChIPsim::sampleReads(readDens0, Nreads, strandProb=c(0.5, 0.5))
-  readLoc1 <- ChIPsim::sampleReads(readDens1, Nreads, strandProb=c(0.4, 0.6))
-  readLoc2 <- ChIPsim::sampleReads(readDens2, Nreads, strandProb=c(0.6, 0.4))
-  readLoc3 <- ChIPsim::sampleReads(readDens3, Nreads, strandProb=c(0.5, 0.5))
-
-
+  readLoc1 <- ChIPsim::sampleReads(readDens1, Nreads, strandProb=c(0.42, 0.58))
   names0 <- list(
     paste("read", 1:length(readLoc0[[1]]), sep="_"),
     paste("read", (1+length(readLoc0[[1]])):(Nreads), sep="_")
@@ -660,9 +627,123 @@ GenerateChipSeqFastqFiles <- function(ExpNo) {
     paste("read", 1:length(readLoc1[[1]]), sep="_"),
     paste("read", (1+length(readLoc1[[1]])):(Nreads), sep="_")
   )
+
+  message("Write background reads to fastq...")
+  pos2fastq(
+    readPos = readLoc0,
+    names = names0,
+    sequence = chromosomes,
+    qualityFun = randomQuality,
+    errorFun = readError,
+    readLen = LengthReads,
+    file = paste(data_dir, "reads-3-targets-target-1-background", postFix, ExpNo, ".fastq", sep=""),
+    qualityType = c("Illumina")
+  )
+  message("Write target 1 reads to fastq...")
+  pos2fastq(
+    readPos = readLoc1,
+    names = names1,
+    sequence = chromosomes,
+    qualityFun = randomQuality,
+    errorFun = readError,
+    readLen = LengthReads,
+    file = paste(data_dir, "reads-3-targets-target-1", postFix, ExpNo, ".fastq", sep=""),
+    qualityType = c("Illumina")
+  )
+
+
+
+  message("")
+  message("Generate reads for target B:")
+  set.seed(seedB)
+
+  message("Densify features...")
+  dens0 <- ChIPsim::feat2dens(featuresB$background, length=chrLen)
+  dens2 <- ChIPsim::feat2dens(featuresB$target, length=chrLen)
+  readDens0 <- ChIPsim::bindDens2readDens(
+    dens0,
+    fragLength,
+    bind=BindLength,
+    minLength=MinLength,
+    maxLength=MaxLength,
+    meanLength=MeanLength
+  )
+  readDens2 <- ChIPsim::bindDens2readDens(
+    dens2,
+    fragLength,
+    bind=BindLength,
+    minLength=MinLength,
+    maxLength=MaxLength,
+    meanLength=MeanLength
+  )
+
+  message("Sample reads...")
+  readLoc0 <- ChIPsim::sampleReads(readDens0, Nreads, strandProb=c(0.5, 0.5))
+  readLoc2 <- ChIPsim::sampleReads(readDens2, Nreads, strandProb=c(0.6, 0.4))
+  names0 <- list(
+    paste("read", 1:length(readLoc0[[1]]), sep="_"),
+    paste("read", (1+length(readLoc0[[1]])):(Nreads), sep="_")
+  )
   names2 <- list(
     paste("read", 1:length(readLoc2[[1]]), sep="_"),
     paste("read", (1+length(readLoc2[[1]])):(Nreads), sep="_")
+  )
+
+  message("Write background reads to fastq...")
+  pos2fastq(
+    readPos = readLoc0,
+    names = names0,
+    sequence = chromosomes,
+    qualityFun = randomQuality,
+    errorFun = readError,
+    readLen = LengthReads,
+    file = paste(data_dir, "reads-3-targets-target-2-background", postFix, ExpNo, ".fastq", sep=""),
+    qualityType = c("Illumina")
+  )
+  message("Write target 2 reads to fastq...")
+  pos2fastq(
+    readPos = readLoc2,
+    names = names2,
+    sequence = chromosomes,
+    qualityFun = randomQuality,
+    errorFun = readError,
+    readLen = LengthReads,
+    file = paste(data_dir, "reads-3-targets-target-2", postFix, ExpNo, ".fastq", sep=""),
+    qualityType = c("Illumina")
+  )
+
+
+
+  message("")
+  message("Generate reads for target C:")
+  set.seed(seedC)
+
+  message("Densify features...")
+  dens0 <- ChIPsim::feat2dens(featuresC$background, length=chrLen)
+  dens3 <- ChIPsim::feat2dens(featuresC$target, length=chrLen)
+  readDens0 <- ChIPsim::bindDens2readDens(
+    dens0,
+    fragLength,
+    bind=BindLength,
+    minLength=MinLength,
+    maxLength=MaxLength,
+    meanLength=MeanLength
+  )
+  readDens3 <- ChIPsim::bindDens2readDens(
+    dens3,
+    fragLength,
+    bind=BindLength,
+    minLength=MinLength,
+    maxLength=MaxLength,
+    meanLength=MeanLength
+  )
+
+  message("Sample reads...")
+  readLoc0 <- ChIPsim::sampleReads(readDens0, Nreads, strandProb=c(0.5, 0.5))
+  readLoc3 <- ChIPsim::sampleReads(readDens3, Nreads, strandProb=c(0.5, 0.5))
+  names0 <- list(
+    paste("read", 1:length(readLoc0[[1]]), sep="_"),
+    paste("read", (1+length(readLoc0[[1]])):(Nreads), sep="_")
   )
   names3 <- list(
     paste("read", 1:length(readLoc3[[1]]), sep="_"),
@@ -677,29 +758,7 @@ GenerateChipSeqFastqFiles <- function(ExpNo) {
     qualityFun = randomQuality,
     errorFun = readError,
     readLen = LengthReads,
-    file = paste(data_dir, "reads-3-targets-baseline", postFix, ExpNo, ".fastq", sep=""),
-    qualityType = c("Illumina")
-  )
-  message("Write target 1 reads to fastq...")
-  pos2fastq(
-    readPos = readLoc1,
-    names = names1,
-    sequence = chromosomes,
-    qualityFun = randomQuality,
-    errorFun = readError,
-    readLen = LengthReads,
-    file = paste(data_dir, "reads-3-targets-target-1", postFix, ExpNo, ".fastq", sep=""),
-    qualityType = c("Illumina")
-  )
-  message("Write target 2 reads to fastq...")
-  pos2fastq(
-    readPos = readLoc2,
-    names = names2,
-    sequence = chromosomes,
-    qualityFun = randomQuality,
-    errorFun = readError,
-    readLen = LengthReads,
-    file = paste(data_dir, "reads-3-targets-target-2", postFix, ExpNo, ".fastq", sep=""),
+    file = paste(data_dir, "reads-3-targets-target-3-background", postFix, ExpNo, ".fastq", sep=""),
     qualityType = c("Illumina")
   )
   message("Write target 3 reads to fastq...")
