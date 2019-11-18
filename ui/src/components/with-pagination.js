@@ -44,6 +44,18 @@ const withPagination = () => Component => {
         )}
         {(page > 0 || pageTotal > page + 1) && (
           <ul className="flex-c no-list-style">
+            {pageTotal && page > 2 && (
+              <li>
+                <Button
+                  className="with-pagination-page-button"
+                  isDisabled={isLoadingMore}
+                  onClick={() => onPage(0)}
+                >
+                  1
+                </Button>
+              </li>
+            )}
+            {pageTotal && page > 3 && <li>&hellip;</li>}
             {range(Math.max(1, page - 1), page + 1).map(pageNum => (
               <li key={pageNum}>
                 <Button
