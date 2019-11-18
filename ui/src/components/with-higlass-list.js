@@ -15,11 +15,12 @@ const getViewId = list =>
     .slice(1);
 
 let higlassList;
+let higlassListWrapper;
 let higlassScrollContainer;
 
 const scrollHandler = () => {
   if (higlassScrollContainer) {
-    higlassScrollContainer.scrollTop = higlassList.scrollTop;
+    higlassScrollContainer.scrollTop = higlassListWrapper.scrollTop;
   }
 };
 
@@ -54,6 +55,23 @@ const withList = getKey => Component => {
       }
     }
 
+    componentDidUpdate() {
+      this.checkScrollability();
+    }
+
+    checkScrollability() {
+      if (higlassList) {
+        if (
+          higlassList.parentNode.getBoundingClientRect().height <
+          higlassList.getBoundingClientRect().height
+        ) {
+          higlassList.style.marginRight = '0';
+        } else {
+          higlassList.style.marginRight = '0.5rem';
+        }
+      }
+    }
+
     @boundMethod
     loadedHandler() {
       this.setState({
@@ -62,11 +80,17 @@ const withList = getKey => Component => {
     }
 
     @boundMethod
-    onApi(higlassApi) {
+    apiHandler(higlassApi) {
       higlassScrollContainer = higlassApi.getComponent().scrollContainer;
       this.setState({
         higlassApi
       });
+    }
+
+    @boundMethod
+    higlassListRefHandler(element) {
+      higlassList = element;
+      this.checkScrollability();
     }
 
     render() {
@@ -74,13 +98,13 @@ const withList = getKey => Component => {
         <div className="higlass-list-single-higlass-instance">
           <div
             ref={element => {
-              higlassList = element;
+              higlassListWrapper = element;
             }}
             className="higlass-list-single-higlass-instance-list-wrapper"
             onScroll={scrollHandler}
             style={{ opacity: this.state.higlassLoaded ? 1 : 0 }}
           >
-            <ul className="list no-list-style">
+            <ul ref={this.higlassListRefHandler} className="list no-list-style">
               {this.props.list.map((item, index) => (
                 <li className="list-item" key={getKey(item)}>
                   <Component
@@ -97,7 +121,7 @@ const withList = getKey => Component => {
           </div>
           <div className="higlass-list-single-higlass-instance-higlass-wrapper">
             <HiGlassViewer
-              api={this.onApi}
+              api={this.apiHandler}
               containerPadding={0}
               isGlobalMousePosition
               isNotEditable
