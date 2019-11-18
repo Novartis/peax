@@ -239,13 +239,6 @@ def build(
             bw_track_config["tilesetUid"] = dataset.id
             bw_track_config["uid"] = dataset.id
 
-            if incl_autoencodings:
-                encodings_track_config = copy.deepcopy(defaults.ENCODINGS_TRACK)
-                uid = "{}|ae".format(bw_track_config["uid"])
-                encodings_track_config["tilesetUid"] = uid
-                encodings_track_config["uid"] = uid
-                combined_track_config["contents"].append(encodings_track_config)
-
             if dataset.height:
                 bw_track_config["height"] = dataset.height
             else:
@@ -280,6 +273,13 @@ def build(
             combined_track_config["contents"].extend(
                 [anno_track_config, bw_track_config]
             )
+
+            if incl_autoencodings:
+                encodings_track_config = copy.deepcopy(defaults.ENCODINGS_TRACK)
+                uid = "{}|ae".format(bw_track_config["uid"])
+                encodings_track_config["tilesetUid"] = uid
+                encodings_track_config["uid"] = uid
+                combined_track_config["contents"].append(encodings_track_config)
 
             if datasets.size() == 1:
                 if config.coords == "grch38":
