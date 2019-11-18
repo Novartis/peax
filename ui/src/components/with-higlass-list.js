@@ -38,24 +38,20 @@ const withList = getKey => Component => {
         higlassApi: null,
         higlassLoaded: false
       };
-    }
 
-    componentWillUpdate(nextProps) {
-      if (nextProps.list !== this.props.list) {
-        const newViewConfigId = getViewId(this.props.list);
-        if (this.viewConfigId !== newViewConfigId) {
-          this.setState({
-            higlassLoaded: false
-          });
-          this.viewConfigId = newViewConfigId;
-          // Unset scroll position
-          higlassList.scrollTop = 0;
-          higlassScrollContainer.scrollTop = 0;
-        }
-      }
+      this.viewConfigId = getViewId(this.props.list);
     }
 
     componentDidUpdate() {
+      const newViewConfigId = getViewId(this.props.list);
+
+      if (this.viewConfigId !== newViewConfigId) {
+        this.viewConfigId = newViewConfigId;
+        // Unset scroll position
+        higlassListWrapper.scrollTop = 0;
+        higlassScrollContainer.scrollTop = 0;
+      }
+
       this.checkScrollability();
     }
 
