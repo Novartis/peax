@@ -51,7 +51,7 @@ DropDownMenu.defaultProps = {
 };
 
 DropDownMenu.propTypes = {
-  className: PropTypes.str,
+  className: PropTypes.string,
   disabled: PropTypes.bool,
   id: PropTypes.string,
   items: PropTypes.array.isRequired,
