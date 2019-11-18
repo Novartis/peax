@@ -50,6 +50,7 @@ if [ -f "data/simulated-genome-$SUFFIX.fa" ] && [ -f "data/reads-3-targets-targe
   echo "Skip ChIP-seq read simulation"
 else
   echo "Clear previous fastq files..."
+  > "data/simulated-genome-$SUFFIX.fa"
   > "data/reads-3-targets-target-1$POST_FIX-$SUFFIX.fastq"
   > "data/reads-3-targets-target-1-background$POST_FIX-$SUFFIX.fastq"
   > "data/reads-3-targets-target-2$POST_FIX-$SUFFIX.fastq"
