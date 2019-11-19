@@ -34,6 +34,9 @@ class Config:
         self.variable_target = False
         self.normalize_tracks = False
 
+        self._chromsizes = None
+        self._custom_chromosomes = None
+
         # Set file
         self.file = config_file
 
@@ -180,9 +183,7 @@ class Config:
 
     @property
     def chromsizes(self):
-        if self._coords in all_chromsizes:
-            return all_chromsizes[self._coords]
-        return None
+        return self._chromsizes
 
     @chromsizes.setter
     def chromsizes(self, value):
