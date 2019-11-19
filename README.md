@@ -36,9 +36,9 @@ Peax consists of three main parts:
 ## Data
 
 We provide 6 autoencoders trained on 3 kb, 12 kb, and 120 kb window sizes (with 25,
-100, and 1000 bp binning) on DNase-seq and histone mark ChIP-seq data.
+100, and 1000 bp binning) on DNase-seq and histone mark ChIP-seq data (H3K4me1, H3K4me3, H3K27ac, H3K9ac, H3K27me3, H3K9me3, and H3K36me).
 
-You can find the autoencoder at [zenodo.org/record/2609763](https://zenodo.org/record/2609763).
+You can find detailed descriptions of the autoencoders at [zenodo.org/record/2609763](https://zenodo.org/record/2609763). When you follow the [Quick Start](#quick-start) instructions, you will automatically download the related autoencoders.
 
 ## Preprint
 
@@ -47,7 +47,7 @@ _bioRxiv_, 2019, doi: [10.1101/597518](10.1101/597518).
 
 ## Quick start
 
-Peax comes with [6 autoencoders](#autoencoders) for DNase-seq and histone mark
+Peax comes with [6 autoencoders](#data) for DNase-seq and histone mark
 ChIP-seq data and several example configurations for which we provide
 convenience scripts to get you started as quickly as possible.
 
