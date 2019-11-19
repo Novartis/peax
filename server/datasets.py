@@ -74,7 +74,7 @@ class Datasets:
         if self.coords is None:
             self.coords = dataset.coords
 
-        if dataset.custom_chromosomes and self.custom_chromosomes is None:
+        if dataset.custom_chromosomes is not None and self.custom_chromosomes is None:
             self.custom_chromosomes = dataset.custom_chromosomes
 
         if not chromsizes.equals(
