@@ -160,7 +160,7 @@ class Config:
 
     @coords.setter
     def coords(self, value: str):
-        if value in all_chromsizes or self.chromsizes:
+        if value in all_chromsizes or self.chromsizes is not None:
             self._coords = value
         else:
             raise InvalidConfig("Unknown coordinate system")
