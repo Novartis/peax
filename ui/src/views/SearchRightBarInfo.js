@@ -102,7 +102,7 @@ class SearchRightBarInfo extends React.Component {
   }
 
   componentDidMount() {
-    if (this.props.searchInfo.id) this.loadProjection();
+    if (!Number.isNaN(+this.props.searchInfo.id)) this.loadProjection();
   }
 
   componentDidUpdate(prevProps, prevState) {
