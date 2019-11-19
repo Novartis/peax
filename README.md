@@ -89,7 +89,7 @@ The config file has 6 top level properties:
 | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
 | encoders  | List of encoders.                                                                                                                                                                           | list  |
 | datasets  | List of tracks.                                                                                                                                                                             | list  |
-| coords    | Genome coordinates. Peax currently supports hg19, hg28, mm9, and mm10                                                                                                                       | str   |
+| coords    | Genome coordinates. Peax currently supports hg19, hg38, mm9, and mm10                                                                                                                       | str   |
 | chroms    | Chromosomes to to be searched. If omitted all chromosomes will be prepared for searching.                                                                                                   | list  |
 | step_freq | Step frequency of the sliding window approach. E.g., given an encoder with window size 12 kb, a step frequency of 6 means that every 2 kb a 12 kb window will be extracted from the bigWig. | int   |
 | db_path   | Relative path to the sqlite db for storing searches.                                                                                                                                        | str   |
