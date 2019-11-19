@@ -198,6 +198,10 @@
   }
 }
 
+.list-item {
+  position: relative;
+}
+
 .list-item .higlass-result {
   margin: 0.5rem;
   border-radius: 0.25rem;
@@ -222,9 +226,14 @@
 }
 
 .list-item .conflict {
-  margin-top: 0.75rem;
+  position: absolute;
+  top: 0;
+  left: 1rem;
+  right: 3.125rem;
   text-align: center;
   color: $pink-dark;
+  background: $pink-light;
+  transition: opacity $fast-transition $easing;
 
   &:first-child {
     margin-top: 0;
@@ -237,14 +246,17 @@
 
   .prob {
     padding: 0 0.25em;
-    background: $pink-light;
+    font-weight: bold;
     border-radius: 0.125em;
+    text-decoration: underline;
   }
 }
 
-.list-item .conflict + .higlass-result {
-  margin-top: 0;
+.list-item:hover .conflict {
+  opacity: 0;
+}
 
+.list-item .conflict + .higlass-result {
   &.is-selected {
     box-shadow: 0 0 0 2px $pink-dark;
   }

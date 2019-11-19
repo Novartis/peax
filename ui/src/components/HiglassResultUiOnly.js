@@ -195,20 +195,22 @@ class HiglassResult extends React.Component {
       <div>
         {this.props.conflict === 'fn' && (
           <div className="conflict conflict-fn">
-            <strong>Potential false negative</strong>
-            <p>
-              Window labeled positive but the prediction probability is only{' '}
-              <span className="prob">{this.props.classificationProb}</span>!
-            </p>
+            <strong>Potential false negative: </strong>
+            Window labeled positive but the prediction probability is only{' '}
+            <span className="prob">
+              {Number.parseFloat(this.props.classificationProb).toFixed(2)}
+            </span>
+            !
           </div>
         )}
         {this.props.conflict === 'fp' && (
           <div className="conflict conflict-fp">
-            <strong>Potential false positive</strong>
-            <p>
-              Window labeled negative but the prediction probability is{' '}
-              <span className="prob">{this.props.classificationProb}</span>!
-            </p>
+            <strong>Potential false positive: </strong>
+            Window labeled negative but the prediction probability is{' '}
+            <span className="prob">
+              {Number.parseFloat(this.props.classificationProb).toFixed(2)}
+            </span>
+            !
           </div>
         )}
         <div
