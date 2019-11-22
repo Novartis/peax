@@ -267,7 +267,7 @@ class HiglassResult extends React.Component {
             onMouseOver={this.props.onMouseOver}
           />
           <div className="higlass-class-probability-wrapper">
-            {!!this.props.classificationProb && (
+            {this.props.classificationProb ? (
               <div className="higlass-class-probability">
                 <div
                   className="higlass-class-probability-bar"
@@ -299,6 +299,14 @@ class HiglassResult extends React.Component {
                       borderLeftColor: getColor(this.props.classificationProb)
                     }}
                   />
+                </div>
+              </div>
+            ) : (
+              <div className="higlass-class-probability higlass-class-probability-unkonw">
+                <div className="flex-c higlass-class-probability-label">
+                  <div className="higlass-class-probability-label-prob">
+                    Prediction probability is below the threshold
+                  </div>
                 </div>
               </div>
             )}

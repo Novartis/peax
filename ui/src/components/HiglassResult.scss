@@ -79,6 +79,10 @@
       pointer-events: none;
     }
 
+    &.higlass-class-probability-unkonw .higlass-class-probability-label {
+      bottom: 0.25rem;
+    }
+
     .higlass-class-probability-label-arrow {
       position: absolute;
       top: -0.25rem;
@@ -105,6 +109,15 @@
       color: $black;
       background: $gray-light;
       pointer-events: none;
+      white-space: nowrap;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.66);
+    }
+
+    &.higlass-class-probability-unkonw .higlass-class-probability-label-prob {
+      right: 0.25rem;
+      color: $gray-dark;
+      background: $gray-lighter;
+      font-weight: normal;
     }
   }
 
