@@ -2,7 +2,7 @@
 @import '../styles/transitions';
 
 .button {
-  padding: 0.125em 0.33em;
+  padding: 0.25em 0.5em;
   border: 0;
   border-radius: 0.25rem;
   background: $gray-lightest-rgba;
@@ -30,6 +30,16 @@
   &.is-active {
     color: $white;
     background: $primary;
+  }
+
+  &.is-primary {
+    color: $black;
+    background: $gray-lighter-rgba;
+
+    &:hover {
+      color: $black;
+      background: $gray-light-rgba;
+    }
   }
 
   &.has-spinner {

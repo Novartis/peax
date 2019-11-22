@@ -10,6 +10,7 @@ const classNames = props => {
   className += ` ${props.className}`;
   className += props.isActive ? ' is-active' : '';
   className += props.isDisabled ? ' is-disabled' : '';
+  className += props.isPrimary ? ' is-primary' : '';
 
   return className;
 };
@@ -38,6 +39,7 @@ Button.propTypes = {
   className: PropTypes.string,
   isActive: PropTypes.bool,
   isDisabled: PropTypes.bool,
+  isPrimary: PropTypes.bool,
   onClick: PropTypes.func,
   tag: PropTypes.string,
   title: PropTypes.string

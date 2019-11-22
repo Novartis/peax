@@ -387,7 +387,13 @@ class SearchRightBarInfo extends React.Component {
                     <Button onClick={this.newProjection}>{'Re-compute'}</Button>
                   }
                   isLoading={this.state.isLoading}
-                  isNotFound={this.state.isNotFound}
+                  isNotFound={
+                    this.state.isNotFound && (
+                      <Button onClick={this.newProjection} isPrimary>
+                        Compute Projection
+                      </Button>
+                    )
+                  }
                 />
               )}
               {!this.state.isDefaultView && (
@@ -401,15 +407,6 @@ class SearchRightBarInfo extends React.Component {
                 />
               )}
             </div>
-            {this.state.isNotFound && (
-              <ul className="no-list-style compact-list right-bar-v-padding">
-                <li className="flex-c flex-jc-sb">
-                  <Button onClick={this.newProjection}>
-                    Compute projection
-                  </Button>
-                </li>
-              </ul>
-            )}
             {!!this.state.points.length && (
               <ul className="r no-list-style compact-list right-bar-v-padding">
                 <li className="flex-c flex-jc-sb">
