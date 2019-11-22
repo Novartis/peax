@@ -368,7 +368,16 @@ class SearchRightBarInfo extends React.Component {
           toggle={this.props.toggleProjection}
         >
           <div className="search-right-bar-padding">
-            <div className="search-projection-wrapper" ref={this.onRef}>
+            <div
+              className="search-projection-wrapper"
+              ref={this.onRef}
+              onMouseDown={event => {
+                if (event.detail > 1) {
+                  // Prevent text select of outside elements on double click
+                  event.preventDefault();
+                }
+              }}
+            >
               {this.isOpen && (
                 <ElementWrapperAdvanced
                   className="search-projection"
