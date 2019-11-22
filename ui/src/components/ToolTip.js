@@ -15,6 +15,11 @@ class ToolTip extends React.Component {
     this.showBound = this.show.bind(this);
   }
 
+  componentWillUnmount() {
+    if (this.delayInTimeout) clearTimeout(this.delayInTimeout);
+    if (this.delayOutTimeout) clearTimeout(this.delayOutTimeout);
+  }
+
   /* ------------------------------ Custom Methods -------------------------- */
 
   hide() {
