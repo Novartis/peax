@@ -267,49 +267,50 @@ class HiglassResult extends React.Component {
             onMouseOver={this.props.onMouseOver}
           />
           <div className="higlass-class-probability-wrapper">
-            {this.props.classificationProb ? (
-              <div className="higlass-class-probability">
-                <div
-                  className="higlass-class-probability-bar"
-                  style={{
-                    bottom: `${this.props.classificationProb * 100}%`,
-                    backgroundColor: getColor(this.props.classificationProb)
-                  }}
-                />
-                <div
-                  className="flex-c higlass-class-probability-label"
-                  style={{
-                    bottom: `${this.props.classificationProb * 100}%`
-                  }}
-                >
+            {!this.props.hidePredProb &&
+              (this.props.classificationProb ? (
+                <div className="higlass-class-probability">
                   <div
-                    className="higlass-class-probability-label-prob"
+                    className="higlass-class-probability-bar"
                     style={{
-                      color: getFontColor(this.props.classificationProb),
+                      bottom: `${this.props.classificationProb * 100}%`,
                       backgroundColor: getColor(this.props.classificationProb)
                     }}
-                  >
-                    {Number(this.props.classificationProb).toFixed(
-                      this.props.classificationProb < 1 ? 2 : 1
-                    )}
-                  </div>
-                  <div
-                    className="higlass-class-probability-label-arrow"
-                    style={{
-                      borderLeftColor: getColor(this.props.classificationProb)
-                    }}
                   />
-                </div>
-              </div>
-            ) : (
-              <div className="higlass-class-probability higlass-class-probability-unkonw">
-                <div className="flex-c higlass-class-probability-label">
-                  <div className="higlass-class-probability-label-prob">
-                    Prediction probability is below the threshold
+                  <div
+                    className="flex-c higlass-class-probability-label"
+                    style={{
+                      bottom: `${this.props.classificationProb * 100}%`
+                    }}
+                  >
+                    <div
+                      className="higlass-class-probability-label-prob"
+                      style={{
+                        color: getFontColor(this.props.classificationProb),
+                        backgroundColor: getColor(this.props.classificationProb)
+                      }}
+                    >
+                      {Number(this.props.classificationProb).toFixed(
+                        this.props.classificationProb < 1 ? 2 : 1
+                      )}
+                    </div>
+                    <div
+                      className="higlass-class-probability-label-arrow"
+                      style={{
+                        borderLeftColor: getColor(this.props.classificationProb)
+                      }}
+                    />
                   </div>
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="higlass-class-probability higlass-class-probability-unkonw">
+                  <div className="flex-c higlass-class-probability-label">
+                    <div className="higlass-class-probability-label-prob">
+                      Prediction probability is below the threshold
+                    </div>
+                  </div>
+                </div>
+              ))}
             <ButtonRadio
               isVertical={true}
               name={`search-${this.props.windowId}-classify`}
@@ -335,6 +336,7 @@ HiglassResult.defaultProps = {
   classification: 'neutral',
   classificationProb: null,
   dataTracks: [],
+  hidePredProb: false,
   isInfoSideBar: false,
   normalizeBy: {},
   onEnter: toVoid,
@@ -349,7 +351,8 @@ HiglassResult.propTypes = {
   conflict: PropTypes.string,
   dataTracks: PropTypes.array,
   hgApi: PropTypes.object,
-  hover: PropTypes.number.isRequired,
+  hover: PropTypes.bool,
+  hidePredProb: PropTypes.bool,
   isInfoSideBar: PropTypes.bool,
   normalizationSource: PropTypes.oneOfType([
     PropTypes.string,

@@ -100,6 +100,7 @@ class SearchSeeds extends React.Component {
               classificationChangeHandler: this.props
                 .classificationChangeHandler,
               dataTracks: this.props.dataTracks,
+              hidePredProb: true,
               normalizationSource: this.props.normalizationSource,
               normalizeBy: this.props.normalizeBy,
               onNormalize: this.props.onNormalize,
