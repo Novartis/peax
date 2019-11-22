@@ -226,12 +226,12 @@ class SearchResults extends React.Component {
                 delayOut={500}
                 title={
                   <span className="flex-c">
-                    <span>Sort by prediction prob.</span>
+                    <span>Sort by prediction probability</span>
                   </span>
                 }
               >
                 <ButtonRadio
-                  label="Sort"
+                  label="Sort by pred. prob."
                   name="search-filter-by-classification"
                   onClick={this.onSortOrderBnd}
                   options={BUTTON_RADIO_SORT_ORDER_OPTIONS}
@@ -247,12 +247,14 @@ class SearchResults extends React.Component {
                 delayOut={500}
                 title={
                   <span className="flex-c">
-                    <span>Filter by label (incl.)</span>
+                    <span>
+                      Exclude regions labeled positive, neutral, or negative
+                    </span>
                   </span>
                 }
               >
                 <ButtonRadio
-                  label="Exclude"
+                  label="Exclude Labels"
                   name="search-filter-by-classification"
                   isDeselectable={true}
                   onClick={this.onFilterByClfBnd}

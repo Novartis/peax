@@ -46,7 +46,7 @@ class SearchSelection extends React.Component {
 
     this.state = {
       filterByClf: null,
-      sortOrder: 'asc'
+      sortOrder: 'desc'
     };
   }
 
@@ -84,8 +84,11 @@ class SearchSelection extends React.Component {
           numToClassif(win.classification) !== this.state.filterByClf
       )
       .sort((a, b) => {
-        if (a.windowId < b.windowId) return -1 * sortOrder;
-        if (a.windowId > b.windowId) return 1 * sortOrder;
+        const aProbability = a.probability || 0;
+        const bProbability = b.probability || 0;
+
+        if (aProbability < bProbability) return -1 * sortOrder;
+        if (aProbability > bProbability) return 1 * sortOrder;
         return 0;
       })
       .map(win => ({
@@ -128,12 +131,12 @@ class SearchSelection extends React.Component {
                 delayOut={500}
                 title={
                   <span className="flex-c">
-                    <span>Sort by genome position</span>
+                    <span>Sort by prediction probability</span>
                   </span>
                 }
               >
                 <ButtonRadio
-                  label="Sort by position"
+                  label="Sort by pred. prob."
                   name="search-sort-by-genome-position"
                   onClick={this.onSortOrderBnd}
                   options={BUTTON_RADIO_SORT_ORDER_OPTIONS}
@@ -148,12 +151,14 @@ class SearchSelection extends React.Component {
                 delayOut={500}
                 title={
                   <span className="flex-c">
-                    <span>Exclude positive, neutral, or negative labels</span>
+                    <span>
+                      Exclude regions labeled positive, neutral, or negative
+                    </span>
                   </span>
                 }
               >
                 <ButtonRadio
-                  label="Exclude"
+                  label="Exclude Labels"
                   name="search-filter-by-classification"
                   isDeselectable={true}
                   onClick={this.onFilterByClfBnd}

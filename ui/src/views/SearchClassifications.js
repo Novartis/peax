@@ -26,7 +26,7 @@ const logger = Logger('SearchClassifications'); // eslint-disable-line
 
 const isEmpty = (
   <span>
-    {'Nothing classified! '}
+    {'Nothing labeled! '}
     <Button onClick={() => setSearchTab(TAB_SEEDS)}>Get started</Button>
   </span>
 );
@@ -104,28 +104,17 @@ class SearchClassifications extends React.Component {
       <div className="full-dim search-tab-wrapper">
         <SubTopBar>
           <SubTopBottomBarButtons className="flex-c flex-a-c no-list-style">
-            <li>Classified {this.props.results.length} regions.</li>
+            <li>Labeled {this.props.results.length} regions.</li>
           </SubTopBottomBarButtons>
           <SubTopBottomBarButtons className="flex-c flex-a-c flex-jc-e no-list-style">
             <li>
-              <ToolTip
-                align="center"
-                delayIn={2000}
-                delayOut={500}
-                title={
-                  <span className="flex-c">
-                    <span>Sort by date</span>
-                  </span>
-                }
-              >
-                <ButtonRadio
-                  label="Sort"
-                  name="search-filter-by-classification"
-                  onClick={this.onSortOrderBnd}
-                  options={BUTTON_RADIO_SORT_ORDER_OPTIONS}
-                  selection={this.state.sortOrder}
-                />
-              </ToolTip>
+              <ButtonRadio
+                label="Sort By Date"
+                name="search-filter-by-classification"
+                onClick={this.onSortOrderBnd}
+                options={BUTTON_RADIO_SORT_ORDER_OPTIONS}
+                selection={this.state.sortOrder}
+              />
             </li>
             <li>
               <ToolTip
@@ -134,12 +123,12 @@ class SearchClassifications extends React.Component {
                 delayOut={500}
                 title={
                   <span className="flex-c">
-                    <span>Exclude positive or negative labels</span>
+                    <span>Exclude regions labeled positive or negative</span>
                   </span>
                 }
               >
                 <ButtonRadio
-                  label="Exclude"
+                  label="Exclude Labels"
                   name="search-filter-by-classification"
                   isDeselectable={true}
                   onClick={this.onFilterByClfBnd}
