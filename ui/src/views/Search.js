@@ -751,7 +751,11 @@ class Search extends React.Component {
       const isNew = !this.state.windows[windowId];
       const oldClassif = !isNew && this.state.windows[windowId].classification;
 
-      if (!isNew && this.state.windows[windowId].classificationPending) return;
+      if (
+        (!isNew && this.state.windows[windowId].classificationPending) ||
+        (isNew && classif === 'neutral')
+      )
+        return;
 
       // Optimistic update
       this.setState({
