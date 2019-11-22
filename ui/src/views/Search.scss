@@ -392,4 +392,148 @@
     background: $gray-lightest;
     border-radius: 0.25rem;
   }
+
+  .colormap {
+    position: relative;
+
+    li:first-child {
+      border-radius: 0.25rem 0 0 0.25rem;
+    }
+
+    li:last-child {
+      border-radius: 0 0.25rem 0.25rem 0;
+    }
+
+    .colormap-positive,
+    .colormap-negative,
+    .colormap-unlabled,
+    .colormap-target,
+    .colormap-0,
+    .colormap-1,
+    .colormap-2,
+    .colormap-3,
+    .colormap-4,
+    .colormap-5,
+    .colormap-6,
+    .colormap-0-label,
+    .colormap-3-label,
+    .colormap-6-label {
+      position: relative;
+      height: 1.5em;
+    }
+
+    .colormap-positive:before,
+    .colormap-negative:before,
+    .colormap-unlabled:before,
+    .colormap-target:before,
+    .colormap-0:before,
+    .colormap-1:before,
+    .colormap-2:before,
+    .colormap-3:before,
+    .colormap-4:before,
+    .colormap-5:before,
+    .colormap-6:before,
+    .colormap-0-label:before,
+    .colormap-3-label:before,
+    .colormap-6-label:before {
+      position: absolute;
+      display: block;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      font-size: 0.675rem;
+      line-height: 1.35rem;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .colormap-positive {
+      color: $white;
+      background: $blue;
+    }
+    .colormap-positive:before {
+      content: 'Positive';
+    }
+
+    .colormap-negative {
+      color: $white;
+      background: $pink;
+    }
+    .colormap-negative:before {
+      content: 'Negative';
+    }
+
+    .colormap-unlabled {
+      color: $white;
+      background: $gray-medium;
+    }
+    .colormap-unlabled:before {
+      content: 'Unlabled';
+    }
+
+    .colormap-target {
+      color: $white;
+      background: $black;
+    }
+    .colormap-target:before {
+      content: 'Target';
+    }
+
+    .colormap-0 {
+      color: $black;
+      background: rgb(216, 216, 216);
+    }
+    .colormap-0:before {
+      content: '0';
+    }
+
+    .colormap-1 {
+      background: rgb(186, 186, 186);
+    }
+
+    .colormap-2 {
+      background: rgb(157, 157, 157);
+    }
+
+    .colormap-3 {
+      color: $black;
+      background: rgb(127, 127, 127);
+    }
+    .colormap-3:before {
+      content: '0.5';
+    }
+
+    .colormap-4 {
+      background: rgb(85, 118, 141);
+    }
+
+    .colormap-5 {
+      background: rgb(43, 109, 154);
+    }
+
+    .colormap-6 {
+      color: $white;
+      background: rgb(0, 100, 168);
+    }
+    .colormap-6:before {
+      content: '1';
+    }
+
+    .colormap-0-label:before {
+      content: 'Negative';
+      text-align: left;
+    }
+
+    .colormap-3-label:before {
+      content: 'Uncertain';
+    }
+
+    .colormap-6-label:before {
+      content: 'Positive';
+      text-align: right;
+    }
+  }
 }

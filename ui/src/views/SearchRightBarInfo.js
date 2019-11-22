@@ -421,6 +421,45 @@ class SearchRightBarInfo extends React.Component {
                     selection={this.state.colorEncoding}
                   />
                 </li>
+                {this.state.colorEncoding === 'probability' ? (
+                  <li className="m-t-0-25">
+                    <ul className="no-list-style flex-c flex-jc-sb colormap">
+                      <li className="flex-g-1 colormap-0-label" />
+                      <li className="flex-g-1 colormap-3-label" />
+                      <li className="flex-g-1 colormap-6-label" />
+                    </ul>
+                    <ul className="no-list-style flex-c flex-jc-sb colormap">
+                      <li className="flex-g-1 colormap-0" />
+                      <li className="flex-g-1 colormap-1" />
+                      <li className="flex-g-1 colormap-2" />
+                      <li className="flex-g-1 colormap-3" />
+                      <li className="flex-g-1 colormap-4" />
+                      <li className="flex-g-1 colormap-5" />
+                      <li className="flex-g-1 colormap-6" />
+                    </ul>
+                  </li>
+                ) : (
+                  <li className="m-t-0-25">
+                    <ul className="no-list-style flex-c flex-jc-sb colormap">
+                      <li
+                        className="flex-g-1 colormap-positive"
+                        title="Positively Labeled Regions"
+                      />
+                      <li
+                        className="flex-g-1 colormap-negative"
+                        title="Negatively Labeled Regions"
+                      />
+                      <li
+                        className="flex-g-1 colormap-unlabled"
+                        title="Unlabeled Regions"
+                      />
+                      <li
+                        className="flex-g-1 colormap-target"
+                        title="Search Target Regions"
+                      />
+                    </ul>
+                  </li>
+                )}
                 <li>
                   <LabeledSlider
                     disabled={this.state.isLoading || this.state.isError}
