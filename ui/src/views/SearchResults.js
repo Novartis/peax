@@ -265,7 +265,9 @@ class SearchResults extends React.Component {
             </li>
             <li>
               <Button
+                isBold={this.props.isTraining !== true}
                 isDisabled={this.props.isTraining === true}
+                isPrimary
                 onClick={() => this.props.onTrainingStart()}
               >
                 Re-Train

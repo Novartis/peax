@@ -32,13 +32,27 @@
     background: $primary;
   }
 
+  &.is-bold {
+    font-weight: bold;
+  }
+
   &.is-primary {
     color: $black;
-    background: $gray-lighter-rgba;
+    background: $gray-light-rgba;
 
     &:hover {
       color: $black;
-      background: $gray-light-rgba;
+      background: $gray-medium-rgba;
+    }
+  }
+
+  &.is-highlight {
+    color: $white;
+    background: $gray-dark-rgba;
+
+    &:hover {
+      color: $white;
+      background: $black;
     }
   }
 

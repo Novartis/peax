@@ -9,7 +9,9 @@ const classNames = props => {
 
   className += ` ${props.className}`;
   className += props.isActive ? ' is-active' : '';
+  className += props.isBold ? ' is-bold' : '';
   className += props.isDisabled ? ' is-disabled' : '';
+  className += props.isHighlight ? ' is-highlight' : '';
   className += props.isPrimary ? ' is-primary' : '';
 
   return className;
@@ -38,7 +40,9 @@ Button.propTypes = {
   children: PropTypes.node,
   className: PropTypes.string,
   isActive: PropTypes.bool,
+  isBold: PropTypes.bool,
   isDisabled: PropTypes.bool,
+  isHighlight: PropTypes.bool,
   isPrimary: PropTypes.bool,
   onClick: PropTypes.func,
   tag: PropTypes.string,
