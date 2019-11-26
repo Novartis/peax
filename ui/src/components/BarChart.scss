@@ -33,6 +33,10 @@
     fill: $pink-dark;
   }
 
+  .x-axis-arrow {
+    fill: $gray-light;
+  }
+
   [class^='x-axis'] {
     .domain {
       color: $gray-light;

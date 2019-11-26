@@ -186,6 +186,18 @@ class BarChart extends React.Component {
   }
 
   initChart() {
+    this.defs = this.svg.append('svg:defs');
+    this.marker = this.defs.append('marker');
+    this.marker.attr('id', 'arrow');
+    this.marker.attr('class', 'x-axis-arrow');
+    this.marker.attr('viewBox', '0 0 10 10');
+    this.marker.attr('refX', '10');
+    this.marker.attr('refY', '5');
+    this.marker.attr('markerWidth', '6');
+    this.marker.attr('markerHeight', '6');
+    this.marker.attr('orient', 'auto-start-reverse');
+    this.marker.append('path').attr('d', 'M 0 0 L 10 5 L 0 10 z');
+
     this.yGridlinesG = this.svg.append('g').attr('class', 'y-gridlines');
     this.yGridlinesBottomG = this.svg
       .append('g')
@@ -311,10 +323,12 @@ class BarChart extends React.Component {
     }
 
     this.xAxisG.call(this.xAxis);
+    this.xAxisG.select('path').attr('marker-end', 'url(#arrow)');
 
     if (this.props.diverging) {
       this.xAxisG.call(g => g.select('.domain').remove());
       this.xAxisMiddleG.call(this.xAxisMiddle);
+      this.xAxisMiddleG.select('path').attr('marker-end', 'url(#arrow)');
       this.yAxisG.call(this.yAxisTop);
       this.yAxisBottomG.call(this.yAxisBottom);
     } else {
