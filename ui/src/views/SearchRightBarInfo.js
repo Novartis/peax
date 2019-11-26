@@ -552,16 +552,23 @@ class SearchRightBarInfo extends React.Component {
               />
             </li>
             <li className="flex-c flex-jc-sb">
-              <span className="label flex-g-1"># Labels</span>
+              <span className="label flex-g-1">
+                # Labels{' '}
+                <span className="label-note">
+                  (<abbr title="Positive Labels">Pos</abbr>/
+                  <abbr title="Negative Labels">Neg</abbr>)
+                </span>
+              </span>
               <Badge
-                isBordered={true}
-                value={this.props.searchInfo.classifications || 0}
+                isBordered
+                valueA={this.props.searchInfo.classificationsPositive || 0}
+                valueB={this.props.searchInfo.classificationsNegative || 0}
               />
             </li>
             <li className="flex-c flex-jc-sb">
               <span className="label flex-g-1"># Trainings</span>
               <Badge
-                isBordered={true}
+                isBordered
                 levelPoor={0}
                 levelOkay={1}
                 levelGood={3}

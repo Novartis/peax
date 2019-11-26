@@ -11,6 +11,8 @@ const classNames = props => {
   if (props.value > props.levelNeutral) level = 'poor';
   if (props.value >= props.levelOkay) level = 'okay';
   if (props.value >= props.levelGood) level = 'good';
+  if (!Number.isNaN(+props.valueA) && !Number.isNaN(+props.valueB))
+    level = 'pos-neg';
 
   className += ` badge-level-${level}`;
 
@@ -19,7 +21,18 @@ const classNames = props => {
   return className;
 };
 
-const Badge = props => <div className={classNames(props)}>{props.value}</div>;
+const Badge = props => (
+  <div className={classNames(props)}>
+    {!Number.isNaN(+props.valueA) && !Number.isNaN(+props.valueB) ? (
+      <div className="flex-c">
+        <div className="positive">{props.valueA}</div>
+        <div className="negative">{props.valueB}</div>
+      </div>
+    ) : (
+      props.value
+    )}
+  </div>
+);
 
 Badge.defaultProps = {
   isBordered: false,
@@ -36,7 +49,9 @@ Badge.propTypes = {
   levelPoor: PropTypes.number,
   levelOkay: PropTypes.number,
   levelGood: PropTypes.number,
-  value: PropTypes.number
+  value: PropTypes.number,
+  valueA: PropTypes.number,
+  valueB: PropTypes.number
 };
 
 export default Badge;

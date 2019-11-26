@@ -74,6 +74,11 @@
       &:after {
         content: ':';
       }
+
+      .label-note {
+        font-weight: normal;
+        font-size: 0.9em;
+      }
     }
     .separator {
       margin: 0.25rem;

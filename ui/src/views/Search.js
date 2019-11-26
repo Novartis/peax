@@ -280,6 +280,10 @@ class Search extends React.Component {
         searchInfo.status !== 200 ? "Couldn't load search info." : false;
       if (!isError) {
         searchInfo = searchInfo.body;
+        searchInfo.classificationsPositive =
+          searchInfo.classifications_positive;
+        searchInfo.classificationsNegative =
+          searchInfo.classifications - searchInfo.classifications_positive;
         this.chromInfo = ChromosomeInfo(
           `${baseUrl}/chrom-sizes/?id=${searchInfo.coords}&type=csv`
         );
