@@ -518,6 +518,14 @@ class SearchRightBarInfo extends React.Component {
         >
           <ul className="search-right-bar-padding no-list-style compact-list compact-list-with-padding">
             <li className="flex-c flex-v">
+              <div className="bar-chart-x-axis">
+                <div className="bar-chart-x-axis-bar">
+                  <div className="bar-chart-x-axis-arrow" />
+                </div>
+                <div className="flex-c flex-jc-c bar-chart-x-axis-title">
+                  <span>Number of labels</span>
+                </div>
+              </div>
               <span className="label">Uncertainty</span>
               <BarChart
                 x={this.props.progress.numLabels}

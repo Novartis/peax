@@ -41,6 +41,44 @@
         stroke: $gray-lightest;
       }
     }
+
+    .bar-chart-x-axis {
+      position: relative;
+      height: 1rem;
+
+      .bar-chart-x-axis-title {
+        position: relative;
+        color: $gray-medium;
+        font-size: 0.75rem;
+        line-height: 1rem;
+
+        > span {
+          padding: 0 0.5rem;
+          background: $gray-lightest;
+        }
+      }
+
+      .bar-chart-x-axis-bar {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        left: 0;
+        height: 1px;
+        background: $gray-light;
+      }
+
+      .bar-chart-x-axis-arrow {
+        position: absolute;
+        top: -0.25rem;
+        right: -0.5rem;
+        width: 0;
+        height: 0;
+        border-top: 4px solid transparent;
+        border-bottom: 5px solid transparent;
+
+        border-left: 10px solid $gray-light;
+      }
+    }
   }
 
   .sub-top-bar {
