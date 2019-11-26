@@ -30,23 +30,25 @@ def objectify_search(search: tuple) -> dict:
     7. description
     8. updated classifications last
     9. num classifications
-    10. updated classifier
-    11. num classifier
+    10. num positive classifications
+    11. updated classifier
+    12. num classifier
 
     Arguments:
         search {tuple} -- Return value from get_search()
     """
-    updated = max(search[5] or "", search[8] or "", search[10] or "")
+    updated = max(search[5] or "", search[8] or "", search[11] or "")
 
     return {
         "id": search[0],
         "target_from": search[1],
         "target_to": search[2],
         "config": json.loads(search[3]),
-        "classifiers": search[11] if search[11] is not None else 0,
+        "classifiers": search[12] if search[12] is not None else 0,
         "created": search[4],
         "updated": updated,
         "classifications": search[9] if search[9] is not None else 0,
+        "classifications_positive": search[10] if search[10] is not None else 0,
         "name": search[6],
         "description": search[7],
     }
@@ -300,6 +302,7 @@ class DB:
                         s.*,
                         c.updated,
                         c.classifications,
+                        c.classifications_positive,
                         x.updated,
                         x.classifiers
                     FROM
@@ -308,7 +311,8 @@ class DB:
                             SELECT
                                 search_id,
                                 MAX(updated) AS updated,
-                                COUNT(*) AS classifications
+                                COUNT(*) AS classifications,
+                                SUM(is_positive = 1) AS classifications_positive
                             FROM classification
                             WHERE search_id = ?
                             GROUP BY search_id
@@ -344,6 +348,7 @@ class DB:
                         s.*,
                         c.updated,
                         c.classifications,
+                        c.classifications_positive,
                         x.updated,
                         x.classifiers
                     FROM
@@ -352,7 +357,8 @@ class DB:
                             SELECT
                                 search_id,
                                 MAX(updated) AS updated,
-                                COUNT(*) AS classifications
+                                COUNT(*) AS classifications,
+                                SUM(is_positive = 1) AS classifications_positive
                             FROM classification
                             GROUP BY search_id
                         ) AS c
