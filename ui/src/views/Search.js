@@ -1377,10 +1377,11 @@ class Search extends React.Component {
           </div>
         </Content>
         <SearchRightBar
-          searchInfo={this.state.searchInfo}
-          progress={this.state.progress}
           isComputingProgress={this.state.isComputingProgress}
           isErrorProgress={this.state.isErrorProgress}
+          progress={this.state.progress}
+          pubSub={this.props.pubSub}
+          searchInfo={this.state.searchInfo}
           widthSetterFinal={resizeTrigger}
         />
       </ContentWrapper>

@@ -19,6 +19,7 @@ const classNames = props => {
   className += props.iconPosition === 'right' ? ' flex-rev' : '';
   className += props.isRound ? ' is-round' : '';
   className += props.iconSmaller ? ' icon-smaller' : '';
+  className += props.smaller ? ' smaller' : '';
 
   return className;
 };
@@ -79,6 +80,7 @@ ButtonIcon.propTypes = {
   onClick: PropTypes.func,
   onMouseDown: PropTypes.func,
   onMouseUp: PropTypes.func,
+  smaller: PropTypes.bool,
   tag: PropTypes.string,
   title: PropTypes.string
 };

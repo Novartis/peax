@@ -67,6 +67,7 @@ const SearchRightBar = props => (
             isComputingProgress={props.isComputingProgress}
             isErrorProgress={props.isErrorProgress}
             progress={props.progress}
+            pubSub={props.pubSub}
             searchInfo={props.searchInfo}
           />
         </TabContent>
@@ -86,6 +87,7 @@ SearchRightBar.propTypes = {
   isComputingProgress: PropTypes.bool.isRequired,
   isErrorProgress: PropTypes.bool.isRequired,
   progress: PropTypes.object.isRequired,
+  pubSub: PropTypes.object.isRequired,
   rightBarShow: PropTypes.bool.isRequired,
   rightBarTab: PropTypes.oneOfType([PropTypes.string, PropTypes.symbol])
     .isRequired,

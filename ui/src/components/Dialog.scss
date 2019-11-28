@@ -1,5 +1,5 @@
-@import "../styles/colors";
-@import "../styles/transitions";
+@import '../styles/colors';
+@import '../styles/transitions';
 
 .dialog {
   position: fixed;
@@ -41,6 +41,19 @@
 
     p {
       margin-bottom: 0;
+    }
+
+    p code,
+    pre {
+      color: $primary;
+      padding: 0 0.2em;
+      background: lighten($blue-light, 5%);
+      border-radius: 0.25rem;
+      box-shadow: inset 0 0 0 1px $blue-light;
+    }
+
+    pre {
+      line-height: 2em;
     }
   }
 

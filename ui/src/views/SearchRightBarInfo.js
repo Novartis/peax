@@ -12,6 +12,9 @@ import Button from '../components/Button';
 import ButtonIcon from '../components/ButtonIcon';
 import ButtonRadio from '../components/ButtonRadio';
 import ElementWrapperAdvanced from '../components/ElementWrapperAdvanced';
+import SearchUncertaintyHelp from '../components/SearchUncertaintyHelp';
+import SearchPredPropChangeHelp from '../components/SearchPredPropChangeHelp';
+import SearchDivergenceHelp from '../components/SearchDivergenceHelp';
 import LabeledSlider from '../components/LabeledSlider';
 import TabEntry from '../components/TabEntry';
 
@@ -26,7 +29,14 @@ import {
 } from '../actions';
 
 // Utils
-import { api, debounce, inputToNum, readableDate, zip } from '../utils';
+import {
+  api,
+  debounce,
+  Deferred,
+  inputToNum,
+  readableDate,
+  zip
+} from '../utils';
 
 // Configs
 import {
@@ -48,6 +58,39 @@ import {
 
 // Styles
 import './Search.scss';
+
+const showUncertaintyHelp = pubSub => () => {
+  pubSub.publish('globalDialog', {
+    message: <SearchUncertaintyHelp />,
+    request: new Deferred(),
+    resolveOnly: true,
+    resolveText: 'Close',
+    icon: 'help-circle',
+    headline: 'Uncertainty Plot'
+  });
+};
+
+const showPredPropChangeHelp = pubSub => () => {
+  pubSub.publish('globalDialog', {
+    message: <SearchPredPropChangeHelp />,
+    request: new Deferred(),
+    resolveOnly: true,
+    resolveText: 'Close',
+    icon: 'help-circle',
+    headline: 'Prediction Probability Change Plot'
+  });
+};
+
+const showPredProbDivergenceHelp = pubSub => () => {
+  pubSub.publish('globalDialog', {
+    message: <SearchDivergenceHelp />,
+    request: new Deferred(),
+    resolveOnly: true,
+    resolveText: 'Close',
+    icon: 'help-circle',
+    headline: 'Convergence/Divergence Plot'
+  });
+};
 
 class SearchRightBarInfo extends React.Component {
   constructor(props) {
@@ -526,7 +569,15 @@ class SearchRightBarInfo extends React.Component {
                   <span>X Axis: Number of Labels</span>
                 </div>
               </div>
-              <span className="label">Uncertainty</span>
+              <div className="flex-c flex-jc-sb">
+                <span className="label">Uncertainty</span>
+                <ButtonIcon
+                  onClick={showUncertaintyHelp(this.props.pubSub)}
+                  icon="help"
+                  iconOnly
+                  smaller
+                />
+              </div>
               <BarChart
                 x={this.props.progress.numLabels}
                 y={this.props.progress.unpredictabilityAll}
@@ -535,10 +586,18 @@ class SearchRightBarInfo extends React.Component {
               />
             </li>
             <li className="flex-c flex-v">
-              <span className="label">
-                Change in the <abbr title="prediction">pred.</abbr>{' '}
-                <abbr title="probability">prob.</abbr>
-              </span>
+              <div className="flex-c flex-jc-sb">
+                <span className="label">
+                  Change in the <abbr title="prediction">pred.</abbr>{' '}
+                  <abbr title="probability">prob.</abbr>
+                </span>
+                <ButtonIcon
+                  onClick={showPredPropChangeHelp(this.props.pubSub)}
+                  icon="help"
+                  iconOnly
+                  smaller
+                />
+              </div>
               <BarChart
                 x={this.props.progress.numLabels}
                 y={this.props.progress.predictionProbaChangeAll}
@@ -548,10 +607,18 @@ class SearchRightBarInfo extends React.Component {
               />
             </li>
             <li className="flex-c flex-v">
-              <span className="label">
-                Converge <span className="label-note">(↑)</span> / diverge{' '}
-                <span className="label-note">(↓)</span>
-              </span>
+              <div className="flex-c flex-jc-sb">
+                <span className="label">
+                  Converge <span className="label-note">(↑)</span> / diverge{' '}
+                  <span className="label-note">(↓)</span>
+                </span>
+                <ButtonIcon
+                  onClick={showPredProbDivergenceHelp(this.props.pubSub)}
+                  icon="help"
+                  iconOnly
+                  smaller
+                />
+              </div>
               <BarChart
                 x={this.props.progress.numLabels}
                 y={this.props.progress.convergenceAll}
@@ -625,6 +692,7 @@ SearchRightBarInfo.propTypes = {
   barWidth: PropTypes.number,
   hover: PropTypes.number.isRequired,
   progress: PropTypes.object.isRequired,
+  pubSub: PropTypes.object.isRequired,
   rightBarWidth: PropTypes.number.isRequired,
   searchInfo: PropTypes.object,
   selection: PropTypes.array.isRequired,
