@@ -149,16 +149,22 @@ class SearchRightBarInfo extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.isOpen && this.props.searchInfo.id && !this.state.isInit)
+    if (
+      this.isOpen &&
+      this.props.searchInfo.id &&
+      (!this.state.isInit ||
+        this.props.searchInfo.classifiers !== prevProps.searchInfo.classifiers)
+    )
       this.loadProjection();
-    if (this.isOpen && this.props.tab !== prevProps.tab)
+    if (
+      this.isOpen &&
+      (this.props.tab !== prevProps.tab ||
+        this.state.points !== prevState.points ||
+        (this.props.barWidth && this.props.barWidth !== prevProps.barWidth))
+    )
       this.drawScatterplotDb(true);
-    if (this.isOpen && this.state.points !== prevState.points)
-      this.drawScatterplot(true);
     if (this.state.colorEncoding !== prevState.colorEncoding)
       this.setColorEncoding();
-    if (this.props.barWidth && this.props.barWidth !== prevProps.barWidth)
-      this.drawScatterplotDb(true);
     if (this.props.selection !== this.selection) this.select();
     if (this.props.hover !== this.hover) this.hover();
   }
