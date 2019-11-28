@@ -523,7 +523,7 @@ class SearchRightBarInfo extends React.Component {
                   <div className="bar-chart-x-axis-arrow" />
                 </div>
                 <div className="flex-c flex-jc-c bar-chart-x-axis-title">
-                  <span>Number of labels</span>
+                  <span>X Axis: Number of Labels</span>
                 </div>
               </div>
               <span className="label">Uncertainty</span>
@@ -548,7 +548,10 @@ class SearchRightBarInfo extends React.Component {
               />
             </li>
             <li className="flex-c flex-v">
-              <span className="label">Converge (↑) / diverge (↓)</span>
+              <span className="label">
+                Converge <span className="label-note">(↑)</span> / diverge{' '}
+                <span className="label-note">(↓)</span>
+              </span>
               <BarChart
                 x={this.props.progress.numLabels}
                 y={this.props.progress.convergenceAll}
