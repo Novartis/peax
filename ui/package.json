@@ -42,7 +42,7 @@
     "redux-thunk": "2.3.0",
     "redux-undo": "1.0.0-beta9-9-7",
     "regl": "1.3.13",
-    "regl-scatterplot": "0.7.1",
+    "regl-scatterplot": "0.7.3",
     "scroll-speed": "flekschas/scroll-speed",
     "tab64": "0.0.1"
   },
