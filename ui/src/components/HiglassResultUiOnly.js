@@ -27,7 +27,7 @@ const getColor = prob =>
 const getFontColor = prob =>
   BLUE_PINK_TEXT_CMAP[Math.round(prob * (BLUE_PINK_CMAP.length - 1))];
 
-class HiglassResult extends React.Component {
+class HiglassResultUiOnly extends React.Component {
   constructor(props) {
     super(props);
 
@@ -332,7 +332,7 @@ class HiglassResult extends React.Component {
   }
 }
 
-HiglassResult.defaultProps = {
+HiglassResultUiOnly.defaultProps = {
   classification: 'neutral',
   classificationProb: null,
   dataTracks: [],
@@ -344,14 +344,14 @@ HiglassResult.defaultProps = {
   windows: {}
 };
 
-HiglassResult.propTypes = {
+HiglassResultUiOnly.propTypes = {
   classification: PropTypes.string,
   classificationProb: PropTypes.number,
   classificationChangeHandler: PropTypes.func.isRequired,
   conflict: PropTypes.string,
   dataTracks: PropTypes.array,
   hgApi: PropTypes.object,
-  hover: PropTypes.bool,
+  hover: PropTypes.number.isRequired,
   hidePredProb: PropTypes.bool,
   isInfoSideBar: PropTypes.bool,
   normalizationSource: PropTypes.oneOfType([
@@ -389,4 +389,4 @@ const mapDispatchToProps = dispatch => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(HiglassResult);
+)(HiglassResultUiOnly);
