@@ -1,4 +1,5 @@
 import higlass as hg
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -185,9 +186,13 @@ def extract_annotations(bedfile, features, chromsizes_file):
             num_annotations_type = max(num_annotations_type, annotation_type)
     num_annotations_type += 1
 
-    annotations = []
+    target_binding_sites = []
     for i in range(num_annotations_type):
-        annotations.append([])
+        target_binding_sites.append([])
+
+    feature_binding_sites = {}
+    for feature in features:
+        feature_binding_sites[feature] = []
 
     bed = pd.read_csv(
         bedfile,
@@ -200,14 +205,17 @@ def extract_annotations(bedfile, features, chromsizes_file):
 
     for region in bed.iterrows():
         feature = region[1]["name"]
+        offset = cum_chromsizes.loc[region[1]["chrom"]]["size"]
         if feature in features:
             for annotation_type in features[feature]:
-                offset = cum_chromsizes.loc[region[1]["chrom"]]["size"]
-                annotations[annotation_type].append(
+                target_binding_sites[annotation_type].append(
                     [offset + region[1]["start"], offset + region[1]["end"]]
                 )
+            feature_binding_sites[feature].append(
+                [offset + region[1]["start"], offset + region[1]["end"]]
+            )
 
-    return annotations
+    return target_binding_sites, list(feature_binding_sites.values())
 
 
 def create_annotation_track(uid, regions):
@@ -226,3 +234,80 @@ def create_annotation_track(uid, regions):
             "strokeWidth": 0,
         },
     )
+
+
+def bed_to_array(bed, genome_size, states):
+    array = np.zeros(genome_size).astype(int)
+    with open(bed, "r") as f:
+        line = f.readline().strip()
+        while line:
+            _, start, end, name, _ = line.split("\t")
+            array[int(start) : int(end)] = states[name]
+            line = f.readline().strip()
+    return array
+
+
+def chunk_state_array(array, window_size, resolution, step_size, padding):
+    num_windows = np.ceil((array.size - window_size) / step_size).astype(int) + 1
+    binned_window_size = np.ceil(window_size / resolution).astype(int)
+    binned_step_size = np.ceil(step_size / resolution).astype(int)
+
+    aggregated_array = np.max(array.reshape((-1, resolution)), axis=1).flatten()
+
+    strides = aggregated_array.strides[-1]
+    windows = np.lib.stride_tricks.as_strided(
+        aggregated_array,
+        shape=(num_windows, binned_window_size),
+        strides=(binned_step_size * strides, 1 * strides),
+    ).flatten()
+
+    # At the end we might read out trash so we set it to zero
+    too_much = aggregated_array.size - (
+        (num_windows - 1) * binned_step_size + binned_window_size
+    )
+    if too_much < 0:
+        windows[-too_much:] = 0
+
+    # Avoid border labels
+    windows = windows.reshape((num_windows, binned_window_size))
+    windows[:, :padding] = 0
+    windows[:, -padding:] = 0
+
+    return np.max(windows, axis=1).flatten()
+
+
+def plot_windows(datasets, window_ids):
+    rows = len(datasets)
+    cols = len(window_ids)
+
+    fig, axes = plt.subplots(
+        rows,
+        cols,
+        figsize=(8 * cols, 1.25 * rows),
+        sharex=True,
+        gridspec_kw=dict(wspace=0.1, hspace=0.1),
+    )
+
+    fig.patch.set_facecolor("white")
+
+    max_x = datasets[0].shape[1]
+    x = np.arange(max_x)
+
+    def get_axis(r, c):
+        if axes.ndim == 1:
+            return axes[r]
+        return axes[r, c]
+
+    for c in np.arange(cols):
+        for r in np.arange(rows):
+            axis = get_axis(r, c)
+            axis.bar(
+                x,
+                datasets[r][window_ids[c]],
+                width=1.0,
+                color="#000000",
+                edgecolor="none",
+            )
+            axis.set_xlim(0, max_x)
+            axis.set_ylim(0, 1)
+            axis.set_yticks([], [])
