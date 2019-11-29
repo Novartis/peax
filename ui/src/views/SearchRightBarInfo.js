@@ -43,6 +43,7 @@ import {
   COLOR_BG,
   COLORMAP_CAT,
   COLORMAP_PRB,
+  HOVER_DELAY,
   REDRAW_DELAY,
   PROJECTION_CHECK_INTERVAL,
   PROJECTION_VIEW,
@@ -99,6 +100,7 @@ class SearchRightBarInfo extends React.Component {
     this.state = {
       canvas: null,
       colorEncoding: 'categorical',
+      hoveredPoint: -1,
       isColorByProb: false,
       isDefaultView: true,
       isError: false,
@@ -142,6 +144,8 @@ class SearchRightBarInfo extends React.Component {
       this.drawScatterplot.bind(this),
       REDRAW_DELAY
     );
+    this.onPointOverDb = debounce(this.onPointOver, HOVER_DELAY);
+    this.onPointOutDb = debounce(this.onPointOut, HOVER_DELAY);
   }
 
   componentDidMount() {
@@ -166,7 +170,7 @@ class SearchRightBarInfo extends React.Component {
     if (this.state.colorEncoding !== prevState.colorEncoding)
       this.setColorEncoding();
     if (this.props.selection !== this.selection) this.select();
-    if (this.props.hover !== this.hover) this.hover();
+    if (this.props.hover !== this.hoveredPoint) this.hover();
   }
 
   componentWillUnmount() {
@@ -226,6 +230,8 @@ class SearchRightBarInfo extends React.Component {
       view: PROJECTION_VIEW
     });
 
+    scatterplot.subscribe('pointover', this.onPointOverDb);
+    scatterplot.subscribe('pointout', this.onPointOutDb);
     scatterplot.subscribe('view', this.checkViewDb);
     scatterplot.subscribe('select', this.onSelect);
     scatterplot.subscribe('deselect', this.onDeselect);
@@ -376,10 +382,16 @@ class SearchRightBarInfo extends React.Component {
   }
 
   @boundMethod
-  onHover(point) {
+  onPointOver(hoveredPoint) {
     // We need to store a reference to this object to avoid circular events
-    this.hoveredPoint = point;
-    this.props.setHover(point);
+    this.hoveredPoint = hoveredPoint;
+    this.props.setHover(hoveredPoint);
+  }
+
+  @boundMethod
+  onPointOut() {
+    this.hoveredPoint = -1;
+    this.props.setHover(-1);
   }
 
   @boundMethod
@@ -409,6 +421,42 @@ class SearchRightBarInfo extends React.Component {
   /* -------------------------------- Render -------------------------------- */
 
   render() {
+    const isHovered = this.hoveredPoint !== null && +this.hoveredPoint >= 0;
+
+    const posActive =
+      isHovered && this.state.points[this.hoveredPoint][2] === 2;
+    const negActive =
+      isHovered && this.state.points[this.hoveredPoint][2] === 1;
+    const unlabeledActive =
+      isHovered && this.state.points[this.hoveredPoint][2] === 0;
+    const targetActive =
+      isHovered && this.state.points[this.hoveredPoint][2] === 3;
+
+    const predProb1Active =
+      isHovered && this.state.points[this.hoveredPoint][3] <= 1 / 7;
+    const predProb2Active =
+      isHovered &&
+      (this.state.points[this.hoveredPoint][3] > 1 / 7 &&
+        this.state.points[this.hoveredPoint][3] <= 2 / 7);
+    const predProb3Active =
+      isHovered &&
+      (this.state.points[this.hoveredPoint][3] > 2 / 7 &&
+        this.state.points[this.hoveredPoint][3] <= 3 / 7);
+    const predProb4Active =
+      isHovered &&
+      (this.state.points[this.hoveredPoint][3] > 3 / 7 &&
+        this.state.points[this.hoveredPoint][3] <= 4 / 7);
+    const predProb5Active =
+      isHovered &&
+      (this.state.points[this.hoveredPoint][3] > 4 / 7 &&
+        this.state.points[this.hoveredPoint][3] <= 5 / 7);
+    const predProb6Active =
+      isHovered &&
+      (this.state.points[this.hoveredPoint][3] > 5 / 7 &&
+        this.state.points[this.hoveredPoint][3] <= 6 / 7);
+    const predProb7Active =
+      isHovered && this.state.points[this.hoveredPoint][3] > 6 / 7;
+
     return (
       <div className="right-bar-info flex-c flex-v full-wh">
         <TabEntry
@@ -475,32 +523,110 @@ class SearchRightBarInfo extends React.Component {
                       <li className="flex-g-1 colormap-6-label" />
                     </ul>
                     <ul className="no-list-style flex-c flex-jc-sb colormap">
-                      <li className="flex-g-1 colormap-0" />
-                      <li className="flex-g-1 colormap-1" />
-                      <li className="flex-g-1 colormap-2" />
-                      <li className="flex-g-1 colormap-3" />
-                      <li className="flex-g-1 colormap-4" />
-                      <li className="flex-g-1 colormap-5" />
-                      <li className="flex-g-1 colormap-6" />
+                      <li
+                        className={`flex-g-1 colormap-0 ${
+                          predProb1Active ? 'active' : ''
+                        } ${isHovered && !predProb1Active ? 'inactive' : ''}`}
+                      >
+                        {isHovered && predProb1Active && (
+                          <span>
+                            {this.state.points[this.hoveredPoint][3].toFixed(2)}
+                          </span>
+                        )}
+                      </li>
+                      <li
+                        className={`flex-g-1 colormap-1 ${
+                          predProb2Active ? 'active' : ''
+                        } ${isHovered && !predProb2Active ? 'inactive' : ''}`}
+                      >
+                        {isHovered && predProb2Active && (
+                          <span>
+                            {this.state.points[this.hoveredPoint][3].toFixed(2)}
+                          </span>
+                        )}
+                      </li>
+                      <li
+                        className={`flex-g-1 colormap-2 ${
+                          predProb3Active ? 'active' : ''
+                        } ${isHovered && !predProb3Active ? 'inactive' : ''}`}
+                      >
+                        {isHovered && predProb3Active && (
+                          <span>
+                            {this.state.points[this.hoveredPoint][3].toFixed(2)}
+                          </span>
+                        )}
+                      </li>
+                      <li
+                        className={`flex-g-1 colormap-3 ${
+                          predProb4Active ? 'active' : ''
+                        } ${isHovered && !predProb4Active ? 'inactive' : ''}`}
+                      >
+                        {isHovered && predProb4Active && (
+                          <span>
+                            {this.state.points[this.hoveredPoint][3].toFixed(2)}
+                          </span>
+                        )}
+                      </li>
+                      <li
+                        className={`flex-g-1 colormap-4 ${
+                          predProb5Active ? 'active' : ''
+                        } ${isHovered && !predProb5Active ? 'inactive' : ''}`}
+                      >
+                        {isHovered && predProb5Active && (
+                          <span>
+                            {this.state.points[this.hoveredPoint][3].toFixed(2)}
+                          </span>
+                        )}
+                      </li>
+                      <li
+                        className={`flex-g-1 colormap-5 ${
+                          predProb6Active ? 'active' : ''
+                        } ${isHovered && !predProb6Active ? 'inactive' : ''}`}
+                      >
+                        {isHovered && predProb6Active && (
+                          <span>
+                            {this.state.points[this.hoveredPoint][3].toFixed(2)}
+                          </span>
+                        )}
+                      </li>
+                      <li
+                        className={`flex-g-1 colormap-6 ${
+                          predProb7Active ? 'active' : ''
+                        } ${isHovered && !predProb7Active ? 'inactive' : ''}`}
+                      >
+                        {isHovered && predProb7Active && (
+                          <span>
+                            {this.state.points[this.hoveredPoint][3].toFixed(2)}
+                          </span>
+                        )}
+                      </li>
                     </ul>
                   </li>
                 ) : (
                   <li className="m-t-0-25">
                     <ul className="no-list-style flex-c flex-jc-sb colormap">
                       <li
-                        className="flex-g-1 colormap-positive"
+                        className={`flex-g-1 colormap-positive ${
+                          posActive ? 'active' : ''
+                        } ${isHovered && !posActive ? 'inactive' : ''}`}
                         title="Positively Labeled Regions"
                       />
                       <li
-                        className="flex-g-1 colormap-negative"
+                        className={`flex-g-1 colormap-negative ${
+                          negActive ? 'active' : ''
+                        } ${isHovered && !negActive ? 'inactive' : ''}`}
                         title="Negatively Labeled Regions"
                       />
                       <li
-                        className="flex-g-1 colormap-unlabled"
+                        className={`flex-g-1 colormap-unlabled ${
+                          unlabeledActive ? 'active' : ''
+                        } ${isHovered && !unlabeledActive ? 'inactive' : ''}`}
                         title="Unlabeled Regions"
                       />
                       <li
-                        className="flex-g-1 colormap-target"
+                        className={`flex-g-1 colormap-target ${
+                          targetActive ? 'active' : ''
+                        } ${isHovered && !targetActive ? 'inactive' : ''}`}
                         title="Search Target Regions"
                       />
                     </ul>

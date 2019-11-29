@@ -457,7 +457,24 @@
     .colormap-3-label,
     .colormap-6-label {
       position: relative;
-      height: 1.5em;
+      height: 1.125rem;
+      text-align: center;
+      transition: box-shadow $fast-transition $easing,
+        opacity $fast-transition $easing;
+
+      &.active {
+        z-index: 10;
+      }
+
+      &.inactive {
+        opacity: 0.33;
+      }
+
+      > span {
+        font-size: 0.7rem;
+        font-weight: bold;
+        line-height: 1.125rem;
+      }
     }
 
     .colormap-positive:before,
@@ -481,7 +498,7 @@
       bottom: 0;
       left: 0;
       font-size: 0.675rem;
-      line-height: 1.35rem;
+      line-height: 1.125rem;
       text-align: center;
       white-space: nowrap;
       overflow: hidden;
@@ -491,73 +508,151 @@
     .colormap-positive {
       color: $white;
       background: $blue;
-    }
-    .colormap-positive:before {
-      content: 'Positive';
+
+      &:before {
+        content: 'Positive';
+      }
+
+      &.active {
+        box-shadow: 0 0 0 1px $primary, 0 0 0 2px $white,
+          0 0 5px 3px $gray-lighter-rgba;
+      }
     }
 
     .colormap-negative {
       color: $white;
       background: $pink;
-    }
-    .colormap-negative:before {
-      content: 'Negative';
+
+      &:before {
+        content: 'Negative';
+      }
+
+      &.active {
+        box-shadow: 0 0 0 1px $pink, 0 0 0 2px $white,
+          0 0 5px 3px $gray-lighter-rgba;
+      }
     }
 
     .colormap-unlabled {
       color: $white;
       background: $gray-medium;
-    }
-    .colormap-unlabled:before {
-      content: 'Unlabled';
+
+      &:before {
+        content: 'Unlabled';
+      }
+
+      &.active {
+        box-shadow: 0 0 0 1px $gray-medium, 0 0 0 2px $white,
+          0 0 5px 3px $gray-lighter-rgba;
+      }
     }
 
     .colormap-target {
       color: $white;
       background: $black;
-    }
-    .colormap-target:before {
-      content: 'Target';
+
+      &:before {
+        content: 'Target';
+      }
+
+      &.active {
+        box-shadow: 0 0 0 1px $black, 0 0 0 2px $white,
+          0 0 5px 3px $gray-lighter-rgba;
+      }
     }
 
     .colormap-0 {
       color: $black;
       background: rgb(216, 216, 216);
-    }
-    .colormap-0:before {
-      content: '0';
+
+      &:before {
+        content: '0';
+      }
+
+      &.active {
+        box-shadow: 0 0 0 1px rgb(216, 216, 216), 0 0 0 2px $white,
+          0 0 5px 3px $gray-lighter-rgba;
+
+        &:before {
+          content: '';
+        }
+      }
     }
 
     .colormap-1 {
+      color: $black;
       background: rgb(186, 186, 186);
+
+      &.active {
+        box-shadow: 0 0 0 1px rgb(186, 186, 186), 0 0 0 2px $white,
+          0 0 5px 3px $gray-lighter-rgba;
+      }
     }
 
     .colormap-2 {
+      color: $black;
       background: rgb(157, 157, 157);
+
+      &.active {
+        box-shadow: 0 0 0 1px rgb(157, 157, 157), 0 0 0 2px $white,
+          0 0 5px 3px $gray-lighter-rgba;
+      }
     }
 
     .colormap-3 {
       color: $black;
       background: rgb(127, 127, 127);
-    }
-    .colormap-3:before {
-      content: '0.5';
+
+      &:before {
+        content: '0.5';
+      }
+
+      &.active {
+        box-shadow: 0 0 0 1px rgb(127, 127, 127), 0 0 0 2px $white,
+          0 0 5px 3px $gray-lighter-rgba;
+
+        &:before {
+          content: '';
+        }
+      }
     }
 
     .colormap-4 {
+      color: $white;
       background: rgb(85, 118, 141);
+
+      &.active {
+        box-shadow: 0 0 0 1px rgb(85, 118, 141), 0 0 0 2px $white,
+          0 0 5px 3px $gray-lighter-rgba;
+      }
     }
 
     .colormap-5 {
+      color: $white;
       background: rgb(43, 109, 154);
+
+      &.active {
+        box-shadow: 0 0 0 1px rgb(43, 109, 154), 0 0 0 2px $white,
+          0 0 5px 3px $gray-lighter-rgba;
+      }
     }
 
     .colormap-6 {
       color: $white;
       background: rgb(0, 100, 168);
-    }
-    .colormap-6:before {
-      content: '1';
+
+      &:before {
+        content: '1';
+      }
+
+      &.active {
+        box-shadow: 0 0 0 1px rgb(0, 100, 168), 0 0 0 2px $white,
+          0 0 5px 3px $gray-lighter-rgba;
+
+        &:before {
+          content: '';
+        }
+      }
     }
 
     .colormap-0-label:before {
