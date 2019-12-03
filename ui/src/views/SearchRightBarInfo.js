@@ -317,19 +317,25 @@ class SearchRightBarInfo extends React.Component {
     const respProbs = await api.getProbabilities(this.props.searchInfo.id);
     const respProj = await api.getProjection(this.props.searchInfo.id);
 
+    let isError =
+      respClasses.status !== 200 || respProbs.status !== 200 || respProj !== 200
+        ? 'Error'
+        : false;
+
     // Compare the number of windows for which we got classifications, projections, and
     // projections. Those should be the same otherwise the data seems to be corrupted
-    const numDiffLenghts = new Set([
-      respClasses.body.results.length,
-      respProbs.body.results.length,
-      respProj.body.projection.length / 2
-    ]).size;
+    const numDiffLenghts = !isError
+      ? new Set([
+          respClasses.body.results.length,
+          respProbs.body.results.length,
+          respProj.body.projection.length / 2
+        ]).size
+      : new Set();
 
     const isNotFound =
       respProj.status === 404 ? 'Projection not computed.' : false;
 
-    let isError =
-      !isNotFound && numDiffLenghts > 1 ? 'Data is corrupted!' : false;
+    isError = !isNotFound && numDiffLenghts > 1 ? 'Data is corrupted!' : false;
 
     isError =
       !isError &&
