@@ -7,7 +7,7 @@ from typing import Dict, List, TypeVar
 from server.chromsizes import all as all_chromsizes
 from server.dataset import Dataset
 from server.datasets import Datasets
-from server.defaults import CACHE_DIR, CACHING, CHROMS, COORDS, DB_PATH, STEP_FREQ, MIN_CLASSIFICATIONS
+from server.defaults import CLASSIFIER, CLASSIFIER_PARAMS, CACHE_DIR, CACHING, CHROMS, COORDS, DB_PATH, STEP_FREQ, MIN_CLASSIFICATIONS
 from server.encoder import Autoencoder, Encoder
 from server.encoders import Encoders
 from server.exceptions import InvalidConfig
@@ -24,6 +24,8 @@ class Config:
         self.datasets = Datasets()
 
         # Set defaults
+        self.classifier = CLASSIFIER
+        self.classifier_params = CLASSIFIER_PARAMS
         self.coords = COORDS
         self.chroms = CHROMS
         self.step_freq = STEP_FREQ
@@ -34,6 +36,7 @@ class Config:
         self.variable_target = False
         self.normalize_tracks = False
 
+        self._chromsizes = None
         self._chromsizes = None
         self._custom_chromosomes = None
 
@@ -270,6 +273,12 @@ class Config:
 
         elif key == "step_freq":
             self.step_freq = value
+
+        elif key == "classifier":
+            self.classifier = value
+
+        elif key == "classifier_params":
+            self.classifier_params = value
 
         elif key == "min_classifications":
             self.min_classifications = value

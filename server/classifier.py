@@ -12,9 +12,13 @@ limitations under the License.
 """
 
 import _thread
+import joblib
+
 from io import BytesIO
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.externals import joblib
+
+from sklearn.utils.testing import all_estimators
+
+estimators = all_estimators()
 
 from server.utils import (
     unpredictability,
@@ -22,6 +26,22 @@ from server.utils import (
     convergence,
     divergence,
 )
+
+
+def test_classifier(Classifier):
+    return hasattr(Classifier, "fit") and hasattr(Classifier, "predict_proba")
+
+
+available_sklearn_classifiers = {}
+for name, Classifier in estimators:
+    if test_classifier(Classifier):
+        available_sklearn_classifiers[name] = Classifier
+
+
+def get_classifier(classifier_name):
+    if classifier_name in available_sklearn_classifiers:
+        return available_sklearn_classifiers[classifier_name]
+    return None
 
 
 def done(instance, prefix: str, callback: callable = None):
@@ -54,10 +74,31 @@ def evaluate_threading(
 
 
 class Classifier:
-    def __init__(self, search_id: int, classifier_id: int, **kwargs):
+    def __init__(
+        self,
+        classifier_class: str,
+        classifier_params: dict,
+        search_id: int,
+        classifier_id: int,
+        **kwargs,
+    ):
         self.search_id = search_id
         self.classifier_id = classifier_id
-        self.model = RandomForestClassifier(n_estimators=250, n_jobs=-1)
+
+        if isinstance(classifier_class, str):
+            if get_classifier(classifier_class):
+                self.model = get_classifier(classifier_class)(**classifier_params)
+            else:
+                raise ValueError(
+                    f"Unknown or unsupported classifier: {classifier_class}"
+                )
+        else:
+            if test_classifier(classifier_class):
+                self.model = classifier_class(**classifier_params)
+            else:
+                raise ValueError(
+                    "Custom classifier needs to support fit and predict_proba"
+                )
 
         try:
             self.unpredictability_all = kwargs["unpredictability_all"]
@@ -205,7 +246,7 @@ class Classifier:
         self.is_evaluated = False
         self.is_evaluating = True
         try:
-            fn, X, X_train, prev_classifier, prev_prev_classifier, done
+            # fn, X, X_train, prev_classifier, prev_prev_classifier, done
 
             _thread.start_new_thread(
                 evaluate_threading,

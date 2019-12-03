@@ -42,10 +42,12 @@ dependencies:
       - pysam==0.15.3
       - higlass-python==0.2.1
       - ipywidgets==7.5.1
+      - joblib==0.14.0
       - jupyterlab==1.1.1
       - negspy
       - numba
       - pybbi
+      - pytest==5.3.1
       - keras-tqdm
       - forestci
       - fastdtw

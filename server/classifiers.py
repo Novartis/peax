@@ -38,6 +38,8 @@ class Classifiers:
         self,
         db,
         data,
+        classifier_class: str,
+        classifier_params: dict,
         window_size: int,
         abs_offset: int,
         min_classifications: int = MIN_CLASSIFICATIONS,
@@ -45,6 +47,8 @@ class Classifiers:
         self.classifiers = {}
         self.db = db
         self.data = data
+        self.classifier_class = classifier_class
+        self.classifier_params = classifier_params
         self.window_size = window_size
         self.abs_offset = abs_offset
         self.min_classifications = min_classifications
@@ -77,7 +81,11 @@ class Classifiers:
         ):
             return self.classifiers[search_id][classifier_id]
 
-        classifier = Classifier(**classifier_info)
+        classifier = Classifier(
+            classifier_class=self.classifier_class,
+            classifier_params=self.classifier_params,
+            **classifier_info
+        )
 
         if classifier_info["model"] is not None:
             classifier.load(classifier_info["model"])

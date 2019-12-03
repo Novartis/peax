@@ -79,6 +79,8 @@ def create(
         classifiers = Classifiers(
             db,
             encodings,
+            classifier_class=config.classifier,
+            classifier_params=config.classifier_params,
             window_size=encoders.window_size,
             abs_offset=abs_offset,
             min_classifications=config.min_classifications,

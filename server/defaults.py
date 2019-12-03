@@ -13,6 +13,10 @@ limitations under the License.
 
 import copy
 
+CLASSIFIER = "RandomForestClassifier"
+
+CLASSIFIER_PARAMS = {"n_estimators": 1000, "n_jobs": -1}
+
 CACHE_DIR = "cache"
 
 # If set to `False` the chunked, encoded, and potentially autoencoded data will not be
