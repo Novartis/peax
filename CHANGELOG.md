@@ -1,3 +1,17 @@
+### Next
+
+- Add support for changing the classifier via the config file's `classifier` and `classifier_params` properties
+- Add ability to show more than 5 results per page via to HiGlass' new view scrolling
+- Add legend to the UMAP projection view and highlight
+- Add legend for the x-axis to the progress views
+- Add explanatory help for the progress views
+- Add ability to sort selected window by prediction probability
+- Add ability to normalize tracks within the same window by setting `normalize_tracks: true` in the config file. This is useful for exploring differential peaks.
+- Add ability to show the window with the highest prediction probability in the query view instead of a fixed search window by setting `variable_target: true` in the config file. This is useful for exploring pre-loaded labels where there is no defined search query
+- Improve the visibility of the _Re-Train_ and _Compute Projection_ buttons
+- Update HiGlass to `v1.7`
+- Fix several minor bugs
+
 ### v0.3.0
 
 - Support multitrack search
