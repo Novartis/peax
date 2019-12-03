@@ -12,10 +12,10 @@ limitations under the License.
 """
 
 import _thread
+import joblib
 import numpy as np
 import umap
 from io import BytesIO
-from sklearn.externals import joblib
 
 DEFAULT_PROJECTOR = umap.UMAP
 DEFAULT_PROJECTOR_SETTINGS = {"n_neighbors": 5, "min_dist": 0.1, "metric": "euclidean"}
