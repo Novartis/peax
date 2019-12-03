@@ -16,7 +16,7 @@ import joblib
 
 from io import BytesIO
 
-from sklearn.utils.testing import all_estimators
+from sklearn.utils import all_estimators
 
 estimators = all_estimators()
 
@@ -33,7 +33,7 @@ def test_classifier(Classifier):
 
 
 available_sklearn_classifiers = {}
-for name, Classifier in estimators:
+for name, Classifier in all_estimators():
     if test_classifier(Classifier):
         available_sklearn_classifiers[name] = Classifier
 
@@ -86,19 +86,26 @@ class Classifier:
         self.classifier_id = classifier_id
 
         if isinstance(classifier_class, str):
-            if get_classifier(classifier_class):
-                self.model = get_classifier(classifier_class)(**classifier_params)
+            if get_classifier(classifier_class) is not None:
+                classifier_class_ = get_classifier(classifier_class)
             else:
                 raise ValueError(
                     f"Unknown or unsupported classifier: {classifier_class}"
                 )
         else:
             if test_classifier(classifier_class):
-                self.model = classifier_class(**classifier_params)
+                classifier_class_ = classifier_class
             else:
                 raise ValueError(
                     "Custom classifier needs to support fit and predict_proba"
                 )
+
+        try:
+            self.model = classifier_class_(**classifier_params)
+        except TypeError as exception:
+            raise TypeError(
+                "Holy smokes! Did you specify incorrect parameters for the classifier?"
+            ) from exception
 
         try:
             self.unpredictability_all = kwargs["unpredictability_all"]
