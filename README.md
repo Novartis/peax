@@ -1,6 +1,6 @@
 # Peax: a visual pattern explorer for epigenomic data
 
-**__Note__**: Peax is still under active development! If you like to give it a try, please choose one of the [pre-releases](https://github.com/Novartis/peax/releases). Contact [@flekschas](https://twitter.com/flekschas) in case you run into trouble. He's happy to help while we're working hard towards a stable release.
+****Note****: Peax is still under active development! If you like to give it a try, please choose one of the [pre-releases](https://github.com/Novartis/peax/releases). Contact [@flekschas](https://twitter.com/flekschas) in case you run into trouble. He's happy to help while we're working hard towards a stable release.
 
 ![Peax's UI](teaser.png)
 
@@ -83,16 +83,20 @@ The fastest way to get started is to copy the example config:
 cp config.json.sample config.json
 ```
 
-The config file has 6 top level properties:
+The config file has 10 top level properties:
 
-| Field     | Description                                                                                                                                                                                 | Dtype |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
-| encoders  | List of encoders.                                                                                                                                                                           | list  |
-| datasets  | List of tracks.                                                                                                                                                                             | list  |
-| coords    | Genome coordinates. Peax currently supports hg19, hg38, mm9, and mm10                                                                                                                       | str   |
-| chroms    | Chromosomes to to be searched. If omitted all chromosomes will be prepared for searching.                                                                                                   | list  |
-| step_freq | Step frequency of the sliding window approach. E.g., given an encoder with window size 12 kb, a step frequency of 6 means that every 2 kb a 12 kb window will be extracted from the bigWig. | int   |
-| db_path   | Relative path to the sqlite db for storing searches.                                                                                                                                        | str   |
+| Field             | Description                                                                                                                                                                                 | Dtype |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| encoders          | List of encoders.                                                                                                                                                                           | list  |
+| datasets          | List of tracks.                                                                                                                                                                             | list  |
+| coords            | Genome coordinates. Peax currently supports hg19, hg38, mm9, and mm10                                                                                                                       | str   |
+| chroms            | Chromosomes to to be searched. If omitted all chromosomes will be prepared for searching.                                                                                                   | list  |
+| step_freq         | Step frequency of the sliding window approach. E.g., given an encoder with window size 12 kb, a step frequency of 6 means that every 2 kb a 12 kb window will be extracted from the bigWig. | int   |
+| db_path           | Relative path to the sqlite db for storing searches.                                                                                                                                        | str   |
+| normalize_tracks  | If `true` the y-scale of tracks within a window will be normalized to the minimum and maximum value. This is useful for exploring differential signal.                                      | bool  |
+| variable_target   | If `true` the window with the highest prediction probability will be shown in the query view.                                                                                               | bool  |
+| classifier        | The class name of an SciKit Learn Classifier                                                                                                                                                | str   |
+| classifier_params | A dictionary of parameters to customize the classifier                                                                                                                                      | obj   |
 
 The main parts to adjust are `encoders` and `datasets`. `encoders` is a list of
 (auto)encoder definitions for different datatypes.T here are two ways to
