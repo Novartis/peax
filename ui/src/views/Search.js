@@ -458,7 +458,8 @@ class Search extends React.Component {
     this.setState({
       isLoadingResults:
         this.isSeeded &&
-        (this.state.searchInfo.classifiers > 0 && !this.state.isTraining),
+        this.state.searchInfo.classifiers > 0 &&
+        !this.state.isTraining,
       isErrorResults: false
     });
 
@@ -554,13 +555,13 @@ class Search extends React.Component {
 
     const stepSize = searchInfo.windowSize / searchInfo.config.step_freq;
 
-    this.viewConfigAdjustmentsLabels.value = Object.keys(windows).map(
-      windowId => [
-        searchInfo.dataFrom + windowId * stepSize,
-        searchInfo.dataFrom + windowId * stepSize + searchInfo.windowSize,
-        windows[windowId].classification[0] === 'n' ? '#cc168c' : '#0f5d92'
-      ]
-    );
+    this.viewConfigAdjustmentsLabels.value = Object.keys(
+      windows
+    ).map(windowId => [
+      searchInfo.dataFrom + windowId * stepSize,
+      searchInfo.dataFrom + windowId * stepSize + searchInfo.windowSize,
+      windows[windowId].classification[0] === 'n' ? '#cc168c' : '#0f5d92'
+    ]);
 
     this.viewConfigAdjustments = [
       this.viewConfigAdjustmentsSelections,
@@ -1431,8 +1432,5 @@ const mapDispatchToProps = dispatch => ({
 });
 
 export default withRouter(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(withPubSub(Search))
+  connect(mapStateToProps, mapDispatchToProps)(withPubSub(Search))
 );

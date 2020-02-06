@@ -442,24 +442,24 @@ class SearchRightBarInfo extends React.Component {
       isHovered && this.state.points[this.hoveredPoint][3] <= 1 / 7;
     const predProb2Active =
       isHovered &&
-      (this.state.points[this.hoveredPoint][3] > 1 / 7 &&
-        this.state.points[this.hoveredPoint][3] <= 2 / 7);
+      this.state.points[this.hoveredPoint][3] > 1 / 7 &&
+      this.state.points[this.hoveredPoint][3] <= 2 / 7;
     const predProb3Active =
       isHovered &&
-      (this.state.points[this.hoveredPoint][3] > 2 / 7 &&
-        this.state.points[this.hoveredPoint][3] <= 3 / 7);
+      this.state.points[this.hoveredPoint][3] > 2 / 7 &&
+      this.state.points[this.hoveredPoint][3] <= 3 / 7;
     const predProb4Active =
       isHovered &&
-      (this.state.points[this.hoveredPoint][3] > 3 / 7 &&
-        this.state.points[this.hoveredPoint][3] <= 4 / 7);
+      this.state.points[this.hoveredPoint][3] > 3 / 7 &&
+      this.state.points[this.hoveredPoint][3] <= 4 / 7;
     const predProb5Active =
       isHovered &&
-      (this.state.points[this.hoveredPoint][3] > 4 / 7 &&
-        this.state.points[this.hoveredPoint][3] <= 5 / 7);
+      this.state.points[this.hoveredPoint][3] > 4 / 7 &&
+      this.state.points[this.hoveredPoint][3] <= 5 / 7;
     const predProb6Active =
       isHovered &&
-      (this.state.points[this.hoveredPoint][3] > 5 / 7 &&
-        this.state.points[this.hoveredPoint][3] <= 6 / 7);
+      this.state.points[this.hoveredPoint][3] > 5 / 7 &&
+      this.state.points[this.hoveredPoint][3] <= 6 / 7;
     const predProb7Active =
       isHovered && this.state.points[this.hoveredPoint][3] > 6 / 7;
 
@@ -870,7 +870,4 @@ const mapDispatchToProps = dispatch => ({
     dispatch(setSearchRightBarProjectionSettings(!isOpen))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SearchRightBarInfo);
+export default connect(mapStateToProps, mapDispatchToProps)(SearchRightBarInfo);

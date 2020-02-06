@@ -353,7 +353,4 @@ const mapDispatchToProps = dispatch => ({
   setSelection: windowIds => dispatch(setSearchSelection(windowIds))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(HiglassResult);
+export default connect(mapStateToProps, mapDispatchToProps)(HiglassResult);

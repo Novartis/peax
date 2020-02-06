@@ -167,8 +167,5 @@ const mapDispatchToProps = dispatch => ({
 });
 
 export default withRouter(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(withPubSub(App))
+  connect(mapStateToProps, mapDispatchToProps)(withPubSub(App))
 );

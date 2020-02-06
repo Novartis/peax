@@ -141,7 +141,4 @@ const mapDispatchToProps = dispatch => ({
     dispatch(setShowAutoencodings(showAutoencodings))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(HomeSubTopBar);
+export default connect(mapStateToProps, mapDispatchToProps)(HomeSubTopBar);

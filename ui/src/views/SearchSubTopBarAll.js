@@ -58,7 +58,4 @@ SearchSubTopBarAll.propTypes = {
 const mapStateToProps = (/* state */) => ({});
 const mapDispatchToProps = (/* dispatch */) => ({});
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SearchSubTopBarAll);
+export default connect(mapStateToProps, mapDispatchToProps)(SearchSubTopBarAll);

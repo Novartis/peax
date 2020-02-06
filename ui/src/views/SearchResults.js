@@ -352,7 +352,4 @@ const mapDispatchToProps = dispatch => ({
   setTab: tab => dispatch(setSearchTab(tab))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SearchResults);
+export default connect(mapStateToProps, mapDispatchToProps)(SearchResults);

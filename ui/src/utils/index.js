@@ -31,9 +31,7 @@ export { default as sum } from './sum';
 export { default as withRaf } from './with-raf';
 export { default as zip } from './zip';
 
-export {
-  default as removeHiGlassEventListeners
-} from './remove-higlass-event-listeners';
+export { default as removeHiGlassEventListeners } from './remove-higlass-event-listeners';
 
 export {
   requestAnimationFrame,

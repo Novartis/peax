@@ -278,7 +278,4 @@ const mapDispatchToProps = dispatch => ({
   setSearchToSeeds: () => dispatch(setSearchTab(TAB_SEEDS))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withPubSub(Home));
+export default connect(mapStateToProps, mapDispatchToProps)(withPubSub(Home));
