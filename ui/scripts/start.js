@@ -85,7 +85,7 @@ checkBrowsers(paths.appPath, isInteractive)
     const appName = require(paths.appPackageJson).name; // eslint-disable-line global-require, import/no-dynamic-require
     const urls = prepareUrls(protocol, HOST, port);
     // Create a webpack compiler that is configured with custom messages.
-    const compiler = createCompiler(webpack, config, appName, urls, useYarn);
+    const compiler = createCompiler({ webpack, config, appName, urls, useYarn });
     // Load proxy config
     const proxySetting = require(paths.appPackageJson).proxy; // eslint-disable-line global-require, import/no-dynamic-require
     const proxyConfig = prepareProxy(proxySetting, paths.appPublic);
