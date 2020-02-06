@@ -497,6 +497,9 @@ class SearchRightBarInfo extends React.Component {
                       </Button>
                     )
                   }
+                  onAppend={() => {
+                    this.scatterplot.refresh();
+                  }}
                 />
               )}
               {!this.state.isDefaultView && (
