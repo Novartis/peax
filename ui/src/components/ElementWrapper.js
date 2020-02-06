@@ -1,13 +1,18 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import { toVoid } from '../utils';
+
 class ElementWrapper extends React.Component {
   render() {
     return (
       <div
         className={this.props.className}
         ref={el => {
-          if (el && this.props.element) el.appendChild(this.props.element);
+          if (el && this.props.element) {
+            el.appendChild(this.props.element);
+            this.props.onAppend();
+          }
         }}
       />
     );
@@ -15,12 +20,14 @@ class ElementWrapper extends React.Component {
 }
 
 ElementWrapper.defaultProps = {
-  className: null
+  className: null,
+  onAppend: toVoid
 };
 
 ElementWrapper.propTypes = {
   className: PropTypes.string,
-  element: PropTypes.object
+  element: PropTypes.object,
+  onAppend: PropTypes.function
 };
 
 export default ElementWrapper;
