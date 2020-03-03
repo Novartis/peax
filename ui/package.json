@@ -119,7 +119,7 @@
     "workbox-webpack-plugin": "3.6.3"
   },
   "scripts": {
-    "start": "node scripts/start.js",
+    "start": "HOST=''; node scripts/start.js",
     "build": "node scripts/build.js",
     "build-travis": "node scripts/build.js && cd build && zip -r ../build.zip ./*",
     "download": "wget https://unpkg.com/purecss@1.0.0/build/pure-min.css -O build/pure-min.css; cp node_modules/higlass/dist/hglib.min.js build/; cp node_modules/react/umd/react.production.min.js build/; cp node_modules/react-bootstrap/dist/react-bootstrap.min.js build/; cp node_modules/react-dom/umd/react-dom.production.min.js build/;  cp node_modules/pixi.js-legacy/dist/pixi-legacy.min.js build/pixi.min.js;",
