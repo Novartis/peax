@@ -4,10 +4,10 @@ import pathlib
 from collections import OrderedDict
 from typing import Dict, List, TypeVar
 
-from server.chromsizes import all as all_chromsizes
+from server.chromsizes import all as all_chromsizes, SUPPORTED_CHROMOSOMES
 from server.dataset import Dataset
 from server.datasets import Datasets
-from server.defaults import CLASSIFIER, CLASSIFIER_PARAMS, CACHE_DIR, CACHING, CHROMS, COORDS, DB_PATH, STEP_FREQ, MIN_CLASSIFICATIONS
+from server.defaults import CLASSIFIER, CLASSIFIER_PARAMS, CACHE_DIR, CACHING, COORDS, DB_PATH, STEP_FREQ, MIN_CLASSIFICATIONS
 from server.encoder import Autoencoder, Encoder
 from server.encoders import Encoders
 from server.exceptions import InvalidConfig
@@ -23,11 +23,13 @@ class Config:
         self.encoders = Encoders()
         self.datasets = Datasets()
 
+        # Helper
+        self._default_chroms = True
+
         # Set defaults
         self.classifier = CLASSIFIER
         self.classifier_params = CLASSIFIER_PARAMS
         self.coords = COORDS
-        self.chroms = CHROMS
         self.step_freq = STEP_FREQ
         self.min_classifications = MIN_CLASSIFICATIONS
         self.db_path = DB_PATH
@@ -36,6 +38,7 @@ class Config:
         self.variable_target = False
         self.normalize_tracks = False
 
+        self._chroms = SUPPORTED_CHROMOSOMES[self.coords]
         self._chromsizes = None
         self._chromsizes = None
         self._custom_chromosomes = None
@@ -165,6 +168,8 @@ class Config:
     def coords(self, value: str):
         if value in all_chromsizes or self.chromsizes is not None:
             self._coords = value
+            if self._default_chroms:
+                self._chroms = SUPPORTED_CHROMOSOMES[value]
         else:
             raise InvalidConfig("Unknown coordinate system")
 
@@ -181,6 +186,7 @@ class Config:
         ):
         # fmt: on
             self._chroms = value
+            self._default_chroms = False
         else:
             raise InvalidConfig("Chromosomes must be a list of strings or ints")
 
