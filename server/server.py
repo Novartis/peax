@@ -58,7 +58,11 @@ def create(
     datasets = config.datasets
 
     # Prepare data: load and encode windows
+    start = time.time()
     datasets.prepare(encoders, config, clear=clear_cache, verbose=verbose)
+    mins = (time.time() - start) / 60
+    if verbose:
+        print(f'Dataset preparation took {mins:.1f} minutes.')
 
     # Determine the absolute offset for windows
     abs_offset = np.inf
