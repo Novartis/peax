@@ -11,6 +11,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import hnswlib
 import numpy as np
 import itertools
 import operator
@@ -22,9 +23,8 @@ from contextlib import contextmanager
 
 # from forestci import random_forest_error
 from scipy.ndimage.interpolation import zoom
-from scipy.spatial.distance import cdist
 from scipy.stats import norm
-from sklearn.neighbors import NearestNeighbors
+from sklearn.neighbors import BallTree
 from sklearn.preprocessing import MinMaxScaler
 from typing import Callable, List
 
@@ -456,11 +456,32 @@ def knn_density(
     dist_metric: str = "euclidean",
     summary: Callable[[np.ndarray], np.float64] = np.mean,
 ):
-    knn = NearestNeighbors(n_neighbors=k + 1, algorithm="auto").fit(data)
-    dist, _ = knn.kneighbors(data)
+    n, dim = data.shape
 
-    # Since the nearest neighbor is the identity we exclude the first columm
-    dist = dist[:, 1:]
+    if (n > 100000):
+        # Declaring index
+        p = hnswlib.Index(space='l2', dim=dim)
+
+        # Also see https://github.com/nmslib/hnswlib/blob/master/ALGO_PARAMS.md
+        ef = np.int(np.ceil(20 * np.log2(n)))
+
+        # Initing index - the maximum number of elements should be known beforehand
+        p.init_index(max_elements=n, ef_construction=ef, M=16)
+
+        # Element insertion (can be called several times):
+        p.add_items(data, np.arange(n))
+
+        # Controlling the recall by setting ef
+        p.set_ef(ef)
+
+        _, dist = p.knn_query(data, k = k)
+
+        # Delete the index
+        del p
+    else:
+        leaf_size = np.int(np.round(10 * np.log(n)))
+        bt = BallTree(data, leaf_size=leaf_size)
+        dist, _ = bt.query(data, k, dualtree=True, sort_results=False)
 
     try:
         return summary(dist, axis=1)
