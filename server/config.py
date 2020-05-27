@@ -49,9 +49,13 @@ class Config:
     def config(self, config_file):
         keys = set(config_file.keys())
 
-        # Custom chromsizes need to be set prior to other proerties
+        # Custom chromsizes need to be set prior to other properties
         if "chromsizes" in keys:
             self.set("chromsizes", config_file["chromsizes"])
+
+            # If we have custom chromsizes we likely have custom chroms too
+            if "chroms" in keys:
+                self.set("chroms", config_file["chroms"])
 
         for key in keys:
             if key != "encoders" and key != "datasets" and key != "chromsizes":
