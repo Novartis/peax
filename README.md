@@ -1,21 +1,46 @@
-# Peax: a visual pattern explorer for epigenomic data
+<h1 align="center">
+  Peax
+</h1>
 
-****Note****: Peax is still under active development! If you like to give it a try, please choose one of the [pre-releases](https://github.com/Novartis/peax/releases). Contact [@flekschas](https://twitter.com/flekschas) in case you run into trouble. He's happy to help while we're working hard towards a stable release.
+<div align="center">
+  
+  **A Visual Pattern Explorer For Epigenomic Data Using Unsupervised Deep Representation Learning**
+  
+</div>
 
-![Peax's UI](teaser.png)
+<br/>
 
-> Epigenomic data expresses a rich body of diverse patterns that help to identify
-> regulatory elements like promoter, enhancers, etc. But finding these patterns reliably
-> genome wide is challenging. Peax is a tool for interactive visual pattern search and
-> exploration of epigenomic patterns based on unsupervised representation learning with
-> convolutional autoencoders. The visual search is driven by manually labeled genomic
-> regions for actively learning a classifier to reflect your notion of interestingness.
-> More at [peax.lekschas.de](http://peax.lekschas.de).
+<div align="center">
+  
+  [![Intro](https://img.shields.io/badge/7min%20intro-📺-7fd4ff.svg?style=flat-square)](https://youtu.be/FlzTdFUVE-M)
+  [![Slides](https://img.shields.io/badge/BioIT%20World%20Slides-🧬-7f99ff.svg?style=flat-square)](https://speakerdeck.com/flekschas/peax-interactive-concept-learning-for-visual-exploration-of-epigenetic-patterns)
+  [![Presentation](https://img.shields.io/badge/EuroVis%20Presentation-📊-e17fff.svg?style=flat-square)](https://youtu.be/oQG5DxqiXPI?t=299)
+  [![Paper](https://img.shields.io/badge/Publication-📖-ff7fe1.svg?style=flat-square)](https://vcg.seas.harvard.edu/pubs/peax)
+  
+</div>
+
+<div id="teaser" align="center">
+  
+  ![Peax's UI](teaser.png)
+  
+</div>
+
+Epigenomic data expresses a rich body of diverse patterns that help to identify regulatory elements like promoter, enhancers, etc. But finding these patterns reliably genome wide is challenging. Peax is a tool for interactive visual pattern search and exploration of epigenomic patterns based on unsupervised representation learning with convolutional autoencoders. The visual search is driven by manually labeled genomic regions for actively learning a classifier to reflect your notion of interestingness.
+
+**Citation:** Lekschas et al., [Peax: Interactive Visual Pattern Search in Sequential Data Using Unsupervised Deep Representation Learning](https://vcg.seas.harvard.edu/pubs/peax),
+_Computer Graphics Forum_, 2020, doi: [10.1111/cgf.13971](https://doi.org/10.1111/cgf.13971).
+
+More background information is available at [peax.lekschas.de](http://peax.lekschas.de).
 
 ## Installation
 
+**Requirements:**
+
+- [Conda](https://docs.conda.io/en/latest/) >= 4.8
+
 ```bash
 git clone https://github.com/Novartis/peax peax && cd peax
+conda env create -f environment.yml && conda activate px
 make install
 ```
 
@@ -39,11 +64,6 @@ We provide 6 autoencoders trained on 3 kb, 12 kb, and 120 kb window sizes (with 
 100, and 1000 bp binning) on DNase-seq and histone mark ChIP-seq data (H3K4me1, H3K4me3, H3K27ac, H3K9ac, H3K27me3, H3K9me3, and H3K36me).
 
 You can find detailed descriptions of the autoencoders at [zenodo.org/record/2609763](https://zenodo.org/record/2609763). When you follow the [Quick Start](#quick-start) instructions, you will automatically download the related autoencoders.
-
-## Preprint
-
-Lekschas et al., [Peax: Interactive Visual Pattern Search in Sequential Data Using Unsupervised Deep Representation Learning](https://www.biorxiv.org/content/10.1101/597518v1),
-_bioRxiv_, 2019, doi: [10.1101/597518](10.1101/597518).
 
 ## Quick start
 
