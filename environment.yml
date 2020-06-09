@@ -40,6 +40,7 @@ dependencies:
       - apricot-select
       - cooler
       - pysam==0.15.3
+      - hgtiles==0.2.17
       - higlass-python==0.2.1
       - hnswlib==0.3.4
       - ipywidgets==7.5.1
