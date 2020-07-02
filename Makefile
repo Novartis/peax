@@ -9,6 +9,9 @@ update:
 build:
 	cd ui && npm run build
 
+download-example-autoencoders:
+	cd examples && python download-autoencoders.py
+
 example-3kb:
 	cd examples && python download-example-3kb.py && cd .. && ./start.py -d -c examples/config-example-3kb.json
 
