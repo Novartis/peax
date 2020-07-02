@@ -40,17 +40,15 @@ dependencies:
       - apricot-select
       - cooler
       - pysam==0.15.3
-      - hgtiles==0.2.17
       - higlass-python==0.2.1
       - hnswlib==0.3.4
       - ipywidgets==7.5.1
       - joblib==0.14.0
       - jupyterlab==1.1.1
       - negspy
-      - numba
+      - numba==0.46.0
       - pybbi
       - pytest==5.3.1
       - keras-tqdm
-      - forestci
       - fastdtw
       - stringcase

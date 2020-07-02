@@ -12,6 +12,7 @@ limitations under the License.
 """
 
 import base64
+import cooler
 import os
 import cytoolz as toolz
 import numpy as np
@@ -20,7 +21,6 @@ import time
 from flask import Flask
 from flask import request, jsonify, send_from_directory
 from flask_cors import CORS
-from hgtiles import cooler
 from scipy.spatial.distance import cdist
 
 from server import (

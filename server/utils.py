@@ -21,7 +21,6 @@ import warnings
 
 from contextlib import contextmanager
 
-# from forestci import random_forest_error
 from scipy.ndimage.interpolation import zoom
 from scipy.stats import norm
 from sklearn.neighbors import BallTree
