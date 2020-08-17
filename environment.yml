@@ -36,6 +36,7 @@ dependencies:
   - tslearn
   - statsmodels
   - pip
+  - llvmlite==0.32.1
   - pip:
       - apricot-select
       - cooler
