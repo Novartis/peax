@@ -3,7 +3,7 @@ services:
   peax:
     build: .
     # command: bash
-    command: conda run -n px python start.py -d -c /data/resgen-integration/config-user-study-simulation-3-targets.json --base-data-dir /data/resgen-integration/
+    command: python start.py -d -c /data/resgen-integration/config-user-study-simulation-3-targets.json --base-data-dir /data/resgen-integration/ --host 0.0.0.0
     ports:
         - "5000:5000"
     volumes:
