@@ -119,7 +119,7 @@ class Config:
                 except KeyError:
                     self.add(
                         Encoder(
-                            encoder_filepath=op.join(slef.base_data_dir, encoder["encoder"]),
+                            encoder_filepath=op.join(self.base_data_dir, encoder["encoder"]),
                             content_type=encoder["content_type"],
                             window_size=encoder["window_size"],
                             resolution=encoder["resolution"],
