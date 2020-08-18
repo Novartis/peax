@@ -177,7 +177,14 @@ class Datasets:
 
             f["encodings_dist"][:] = dist
 
-    def prepare(self, encoders, config, clear: bool = False, verbose: bool = False):
+    def prepare(
+        self,
+        encoders,
+        config,
+        base_data_dir: str = ".",
+        clear: bool = False,
+        verbose: bool = False,
+    ):
         # Used for assertion checking
         total_num_windows = None
         chrom_num_windows = None
@@ -221,7 +228,7 @@ class Datasets:
                 raise
 
         self._cache_filename = "{}.hdf5".format(self.createCacheHash(encoders, config))
-        self._cache_filepath = os.path.join(config.cache_dir, self.cache_filename)
+        self._cache_filepath = os.path.join(base_data_dir, config.cache_dir, self.cache_filename)
 
         self._total_len_windows = 0
         self._total_len_encoded = 0

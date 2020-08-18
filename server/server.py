@@ -41,6 +41,7 @@ from server.projectors import Projectors
 
 def create(
     config,
+    base_data_dir: str = ".",
     ext_filetype_handlers: list = None,
     clear_cache: bool = False,
     clear_db: bool = False,
@@ -51,7 +52,7 @@ def create(
     STARTED = int(time.time())
 
     # Init db
-    db = DB(db_path=config.db_path, clear=clear_db)
+    db = DB(db_path=os.path.join(base_data_dir, config.db_path), clear=clear_db)
 
     # Load autoencoders
     encoders = config.encoders
@@ -59,10 +60,16 @@ def create(
 
     # Prepare data: load and encode windows
     start = time.time()
-    datasets.prepare(encoders, config, clear=clear_cache, verbose=verbose)
+    datasets.prepare(
+        encoders,
+        config,
+        base_data_dir=base_data_dir,
+        clear=clear_cache,
+        verbose=verbose,
+    )
     mins = (time.time() - start) / 60
     if verbose:
-        print(f'Dataset preparation took {mins:.1f} minutes.')
+        print(f"Dataset preparation took {mins:.1f} minutes.")
 
     # Determine the absolute offset for windows
     abs_offset = np.inf
