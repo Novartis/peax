@@ -94,4 +94,4 @@ if args.clear_cache_at_exit:
     atexit.register(remove_cache, config)
 
 # Run the instance
-app.run(debug=args.debug, host=args.host, port=args.port, base_data_dir=args.base_data_dir)
+app.run(debug=args.debug, host=args.host, port=args.port)

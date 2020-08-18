@@ -41,7 +41,6 @@ from server.projectors import Projectors
 
 def create(
     config,
-    base_data_dir: str = ".",
     ext_filetype_handlers: list = None,
     clear_cache: bool = False,
     clear_db: bool = False,
@@ -52,7 +51,7 @@ def create(
     STARTED = int(time.time())
 
     # Init db
-    db = DB(db_path=os.path.join(base_data_dir, config.db_path), clear=clear_db)
+    db = DB(db_path=config.db_path, clear=clear_db)
 
     # Load autoencoders
     encoders = config.encoders
@@ -63,7 +62,6 @@ def create(
     datasets.prepare(
         encoders,
         config,
-        base_data_dir=base_data_dir,
         clear=clear_cache,
         verbose=verbose,
     )

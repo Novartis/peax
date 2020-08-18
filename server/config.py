@@ -4,7 +4,6 @@ import pathlib
 from collections import OrderedDict
 
 import os
-import os.path as op
 
 from typing import Dict, List, TypeVar
 
@@ -40,8 +39,8 @@ class Config:
         self.coords = COORDS
         self.step_freq = STEP_FREQ
         self.min_classifications = MIN_CLASSIFICATIONS
-        self.db_path = DB_PATH
-        self.cache_dir = CACHE_DIR
+        self.db_path = os.path.join(self.base_data_dir, DB_PATH)
+        self.cache_dir = os.path.join(self.base_data_dir, CACHE_DIR)
         self.caching = CACHING
         self.variable_target = False
         self.normalize_tracks = False
@@ -72,7 +71,7 @@ class Config:
         for encoder in config_file["encoders"]:
             if 'from_file' in encoder:
                 try:
-                    with open(op.join(self.base_data_dir, encoder['from_file']), "r") as f:
+                    with open(os.path.join(self.base_data_dir, encoder['from_file']), "r") as f:
                         encoder_config = json.load(f)[encoder['content_type']]
                 except FileNotFoundError:
                     print(
@@ -93,7 +92,7 @@ class Config:
             try:
                 self.add(
                     Autoencoder(
-                        autoencoder_filepath=op.join(self.base_data_dir, encoder["autoencoder"]),
+                        autoencoder_filepath=os.path.join(self.base_data_dir, encoder["autoencoder"]),
                         content_type=encoder["content_type"],
                         window_size=encoder["window_size"],
                         resolution=encoder["resolution"],
@@ -106,8 +105,8 @@ class Config:
                 try:
                     self.add(
                         Autoencoder(
-                            encoder_filepath=op.join(self.base_data_dir, encoder["encoder"]),
-                            decoder_filepath=op.join(self.base_data_dir, encoder["decoder"]),
+                            encoder_filepath=os.path.join(self.base_data_dir, encoder["encoder"]),
+                            decoder_filepath=os.path.join(self.base_data_dir, encoder["decoder"]),
                             content_type=encoder["content_type"],
                             window_size=encoder["window_size"],
                             resolution=encoder["resolution"],
@@ -119,7 +118,7 @@ class Config:
                 except KeyError:
                     self.add(
                         Encoder(
-                            encoder_filepath=op.join(self.base_data_dir, encoder["encoder"]),
+                            encoder_filepath=os.path.join(self.base_data_dir, encoder["encoder"]),
                             content_type=encoder["content_type"],
                             window_size=encoder["window_size"],
                             resolution=encoder["resolution"],
@@ -132,7 +131,7 @@ class Config:
         for ds in config_file["datasets"]:
             self.add(
                 Dataset(
-                    filepath=op.join(self.base_data_dir, ds["filepath"]),
+                    filepath=os.path.join(self.base_data_dir, ds["filepath"]),
                     content_type=ds["content_type"],
                     id=ds["id"],
                     name=ds["name"],

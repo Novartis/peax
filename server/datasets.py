@@ -181,7 +181,6 @@ class Datasets:
         self,
         encoders,
         config,
-        base_data_dir: str = ".",
         clear: bool = False,
         verbose: bool = False,
     ):
@@ -228,7 +227,7 @@ class Datasets:
                 raise
 
         self._cache_filename = "{}.hdf5".format(self.createCacheHash(encoders, config))
-        self._cache_filepath = os.path.join(base_data_dir, config.cache_dir, self.cache_filename)
+        self._cache_filepath = os.path.join(config.cache_dir, self.cache_filename)
 
         if verbose:
             print(f'Caching dataset under {self._cache_filename}')
