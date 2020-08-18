@@ -52,6 +52,8 @@ def create(
 
     # Init db
     db = DB(db_path=config.db_path, clear=clear_db)
+    if verbose:
+        print(f'Store database at {config.db_path}')
 
     # Load autoencoders
     encoders = config.encoders
