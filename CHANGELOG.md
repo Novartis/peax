@@ -1,5 +1,9 @@
 ### Next
 
+### v0.4.0
+
+This is the version described in our paper (Lekschas et al., 2020).
+
 - Add support for changing the classifier via the config file's `classifier` and `classifier_params` properties
 - Add ability to show more than 5 results per page via to HiGlass' new view scrolling
 - Add legend to the UMAP projection view and highlight
