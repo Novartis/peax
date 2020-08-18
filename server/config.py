@@ -257,7 +257,7 @@ class Config:
     @db_path.setter
     def db_path(self, value: str):
         if isinstance(value, str):
-            self._db_path = value
+            self._db_path = os.path.join(self.base_data_dir, value)
         else:
             raise InvalidConfig("Path to the database needs to be a string")
 
@@ -267,7 +267,9 @@ class Config:
 
     @cache_dir.setter
     def cache_dir(self, value: str):
-        pathlib.Path(value).mkdir(parents=True, exist_ok=True)
+        pathlib.Path(
+            os.path.join(self.base_data_dir, value)
+        ).mkdir(parents=True, exist_ok=True)
         self._cache_dir = value
 
     @property
