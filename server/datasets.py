@@ -177,7 +177,13 @@ class Datasets:
 
             f["encodings_dist"][:] = dist
 
-    def prepare(self, encoders, config, clear: bool = False, verbose: bool = False):
+    def prepare(
+        self,
+        encoders,
+        config,
+        clear: bool = False,
+        verbose: bool = False,
+    ):
         # Used for assertion checking
         total_num_windows = None
         chrom_num_windows = None

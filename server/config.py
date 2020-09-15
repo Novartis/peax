@@ -2,6 +2,9 @@ import json
 import pandas as pd
 import pathlib
 from collections import OrderedDict
+
+import os
+
 from typing import Dict, List, TypeVar
 
 from server.chromsizes import all as all_chromsizes, SUPPORTED_CHROMOSOMES
@@ -18,11 +21,15 @@ IntOrStr = TypeVar('Num', int, str)
 
 
 class Config:
-    def __init__(self, config_file: Dict):
+    def __init__(self, config_file: Dict, base_data_dir: str = None):
         # Init
         self.encoders = Encoders()
         self.datasets = Datasets()
 
+        if base_data_dir is None:
+            self.base_data_dir = os.getcwd()
+        else:
+            self.base_data_dir = base_data_dir
         # Helper
         self._default_chroms = True
 
@@ -32,8 +39,8 @@ class Config:
         self.coords = COORDS
         self.step_freq = STEP_FREQ
         self.min_classifications = MIN_CLASSIFICATIONS
-        self.db_path = DB_PATH
-        self.cache_dir = CACHE_DIR
+        self.db_path = os.path.join(self.base_data_dir, DB_PATH)
+        self.cache_dir = os.path.join(self.base_data_dir, CACHE_DIR)
         self.caching = CACHING
         self.variable_target = False
         self.normalize_tracks = False
@@ -64,7 +71,7 @@ class Config:
         for encoder in config_file["encoders"]:
             if 'from_file' in encoder:
                 try:
-                    with open(encoder['from_file'], "r") as f:
+                    with open(os.path.join(self.base_data_dir, encoder['from_file']), "r") as f:
                         encoder_config = json.load(f)[encoder['content_type']]
                 except FileNotFoundError:
                     print(
@@ -85,7 +92,7 @@ class Config:
             try:
                 self.add(
                     Autoencoder(
-                        autoencoder_filepath=encoder["autoencoder"],
+                        autoencoder_filepath=os.path.join(self.base_data_dir, encoder["autoencoder"]),
                         content_type=encoder["content_type"],
                         window_size=encoder["window_size"],
                         resolution=encoder["resolution"],
@@ -99,8 +106,8 @@ class Config:
                 try:
                     self.add(
                         Autoencoder(
-                            encoder_filepath=encoder["encoder"],
-                            decoder_filepath=encoder["decoder"],
+                            encoder_filepath=os.path.join(self.base_data_dir, encoder["encoder"]),
+                            decoder_filepath=os.path.join(self.base_data_dir, encoder["decoder"]),
                             content_type=encoder["content_type"],
                             window_size=encoder["window_size"],
                             resolution=encoder["resolution"],
@@ -113,7 +120,7 @@ class Config:
                 except KeyError:
                     self.add(
                         Encoder(
-                            encoder_filepath=encoder["encoder"],
+                            encoder_filepath=os.path.join(self.base_data_dir, encoder["encoder"]),
                             content_type=encoder["content_type"],
                             window_size=encoder["window_size"],
                             resolution=encoder["resolution"],
@@ -127,7 +134,7 @@ class Config:
         for ds in config_file["datasets"]:
             self.add(
                 Dataset(
-                    filepath=ds["filepath"],
+                    filepath=os.path.join(self.base_data_dir, ds["filepath"]),
                     content_type=ds["content_type"],
                     id=ds["id"],
                     name=ds["name"],
@@ -253,7 +260,7 @@ class Config:
     @db_path.setter
     def db_path(self, value: str):
         if isinstance(value, str):
-            self._db_path = value
+            self._db_path = os.path.join(self.base_data_dir, value)
         else:
             raise InvalidConfig("Path to the database needs to be a string")
 
@@ -263,7 +270,9 @@ class Config:
 
     @cache_dir.setter
     def cache_dir(self, value: str):
-        pathlib.Path(value).mkdir(parents=True, exist_ok=True)
+        pathlib.Path(
+            os.path.join(self.base_data_dir, value)
+        ).mkdir(parents=True, exist_ok=True)
         self._cache_dir = value
 
     @property

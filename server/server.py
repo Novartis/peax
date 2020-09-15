@@ -52,6 +52,8 @@ def create(
 
     # Init db
     db = DB(db_path=config.db_path, clear=clear_db)
+    if verbose:
+        print(f'Store database at {config.db_path}')
 
     # Load autoencoders
     encoders = config.encoders
@@ -59,10 +61,15 @@ def create(
 
     # Prepare data: load and encode windows
     start = time.time()
-    datasets.prepare(encoders, config, clear=clear_cache, verbose=verbose)
+    datasets.prepare(
+        encoders,
+        config,
+        clear=clear_cache,
+        verbose=verbose,
+    )
     mins = (time.time() - start) / 60
     if verbose:
-        print(f'Dataset preparation took {mins:.1f} minutes.')
+        print(f"Dataset preparation took {mins:.1f} minutes.")
 
     # Determine the absolute offset for windows
     abs_offset = np.inf

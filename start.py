@@ -24,6 +24,10 @@ parser.add_argument(
     "-c", "--config", help="path to your JSON config file", default="config.json"
 )
 parser.add_argument(
+    "--base-data-dir", help="base directory which the config file refers to",
+    default=None
+)
+parser.add_argument(
     "--clear", action="store_true", help="clears the cache and database on startup"
 )
 parser.add_argument(
@@ -68,7 +72,7 @@ except FileNotFoundError:
 verbose = args.verbose or args.debug
 
 # Create a config object
-config = Config(config_file)
+config = Config(config_file, args.base_data_dir)
 
 clear_cache = args.clear or args.clear_cache
 clear_db = args.clear or args.clear_db
