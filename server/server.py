@@ -265,7 +265,9 @@ def create(
             encoded_target = encoder.encode(
                 bigwig.get(dataset.filepath, *target_locus_chrom[0], bins).reshape(
                     (1, bins, 1)
-                )
+                ),
+                *target_locus_chrom[0], # chrom, start position, end position
+                bins
             )
 
             if target is None:

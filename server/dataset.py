@@ -20,8 +20,7 @@ import re
 
 from contextlib import contextmanager, suppress
 
-from server import bigwig
-from server import utils
+from server import bigwig, utils
 from server.chromsizes import get as get_chromsizes
 
 
@@ -138,11 +137,8 @@ class Dataset:
         total_res_sizes = 0
 
         for chromosome in config.chroms:
-            num_windows = (
-                np.ceil(
-                    (self.chromsizes[chromosome] - encoder.window_size) / step_size
-                ).astype(int)
-                + 1
+            num_windows = utils.get_num_windows(
+                self.chromsizes[chromosome], encoder.window_size, step_size
             )
             num_windows_per_chrom.append(num_windows)
             total_num_windows += num_windows

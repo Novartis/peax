@@ -92,6 +92,7 @@ class Config:
                         channels=encoder["channels"],
                         input_dim=encoder["input_dim"],
                         latent_dim=encoder["latent_dim"],
+                        model_args=encoder["model_args"],
                     )
                 )
             except KeyError:
@@ -106,6 +107,7 @@ class Config:
                             channels=encoder["channels"],
                             input_dim=encoder["input_dim"],
                             latent_dim=encoder["latent_dim"],
+                            model_args=encoder["model_args"],
                         )
                     )
                 except KeyError:
@@ -118,6 +120,7 @@ class Config:
                             channels=encoder["channels"],
                             input_dim=encoder["input_dim"],
                             latent_dim=encoder["latent_dim"],
+                            model_args=encoder["model_args"],
                         )
                     )
 
