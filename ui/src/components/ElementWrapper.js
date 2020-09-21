@@ -27,7 +27,7 @@ ElementWrapper.defaultProps = {
 ElementWrapper.propTypes = {
   className: PropTypes.string,
   element: PropTypes.object,
-  onAppend: PropTypes.function
+  onAppend: PropTypes.func
 };
 
 export default ElementWrapper;
