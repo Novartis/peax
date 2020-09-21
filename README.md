@@ -8,7 +8,6 @@
   
 </div>
 
-<br/>
 
 <div align="center">
   
@@ -30,7 +29,7 @@ Epigenomic data expresses a rich body of diverse patterns that help to identify 
 **Citation:** Lekschas et al., [Peax: Interactive Visual Pattern Search in Sequential Data Using Unsupervised Deep Representation Learning](https://vcg.seas.harvard.edu/pubs/peax),
 _Computer Graphics Forum_, 2020, doi: [10.1111/cgf.13971](https://doi.org/10.1111/cgf.13971).
 
-More background information is available at [peax.lekschas.de](http://peax.lekschas.de).
+**More Details:** [peax.lekschas.de](http://peax.lekschas.de)
 
 ## Installation
 
@@ -38,9 +37,10 @@ More background information is available at [peax.lekschas.de](http://peax.leksc
 
 - [Conda](https://docs.conda.io/en/latest/) >= 4.8
 
+**Install:**
+
 ```bash
-git clone https://github.com/Novartis/peax peax && cd peax
-conda env create -f environment.yml && conda activate px
+git clone https://github.com/Novartis/peax && cd peax
 make install
 ```
 
@@ -123,25 +123,18 @@ The main parts to adjust are `encoders` and `datasets`. `encoders` is a list of
 configure an (auto)encoder: (a) point to a pre-defined autoencoder or (b)
 configure from scratch.
 
-Assuming you want to use a predefined autoencoder all you have to do is
-
-| Field        | Description                                                         | Dtype |
-| ------------ | ------------------------------------------------------------------- | ----- |
-| content_type | Unique string identifying the autoencoder in the configuration file | str   |
-| from_file    | Relative path to the encoder configuration file.                    | str   |
+Assuming you want to use predefined encoders all you have to do is to specify the path to the encoder configuration
 
 **Example:**
 
 ```json
 {
-  "content_type": "histone-mark-chip-seq-3kb",
-  "from_file": "examples/encoders.json"
+  "encoders": "examples/encoders.json"
 }
 ```
 
 The encoder configuration file is a dictionary with the top level keys acting
-as the identifier and need to match `content_type` above. Given the example
-from above the file could look like this:
+as the identifier. Given the example from above the file could look like this:
 
 ```json
 {
@@ -167,6 +160,7 @@ the following required format:
 | latent_dim   | Number of latent dimensions of the encoded windows.                                                                                           |          | int   |
 | input_dim    | Number of input dimensions for Keras. For 1D data these are 3: samples, data length (which is `window_size` / `resolution`), channels.        | 3        | int   |
 | channels     | Number of channels of the input data. This is normally 1.                                                                                     | 1        | int   |
+| model_args   | List of arguments passed to a custom encoder model                                                                                            | 1        | int   |
 
 _Note that if you have specified an `autoencoder` you do not need to provide
 separate `encoder` and `decoder` models._
@@ -233,6 +227,8 @@ optional arguments:
   -h, --help            show this help message and exit
   -c CONFIG, --config CONFIG
                         path to your JSON config file
+  -b BASE_DATA_DIR, --base-data-dir BASE_DATA_DIR
+                        base directory which the config file refers to
   --clear               clears the cache and database on startup
   --clear-cache         clears the cache on startup
   --clear-cache-at-exit
