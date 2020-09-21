@@ -8,11 +8,6 @@
   
 </div>
 
-<div align="center">
-  
-  _This repo contains the newest code!_
-  
-</div>
 
 <div align="center">
   
