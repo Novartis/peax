@@ -24,7 +24,8 @@ parser.add_argument(
     "-c", "--config", help="path to your JSON config file", default="config.json"
 )
 parser.add_argument(
-    "--base-data-dir", help="base directory which the config file refers to",
+    "-b", "--base-data-dir",
+    help="base directory which the config file refers to",
     default=None
 )
 parser.add_argument(

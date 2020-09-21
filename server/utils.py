@@ -38,6 +38,8 @@ from keras.models import Model
 
 sys.stderr = stderr
 
+flatten = itertools.chain.from_iterable
+
 
 def compare_lists(
     a: List, b: List, conditionator: Callable = all, comparator: Callable = operator.eq
@@ -138,7 +140,10 @@ def load_model(filepath: str, silent: bool = False, additional_args: list = None
             model = keras.models.load_model(filepath)
     except Exception:
         # We assume it's a custom model
-        Model = importlib.import_module(filepath + '.Model')
+        Model = getattr(
+            importlib.import_module(os.path.dirname(filepath)),
+            os.path.basename(filepath)
+        )
         model = Model.load(*additional_args)
 
     return model

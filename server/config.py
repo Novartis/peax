@@ -1,10 +1,11 @@
+import importlib
 import json
+import os
 import pandas as pd
 import pathlib
+import sys
+
 from collections import OrderedDict
-
-import os
-
 from typing import Dict, List, TypeVar
 
 from server.chromsizes import all as all_chromsizes, SUPPORTED_CHROMOSOMES
@@ -14,6 +15,7 @@ from server.defaults import CLASSIFIER, CLASSIFIER_PARAMS, CACHE_DIR, CACHING, C
 from server.encoder import Autoencoder, Encoder
 from server.encoders import Encoders
 from server.exceptions import InvalidConfig
+from server.utils import load_model
 
 # Any list-like object needs to have the *same* variable type. I.e., `List[Num]` does
 # not allow [1, "chr1"]. It must either contain ints only or str only.
@@ -30,6 +32,12 @@ class Config:
             self.base_data_dir = os.getcwd()
         else:
             self.base_data_dir = base_data_dir
+
+        # For custom encoder models
+        module_path = os.path.abspath(os.path.join(self.base_data_dir))
+        if module_path not in sys.path:
+            sys.path.append(module_path)
+
         # Helper
         self._default_chroms = True
 
@@ -39,8 +47,8 @@ class Config:
         self.coords = COORDS
         self.step_freq = STEP_FREQ
         self.min_classifications = MIN_CLASSIFICATIONS
-        self.db_path = os.path.join(self.base_data_dir, DB_PATH)
-        self.cache_dir = os.path.join(self.base_data_dir, CACHE_DIR)
+        self.db_path = DB_PATH
+        self.cache_dir = CACHE_DIR
         self.caching = CACHING
         self.variable_target = False
         self.normalize_tracks = False
@@ -68,7 +76,21 @@ class Config:
             if key != "encoders" and key != "datasets" and key != "chromsizes":
                 self.set(key, config_file[key])
 
-        for encoder in config_file["encoders"]:
+        encoders = config_file["encoders"]
+
+        if isinstance(config_file["encoders"], str):
+            try:
+                with open(os.path.join(self.base_data_dir, config_file["encoders"]), "r") as f:
+                    encoders = json.load(f).values()
+            except FileNotFoundError:
+                print(
+                    "You specified that the encoder config is provided in another "
+                    "file that does not exist. Make sure that `encoders` points "
+                    "to a valid encoder definition file."
+                )
+                raise
+
+        for encoder in encoders:
             if 'from_file' in encoder:
                 try:
                     with open(os.path.join(self.base_data_dir, encoder['from_file']), "r") as f:
@@ -135,7 +157,7 @@ class Config:
             self.add(
                 Dataset(
                     filepath=os.path.join(self.base_data_dir, ds["filepath"]),
-                    content_type=ds["content_type"],
+                    content_type=ds.get("content_type", "unknown"),
                     id=ds["id"],
                     name=ds["name"],
                     coords=self.coords,
@@ -261,6 +283,7 @@ class Config:
     def db_path(self, value: str):
         if isinstance(value, str):
             self._db_path = os.path.join(self.base_data_dir, value)
+            pathlib.Path(os.path.dirname(self._db_path)).mkdir(parents=True, exist_ok=True)
         else:
             raise InvalidConfig("Path to the database needs to be a string")
 
@@ -270,10 +293,8 @@ class Config:
 
     @cache_dir.setter
     def cache_dir(self, value: str):
-        pathlib.Path(
-            os.path.join(self.base_data_dir, value)
-        ).mkdir(parents=True, exist_ok=True)
-        self._cache_dir = value
+        self._cache_dir = os.path.join(self.base_data_dir, value)
+        pathlib.Path(self._cache_dir).mkdir(parents=True, exist_ok=True)
 
     @property
     def caching(self):

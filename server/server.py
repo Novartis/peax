@@ -257,7 +257,7 @@ def create(
         target = None
         remove_windows = None
 
-        for dataset in datasets:
+        for dataset in datasets.get_encodable(encoders):
             encoder = encoders.get(dataset.content_type)
             step_size = encoders.window_size / config.step_freq
 
@@ -270,11 +270,13 @@ def create(
             )
 
             encoded_target = encoder.encode(
-                bigwig.get(dataset.filepath, *target_locus_chrom[0], bins).reshape(
+                data=bigwig.get(dataset.filepath, *target_locus_chrom[0], bins).reshape(
                     (1, bins, 1)
                 ),
-                *target_locus_chrom[0], # chrom, start position, end position
-                bins
+                chrom=target_locus_chrom[0][0],
+                start=target_locus_chrom[0][1],
+                end=target_locus_chrom[0][2],
+                step_freq=config.step_freq
             )
 
             if target is None:

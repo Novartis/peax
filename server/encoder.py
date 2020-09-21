@@ -70,19 +70,23 @@ class Encoder:
 
     def encode(
         self,
-        data: np.ndarray,
+        data: np.ndarray = None,
         chrom: str = None,
         start: int = None,
         end: int = None,
-        resolution: int = None
+        step_freq: int = None,
     ) -> np.ndarray:
-        try:
-            return self.encoder.predict(data)
-        except TypeError:
-            # Maybe the user specified a custom position-based encoder
+        if hasattr(self.encoder, 'is_data_agnostic'):
+            # Custom encoder model
             return self.encoder.predict(
-                data, chrom, start, end, resolution
+                chrom=chrom,
+                start=start,
+                end=end,
+                window_size=self.window_size,
+                step_size=self.window_size // step_freq
             )
+
+        return self.encoder.predict(data)
 
     def export(self):
         return {
