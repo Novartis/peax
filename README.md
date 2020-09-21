@@ -45,7 +45,7 @@ _Computer Graphics Forum_, 2020, doi: [10.1111/cgf.13971](https://doi.org/10.111
 **Install:**
 
 ```bash
-git clone https://github.com/flekschas/peax peax && cd peax
+git clone https://github.com/Novartis/peax && cd peax
 make install
 ```
 
