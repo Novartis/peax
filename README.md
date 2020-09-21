@@ -42,9 +42,10 @@ _Computer Graphics Forum_, 2020, doi: [10.1111/cgf.13971](https://doi.org/10.111
 
 - [Conda](https://docs.conda.io/en/latest/) >= 4.8
 
+**Install:**
+
 ```bash
-git clone https://github.com/Novartis/peax peax && cd peax
-conda env create -f environment.yml && conda activate px
+git clone https://github.com/flekschas/peax peax && cd peax
 make install
 ```
 
