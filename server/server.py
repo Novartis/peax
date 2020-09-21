@@ -52,6 +52,8 @@ def create(
 
     # Init db
     db = DB(db_path=config.db_path, clear=clear_db)
+    if verbose:
+        print(f'Store database at {config.db_path}')
 
     # Load autoencoders
     encoders = config.encoders
@@ -59,10 +61,15 @@ def create(
 
     # Prepare data: load and encode windows
     start = time.time()
-    datasets.prepare(encoders, config, clear=clear_cache, verbose=verbose)
+    datasets.prepare(
+        encoders,
+        config,
+        clear=clear_cache,
+        verbose=verbose,
+    )
     mins = (time.time() - start) / 60
     if verbose:
-        print(f'Dataset preparation took {mins:.1f} minutes.')
+        print(f"Dataset preparation took {mins:.1f} minutes.")
 
     # Determine the absolute offset for windows
     abs_offset = np.inf
@@ -250,7 +257,7 @@ def create(
         target = None
         remove_windows = None
 
-        for dataset in datasets:
+        for dataset in datasets.get_encodable(encoders):
             encoder = encoders.get(dataset.content_type)
             step_size = encoders.window_size / config.step_freq
 
@@ -263,9 +270,13 @@ def create(
             )
 
             encoded_target = encoder.encode(
-                bigwig.get(dataset.filepath, *target_locus_chrom[0], bins).reshape(
+                data=bigwig.get(dataset.filepath, *target_locus_chrom[0], bins).reshape(
                     (1, bins, 1)
-                )
+                ),
+                chrom=target_locus_chrom[0][0],
+                start=target_locus_chrom[0][1],
+                end=target_locus_chrom[0][2],
+                step_freq=config.step_freq
             )
 
             if target is None:

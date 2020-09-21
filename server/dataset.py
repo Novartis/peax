@@ -20,8 +20,7 @@ import re
 
 from contextlib import contextmanager, suppress
 
-from server import bigwig
-from server import utils
+from server import bigwig, utils
 from server.chromsizes import get as get_chromsizes
 
 
@@ -55,6 +54,7 @@ class Dataset:
         self.coords = coords
 
         self._cache = None
+        self._is_autoencoded = False
 
         if self.chromsizes is None:
             self.chromsizes = get_chromsizes(self.coords, self.filepath)
@@ -76,9 +76,9 @@ class Dataset:
         md5.update(":".join(chroms).encode())
         chroms_hash = md5.hexdigest()
 
-        return "{}_w-{}_f-{}_chr-{}.hdf5".format(
-            os.path.splitext(self.filename)[0], window_size, step_freq, chroms_hash[:6]
-        )
+        filename, _ = os.path.splitext(self.filename)
+
+        return f"{filename}_w-{window_size}_f-{step_freq}_chr-{chroms_hash[:6]}.hdf5"
 
     @contextmanager
     def cache(self):
@@ -138,11 +138,8 @@ class Dataset:
         total_res_sizes = 0
 
         for chromosome in config.chroms:
-            num_windows = (
-                np.ceil(
-                    (self.chromsizes[chromosome] - encoder.window_size) / step_size
-                ).astype(int)
-                + 1
+            num_windows = utils.get_num_windows(
+                self.chromsizes[chromosome], encoder.window_size, step_size
             )
             num_windows_per_chrom.append(num_windows)
             total_num_windows += num_windows
@@ -249,7 +246,11 @@ class Dataset:
                     if verbose:
                         print("Encode windows...", flush=True)
 
-                    encoding = encoder.encode(windows)
+                    encoding = encoder.encode(
+                        windows,
+                        chrom=chr_str,
+                        step_freq=config.step_freq
+                    )
 
                     # Data is organized by chromosomes. Currently interchromosomal
                     # patterns are not allowed

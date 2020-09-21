@@ -35,7 +35,7 @@ def download_file(
     filepath = os.path.join(base, dir, filename)
 
     if pathlib.Path(filepath).is_file() and not overwrite:
-        print("File already exist. To overwrite pass `overwrite=True`")
+        print(f"{filepath} already exist. To overwrite pass `overwrite=True`")
         return
 
     tqdm = get_tqdm()

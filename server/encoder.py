@@ -27,6 +27,7 @@ class Encoder:
         channels: int,
         input_dim: int,
         latent_dim: int,
+        model_args: list = None,
     ):
         self.encoder_filepath = encoder_filepath
         self.content_type = content_type
@@ -36,6 +37,7 @@ class Encoder:
         self.input_dim = input_dim
         self.latent_dim = latent_dim
         self.window_num_bins = int(self.window_size // self.resolution)
+        self.model_args = [] if model_args is None else model_args
 
         self._encoder = None
 
@@ -51,16 +53,39 @@ class Encoder:
         # Lazy load model
         if self._encoder is None:
             if self.encoder_filepath is not None:
-                self._encoder = load_model(self.encoder_filepath, silent=True)
+                self._encoder = load_model(
+                    self.encoder_filepath,
+                    silent=True,
+                    additional_args=self.model_args,
+                )
             else:
                 if self._autoencoder is None:
                     self._autoencoder = load_model(
-                        self.autoencoder_filepath, silent=True
+                        self.autoencoder_filepath,
+                        silent=True,
+                        additional_args=self.model_args,
                     )
                 self._encoder = get_encoder(self._autoencoder)
         return self._encoder
 
-    def encode(self, data: np.ndarray) -> np.ndarray:
+    def encode(
+        self,
+        data: np.ndarray = None,
+        chrom: str = None,
+        start: int = None,
+        end: int = None,
+        step_freq: int = None,
+    ) -> np.ndarray:
+        if hasattr(self.encoder, 'is_data_agnostic'):
+            # Custom encoder model
+            return self.encoder.predict(
+                chrom=chrom,
+                start=start,
+                end=end,
+                window_size=self.window_size,
+                step_size=self.window_size // step_freq
+            )
+
         return self.encoder.predict(data)
 
     def export(self):
@@ -87,6 +112,7 @@ class Autoencoder(Encoder):
         autoencoder_filepath: str = None,
         encoder_filepath: str = None,
         decoder_filepath: str = None,
+        model_args: list = None,
     ):
         super(Autoencoder, self).__init__(
             encoder_filepath,
@@ -96,6 +122,7 @@ class Autoencoder(Encoder):
             channels,
             input_dim,
             latent_dim,
+            model_args,
         )
 
         self.autoencoder_filepath = autoencoder_filepath

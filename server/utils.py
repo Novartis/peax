@@ -12,8 +12,9 @@ limitations under the License.
 """
 
 import hnswlib
-import numpy as np
+import importlib
 import itertools
+import numpy as np
 import operator
 import os
 import sys
@@ -36,6 +37,8 @@ from keras.layers import Input
 from keras.models import Model
 
 sys.stderr = stderr
+
+flatten = itertools.chain.from_iterable
 
 
 def compare_lists(
@@ -127,13 +130,21 @@ def normalize_simple(data: np.ndarray):
     return data / np.max(data)
 
 
-def load_model(filepath: str, silent: bool = False):
-    if silent:
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
+def load_model(filepath: str, silent: bool = False, additional_args: list = None):
+    try:
+        if silent:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                model = keras.models.load_model(filepath)
+        else:
             model = keras.models.load_model(filepath)
-    else:
-        model = keras.models.load_model(filepath)
+    except Exception:
+        # We assume it's a custom model
+        Model = getattr(
+            importlib.import_module(os.path.dirname(filepath)),
+            os.path.basename(filepath)
+        )
+        model = Model.load(*additional_args)
 
     return model
 
@@ -219,6 +230,10 @@ def get_search_target_classif(db, search_id, window_size, abs_offset):
             np.ones(stwi.shape[0]).reshape(stwi.shape[0], 1),
         )
     ).astype(int)
+
+
+def get_num_windows(chrom_size, window_size, step_size):
+    return np.ceil((chrom_size - window_size) / step_size).astype(int) + 1
 
 
 def scaleup_vector(v, out_len, aggregator: Callable = np.mean):

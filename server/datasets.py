@@ -177,17 +177,30 @@ class Datasets:
 
             f["encodings_dist"][:] = dist
 
-    def prepare(self, encoders, config, clear: bool = False, verbose: bool = False):
+    def get_encodable(self, encoders):
+        return utils.flatten(
+            [self.get_by_type(encoder.content_type) for encoder in encoders]
+        )
+
+    def prepare(
+        self,
+        encoders,
+        config,
+        clear: bool = False,
+        verbose: bool = False,
+    ):
         # Used for assertion checking
         total_num_windows = None
         chrom_num_windows = None
+
+        encodable_datasets = list(self.get_encodable(encoders))
 
         for encoder in encoders:
             try:
                 if verbose:
                     print("Prepare all datasets just for you...", flush=True)
 
-                for dataset in self.get_by_type(encoder.content_type):
+                for dataset in encodable_datasets:
 
                     ds_total_num_windows, ds_chrom_num_windows = dataset.prepare(
                         config, encoder, clear=clear, verbose=verbose
@@ -223,10 +236,13 @@ class Datasets:
         self._cache_filename = "{}.hdf5".format(self.createCacheHash(encoders, config))
         self._cache_filepath = os.path.join(config.cache_dir, self.cache_filename)
 
+        if verbose:
+            print(f'Caching dataset under {self._cache_filename}')
+
         self._total_len_windows = 0
         self._total_len_encoded = 0
 
-        for dataset in self.datasets:
+        for dataset in encodable_datasets:
             encoder = encoders.get(dataset.content_type)
 
             self._total_len_encoded += encoder.latent_dim
@@ -267,6 +283,7 @@ class Datasets:
                 )
 
                 # Metadata
+                w.attrs["total_num_windows"] = total_num_windows
                 w.attrs["total_len_windows"] = self._total_len_windows
                 e.attrs["total_len_encoded"] = self._total_len_encoded
 
@@ -275,7 +292,7 @@ class Datasets:
                 pos_encoded_from = 0
                 pos_encoded_to = 0
 
-                for dataset in self.datasets:
+                for dataset in encodable_datasets:
                     encoder = encoders.get(dataset.content_type)
 
                     pos_window_to = pos_window_from + encoder.window_num_bins

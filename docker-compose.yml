@@ -1,0 +1,12 @@
+version: '2.0'
+services:
+  peax:
+    build: .
+    # command: bash
+    command: python start.py -d -c /data/resgen-integration/config-user-study-simulation-3-targets.json --base-data-dir /data/resgen-integration/ --host 0.0.0.0
+    ports:
+        - "5000:5000"
+    volumes:
+        - "./data:/data"
+    environment:
+        - CONFIG_FILE=data/resgen-integration/config-user-study-simulation-3-targets.json
