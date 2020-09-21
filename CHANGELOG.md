@@ -1,5 +1,8 @@
 ### Next
 
+- Add support for custom encoder models. See https://github.com/flekschas/peax-avocado for an example
+- Add support for custom data directory via the `--base-data-dir` argument of `start.py` 
+
 ### v0.4.0
 
 This is the version described in our paper (Lekschas et al., 2020).
