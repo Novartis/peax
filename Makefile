@@ -1,5 +1,5 @@
 install:
-	conda env create -f ./environment.yml
+	conda env create -f ./environment.yml && conda activate px
 	cd ui && npm install && npm run build
 
 update:
