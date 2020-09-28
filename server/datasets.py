@@ -120,7 +120,6 @@ class Datasets:
     def get_by_type(self, dtype: str):
         if dtype in self.datasets_by_type:
             return self.datasets_by_type[dtype]
-        raise KeyError("No datasets of type '{}' found".format(dtype))
 
     def createCacheHash(self, encoders, config):
         # Generate filename from the set of datasets and encoders
@@ -178,9 +177,9 @@ class Datasets:
             f["encodings_dist"][:] = dist
 
     def get_encodable(self, encoders):
-        return utils.flatten(
-            [self.get_by_type(encoder.content_type) for encoder in encoders]
-        )
+        datasets = [self.get_by_type(encoder.content_type) for encoder in encoders]
+        datasets = [ds for ds in datasets if ds is not None]
+        return utils.flatten(datasets)
 
     def prepare(
         self,
@@ -195,12 +194,15 @@ class Datasets:
 
         encodable_datasets = list(self.get_encodable(encoders))
 
+        if verbose:
+            print("Prepare all datasets just for you...", flush=True)
+
         for encoder in encoders:
             try:
-                if verbose:
-                    print("Prepare all datasets just for you...", flush=True)
-
                 for dataset in encodable_datasets:
+
+                    if dataset.content_type != encoder.content_type:
+                        continue
 
                     ds_total_num_windows, ds_chrom_num_windows = dataset.prepare(
                         config, encoder, clear=clear, verbose=verbose
@@ -232,6 +234,8 @@ class Datasets:
                 # If there's no data for the encoder we simply continue with our lives
                 # pass
                 raise
+
+        assert total_num_windows is not None, 'No windows extracted'
 
         self._cache_filename = "{}.hdf5".format(self.createCacheHash(encoders, config))
         self._cache_filepath = os.path.join(config.cache_dir, self.cache_filename)
