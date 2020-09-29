@@ -1,4 +1,3 @@
-import importlib
 import json
 import os
 import pandas as pd
@@ -15,7 +14,6 @@ from server.defaults import CLASSIFIER, CLASSIFIER_PARAMS, CACHE_DIR, CACHING, C
 from server.encoder import Autoencoder, Encoder
 from server.encoders import Encoders
 from server.exceptions import InvalidConfig
-from server.utils import load_model
 
 # Any list-like object needs to have the *same* variable type. I.e., `List[Num]` does
 # not allow [1, "chr1"]. It must either contain ints only or str only.
@@ -111,11 +109,10 @@ class Config:
                 for key in encoder_config:
                     encoder.setdefault(key, encoder_config[key])
 
-            model_args = encoder["model_args"]
+            model_args = encoder.get("model_args", [])
             for i, model_arg in enumerate(model_args):
                 if isinstance(model_arg, str):
                     model_args[i] = model_arg.format(base_data_dir=self.base_data_dir)
-
 
             try:
                 self.add(
