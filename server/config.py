@@ -111,6 +111,12 @@ class Config:
                 for key in encoder_config:
                     encoder.setdefault(key, encoder_config[key])
 
+            model_args = encoder["model_args"]
+            for i, model_arg in enumerate(model_args):
+                if isinstance(model_arg, str):
+                    model_args[i] = model_arg.format(base_data_dir=self.base_data_dir)
+
+
             try:
                 self.add(
                     Autoencoder(
@@ -121,7 +127,7 @@ class Config:
                         channels=encoder["channels"],
                         input_dim=encoder["input_dim"],
                         latent_dim=encoder["latent_dim"],
-                        model_args=encoder["model_args"],
+                        model_args=model_args,
                     )
                 )
             except KeyError:
@@ -136,7 +142,7 @@ class Config:
                             channels=encoder["channels"],
                             input_dim=encoder["input_dim"],
                             latent_dim=encoder["latent_dim"],
-                            model_args=encoder["model_args"],
+                            model_args=model_args,
                         )
                     )
                 except KeyError:
@@ -149,7 +155,7 @@ class Config:
                             channels=encoder["channels"],
                             input_dim=encoder["input_dim"],
                             latent_dim=encoder["latent_dim"],
-                            model_args=encoder["model_args"],
+                            model_args=model_args,
                         )
                     )
 
