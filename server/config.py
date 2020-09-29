@@ -31,10 +31,12 @@ class Config:
         else:
             self.base_data_dir = base_data_dir
 
-        # For custom encoder models
-        module_path = os.path.abspath(os.path.join(self.base_data_dir))
-        if module_path not in sys.path:
-            sys.path.append(module_path)
+            # For custom encoder models
+            module_path = pathlib.Path(
+                os.path.abspath(os.path.join(base_data_dir))
+            )
+            if module_path.parent not in sys.path:
+                sys.path.append(module_path.parent)
 
         # Helper
         self._default_chroms = True
