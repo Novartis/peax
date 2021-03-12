@@ -100,7 +100,7 @@
     "pretty-quick": "2.0.1",
     "promise": "8.0.3",
     "react-app-polyfill": "1.0.6",
-    "react-dev-utils": "10.1.0",
+    "react-dev-utils": "11.0.4",
     "react-error-overlay": "6.0.5",
     "sass-loader": "8.0.2",
     "string-replace-webpack-plugin": "0.1.3",
