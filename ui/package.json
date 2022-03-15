@@ -20,7 +20,7 @@
     "history": "4.10.1",
     "immutability-helper": "3.0.1",
     "key-pressed": "flekschas/key-pressed",
-    "lodash-es": "4.17.15",
+    "lodash-es": "4.17.21",
     "mouse-position": "2.1.0",
     "mouse-pressed": "1.0.0",
     "pixi.js": "5.2.1",
